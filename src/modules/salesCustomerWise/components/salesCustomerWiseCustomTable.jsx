@@ -272,7 +272,6 @@ const CustomTable = ({ setPage, individualItems, isFetching }) => {
 			);
 		});
 	};
-	console.log(columnFiltersArray, 'columnFiltersArray');
 
 	return (
 		<Box bg='white' padding='10px' borderRadius='5px'>
