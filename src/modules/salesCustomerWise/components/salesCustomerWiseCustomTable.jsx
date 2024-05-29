@@ -274,7 +274,11 @@ const CustomTable = ({ setPage, individualItems, isFetching }) => {
 	};
 
 	return (
-		<Box bg='white' padding='10px' borderRadius='5px'>
+		<Box
+			bg='white'
+			padding='10px'
+			borderRadius='5px'
+			width='calc(100vw - 93px)'>
 			<Box
 				display='flex'
 				borderRadius='5px'

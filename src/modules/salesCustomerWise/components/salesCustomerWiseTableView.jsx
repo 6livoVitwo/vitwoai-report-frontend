@@ -7,7 +7,7 @@ import NoDataFound from '../../../asset/images/nodatafound.png';
 
 const SalesCustomerWiseTableView = () => {
 	const authData = useSelector((state) => state.auth);
-	const [page, setPage] = useState(1);
+	const [page, setPage] = useState(30);
 	const [individualItems, setIndividualItems] = useState([]);
 	const {
 		data: sales,
@@ -46,12 +46,12 @@ const SalesCustomerWiseTableView = () => {
 	};
 
 	useEffect(() => {
-		if (sales) {
+		if (salesData) {
 			let items = [];
 
 			salesData.forEach((invoice) => {
 				const flattenedInvoice = flattenObject(invoice);
-				if (invoice.items) {
+				if (invoice.items && invoice.items.length > 0) {
 					invoice.items.forEach((item) => {
 						const flattenedItem = flattenObject(item, 'item.');
 						items.push({ ...flattenedInvoice, ...flattenedItem });
@@ -65,33 +65,33 @@ const SalesCustomerWiseTableView = () => {
 		}
 	}, [sales]);
 
-	const extractFields = (item) => ({
-		'Customer Code': item['customer.customer_code'],
-		'Customer Name': item['customer.trade_name'],
-		'Bill-Add': item['customer_billing_address'],
-		'Ship-Add': item['customer_shipping_address'],
-		'GST No': item['customer_gstin'],
-		'State Name': '',
-		'State Code': '',
+	const extractFields = (data) => ({
+		'Customer Code': data.customer_code,
+		'Customer Name': data.trade_name,
+		'Bill-Add': data.customer_billing_address,
+		'Ship-Add': data.customer_shipping_address,
+		'GST No': data.customer_gstin,
+		'State Name': data.customer_address_state,
+		'State Code': data.customer_address_state_code,
 		'Batch No': '',
 		'Batch Date (Received Date)': '',
-		'Item Code': item['item.itemCode'],
-		'Item Name': item['item.itemName'],
-		'Item Description': item['item.itemDesc'],
-		'Item Group': item['item.goodsItems.goodsGroup.goodGroupName'] || '',
-		Unit: item['item.uom.uomName'] || '',
-		HSN: item['item.hsnCode'] || '',
-		'GST%': item['tax'],
-		MRP: item['item.unitPrice'] || '',
-		'Trade Discount %': item['totalDiscount'],
-		'Trade Discount Value': item['item.totalDiscountAmt'] || '',
-		Currency: item['currency_name'] || '',
-		'Quotation No': item['quotation_no'], // Need additional logic for quotation details
-		'Quotation Date': item['posting_date'],
+		'Item Code': data.item?.itemCode,
+		'Item Name': data.item?.itemName,
+		'Item Description': data.itemDesc,
+		'Item Group': data.goodGroupName || '',
+		Unit: data.uomName || '',
+		HSN: data.hsnCode || '',
+		'GST %': data.tax,
+		MRP: data.unitPrice || '',
+		'Trade Discount %': data.totalDiscount,
+		'Trade Discount Value': data.totalDiscountAmt || '',
+		Currency: data.currency_name || '',
+		'Quotation No': data.quotation_no, // Need additional logic for quotation details
+		'Quotation Date': data.posting_date,
 		'Quotation Qty': '',
-		'Quotation Value': item['totalAmount'],
-		'Quotation Created On': item['created_at'],
-		'Quotation Created By': item['created_by_value'],
+		'Quotation Value': data.totalAmount,
+		'Quotation Created On': data.created_at,
+		'Quotation Created By': data.created_by_value,
 		'Quotation Accepted On': '',
 		'SO No': '', // Need additional logic for sales order details
 		'SO Date': '',
@@ -111,13 +111,13 @@ const SalesCustomerWiseTableView = () => {
 		'Delivery Created On': '',
 		'Delivery Created By': '',
 		'Delivery Remarks': '',
-		'Invoice No': item['invoice_no'] || '',
-		'Invoice Date': item['invoice_date'] || '',
+		'Invoice No': data.invoice_no || '',
+		'Invoice Date': data.invoice_date || '',
 		'Invoice Qty': '',
 		'Invoice Rate': '',
-		'Invoice Value': item['all_total_amt'] || '',
-		'Invoice Created On': item['created_at'] || '',
-		'Invoice Created By': item['created_by'] || '',
+		'Invoice Value': data.all_total_amt || '',
+		'Invoice Created On': data.created_at || '',
+		'Invoice Created By': data.created_by || '',
 		'Collection Status': '',
 		'Collection Mode': '',
 		'Collect in Bank': '',
@@ -125,6 +125,7 @@ const SalesCustomerWiseTableView = () => {
 	});
 
 	const newArray = individualItems.map(extractFields);
+	console.log(individualItems, 'individualItems');
 	console.log(salesData, 'salesData');
 
 	return (
