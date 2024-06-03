@@ -153,8 +153,7 @@ const ReportsCards = ({ cards, setFavoriteCard }) => {
                   fontSize="11px"
                   lineHeight="1.5"
                   marginTop="10px">
-                  In publishing and graphic design, Lorem ipsum is design, Lorem
-                  ipsum is
+                  kkfsdbkfdb skdbkjbkvdfb uuyuadvdahb jhhg
                 </Text>
                 <Divider my="10px" bgColor="#bfbfbf" />
                 <Box position="absolute" bottom="5px" right="20px">
