@@ -87,7 +87,7 @@ const ReportsCards = ({ cards, setFavoriteCard }) => {
           // updated design
           <Box
             key={card.id}
-            width={{ base: "100%", md: "48%", lg: "24%" }}
+            width={{ base: "100%", md: "48%", lg: "22%" }}
             sx={{
               "& .card_link": { width: { base: "100%", md: "48%", lg: "32%" } },
             }}
@@ -103,12 +103,13 @@ const ReportsCards = ({ cards, setFavoriteCard }) => {
                 flexDirection="column"
                 padding="20px"
                 position="relative"
+                marginRight={{ base: "10px", md: "10px", lg: "5px" }}
                 transition="0.5s ease"
                 _hover={{ transform: "scale(1.05)" }}>
                 <Box
                   position="absolute"
                   top="10px"
-                  right="10px" // Adjust the position here
+                  right="10px"
                   cursor="pointer"
                   padding="5px"
                   backgroundColor="white"
@@ -147,18 +148,23 @@ const ReportsCards = ({ cards, setFavoriteCard }) => {
                       : card.name}
                   </Text>
                 </Box>
-                <Text
-                  fontWeight="3000"
-                  color="#6f6f6f"
-                  fontSize="11px"
-                  lineHeight="1.5"
-                  marginTop="10px">
-                  kkfsdbkfdb skdbkjbkvdfb uuyuadvdahb jhhg
-                </Text>
+                <Box>
+                  <Text
+                    fontWeight="3000"
+                    color="#6f6f6f"
+                    fontSize="11px"
+                    lineHeight="1.5"
+                    marginTop="10px"
+                  textAlign="left"
+                  >
+                    Graphs are used to represent between objects.
+                    They are widely used in various.
+                  </Text>
+                </Box>
                 <Divider my="10px" bgColor="#bfbfbf" />
                 <Box position="absolute" bottom="5px" right="20px">
                   <Button style={{ color: "#003060", position: "relative" }}>
-                    View More{" "}
+                    View More
                     <FaArrowRightLong style={{ paddingLeft: "2px" }} />
                   </Button>
                 </Box>

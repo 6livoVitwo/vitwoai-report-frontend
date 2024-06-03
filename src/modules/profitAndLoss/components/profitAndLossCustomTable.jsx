@@ -115,8 +115,8 @@ const CssWrapper = styled.div`
   }
   .p-datatable .p-datatable-thead > tr > th {
     text-wrap: nowrap;
-    background-color: #003060;
-    color: white !important;
+    background-color: #ececec;
+    color: black !important;
     font-weight: 600;
     text-transform: lowercase;
     padding: 10px 15px;
