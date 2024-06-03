@@ -1,7 +1,9 @@
-import { Box, Image, Text } from "@chakra-ui/react";
+import { Box, Button, Divider, Image, Text } from "@chakra-ui/react";
 import React from "react";
 import { Link } from "react-router-dom";
 import { AiOutlineHeart } from "react-icons/ai";
+import { FaArrowRightLong } from "react-icons/fa6";
+
 
 const ReportsCards = ({ cards, setFavoriteCard }) => {
   const handleLike = (cardName) => {
@@ -9,74 +11,158 @@ const ReportsCards = ({ cards, setFavoriteCard }) => {
     setFavoriteCard(cardName);
   };
 
+
   return (
     <>
       {cards.map((card) => {
         return (
+          // <Box
+          //   key={card.id}
+          //   width={{ base: "100%", md: "48%", lg: "22%" }}
+          //   sx={{
+          //     "& .card_link": { width: { base: "100%", md: "48%", lg: "32%" } },
+          //   }}
+          //   position="relative">
+          //   <Link to={card.link} className="card_link">
+          //     <Box
+          //       borderRadius="10px"
+          //       border="1px solid #b5b2b28a"
+          //       height="auto"
+          //       display="flex"
+          //       flexDirection="column"
+          //       padding="20px"
+          //       transition="0.5s ease"
+          //       _hover={{ transform: "scale(1.05)" }}>
+          //       <Box
+          //         display="flex"
+          //         justifyContent="space-between"
+          //         alignItems="center"
+          //         width="100%">
+          //         <Text
+          //           fontWeight="500"
+          //           color="textBlack"
+          //           fontSize="16px"
+          //           _groupHover={{ color: "#003060" }}>
+          //           {card.name}
+          //         </Text>
+          //         <Box
+          //           cursor="pointer"
+          //           padding="5px"
+          //           backgroundColor="white"
+          //           borderRadius="50%"
+          //           boxShadow="rgba(0, 0, 0, 0.1) 0px 2px 4px"
+          //           onClick={(e) => {
+          //             e.preventDefault();
+          //             handleLike(card.name);
+          //           }}>
+          //           <AiOutlineHeart size={20} color="#000" />
+          //         </Box>
+          //       </Box>
+
+          //       <Box
+          //         justifyContent="center"
+          //         alignContent="center"
+          //         display="flex">
+          //         <Image
+          //           src={card.imgsrc}
+          //           alt={card.name}
+          //           width="62%"
+          //           marginTop="10px"
+          //           marginBottom="10px"
+          //         />
+          //       </Box>
+
+          //       <Text
+          //         fontWeight="500"
+          //         color="#6f6f6f"
+          //         fontSize="13px"
+          //         lineHeight="1.5"
+          //         marginTop="10px">
+          //         In publishing and graphic design, Lorem ipsum is
+          //       </Text>
+          //     </Box>
+          //   </Link>
+          // </Box>
+
+          // updated design
           <Box
             key={card.id}
-            width={{ base: "100%", md: "48%", lg: "22%" }}
+            width={{ base: "100%", md: "48%", lg: "24%" }}
             sx={{
               "& .card_link": { width: { base: "100%", md: "48%", lg: "32%" } },
             }}
             position="relative">
             <Link to={card.link} className="card_link">
               <Box
-                borderRadius="10px"
-                border="1px solid #b5b2b28a"
+                borderRadius="5px"
+                backgroundColor="#fbfbfb"
+                boxShadow="0px 2px 8px rgba(99, 99, 99, 0.2)"
+                borderLeft="2px solid #003060"
                 height="auto"
                 display="flex"
                 flexDirection="column"
                 padding="20px"
+                position="relative"
                 transition="0.5s ease"
                 _hover={{ transform: "scale(1.05)" }}>
                 <Box
+                  position="absolute"
+                  top="10px"
+                  right="10px" // Adjust the position here
+                  cursor="pointer"
+                  padding="5px"
+                  backgroundColor="white"
+                  borderRadius="50%"
+                  boxShadow="rgba(0, 0, 0, 0.1) 0px 2px 4px"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleLike(card.name);
+                  }}>
+                  <AiOutlineHeart size={20} color="#000" />
+                </Box>
+                <Box
                   display="flex"
                   justifyContent="space-between"
-                  alignItems="center"
-                  width="100%">
+                  alignItems="center">
+                  <Image
+                    src={card.imgsrc}
+                    alt={card.name}
+                    width="12%"
+                    marginTop="2px"
+                    marginBottom="10px"
+                  />
+                </Box>
+                <Box
+                  width="100%"
+                  overflow="hidden"
+                  whiteSpace="nowrap"
+                  textOverflow="ellipsis">
                   <Text
                     fontWeight="500"
                     color="textBlack"
                     fontSize="16px"
                     _groupHover={{ color: "#003060" }}>
-                    {card.name}
+                    {card.name.length > 18
+                      ? card.name.slice(0, 18) + "..."
+                      : card.name}
                   </Text>
-                  <Box
-                    cursor="pointer"
-                    padding="5px"
-                    backgroundColor="white"
-                    borderRadius="50%"
-                    boxShadow="rgba(0, 0, 0, 0.1) 0px 2px 4px"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleLike(card.name);
-                    }}>
-                    <AiOutlineHeart size={20} color="#000" />
-                  </Box>
                 </Box>
-
-                <Box
-                  justifyContent="center"
-                  alignContent="center"
-                  display="flex">
-                  <Image
-                    src={card.imgsrc}
-                    alt={card.name}
-                    width="62%"
-                    marginTop="10px"
-                    marginBottom="10px"
-                  />
-                </Box>
-
                 <Text
-                  fontWeight="500"
+                  fontWeight="3000"
                   color="#6f6f6f"
-                  fontSize="13px"
+                  fontSize="11px"
                   lineHeight="1.5"
                   marginTop="10px">
-                  In publishing and graphic design, Lorem ipsum is
+                  In publishing and graphic design, Lorem ipsum is design, Lorem
+                  ipsum is
                 </Text>
+                <Divider my="10px" bgColor="#bfbfbf" />
+                <Box position="absolute" bottom="5px" right="20px">
+                  <Button style={{ color: "#003060", position: "relative" }}>
+                    View More{" "}
+                    <FaArrowRightLong style={{ paddingLeft: "2px" }} />
+                  </Button>
+                </Box>
               </Box>
             </Link>
           </Box>
