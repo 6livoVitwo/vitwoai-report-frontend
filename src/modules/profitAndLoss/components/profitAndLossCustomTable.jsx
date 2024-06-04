@@ -330,7 +330,7 @@ const CustomTable = () => {
             SAREGAMA INDIA LIMITED
           </Heading>
           <Text fontWeight="600" fontSize="11px" color="textGray">
-            Location - Karnataka Virgo Nagar{" "}
+            Location - Karnataka Virgo Nagar
           </Text>
         </Box>
         {/* <Box>SAREGAMA INDIA LIMITED</Box> */}
@@ -911,29 +911,31 @@ const CustomTable = () => {
                 sx={{
                   "& button": {
                     color: "#fff",
-                    padding: "10px",
                     fontSize: "18px",
-                    backgroundColor: "#003060",
-                    borderRadius: "50%",
-                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                    backgroundColor: "transparent",
                     border: "none",
                     cursor: "pointer",
-                  },
-                  "& button:hover": {
-                    backgroundColor: "#001f3f",
-                  },
-                  "& button:hover span": {
-                    color: "white",
                   },
                 }}>
                 <Button
                   type="button"
-                  icon="pi pi-chart-bar"
                   aria-label="Graph View"
                   _hover={{
                     color: "white",
                   }}
                   onClick={onOpenGraphViewModal}
+                  icon={
+                    <span
+                      className="pi pi-chart-bar"
+                      style={{
+                        backgroundColor: "#003060",
+                        boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px", // Chakra UI box shadow
+                        borderRadius: "50%", // Make the background circular
+                        padding: "20px", // Adjust padding as needed
+                        display: "inline-block",
+                      }}
+                    />
+                  }
                 />
                 <Drawer
                   isOpen={isOpenGraphViewModal}

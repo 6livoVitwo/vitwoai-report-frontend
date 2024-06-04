@@ -10,8 +10,8 @@ const ProfitAndLossTableView = () => {
 	const decoded = jwtDecode(authData.authDetails);
 
 	return (
-		<Box>
-			{/* <Box m='15px 0px'>
+    <Box>
+      {/* <Box m='15px 0px'>
 				<Heading
 					textTransform='capitalize'
 					color='mainBlue'
@@ -27,8 +27,8 @@ const ProfitAndLossTableView = () => {
 				</Text>
 			</Box> */}
 			<CustomTable />
-		</Box>
-	);
+    </Box>
+  );
 };
 
 export default ProfitAndLossTableView;

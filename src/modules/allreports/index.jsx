@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Heading, Text, Flex } from "@chakra-ui/react";
+import { Box, Heading, Text, Flex, Button } from "@chakra-ui/react";
 import { Dropdown } from "primereact/dropdown";
 import ReportsCards from "../dashboard/components/ReportsCards";
 // import CheckImg from "../../asset/images/check-gif.gif"
@@ -230,7 +230,8 @@ const Allreports = () => {
 //      targetElement.scrollIntoView({ behavior: "smooth" });
 //    }
 //  };
-  //   const [activeButton, setActiveButton] = useState(null);
+//   const [activeButton, setActiveButton] = useState(null);
+  
   const [activeButton, setActiveButton] = useState(null);
 
   const handleDropdownChange = (e) => {
