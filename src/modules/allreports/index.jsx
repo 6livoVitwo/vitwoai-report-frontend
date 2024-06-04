@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Box, Heading, Button, Flex } from "@chakra-ui/react";
+import { Box, Heading, Text, Flex } from "@chakra-ui/react";
+import { Dropdown } from "primereact/dropdown";
 import ReportsCards from "../dashboard/components/ReportsCards";
 // import CheckImg from "../../asset/images/check-gif.gif"
 import TransactionalDayBookImage from "../../asset/images/Transactional-Day-Book.png";
@@ -220,17 +221,37 @@ const Allreports = () => {
       ],
     },
   ];
- const handleButtonClick = (index, category) => {
-   setActiveButton(index);
-   const targetElement = document.getElementById(category);
-   if (targetElement) {
-     targetElement.scrollIntoView({ behavior: "smooth" });
-   }
- };
+
+  // *****************scrollbar types button**********************
+//  const handleButtonClick = (index, category) => {
+//    setActiveButton(index);
+//    const targetElement = document.getElementById(category);
+//    if (targetElement) {
+//      targetElement.scrollIntoView({ behavior: "smooth" });
+//    }
+//  };
+  //   const [activeButton, setActiveButton] = useState(null);
   const [activeButton, setActiveButton] = useState(null);
+
+  const handleDropdownChange = (e) => {
+    const selectedCategory = e.value;
+    setActiveButton(selectedCategory); 
+    const targetElement = document.getElementById(selectedCategory);
+    if (targetElement) {
+      targetElement.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const categories = cardsData.map((data) => data["card catagory"]);
+  const dropdownOptions = categories.map((category) => ({
+    label: category,
+    value: category,
+    type: "category",
+  }));
   return (
     <>
-      <Box overflowX="auto" width="100%" display="flex" justifyContent="center">
+      {/* ************* Previous code scrollbar ****************/}
+      {/* <Box overflowX="auto" width="100%" display="flex" justifyContent="center">
         <Flex
           direction="row"
           align="center"
@@ -262,6 +283,23 @@ const Allreports = () => {
             </Button>
           ))}
         </Flex>
+      </Box> */}
+
+      <Box display="flex" justifyContent="space-between" paddingTop="7px">
+        <Box>
+          <Text color="textBlack" fontSize="17px" fontWeight="500">
+            All Reports
+          </Text>
+        </Box>
+        <Box>
+          <Dropdown
+            style={{ border: "1px solid #bebebe" }}
+            placeholder="Select any Reports"
+            className="w-full md:w-14rem"
+            options={dropdownOptions}
+            onChange={handleDropdownChange}
+          />
+        </Box>
       </Box>
 
       {cardsData.map((data, index) => {

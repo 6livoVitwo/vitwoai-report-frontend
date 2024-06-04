@@ -555,7 +555,7 @@ const Layout = ({ portalId }) => {
                 </svg>
               </Box>
 
-              <Box
+              {/* <Box
                 p="0 0 0 38px"
                 display={{ base: "none", lg: "flex" }}
                 alignItems="center">
@@ -567,7 +567,7 @@ const Layout = ({ portalId }) => {
                   textTransform="capitalize">
                   {pathname.split("/")[1].split("-").join(" ").trim()}
                 </Heading>
-              </Box>
+              </Box> */}
 
               <Box display={{ base: "block", lg: "none" }}></Box>
 
