@@ -232,13 +232,13 @@ const Dashboard = () => {
               <Box
                 sx={{
                   backgroundColor: "white",
-                  border: "1px solid #b5b2b28a",
+                //   border: "1px solid #b5b2b28a",
                   padding: "15px",
                   borderRadius: "8px",
-                  transition: "box-shadow 0.3s ease-in-out",
+                  transition: "0.5s ease",
                   "&:hover": {
-                    boxShadow: "0 4px 4px rgba(0, 0, 0, 0.2)",
-                    //   bgColor: "red"
+                    transform: "scale(1.05)",
+                    border: "1px solid #b5b2b28a",
                   },
                 }}
                 mb={3}>
@@ -282,7 +282,7 @@ const Dashboard = () => {
                   </Box>
                 </Box>
                 <Box sx={{ height: "300px" }}>
-                  <MyCharts chart={chart} />
+                <MyCharts chart={chart} />
                 </Box>
               </Box>
             </Box>
