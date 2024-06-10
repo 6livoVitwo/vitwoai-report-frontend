@@ -1,10 +1,10 @@
-import React from "react";
-import { Global } from "@emotion/react";
+import React from 'react';
+import { Global } from '@emotion/react';
 
 const GlobalCss = () => {
-  return (
-    <Global
-      styles={`
+	return (
+		<Global
+			styles={`
             html{
                 overflow-x: hidden;
                 overflow-y:auto;
@@ -44,7 +44,11 @@ const GlobalCss = () => {
        
             }
             ::-webkit-scrollbar-thumb {
+<<<<<<< HEAD
               background: #a6a4a4; 
+=======
+              background: var(--chakra-colors-mainBlue); 
+>>>>>>> imran
               border-radius: 10px;
             }
             ::-webkit-scrollbar-thumb:hover {
@@ -70,8 +74,8 @@ const GlobalCss = () => {
               }
             
             `}
-    />
-  );
+		/>
+	);
 };
 
 export default GlobalCss;
