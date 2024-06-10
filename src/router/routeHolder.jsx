@@ -9,7 +9,7 @@ import {
 } from 'react-router-dom';
 import HashLoader from 'react-spinners/HashLoader';
 import Store from '../store/store';
-import { Center, Container } from '@chakra-ui/react';
+import { Box, Center, Container } from '@chakra-ui/react';
 import DetectOffline from '../modules/global/components/ofline';
 import Layout from '../modules/global/components/layout';
 import PortalForLayout from '../modules/global/components/PortalForLayout';
@@ -85,6 +85,7 @@ import SalesSoWiseGraphView from '../modules/salesSoWise/components/salesSoWiseG
 import GlobalCss from '../modules/global/css';
 import { setAuthDetails } from './slice';
 import Allreports from '../modules/allreports';
+import AllCharts from '../modules/dashboard/AllCharts';
 const Dashboard = lazy(() => import('../modules/dashboard/components'));
 
 const AllRoutes = () => {
@@ -162,6 +163,15 @@ const AllRoutes = () => {
 							</PortalForLayout>
 						}
 					/>
+					<Route path='/all-charts' element={
+						<PortalForLayout
+							globalLayout={globalStaticFragmennt}
+							portalId={commonPortalRef}>
+							<AllCharts
+								globalLayout={setGlobalStaticFragmennt}
+							/>
+						</PortalForLayout>
+					} />
 					<Route
 						path='/all-reports'
 						element={

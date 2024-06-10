@@ -1,40 +1,8 @@
 import { ResponsivePie } from '@nivo/pie'
 import React from 'react'
+import { pieChartData } from '../chartData'
 
-const defaultData = [
-    {
-        "id": "make",
-        "label": "make",
-        "value": 118,
-        "color": "hsl(208, 70%, 50%)"
-    },
-    {
-        "id": "rust",
-        "label": "rust",
-        "value": 220,
-        "color": "hsl(189, 70%, 50%)"
-    },
-    {
-        "id": "lisp",
-        "label": "lisp",
-        "value": 243,
-        "color": "hsl(343, 70%, 50%)"
-    },
-    {
-        "id": "python",
-        "label": "python",
-        "value": 402,
-        "color": "hsl(108, 70%, 50%)"
-    },
-    {
-        "id": "sass",
-        "label": "sass",
-        "value": 298,
-        "color": "hsl(221, 70%, 50%)"
-    }
-]
-
-const NivoPieChart = ({data = defaultData}) => {
+const NivoPieChart = ({ data = pieChartData }) => {
     return (
         <>
             <ResponsivePie

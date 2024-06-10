@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
 	Box,
 	Drawer,
@@ -11,6 +11,7 @@ import {
 	useDisclosure,
 	Button,
 	Text,
+	Badge,
 } from '@chakra-ui/react';
 import { IoMdAdd } from 'react-icons/io';
 import GraphViewSettings from './graphViewSettings';
@@ -20,6 +21,7 @@ import { MdBookmarkAdded } from 'react-icons/md';
 import { FiPlus, FiSettings } from 'react-icons/fi';
 
 const Dashboard = () => {
+
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [graphViewSettings, setGraphViewSettings] = useState(
 		dashboardView?.charts || []
@@ -106,7 +108,16 @@ const Dashboard = () => {
 					onClose={onClose}
 					size='xl'>
 					<DrawerOverlay />
-					<DrawerContent maxW='70vw'>
+					<DrawerContent maxW='70vw'
+						sx={{
+							'& .stickyTop': {
+								position: 'sticky',
+								top: 0,
+								zIndex: 1,
+								backgroundColor: 'white',
+							},
+						}}
+					>
 						<DrawerCloseButton style={{ color: 'white' }} />
 						<DrawerHeader
 							style={{
@@ -115,21 +126,36 @@ const Dashboard = () => {
 							}}>
 							Select Your Chart
 						</DrawerHeader>
-
 						<DrawerBody>
+							<Box
+								className='stickyTop'
+								sx={{
+									display: 'flex',
+									justifyContent: 'space-between',
+									alignItems: 'center',
+									boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 4px',
+									p: 2,
+									my: 2
+								}}
+							>
+								<Text fontWeight='bold' fontSize='14px'></Text>
+								<Text fontWeight='bold' fontSize='14px' color={'#003060'}> Count - {graphViewSettings?.length || 0} </Text>
+							</Box>					
 							<Box
 								display='flex'
 								flexWrap='wrap'
 								justifyContent='space-between'
-								marginTop='10px'>
+								marginTop='10px'>			
 								{graphViewSettings?.map((chart, index) => {
 									return (
 										<Box
+											key={index}
 											width={{
 												base: '100%',
 												lg: '48%',
 											}}
-											mb={6}>
+											mb={6}
+										>
 											<Box
 												sx={{
 													backgroundColor: 'white',
@@ -180,7 +206,7 @@ const Dashboard = () => {
 														}>
 														<FiSettings
 															sx={{
-																mr:'6px'
+																mr: '6px'
 															}}
 														/>
 														Select Graph
@@ -211,7 +237,9 @@ const Dashboard = () => {
 														height: '200px',
 													}}>
 													<MyCharts chart={chart} />
+
 												</Box>
+												<Badge colorScheme='blue' py={0} px={3} fontSize={9}>{chart?.title}</Badge>
 											</Box>
 										</Box>
 									);

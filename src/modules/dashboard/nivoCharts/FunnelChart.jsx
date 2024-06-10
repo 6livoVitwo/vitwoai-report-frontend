@@ -1,35 +1,8 @@
 import { ResponsiveFunnel } from '@nivo/funnel'
 import React from 'react'
+import { funnelChartData } from '../chartData'
 
-const defaultData = [
-    {
-        "id": "step_sent",
-        "value": 92834,
-        "label": "Sent"
-    },
-    {
-        "id": "step_viewed",
-        "value": 57437,
-        "label": "Viewed"
-    },
-    {
-        "id": "step_clicked",
-        "value": 37362,
-        "label": "Clicked"
-    },
-    {
-        "id": "step_add_to_card",
-        "value": 27883,
-        "label": "Add To Card"
-    },
-    {
-        "id": "step_purchased",
-        "value": 16818,
-        "label": "Purchased"
-    }
-]
-
-const FunnelChart = ({data = defaultData}) => {
+const FunnelChart = ({data = funnelChartData}) => {
     return (
         <>
             <ResponsiveFunnel
