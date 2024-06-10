@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Drawer,
@@ -11,6 +11,7 @@ import {
   useDisclosure,
   Button,
   Text,
+  Badge,
 } from "@chakra-ui/react";
 import { IoMdAdd } from "react-icons/io";
 import GraphViewSettings from "./graphViewSettings";
@@ -102,7 +103,16 @@ const Dashboard = () => {
         </Button>
         <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xl">
           <DrawerOverlay />
-          <DrawerContent maxW="70vw">
+          <DrawerContent
+            maxW="70vw"
+            sx={{
+              "& .stickyTop": {
+                position: "sticky",
+                top: 0,
+                zIndex: 1,
+                backgroundColor: "white",
+              },
+            }}>
             <DrawerCloseButton style={{ color: "white" }} />
             <DrawerHeader
               style={{
@@ -111,8 +121,23 @@ const Dashboard = () => {
               }}>
               Select Your Chart
             </DrawerHeader>
-
             <DrawerBody>
+              <Box
+                className="stickyTop"
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 4px",
+                  p: 2,
+                  my: 2,
+                }}>
+                <Text fontWeight="bold" fontSize="14px"></Text>
+                <Text fontWeight="bold" fontSize="14px" color={"#003060"}>
+                  {" "}
+                  Count - {graphViewSettings?.length || 0}{" "}
+                </Text>
+              </Box>
               <Box
                 display="flex"
                 flexWrap="wrap"
@@ -121,6 +146,7 @@ const Dashboard = () => {
                 {graphViewSettings?.map((chart, index) => {
                   return (
                     <Box
+                      key={index}
                       width={{
                         base: "100%",
                         lg: "48%",
@@ -166,8 +192,8 @@ const Dashboard = () => {
                             }}
                             onClick={() => handleGraphSettings(chart)}>
                             <FiSettings
-                              style={{
-                                marginRight: "6px",
+                              sx={{
+                                mr: "6px",
                               }}
                             />
                             Select Graph
@@ -193,6 +219,9 @@ const Dashboard = () => {
                           }}>
                           <MyCharts chart={chart} />
                         </Box>
+                        <Badge colorScheme="blue" py={0} px={3} fontSize={9}>
+                          {chart?.title}
+                        </Badge>
                       </Box>
                     </Box>
                   );
@@ -217,28 +246,24 @@ const Dashboard = () => {
         </Drawer>
       </Box>
 
-      <Box display="flex" flexWrap="wrap">
+      <Box display="flex" flexWrap="wrap" justifyContent="space-between">
         {graphViewSettings?.map((chart, index) => {
           if (chart?.pinned === false) return null;
           return (
             <Box
               width={{
                 base: "100%",
-                md: "32.33%",
-                lg: "32.27%",
+                lg: "49%",
               }}
-              mr={{ base: 0, md: 5, lg: 5 }}
               mb={6}>
               <Box
                 sx={{
                   backgroundColor: "white",
-                //   border: "1px solid #b5b2b28a",
                   padding: "15px",
                   borderRadius: "8px",
-                  transition: "0.5s ease",
+                  transition: "box-shadow 0.3s ease-in-out",
                   "&:hover": {
-                    transform: "scale(1.05)",
-                    border: "1px solid #b5b2b28a",
+                    boxShadow: "0 4px 4px rgba(0, 0, 0, 0.2)",
                   },
                 }}
                 mb={3}>
@@ -276,13 +301,13 @@ const Dashboard = () => {
                         color: "#718296",
                       }}
                       mr={3}
-                      onClick={onOpenGraphSettingsModal}>
+                      onClick={() => handleGraphSettings(chart)}>
                       <FiSettings style={{ marginRight: "6px" }} /> Settings
                     </Button>
                   </Box>
                 </Box>
                 <Box sx={{ height: "300px" }}>
-                <MyCharts chart={chart} />
+                  <MyCharts chart={chart} />
                 </Box>
               </Box>
             </Box>
