@@ -155,8 +155,6 @@ const SalesCustomerWiseTableView = () => {
 	});
 
 	const newArray = individualItems.map(extractFields);
-	console.log(newArray, 'newArray');
-	console.log(salesData, 'salesData');
 
 	return (
 		<Box>

@@ -54,7 +54,7 @@ const CustomTable = ({ setPage, individualItems, isFetching }) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [columnFilters, setColumnFilters] = useState({});
 	const [dates, setDates] = useState(null);
-	const [downloadDataByDates, setDownloadDataByDates] = useState(null);
+	const [downloadDataByDates, setDownloadDataByDates] = useState([]);
 
 	const toast = useToast();
 	const observer = useRef();
@@ -272,7 +272,11 @@ const CustomTable = ({ setPage, individualItems, isFetching }) => {
 			);
 		});
 	};
-	console.log(columnFiltersArray, 'columnFiltersArray');
+
+	const containsNull = downloadDataByDates?.includes(null);
+
+	console.log(downloadDataByDates?.length, 'downloadDataByDates');
+	console.log(downloadDataByDates, 'downloadDataByDates');
 
 	return (
 		<Box bg='white' padding='10px' borderRadius='5px'>
@@ -413,11 +417,6 @@ const CustomTable = ({ setPage, individualItems, isFetching }) => {
 											display='flex'
 											flexDirection='column'
 											sx={{
-												'& .p-calendar': {
-													border: '1px solid #ccc',
-													width: '100%',
-													borderRadius: '5px',
-												},
 												'& .p-calendar input': {
 													height: '30px',
 												},
