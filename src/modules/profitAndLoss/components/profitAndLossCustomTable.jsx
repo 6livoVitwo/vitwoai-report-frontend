@@ -25,21 +25,22 @@ import {
   DrawerOverlay,
   DrawerContent,
   DrawerCloseButton,
+  Heading,
 } from "@chakra-ui/react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
-import { InputText } from "primereact/inputtext";
+// import { InputText } from "primereact/inputtext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "primereact/button";
 import { CustomerService } from "./service/CustomerService";
 import styled from "@emotion/styled";
 import { saveAs } from "file-saver";
-import jsPDF from "jspdf";
+// import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { DownloadIcon } from "@chakra-ui/icons";
 import { Skeleton } from "primereact/skeleton";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 import { Calendar } from "primereact/calendar";
 
 const CssWrapper = styled.div`
@@ -97,12 +98,12 @@ const CssWrapper = styled.div`
   }
   .p-datatable .p-datatable-thead > tr > th {
     background-color: #f0f3f5;
-    border: 1px solid #ccc;
+    border: 1px solid #e3e3e3;
     color: var(--chakra-colors-mainBluemedium);
   }
   .p-datatable-tbody tr:nth-of-type(even) {
-    border-bottom: 1px solid #ccc;
-    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #e3e3e3;
+    border-top: 1px solid #e3e3e3;
     // border: 1px solid #ccc;
   }
   .p-input-icon-left > i:first-of-type {
@@ -114,8 +115,8 @@ const CssWrapper = styled.div`
   }
   .p-datatable .p-datatable-thead > tr > th {
     text-wrap: nowrap;
-    background-color: #cfd8e1;
-    color: #000 !important;
+    background-color: #ececec;
+    color: black !important;
     font-weight: 600;
     text-transform: lowercase;
     padding: 10px 15px;
@@ -319,7 +320,22 @@ const CustomTable = () => {
   const renderHeader = () => {
     return (
       <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Box
+        <Box>
+          <Heading
+            textTransform="capitalize"
+            color="mainBlue"
+            pb="5px"
+            fontWeight="700"
+            fontSize="15px">
+            SAREGAMA INDIA LIMITED
+          </Heading>
+          <Text fontWeight="600" fontSize="11px" color="textGray">
+            Location - Karnataka Virgo Nagar
+          </Text>
+        </Box>
+        {/* <Box>SAREGAMA INDIA LIMITED</Box> */}
+        {/* <Box>Location - Karnataka Virgo Nagar</Box> */}
+        {/* <Box
           sx={{
             "& button": {
               color: "#fff",
@@ -435,32 +451,149 @@ const CustomTable = () => {
               </ModalFooter>
             </ModalContent>
           </Modal>
-        </Box>
+        </Box> */}
         <Box display="flex" alignItems="center" gap="15px">
+          {/* <Box
+              as="span"
+              border="1px solid var(--chakra-colors-borderGrayLight)"
+              borderRadius="5px"
+              position="relative"
+              sx={{
+                "& .pi.pi-search": {
+                  position: "absolute",
+                  right: "10px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                },
+                "& .search_input": {
+                  padding: "7px",
+                  // width: "465px", // Set width here
+                },
+              }}>
+              <i className="pi pi-search" />
+              <InputText
+                className="search_input"
+                value={globalFilterValue}
+                onChange={onGlobalFilterChange}
+                placeholder="Keyword Search"
+              />
+            </Box> */}
           <Box
-            as="span"
-            border="1px solid var(--chakra-colors-borderGrayLight)"
-            borderRadius="5px"
-            position="relative"
             sx={{
-              "& .pi.pi-search": {
-                position: "absolute",
-                right: "10px",
-                top: "50%",
-                transform: "translateY(-50%)",
+              "& button": {
+                color: "#fff",
+                padding: "7px 10px",
+                fontSize: "14px",
+                backgroundColor: "#003060",
               },
-              "& .search_input": {
-                padding: "7px",
-                // width: "465px", // Set width here
+              "& button:hover": {
+                bg: "rgb(0, 48, 96)",
+                borderRadius: "5px",
+              },
+              "& button:hover span": {
+                color: "white",
               },
             }}>
-            <i className="pi pi-search" />
-            <InputText
-              className="search_input"
-              value={globalFilterValue}
-              onChange={onGlobalFilterChange}
-              placeholder="Keyword Search"
+            <Button
+              type="button"
+              icon="pi pi-filter"
+              label="Manage Column"
+              outlined
+              onClick={onOpenCustomManageModal}
+              _hover={{
+                color: "white",
+              }}
             />
+            <Modal
+              isCentered
+              isOpen={isOpenCustomManageModal}
+              onClose={onCloseCustomManageModal}>
+              <ModalOverlay backdropFilter="brightness(0.7) blur(4px)" />
+              <ModalContent maxW="56rem">
+                <ModalCloseButton color="#2c3038" size="lg" mt="8px" />
+                <ModalHeader
+                  color="#2c3038"
+                  mb="4px"
+                  fontSize="17px"
+                  fontWeight="500"
+                  padding="15px 15px">
+                  Detailed View Column Settings
+                </ModalHeader>
+                <Divider orientation="horizontal" mb={6} />
+                <ModalBody>
+                  <Box
+                    style={{
+                      marginBottom: "15px",
+                    }}>
+                    <Checkbox
+                      isChecked={areAllColumnsSelected()}
+                      onChange={handleCheckAll}>
+                      <span
+                        style={{
+                          fontSize: "15px",
+                          fontWeight: 600,
+                        }}>
+                        Check All
+                      </span>
+                    </Checkbox>
+                  </Box>
+                  <Box
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                    }}>
+                    {columns?.map((column, index) => (
+                      <Box
+                        key={index}
+                        style={{
+                          flex: "0 0 48%",
+                          marginBottom: "10px",
+                          display: "flex",
+                          alignItems: "center",
+                          backgroundColor: "#f7f7f7",
+                          padding: "8px",
+                          marginRight: "10px",
+                          borderRadius: "5px",
+                        }}>
+                        <Box style={{ display: "flex", alignItems: "center" }}>
+                          <Checkbox
+                            isChecked={column.selected}
+                            onChange={() => onColumnToggle(index)}
+                            style={{
+                              marginRight: "10px",
+                            }}
+                          />
+                          <span>{column.header}</span>
+                        </Box>
+                      </Box>
+                    ))}
+                  </Box>
+                </ModalBody>
+                <Divider orientation="horizontal" mt={2} mb={2} />
+                <ModalFooter>
+                  <Box
+                    display="flex"
+                    gap="9px"
+                    sx={{
+                      "& button": {
+                        color: "#fff",
+                        padding: "7px 10px",
+                        fontSize: "14px",
+                        fontWeight: "400px",
+                      },
+                    }}>
+                    <Button
+                      onClick={onCloseCustomManageModal}
+                      type="button"
+                      style={{
+                        backgroundColor: "#dc3545",
+                      }}>
+                      Close
+                    </Button>
+                  </Box>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
           </Box>
 
           <Menu>
@@ -778,29 +911,31 @@ const CustomTable = () => {
                 sx={{
                   "& button": {
                     color: "#fff",
-                    padding: "10px",
                     fontSize: "18px",
-                    backgroundColor: "#003060",
-                    borderRadius: "50%",
-                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                    backgroundColor: "transparent",
                     border: "none",
                     cursor: "pointer",
-                  },
-                  "& button:hover": {
-                    backgroundColor: "#001f3f",
-                  },
-                  "& button:hover span": {
-                    color: "white",
                   },
                 }}>
                 <Button
                   type="button"
-                  icon="pi pi-chart-bar"
                   aria-label="Graph View"
                   _hover={{
                     color: "white",
                   }}
                   onClick={onOpenGraphViewModal}
+                  icon={
+                    <span
+                      className="pi pi-chart-bar"
+                      style={{
+                        backgroundColor: "#003060",
+                        boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px", // Chakra UI box shadow
+                        borderRadius: "50%", // Make the background circular
+                        padding: "20px", // Adjust padding as needed
+                        display: "inline-block",
+                      }}
+                    />
+                  }
                 />
                 <Drawer
                   isOpen={isOpenGraphViewModal}

@@ -44,11 +44,7 @@ const GlobalCss = () => {
        
             }
             ::-webkit-scrollbar-thumb {
-<<<<<<< HEAD
-              background: #a6a4a4; 
-=======
               background: var(--chakra-colors-mainBlue); 
->>>>>>> imran
               border-radius: 10px;
             }
             ::-webkit-scrollbar-thumb:hover {

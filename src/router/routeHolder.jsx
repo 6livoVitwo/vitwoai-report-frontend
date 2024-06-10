@@ -163,15 +163,18 @@ const AllRoutes = () => {
 							</PortalForLayout>
 						}
 					/>
-					<Route path='/all-charts' element={
-						<PortalForLayout
-							globalLayout={globalStaticFragmennt}
-							portalId={commonPortalRef}>
-							<AllCharts
-								globalLayout={setGlobalStaticFragmennt}
-							/>
-						</PortalForLayout>
-					} />
+					<Route
+						path='/all-charts'
+						element={
+							<PortalForLayout
+								globalLayout={globalStaticFragmennt}
+								portalId={commonPortalRef}>
+								<AllCharts
+									globalLayout={setGlobalStaticFragmennt}
+								/>
+							</PortalForLayout>
+						}
+					/>
 					<Route
 						path='/all-reports'
 						element={

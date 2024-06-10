@@ -1,6 +1,8 @@
-import React from 'react';
-import { Box, Heading, Button, Flex } from '@chakra-ui/react';
+import React, { useState } from 'react';
+import { Box, Heading, Text, Flex, Button } from '@chakra-ui/react';
+import { Dropdown } from 'primereact/dropdown';
 import ReportsCards from '../dashboard/components/ReportsCards';
+// import CheckImg from "../../asset/images/check-gif.gif"
 import TransactionalDayBookImage from '../../asset/images/Transactional-Day-Book.png';
 import BalanceSheet from '../../asset/images/google-sheets.png';
 import ProfitLoss from '../../asset/images/profit&loss.png';
@@ -25,7 +27,6 @@ import SalesproductWise from '../../asset/images/sales-product-wise.png';
 import SalesCustomerWise from '../../asset/images/sales-customer-wise.png';
 import SalesVerticalWise from '../../asset/images/sales-vertical-wise.png';
 import SalesSoWise from '../../asset/images/sales-so-wise.png';
-import { Link } from 'react-router-dom';
 
 const Allreports = () => {
 	const cardsData = [
@@ -220,8 +221,37 @@ const Allreports = () => {
 			],
 		},
 	];
+
+	// *****************scrollbar types button**********************
+	const handleButtonClick = (index, category) => {
+		setActiveButton(index);
+		const targetElement = document.getElementById(category);
+		if (targetElement) {
+			targetElement.scrollIntoView({ behavior: 'smooth' });
+		}
+	};
+	const [activeButton, setActiveButton] = useState(null);
+
+	// const [activeButton, setActiveButton] = useState(null);
+
+	// const handleDropdownChange = (e) => {
+	//   const selectedCategory = e.value;
+	//   setActiveButton(selectedCategory);
+	//   const targetElement = document.getElementById(selectedCategory);
+	//   if (targetElement) {
+	//     targetElement.scrollIntoView({ behavior: "smooth" });
+	//   }
+	// };
+
+	// const categories = cardsData.map((data) => data["card catagory"]);
+	// const dropdownOptions = categories.map((category) => ({
+	//   label: category,
+	//   value: category,
+	//   type: "category",
+	// }));
 	return (
 		<>
+			{/* ************* Previous code scrollbar ****************/}
 			<Box
 				overflowX='auto'
 				width='100%'
@@ -236,27 +266,60 @@ const Allreports = () => {
 						<Button
 							key={index}
 							size='md'
-							bg='#bababa'
-							boxShadow='rgba(0, 0, 0, 0.24) 0px 3px 8px'
-							fontSize='14px'
+							fontSize='11px'
 							fontWeight='normal'
-							padding='20px 80px'
+							padding='15px 65px'
 							borderRadius='md'
-							borderColor='#CBD5E0'
-							_hover={{ bg: '#EDF2F7', borderColor: '#CBD5E0' }}
+							borderColor={
+								activeButton === index ? '#003060' : '#CBD5E0'
+							}
+							color={
+								activeButton === index ? '#003060' : '#c6c6c6'
+							}
+							bg='transparent'
+							borderWidth='1px'
+							_hover={{
+								bg:
+									activeButton === index
+										? '#003060'
+										: '#f3f3f3',
+								color:
+									activeButton === index
+										? '#ffffff'
+										: '#003060',
+								borderColor: '#b9b9b9',
+							}}
 							_focus={{
 								boxShadow: 'none',
-								borderColor: '#CBD5E0',
+								borderColor: '#b9b9b9',
 							}}
+							onClick={() =>
+								handleButtonClick(index, data['card catagory'])
+							}
 							mr='3'
 							mb={6}>
-							<Link href={`#${data['card catagory']}`}>
-								{data['card catagory']}
-							</Link>
+							{data['card catagory']}
 						</Button>
 					))}
 				</Flex>
 			</Box>
+
+			{/* <Box display="flex" justifyContent="space-between" paddingTop="7px">
+        <Box>
+          <Text color="textBlack" fontSize="17px" fontWeight="500">
+            All Reports
+          </Text>
+        </Box>
+        <Box>
+          <Dropdown
+            style={{ border: "1px solid #bebebe" }}
+            placeholder="Select any Reports"
+            className="w-full md:w-14rem"
+            options={dropdownOptions}
+            onChange={handleDropdownChange}
+          />
+        </Box>
+      </Box> */}
 
 			{cardsData.map((data, index) => {
 				return (

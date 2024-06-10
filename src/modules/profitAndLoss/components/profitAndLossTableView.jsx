@@ -10,23 +10,25 @@ const ProfitAndLossTableView = () => {
 	const decoded = jwtDecode(authData.authDetails);
 
 	return (
-		<Box>
-			<Box m='15px 0px'>
+    <Box>
+      {/* <Box m='15px 0px'>
 				<Heading
 					textTransform='capitalize'
 					color='mainBlue'
 					pb='5px'
-					fontWeight='700'
+					fontWeight='7SAREGAMA INDIA LIMITED
+
+00'
 					fontSize='15px'>
 					{decoded.data.companyName}
 				</Heading>
 				<Text fontWeight='600' fontSize='11px' color='textGray'>
 					Location - {decoded.data.locationName}
 				</Text>
-			</Box>
+			</Box> */}
 			<CustomTable />
-		</Box>
-	);
+    </Box>
+  );
 };
 
 export default ProfitAndLossTableView;
