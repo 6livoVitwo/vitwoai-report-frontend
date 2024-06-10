@@ -273,6 +273,8 @@ const CustomTable = ({ setPage, individualItems, isFetching }) => {
 		});
 	};
 
+	console.log(columnFiltersArray, 'columnFiltersArray');
+
 	return (
 		<Box
 			bg='white'
@@ -661,7 +663,8 @@ const CustomTable = ({ setPage, individualItems, isFetching }) => {
 																	fontWeight='500'
 																	textTransform='capitalize'
 																	fontFamily='Poppins, sans-serif'
-																	color='black'>
+																	color='black'
+																	key={index}>
 																	{
 																		formattedHeader
 																	}
@@ -801,7 +804,7 @@ const CustomTable = ({ setPage, individualItems, isFetching }) => {
 								flexWrap='wrap'
 								gap='15px'
 								sx={{
-									'& .columnCheckBox:nth-child(odd)': {
+									'& .columnCheckBox:nth-of-type(odd)': {
 										bg: 'borderGrayLight',
 									},
 								}}>

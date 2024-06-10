@@ -65,6 +65,36 @@ const SalesCustomerWiseTableView = () => {
 		}
 	}, [sales]);
 
+	const tableFilterFieldMapping = {
+		'Customer Code': 'customer.customer_code',
+		'Customer Name': 'customer.customer_code',
+		'Bill-Add': 'customer.customer_code',
+		'Ship-Add': 'customer.customer_code',
+		'GST No': 'customer.customer_code',
+		'State Name': 'customer.customer_code',
+		'State Code': 'customer.customer_code',
+		'Batch No': 'customer.customer_code',
+		'Batch Date (Received Date)': 'customer.customer_code',
+		'Item Code': 'customer.customer_code',
+		'Item Name': 'customer.customer_code',
+		'Item Description': 'customer.customer_code',
+		'Item Group': 'customer.customer_code',
+		Unit: 'customer.customer_code',
+		HSN: 'customer.customer_code',
+		'GST %': 'customer.customer_code',
+		MRP: 'customer.customer_code',
+		'Trade Discount %': 'customer.customer_code',
+		'Trade Discount Value': 'customer.customer_code',
+		Currency: 'customer.customer_code',
+		'Quotation No': 'customer.customer_code',
+		'Quotation Date': 'customer.customer_code',
+		'Quotation Qty': 'customer.customer_code',
+		'Customer Code': 'customer.customer_code',
+		'Customer Code': 'customer.customer_code',
+		'Customer Code': 'customer.customer_code',
+		'Customer Code': 'customer.customer_code',
+	};
+
 	const extractFields = (data) => ({
 		'Customer Code': data.customer_code,
 		'Customer Name': data.trade_name,
@@ -86,14 +116,14 @@ const SalesCustomerWiseTableView = () => {
 		'Trade Discount %': data.totalDiscount,
 		'Trade Discount Value': data.totalDiscountAmt || '',
 		Currency: data.currency_name || '',
-		'Quotation No': data.quotation_no, // Need additional logic for quotation details
+		'Quotation No': data.quotation_no,
 		'Quotation Date': data.posting_date,
 		'Quotation Qty': '',
 		'Quotation Value': data.totalAmount,
 		'Quotation Created On': data.created_at,
 		'Quotation Created By': data.created_by_value,
 		'Quotation Accepted On': '',
-		'SO No': '', // Need additional logic for sales order details
+		'SO No': '',
 		'SO Date': '',
 		'SO Qty': '',
 		'SO Rate': '',
@@ -125,7 +155,7 @@ const SalesCustomerWiseTableView = () => {
 	});
 
 	const newArray = individualItems.map(extractFields);
-	console.log(individualItems, 'individualItems');
+	console.log(newArray, 'newArray');
 	console.log(salesData, 'salesData');
 
 	return (
