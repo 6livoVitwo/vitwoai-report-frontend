@@ -223,36 +223,36 @@ const Allreports = () => {
   ];
 
   // *****************scrollbar types button**********************
-//  const handleButtonClick = (index, category) => {
-//    setActiveButton(index);
-//    const targetElement = document.getElementById(category);
-//    if (targetElement) {
-//      targetElement.scrollIntoView({ behavior: "smooth" });
-//    }
-//  };
-//   const [activeButton, setActiveButton] = useState(null);
-  
+ const handleButtonClick = (index, category) => {
+   setActiveButton(index);
+   const targetElement = document.getElementById(category);
+   if (targetElement) {
+     targetElement.scrollIntoView({ behavior: "smooth" });
+   }
+ };
   const [activeButton, setActiveButton] = useState(null);
+  
+  // const [activeButton, setActiveButton] = useState(null);
 
-  const handleDropdownChange = (e) => {
-    const selectedCategory = e.value;
-    setActiveButton(selectedCategory); 
-    const targetElement = document.getElementById(selectedCategory);
-    if (targetElement) {
-      targetElement.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+  // const handleDropdownChange = (e) => {
+  //   const selectedCategory = e.value;
+  //   setActiveButton(selectedCategory); 
+  //   const targetElement = document.getElementById(selectedCategory);
+  //   if (targetElement) {
+  //     targetElement.scrollIntoView({ behavior: "smooth" });
+  //   }
+  // };
 
-  const categories = cardsData.map((data) => data["card catagory"]);
-  const dropdownOptions = categories.map((category) => ({
-    label: category,
-    value: category,
-    type: "category",
-  }));
+  // const categories = cardsData.map((data) => data["card catagory"]);
+  // const dropdownOptions = categories.map((category) => ({
+  //   label: category,
+  //   value: category,
+  //   type: "category",
+  // }));
   return (
     <>
       {/* ************* Previous code scrollbar ****************/}
-      {/* <Box overflowX="auto" width="100%" display="flex" justifyContent="center">
+      <Box overflowX="auto" width="100%" display="flex" justifyContent="center">
         <Flex
           direction="row"
           align="center"
@@ -284,9 +284,9 @@ const Allreports = () => {
             </Button>
           ))}
         </Flex>
-      </Box> */}
+      </Box>
 
-      <Box display="flex" justifyContent="space-between" paddingTop="7px">
+      {/* <Box display="flex" justifyContent="space-between" paddingTop="7px">
         <Box>
           <Text color="textBlack" fontSize="17px" fontWeight="500">
             All Reports
@@ -301,7 +301,7 @@ const Allreports = () => {
             onChange={handleDropdownChange}
           />
         </Box>
-      </Box>
+      </Box> */}
 
       {cardsData.map((data, index) => {
         return (
