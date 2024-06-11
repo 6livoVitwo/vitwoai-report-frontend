@@ -13,7 +13,7 @@ const WaffleChart = ({ data = waffleChartData }) => {
                 padding={1}
                 valueFormat=".2f"
                 margin={{ top: 10, right: 10, bottom: 10, left: 120 }}
-                colors={{ scheme: 'nivo' }}
+                colors={{ scheme: 'blues' }}
                 borderRadius={3}
                 borderColor={{
                     from: 'color',

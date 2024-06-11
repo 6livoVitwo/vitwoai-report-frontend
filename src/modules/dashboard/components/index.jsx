@@ -39,7 +39,6 @@ const Dashboard = () => {
       const foundIndex = prev.findIndex((item) => item.id === chart.id);
 
       if (foundIndex !== -1) {
-        // Toggle the pinned state for the existing chart
         return prev.map((item, i) => {
           if (i === foundIndex) {
             return { ...item, pinned: !item.pinned };
@@ -48,7 +47,6 @@ const Dashboard = () => {
           }
         });
       } else {
-        // Add the new chart with pinned set to true
         return [
           ...prev,
           {
@@ -261,9 +259,11 @@ const Dashboard = () => {
                   backgroundColor: "white",
                   padding: "15px",
                   borderRadius: "8px",
-                  transition: "box-shadow 0.3s ease-in-out",
+                  transition: "0.5s ease",
+                  // transition: "box-shadow 0.3s ease-in-out",
                   "&:hover": {
-                    boxShadow: "0 4px 4px rgba(0, 0, 0, 0.2)",
+                    transform: "scale(1.02)",
+                    border: "1px solid #b5b2b28a",
                   },
                 }}
                 mb={3}>
