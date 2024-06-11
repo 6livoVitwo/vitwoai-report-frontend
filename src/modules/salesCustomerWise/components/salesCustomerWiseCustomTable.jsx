@@ -39,12 +39,18 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import debounce from 'lodash/debounce';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartSimple, faFilter } from '@fortawesome/free-solid-svg-icons';
-import { Calendar } from 'primereact/calendar';
 import { saveAs } from 'file-saver';
 import { faFileExcel } from '@fortawesome/free-solid-svg-icons';
 import { DownloadIcon } from '@chakra-ui/icons';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
-const CustomTable = ({ setPage, individualItems, isFetching }) => {
+const CustomTable = ({
+	setPage,
+	individualItems,
+	isFetching,
+	setDateRange,
+}) => {
 	const [data, setData] = useState([]);
 	const [loading, setLoading] = useState(false);
 	const [defaultColumns, setDefaultColumns] = useState([]);
@@ -53,8 +59,8 @@ const CustomTable = ({ setPage, individualItems, isFetching }) => {
 	const [searchQuery, setSearchQuery] = useState('');
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [columnFilters, setColumnFilters] = useState({});
-	const [dates, setDates] = useState(null);
-	const [downloadDataByDates, setDownloadDataByDates] = useState([]);
+	const [startDate, setStartDate] = useState(null);
+	const [endDate, setEndDate] = useState(null);
 
 	const toast = useToast();
 	const observer = useRef();
@@ -157,45 +163,72 @@ const CustomTable = ({ setPage, individualItems, isFetching }) => {
 	};
 
 	const filteredItems = useMemo(() => {
-		return data.filter((item) => {
-			const values = Object.values(item);
-			return values.some((value) =>
-				String(value).toLowerCase().includes(searchQuery.toLowerCase())
-			);
+		let filteredData = [...data];
+		Object.keys(columnFilters).forEach((field) => {
+			const filter = columnFilters[field];
+			filteredData = filteredData.filter((item) => {
+				const value = item[field];
+
+				switch (filter.condition) {
+					case 'like':
+						return String(value)
+							.toLowerCase()
+							.includes(String(filter.value).toLowerCase());
+					case 'notLike':
+						return !String(value)
+							.toLowerCase()
+							.includes(String(filter.value).toLowerCase());
+					case 'greaterThan':
+						return Number(value) > Number(filter.value);
+					case 'greaterThanOrEqual':
+						return Number(value) >= Number(filter.value);
+					case 'lessThan':
+						return Number(value) < Number(filter.value);
+					case 'lessThanOrEqual':
+						return Number(value) <= Number(filter.value);
+					case 'between':
+						return (
+							Number(value) >= Number(filter.value[0]) &&
+							Number(value) <= Number(filter.value[1])
+						);
+					default:
+						return true;
+				}
+			});
 		});
-	}, [data, searchQuery]);
+
+		if (searchQuery) {
+			filteredData = filteredData.filter((item) => {
+				const values = Object.values(item);
+				return values.some((value) =>
+					String(value)
+						.toLowerCase()
+						.includes(searchQuery.toLowerCase())
+				);
+			});
+		}
+
+		return filteredData;
+	}, [data, searchQuery, columnFilters]);
 
 	const formatHeader = (header) => {
-		// Trim leading and trailing whitespace
 		header = header.trim();
-
-		// Split by periods and take the last part
 		const parts = header.split('.');
 		const lastPart = parts.pop();
-
-		// Split by underscores
 		const words = lastPart.split('_').join('');
-
-		// Insert spaces between lowercase and uppercase letters
 		const spacedWords = words.replace(/([a-z])([A-Z])/g, '$1 $2');
 
-		return (
-			spacedWords
-				// Split into individual words
-				.split(' ')
-				// Capitalize "Uom" and each word
-				.map((word) => {
-					if (word.toLowerCase() === 'uom') {
-						return 'Uom';
-					}
-					return (
-						word.charAt(0).toUpperCase() +
-						word.slice(1).toLowerCase()
-					);
-				})
-				// Join the words with spaces
-				.join(' ')
-		);
+		return spacedWords
+			.split(' ')
+			.map((word) => {
+				if (word.toLowerCase() === 'uom') {
+					return 'Uom';
+				}
+				return (
+					word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+				);
+			})
+			.join(' ');
 	};
 
 	const lastItemRef = useCallback(
@@ -273,10 +306,36 @@ const CustomTable = ({ setPage, individualItems, isFetching }) => {
 		});
 	};
 
-	const containsNull = downloadDataByDates?.includes(null);
+	const handleStartDateChange = (date) => {
+		setStartDate(date);
+		updateArrayValue(date, endDate);
+	};
 
-	console.log(downloadDataByDates?.length, 'downloadDataByDates');
-	console.log(downloadDataByDates, 'downloadDataByDates');
+	const handleEndDateChange = (date) => {
+		setEndDate(date);
+		updateArrayValue(startDate, date);
+	};
+
+	const formatDate = (date) => {
+		return date.toISOString().split('T')[0];
+	};
+	const updateArrayValue = (start, end) => {
+		if (start && end) {
+			const formattedStartDate = formatDate(start);
+			const formattedEndDate = formatDate(end);
+			const newArrayValue = [
+				{
+					column: 'invoice_date',
+					operator: 'between',
+					type: 'date',
+					value: [formattedStartDate, formattedEndDate],
+				},
+			];
+			setDateRange(newArrayValue);
+		} else {
+			setDateRange([]);
+		}
+	};
 
 	return (
 		<Box bg='white' padding='10px' borderRadius='5px'>
@@ -304,6 +363,7 @@ const CustomTable = ({ setPage, individualItems, isFetching }) => {
 				<Box
 					display='flex'
 					alignItems='center'
+					gap='10px'
 					sx={{
 						'& .p-calendar .p-inputtext ': {
 							padding: '5px 10px',
@@ -312,19 +372,49 @@ const CustomTable = ({ setPage, individualItems, isFetching }) => {
 							bg: '#dedede',
 						},
 					}}>
-					<Calendar
-						value={dates}
-						onChange={(e) => setDates(e.value)}
-						selectionMode='range'
-						placeholder='Select Date Range'
-					/>
+					<Box display='flex' gap='10px' alignItems='center'>
+						<Text fontSize='14px' fontWeight='500'>
+							Select Date :
+						</Text>
+						<Box
+							display='flex'
+							justifyContent='space-between'
+							gap='10px'
+							sx={{
+								'& .react-datepicker-wrapper input': {
+									bg: '#dedede',
+									padding: '5px 10px',
+									fontSize: '12px',
+									width: '100px',
+									borderRadius: '5px',
+									outline: 'none',
+								},
+							}}>
+							<DatePicker
+								selected={startDate}
+								onChange={handleStartDateChange}
+								selectsStart
+								startDate={startDate}
+								endDate={endDate}
+								placeholderText='Start Date'
+							/>
+							<DatePicker
+								selected={endDate}
+								onChange={handleEndDateChange}
+								selectsEnd
+								startDate={startDate}
+								endDate={endDate}
+								minDate={startDate}
+								placeholderText='End Date'
+							/>
+						</Box>
+					</Box>
 
 					<Button
 						onClick={onOpen}
 						padding='15px'
 						bg='mainBlue'
 						color='white'
-						mr='10px'
 						_hover={{
 							bg: 'mainBlue',
 						}}>
@@ -339,7 +429,6 @@ const CustomTable = ({ setPage, individualItems, isFetching }) => {
 						bg='mainBlue'
 						color='white'
 						padding='15px'
-						mr='10px'
 						_hover={{
 							color: 'white',
 							bg: 'mainBlue',
@@ -349,6 +438,7 @@ const CustomTable = ({ setPage, individualItems, isFetching }) => {
 							Filter
 						</Text>
 					</Button>
+
 					<Menu>
 						<MenuButton
 							bg='mainBlue'
@@ -433,15 +523,6 @@ const CustomTable = ({ setPage, individualItems, isFetching }) => {
 												fontSize='14px'>
 												Select Your Date - Range
 											</Text>
-											<Calendar
-												value={downloadDataByDates}
-												onChange={(e) =>
-													setDownloadDataByDates(
-														e.value
-													)
-												}
-												selectionMode='range'
-											/>
 										</Box>
 									</ModalBody>
 

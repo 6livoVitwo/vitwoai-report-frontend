@@ -14,33 +14,26 @@ export const salesApi = createApi({
 	}),
 	endpoints: (builder) => ({
 		fetchSales: builder.query({
-			query: ({ page }) => ({
-				url: `sales/salesdata-adv-filter?pageSize=${page}`,
-				method: 'POST', // or 'PUT', 'PATCH', etc. depending on your API
-				body: JSON.stringify([
-					{
-						column: 'company_id',
-						operator: 'equal',
-						type: 'Integer',
-						value: 1,
+			query: ({ page, dateRange }) => {
+				const { startDate = '2024-01-01', endDate = '2024-12-31' } =
+					dateRange || {};
+				const formattedDateRange = `${startDate}-${endDate}`;
+				return {
+					url: `sales/salesdata-adv-filter?pageSize=${page}`,
+					method: 'POST',
+					body: JSON.stringify([
+						{
+							column: 'invoice_date',
+							operator: 'between',
+							type: 'date',
+							value: formattedDateRange,
+						},
+					]),
+					headers: {
+						'Content-Type': 'application/json',
 					},
-					{
-						column: 'location_id',
-						operator: 'equal',
-						type: 'Integer',
-						value: 1,
-					},
-					{
-						column: 'branch_id',
-						operator: 'equal',
-						type: 'Integer',
-						value: 1,
-					},
-				]),
-				headers: {
-					'Content-Type': 'application/json', // Set content type to application/json
-				},
-			}),
+				};
+			},
 		}),
 	}),
 });
