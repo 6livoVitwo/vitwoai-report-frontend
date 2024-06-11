@@ -14,21 +14,11 @@ export const salesApi = createApi({
 	}),
 	endpoints: (builder) => ({
 		fetchSales: builder.query({
-			query: ({ page, dateRange }) => {
-				const { startDate = '2024-01-01', endDate = '2024-12-31' } =
-					dateRange || {};
-				const formattedDateRange = `${startDate}-${endDate}`;
+			query: ({ page, filters }) => {
 				return {
 					url: `sales/salesdata-adv-filter?pageSize=${page}`,
 					method: 'POST',
-					body: JSON.stringify([
-						{
-							column: 'invoice_date',
-							operator: 'between',
-							type: 'date',
-							value: formattedDateRange,
-						},
-					]),
+					body: JSON.stringify(filters),
 					headers: {
 						'Content-Type': 'application/json',
 					},

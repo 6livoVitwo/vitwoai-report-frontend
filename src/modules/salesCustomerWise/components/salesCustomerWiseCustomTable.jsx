@@ -50,6 +50,7 @@ const CustomTable = ({
 	individualItems,
 	isFetching,
 	setDateRange,
+	pageInfo,
 }) => {
 	const [data, setData] = useState([]);
 	const [loading, setLoading] = useState(false);
@@ -889,6 +890,7 @@ const CustomTable = ({
 
 									return (
 										<Box
+											key={column.field}
 											className='columnCheckBox'
 											padding='5px'
 											bg='rgba(231,231,231,1)'
