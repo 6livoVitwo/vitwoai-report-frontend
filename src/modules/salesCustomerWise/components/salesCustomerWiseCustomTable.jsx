@@ -52,7 +52,7 @@ const CustomTable = ({
 	setDateRange,
 	pageInfo,
 }) => {
-	const [data, setData] = useState([]);
+	const [data, setData] = useState([...individualItems]);
 	const [loading, setLoading] = useState(false);
 	const [defaultColumns, setDefaultColumns] = useState([]);
 	const [selectedColumns, setSelectedColumns] = useState([]);
@@ -84,7 +84,7 @@ const CustomTable = ({
 	};
 
 	useEffect(() => {
-		loadMoreData();
+		// loadMoreData();
 	}, []);
 
 	useEffect(() => {
