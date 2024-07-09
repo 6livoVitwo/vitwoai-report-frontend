@@ -132,11 +132,11 @@ const Dashboard = () => {
 									display: 'flex',
 									justifyContent: 'space-between',
 									alignItems: 'center',
-									boxShadow:
-										'rgba(0, 0, 0, 0.24) 0px 3px 4px',
+									boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 4px',
 									p: 2,
 									my: 2,
-								}}>
+								}}
+							>
 								<Text fontWeight='bold' fontSize='14px'></Text>
 								<Text
 									fontWeight='bold'
@@ -151,7 +151,8 @@ const Dashboard = () => {
 								display='flex'
 								flexWrap='wrap'
 								justifyContent='space-between'
-								marginTop='10px'>
+							// marginTop='10px'
+							>
 								{graphViewSettings?.map((chart, index) => {
 									return (
 										<Box
@@ -165,6 +166,7 @@ const Dashboard = () => {
 												sx={{
 													backgroundColor: 'white',
 													padding: '15px',
+													my: 5,
 													borderRadius: '8px',
 													border: '1px solid #c4c4c4',
 												}}
@@ -284,6 +286,7 @@ const Dashboard = () => {
 					if (chart?.pinned === false) return null;
 					return (
 						<Box
+							key={index}
 							width={{
 								base: '100%',
 								lg: '49%',
@@ -293,14 +296,17 @@ const Dashboard = () => {
 								sx={{
 									backgroundColor: 'white',
 									padding: '15px',
+									my: 2.5,
 									borderRadius: '8px',
 									transition: 'box-shadow 0.3s ease-in-out',
+									border: '1px solid #dee2e6',
 									'&:hover': {
 										boxShadow:
 											'0 4px 4px rgba(0, 0, 0, 0.2)',
 									},
 								}}
-								mb={3}>
+								mb={3}
+							>
 								<Box
 									display='flex'
 									justifyContent='space-between'
