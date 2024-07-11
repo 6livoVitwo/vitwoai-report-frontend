@@ -12,6 +12,7 @@ import {
 	Button,
 	Text,
 	Badge,
+	Stack,
 } from '@chakra-ui/react';
 import { IoMdAdd } from 'react-icons/io';
 import GraphViewSettings from './graphViewSettings';
@@ -116,7 +117,8 @@ const Dashboard = () => {
 								zIndex: 1,
 								backgroundColor: 'white',
 							},
-						}}>
+						}}
+					>
 						<DrawerCloseButton style={{ color: 'white' }} />
 						<DrawerHeader
 							style={{
@@ -135,17 +137,165 @@ const Dashboard = () => {
 									boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 4px',
 									p: 2,
 									my: 2,
+									flexGrow: 1,
 								}}
 							>
-								<Text fontWeight='bold' fontSize='14px'></Text>
-								<Text
+								<Stack
+									direction='row'
+									align='center'
+									display='flex'									
+									wrap='wrap'
+									gap={2}
+								>
+									<Button
+										sx={{
+											border: '1px solid #dee2e6',
+											bgColor: '#e05e5e',
+											color: 'white',
+											flexGrow: 1,
+										}}
+										onClick={() => alert('All')}
+										variant='solid'
+									>
+										All
+										<Badge
+											ml='1'
+											variant='solid'
+										>
+											18
+										</Badge>
+									</Button>
+									<Button
+										sx={{
+											border: '1px solid #dee2e6',
+											bgColor: '#e05e5e',
+											color: 'white',
+										}}
+										onClick={() => alert('All')}
+										variant='solid'
+									>
+										Lorem ipsum
+										<Badge
+											ml='1'
+											variant='solid'
+										>
+											18
+										</Badge>
+									</Button>
+									<Button
+										sx={{
+											border: '1px solid #dee2e6',
+											bgColor: '#e05e5e',
+											color: 'white',
+										}}
+										onClick={() => alert('All')}
+										variant='solid'
+									>
+										Lorem ipsum dolor sit amet.
+										<Badge
+											ml='1'
+											variant='solid'
+										>
+											18
+										</Badge>
+									</Button>
+									<Button
+										sx={{
+											border: '1px solid #dee2e6',
+											bgColor: '#e05e5e',
+											color: 'white',
+										}}
+										onClick={() => alert('All')}
+										variant='solid'
+									>
+										Lorem ipsum dolor
+										<Badge
+											ml='1'
+											variant='solid'
+										>
+											18
+										</Badge>
+									</Button>
+									<Button
+										sx={{
+											border: '1px solid #dee2e6',
+											bgColor: '#e05e5e',
+											color: 'white',
+										}}
+										onClick={() => alert('All')}
+										variant='solid'
+									>
+										Lorem
+										<Badge
+											ml='1'
+											variant='solid'
+										>
+											18
+										</Badge>
+									</Button>
+									<Button
+										sx={{
+											border: '1px solid #dee2e6',
+											bgColor: '#e05e5e',
+											color: 'white',
+										}}
+										onClick={() => alert('All')}
+										variant='solid'
+									>
+										Lorem ipsum dolor sit amet
+										<Badge
+											ml='1'
+											variant='solid'
+										>
+											18
+										</Badge>
+									</Button>
+									<Button
+										sx={{
+											border: '1px solid #dee2e6',
+											bgColor: '#e05e5e',
+											color: 'white',
+										}}
+										onClick={() => alert('All')}
+										variant='solid'
+									>
+										Lorem ipsum dolor sit amet
+										<Badge
+											ml='1'
+											variant='solid'
+										>
+											18
+										</Badge>
+									</Button>
+									<Button
+										sx={{
+											border: '1px solid #dee2e6',
+											bgColor: '#e05e5e',
+											color: 'white',
+										}}
+										onClick={() => alert('All')}
+										variant='solid'
+									>
+										sit
+										<Badge
+											ml='1'
+											variant='solid'
+										>
+											18
+										</Badge>
+									</Button>
+								</Stack>
+								{/* <Text
 									fontWeight='bold'
 									fontSize='14px'
-									color={'#003060'}>
+									color={'#003060'}
+									minWidth='80px'
+									textAlign={'right'}
+								>
 									{' '}
 									Count - {graphViewSettings?.length ||
 										0}{' '}
-								</Text>
+								</Text> */}
 							</Box>
 							<Box
 								display='flex'
