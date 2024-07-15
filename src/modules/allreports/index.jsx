@@ -232,26 +232,8 @@ const Allreports = () => {
 	};
 	const [activeButton, setActiveButton] = useState(null);
 
-	// const [activeButton, setActiveButton] = useState(null);
-
-	// const handleDropdownChange = (e) => {
-	//   const selectedCategory = e.value;
-	//   setActiveButton(selectedCategory);
-	//   const targetElement = document.getElementById(selectedCategory);
-	//   if (targetElement) {
-	//     targetElement.scrollIntoView({ behavior: "smooth" });
-	//   }
-	// };
-
-	// const categories = cardsData.map((data) => data["card catagory"]);
-	// const dropdownOptions = categories.map((category) => ({
-	//   label: category,
-	//   value: category,
-	//   type: "category",
-	// }));
 	return (
 		<>
-			{/* ************* Previous code scrollbar ****************/}
 			<Box
 				overflowX='auto'
 				width='100%'
@@ -303,23 +285,6 @@ const Allreports = () => {
 					))}
 				</Flex>
 			</Box>
-
-			{/* <Box display="flex" justifyContent="space-between" paddingTop="7px">
-        <Box>
-          <Text color="textBlack" fontSize="17px" fontWeight="500">
-            All Reports
-          </Text>
-        </Box>
-        <Box>
-          <Dropdown
-            style={{ border: "1px solid #bebebe" }}
-            placeholder="Select any Reports"
-            className="w-full md:w-14rem"
-            options={dropdownOptions}
-            onChange={handleDropdownChange}
-          />
-        </Box>
-      </Box> */}
 
 			{cardsData.map((data, index) => {
 				return (

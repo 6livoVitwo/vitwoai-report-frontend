@@ -879,7 +879,7 @@ const CustomTable = ({
 								flexWrap='wrap'
 								gap='15px'
 								sx={{
-									'& .columnCheckBox:nth-child(odd)': {
+									'& .columnCheckBox:nth-of-type(odd)': {
 										bg: 'borderGrayLight',
 									},
 								}}>
