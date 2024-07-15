@@ -1,21 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {
+	useState,
+	useEffect,
+	useMemo,
+	useCallback,
+	useRef,
+} from 'react';
 import {
 	Box,
-	Button as ChakraButton,
-	Text,
-	Select,
-	Menu,
-	MenuButton,
-	MenuList,
-	MenuItem,
-	Drawer,
-	Input,
-	DrawerBody,
-	DrawerFooter,
-	DrawerHeader,
-	DrawerOverlay,
-	DrawerContent,
-	DrawerCloseButton,
+	Button,
+	useDisclosure,
+	Table,
+	Thead,
+	Tbody,
+	Tr,
+	Th,
+	Td,
+	TableContainer,
 	Modal,
 	ModalOverlay,
 	ModalContent,
@@ -23,110 +23,48 @@ import {
 	ModalFooter,
 	ModalBody,
 	ModalCloseButton,
-	useDisclosure,
+	Checkbox,
+	Input,
+	Text,
+	Tooltip,
+	Spinner,
+	Select,
+	useToast,
+	Menu,
+	MenuButton,
+	MenuList,
+	MenuItem,
 } from '@chakra-ui/react';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
-import { InputText } from 'primereact/inputtext';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import debounce from 'lodash/debounce';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileExcel } from '@fortawesome/free-solid-svg-icons';
-import { Button } from 'primereact/button';
-import { MultiSelect } from 'primereact/multiselect';
-import styled from '@emotion/styled';
+import { faChartSimple, faFilter } from '@fortawesome/free-solid-svg-icons';
 import { saveAs } from 'file-saver';
-import 'jspdf-autotable';
+import { faFileExcel } from '@fortawesome/free-solid-svg-icons';
 import { DownloadIcon } from '@chakra-ui/icons';
-import { Skeleton } from 'primereact/skeleton';
-import { Link } from 'react-router-dom';
-import { Calendar } from 'primereact/calendar';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
-const CssWrapper = styled.div`
-	.p-datatable-wrapper::-webkit-scrollbar {
-		width: 10px;
-	}
-	.p-datatable-wrapper::-webkit-scrollbar-track {
-		box-shadow: inset 0 0 5px grey;
-		border-radius: 10px;
-	}
-	.p-datatable-wrapper::-webkit-scrollbar-thumb {
-		background: var(--chakra-colors-mainBlue);
-		border-radius: 10px;
-	}
-	.p-datatable-emptymessage .p-datatable .p-datatable-tbody > tr > td {
-		text-align: center;
-	}
-	.p-datatable .p-sortable-column .p-column-title {
-		font-size: 1.2rem;
-		font-weight: 600;
-	}
-	.p-datatable .p-datatable-tbody > tr > td {
-		font-size: 1.2rem;
-		color: var(--chakra-colors-textBlack);
-	}
-	.p-paginator {
-		padding: 15px 10px;
-	}
-	.p-component {
-		font-size: 1.3rem;
-	}
-	.p-dropdown-label {
-		display: flex;
-		align-items: center;
-	}
-	.p-datatable .p-column-header-content {
-		justify-content: center;
-	}
-	.p-paginator .p-paginator-pages .p-paginator-page {
-		font-size: 1.3rem;
-	}
-	.p-paginator .p-dropdown .p-dropdown-label {
-		font-size: 1.3rem;
-	}
-	.p-datatable .p-datatable-tbody > tr > td {
-		text-align: center;
-		padding: 1px;
-	}
-	.p-datatable .p-datatable-header {
-		border-top: none;
-		background: white;
-	}
-	.p-datatable .p-datatable-thead > tr > th {
-		background-color: #f0f3f5;
-		color: var(--chakra-colors-mainBluemedium);
-	}
-	.p-datatable-tbody tr:nth-of-type(even) {
-		background-color: #f0f3f5;
-	}
-	.p-input-icon-left > i:first-of-type {
-		right: 0.75rem;
-		color: #6b7280;
-	}
-	.p-datatable .p-datatable-thead > tr > th {
-		text-wrap: nowrap;
-		border: 1px solid #ccc;
-	}
-	.p-datatable > .p-datatable-wrapper {
-		height: calc(100vh - 275px);
-		padding-right: 5px;
-		margin-right: 5px;
-	}
-	.custom-sort-icon {
-		color: white !important;
-	}
-`;
-
-const CustomTable = ({ individualItems, setFirst, first }) => {
-	const dataTable = useRef(null);
-	const [customers, setCustomers] = useState([]);
-	const [loading, setLoading] = useState(true);
-	const [globalFilterValue, setGlobalFilterValue] = useState('');
-	const [columns, setColumns] = useState([]);
-	const [visibleColumns, setVisibleColumns] = useState([]);
-	const [lazyLoading, setLazyLoading] = useState(false);
-	const [rows, setRows] = useState(20); // Initial number of rows
-	const [totalRecords, setTotalRecords] = useState(0);
+const CustomTable = ({
+	setPage,
+	individualItems,
+	isFetching,
+	setDateRange,
+	pageInfo,
+}) => {
+	const [data, setData] = useState([...individualItems]);
+	const [loading, setLoading] = useState(false);
+	const [defaultColumns, setDefaultColumns] = useState([]);
+	const [selectedColumns, setSelectedColumns] = useState([]);
+	const [selectAll, setSelectAll] = useState(false);
+	const [searchQuery, setSearchQuery] = useState('');
+	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [columnFilters, setColumnFilters] = useState({});
-	const [dates, setDates] = useState(null);
+	const [startDate, setStartDate] = useState(null);
+	const [endDate, setEndDate] = useState(null);
+
+	const toast = useToast();
+	const observer = useRef();
 	const {
 		onOpen: onOpenFilterModal,
 		onClose: onCloseFilterModal,
@@ -138,61 +76,175 @@ const CustomTable = ({ individualItems, setFirst, first }) => {
 		isOpen: isOpenDownloadReportModal,
 	} = useDisclosure();
 
-	useEffect(() => {
+	const loadMoreData = async () => {
 		setLoading(true);
-		setCustomers(getCustomers(individualItems));
-		setTotalRecords(individualItems.length);
+		setData((prevData) => [...prevData, ...individualItems]);
+		setPage((prevPage) => prevPage + 1);
 		setLoading(false);
-		setColumns(getColumns(individualItems));
-		setVisibleColumns(getColumns(individualItems).slice(0, 8));
-	}, [individualItems]);
-
-	const getCustomers = (data) => {
-		return [...(data || [])].map((d, index) => {
-			const postingDate = new Date(d['Posting Date']);
-			const createdDate = new Date(d['Created Date']);
-			d['Posting Date'] = postingDate.toLocaleDateString('en-US');
-			d['Created Date'] = createdDate.toLocaleDateString('en-US');
-			return { ...d, id: index }; // Ensure each row has a unique 'id' key
-		});
 	};
 
-	const getColumns = (data) => {
+	useEffect(() => {
+		// loadMoreData();
+	}, []);
+
+	useEffect(() => {
+		const initialColumns = getColumns(data)
+			.slice(0, 8)
+			.map((column) => column.field);
+		setDefaultColumns(initialColumns);
+		setSelectedColumns(initialColumns);
+	}, [data]);
+
+	const getColumns = useCallback((data) => {
 		if (!data || data.length === 0) {
 			return [];
 		}
-
 		const sampleItem = data[0];
 		return Object.keys(sampleItem).map((key) => ({
 			field: key,
 			header: key,
 		}));
+	}, []);
+
+	const handleDragEnd = (result) => {
+		if (!result.destination) {
+			return;
+		}
+		const newColumnsOrder = Array.from(selectedColumns);
+		const [removed] = newColumnsOrder.splice(result.source.index, 1);
+		newColumnsOrder.splice(result.destination.index, 0, removed);
+		setSelectedColumns(newColumnsOrder);
 	};
 
-	const onColumnToggle = (event) => {
-		let selectedColumns = event.value;
-		setVisibleColumns(selectedColumns);
+	const toggleColumn = (columnName) => {
+		setSelectedColumns((prevSelectedColumns) =>
+			prevSelectedColumns.includes(columnName)
+				? prevSelectedColumns.filter((col) => col !== columnName)
+				: [...prevSelectedColumns, columnName]
+		);
 	};
 
-	const exportToExcel = () => {
-		import('xlsx').then((xlsx) => {
-			const worksheet = xlsx.utils.json_to_sheet(customers);
-			const workbook = {
-				Sheets: { data: worksheet },
-				SheetNames: ['data'],
-			};
-			const excelBuffer = xlsx.write(workbook, {
-				bookType: 'xlsx',
-				type: 'array',
-			});
-			saveAs(
-				new Blob([excelBuffer], {
-					type: 'application/octet-stream',
-				}),
-				'customers.xlsx'
-			);
+	const handleSelectAllToggle = () => {
+		const allColumnFields = getColumns(data).map((column) => column.field);
+		if (selectAll) {
+			setSelectedColumns([]);
+		} else {
+			setSelectedColumns(allColumnFields);
+		}
+		setSelectAll((prevSelectAll) => !prevSelectAll);
+	};
+
+	const handleModalClose = () => {
+		setSelectedColumns(defaultColumns);
+		onClose();
+	};
+
+	const handleApplyChanges = () => {
+		onClose();
+		toast({
+			title: 'Column Added Successfully',
+			status: 'success',
+			isClosable: true,
 		});
 	};
+
+	const debouncedSearchQuery = useMemo(
+		() => debounce(setSearchQuery, 300),
+		[]
+	);
+
+	useEffect(() => {
+		return () => {
+			debouncedSearchQuery.cancel();
+		};
+	}, [debouncedSearchQuery]);
+
+	const handleSearchChange = (e) => {
+		debouncedSearchQuery(e.target.value);
+	};
+
+	const filteredItems = useMemo(() => {
+		let filteredData = [...data];
+		Object.keys(columnFilters).forEach((field) => {
+			const filter = columnFilters[field];
+			filteredData = filteredData.filter((item) => {
+				const value = item[field];
+
+				switch (filter.condition) {
+					case 'like':
+						return String(value)
+							.toLowerCase()
+							.includes(String(filter.value).toLowerCase());
+					case 'notLike':
+						return !String(value)
+							.toLowerCase()
+							.includes(String(filter.value).toLowerCase());
+					case 'greaterThan':
+						return Number(value) > Number(filter.value);
+					case 'greaterThanOrEqual':
+						return Number(value) >= Number(filter.value);
+					case 'lessThan':
+						return Number(value) < Number(filter.value);
+					case 'lessThanOrEqual':
+						return Number(value) <= Number(filter.value);
+					case 'between':
+						return (
+							Number(value) >= Number(filter.value[0]) &&
+							Number(value) <= Number(filter.value[1])
+						);
+					default:
+						return true;
+				}
+			});
+		});
+
+		if (searchQuery) {
+			filteredData = filteredData.filter((item) => {
+				const values = Object.values(item);
+				return values.some((value) =>
+					String(value)
+						.toLowerCase()
+						.includes(searchQuery.toLowerCase())
+				);
+			});
+		}
+
+		return filteredData;
+	}, [data, searchQuery, columnFilters]);
+
+	const formatHeader = (header) => {
+		header = header.trim();
+		const parts = header.split('.');
+		const lastPart = parts.pop();
+		const words = lastPart.split('_').join('');
+		const spacedWords = words.replace(/([a-z])([A-Z])/g, '$1 $2');
+
+		return spacedWords
+			.split(' ')
+			.map((word) => {
+				if (word.toLowerCase() === 'uom') {
+					return 'Uom';
+				}
+				return (
+					word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+				);
+			})
+			.join(' ');
+	};
+
+	const lastItemRef = useCallback(
+		(node) => {
+			if (loading) return;
+			if (observer.current) observer.current.disconnect();
+			observer.current = new IntersectionObserver((entries) => {
+				if (entries[0].isIntersecting) {
+					loadMoreData();
+				}
+			});
+			if (node) observer.current.observe(node);
+		},
+		[loading]
+	);
 
 	const handleColumnFilterConditionChange = (field, condition) => {
 		condition = String(condition);
@@ -230,98 +282,218 @@ const CustomTable = ({ individualItems, setFirst, first }) => {
 		}));
 	};
 
-	const getFilteredCustomers = () => {
-		let filteredData = customers;
-
-		// Apply global filter
-		filteredData = filteredData.filter((customer) =>
-			Object.values(customer).some(
-				(value) =>
-					typeof value === 'string' &&
-					value
-						.toLowerCase()
-						.includes(globalFilterValue.toLowerCase())
-			)
-		);
-
-		return filteredData;
-	};
-
 	const excludedKeys = [];
 	const columnFiltersArray = Object.keys(columnFilters)
 		.filter((key) => !excludedKeys.includes(key))
 		.map((key) => columnFilters[key]);
 
-	const renderHeader = () => {
-		return (
+	const exportToExcel = () => {
+		import('xlsx').then((xlsx) => {
+			const worksheet = xlsx.utils.json_to_sheet(filteredItems);
+			const workbook = {
+				Sheets: { data: worksheet },
+				SheetNames: ['data'],
+			};
+			const excelBuffer = xlsx.write(workbook, {
+				bookType: 'xlsx',
+				type: 'array',
+			});
+			saveAs(
+				new Blob([excelBuffer], {
+					type: 'application/octet-stream',
+				}),
+				'customers.xlsx'
+			);
+		});
+	};
+
+	const handleStartDateChange = (date) => {
+		setStartDate(date);
+		updateArrayValue(date, endDate);
+	};
+
+	const handleEndDateChange = (date) => {
+		setEndDate(date);
+		updateArrayValue(startDate, date);
+	};
+
+	const formatDate = (date) => {
+		return date.toISOString().split('T')[0];
+	};
+	const updateArrayValue = (start, end) => {
+		if (start && end) {
+			const formattedStartDate = formatDate(start);
+			const formattedEndDate = formatDate(end);
+			const newArrayValue = [
+        {
+          data: [
+            'items.itemName',
+            'SUM(salesPgi.salesDelivery.totalAmount)',
+            'SUM(salesPgi.totalAmount)',
+            'SUM(quotation.totalAmount)',
+            'SUM(salesOrder.totalAmount)',
+            'SUM(items.qty)',
+            'SUM(items.basePrice - items.totalDiscountAmt)',
+            'SUM(all_total_amt)',
+          ],
+          groupBy: ['items.itemName'],
+          filter: [
+            {
+              column: 'company_id',
+              operator: 'equal',
+              type: 'Integer',
+              value: 1,
+            },
+            {
+              column: 'location_id',
+              operator: 'equal',
+              type: 'Integer',
+              value: 1,
+            },
+            {
+              column: 'branch_id',
+              operator: 'equal',
+              type: 'Integer',
+              value: 1,
+            },
+          ],
+          page: 0,
+          size: 50,
+          // column: 'invoice_date',
+          // operator: 'between',
+          // type: 'date',
+          // value: [formattedStartDate, formattedEndDate],
+        },
+      ];
+			setDateRange(newArrayValue);
+		} else {
+			setDateRange([]);
+		}
+	};
+
+	return (
+		<Box bg='white' padding='10px' borderRadius='5px'>
 			<Box
 				display='flex'
+				borderRadius='5px'
+				alignItems='center'
 				justifyContent='space-between'
-				alignItems='center'>
+				padding='10px'
+				boxShadow='1px 2px 15px 2px #00000012'
+				sx={{
+					'& input:placeholder': {
+						color: 'white',
+					},
+				}}>
+				<Input
+					width='20%'
+					bg='#dedede'
+					padding='15px'
+					borderRadius='5px'
+					placeholder='Search Global Data'
+					onChange={handleSearchChange}
+				/>
+
 				<Box
 					display='flex'
-					gap='15px'
+					alignItems='center'
+					gap='10px'
 					sx={{
-						'& .p-button-outlined': {
-							color: 'mainBlue',
+						'& .p-calendar .p-inputtext ': {
 							padding: '5px 10px',
-							fontSize: '14px',
-							border: '1px solid #003060',
+							borderRadius: '5px',
+							mr: '10px',
+							bg: '#dedede',
 						},
 					}}>
-					<Box
-						border='1px solid var(--chakra-colors-borderGrayLight)'
-						borderRadius='5px'
-						className='demo'>
-						<MultiSelect
-							value={visibleColumns}
-							options={columns}
-							optionLabel='header'
-							onChange={onColumnToggle}
-							className='w-full sm:w-20rem'
-							display='chip'
-						/>
+					<Box display='flex' gap='10px' alignItems='center'>
+						<Text fontSize='14px' fontWeight='500'>
+							Select Date :
+						</Text>
+						<Box
+							display='flex'
+							justifyContent='space-between'
+							gap='10px'
+							sx={{
+								'& .react-datepicker-wrapper input': {
+									bg: '#dedede',
+									padding: '5px 10px',
+									fontSize: '12px',
+									width: '100px',
+									borderRadius: '5px',
+									outline: 'none',
+								},
+							}}>
+							<DatePicker
+								selected={startDate}
+								onChange={handleStartDateChange}
+								selectsStart
+								startDate={startDate}
+								endDate={endDate}
+								placeholderText='Start Date'
+							/>
+							<DatePicker
+								selected={endDate}
+								onChange={handleEndDateChange}
+								selectsEnd
+								startDate={startDate}
+								endDate={endDate}
+								minDate={startDate}
+								placeholderText='End Date'
+							/>
+						</Box>
 					</Box>
-				</Box>
 
-				<Box display='flex' alignItems='center' gap='15px'>
-					<Box
-						as='span'
-						border='1px solid var(--chakra-colors-borderGrayLight)'
-						borderRadius='5px'
-						position='relative'
-						sx={{
-							'& .pi.pi-search': {
-								position: 'absolute',
-								right: '10px',
-								top: '50%',
-								transform: 'translateY(-50%)',
-							},
-							'& .search_input': {
-								padding: '7px',
-							},
+					<Button
+						onClick={onOpen}
+						padding='15px'
+						bg='mainBlue'
+						color='white'
+						_hover={{
+							bg: 'mainBlue',
 						}}>
-						<i className='pi pi-search' />
-						<InputText
-							className='search_input'
-							value={globalFilterValue}
-							onChange={onGlobalFilterChange}
-							placeholder='Keyword Search'
-						/>
-					</Box>
+						<FontAwesomeIcon icon={faChartSimple} color='white' />
+						<Text fontSize='13px' fontWeight='600' ml='5px'>
+							Column
+						</Text>
+					</Button>
+
+					<Button
+						onClick={onOpenFilterModal}
+						bg='mainBlue'
+						color='white'
+						padding='15px'
+						_hover={{
+							color: 'white',
+							bg: 'mainBlue',
+						}}>
+						<FontAwesomeIcon w={4} h={4} icon={faFilter} />
+						<Text fontSize='13px' fontWeight='600' ml='5px'>
+							Filter
+						</Text>
+					</Button>
+
 					<Menu>
 						<MenuButton
-							color='#718296'
-							padding='7px 10px'
-							fontSize='14px'
+							bg='mainBlue'
+							color='white'
+							padding='5px'
 							borderRadius='5px'
-							border='1px solid #dee2e6'
 							_hover={{
-								bg: 'rgb(0, 48, 96)',
-								color: '#ffffff',
-								borderRadius: '5px',
+								color: 'white',
+								bg: 'mainBlue',
+							}}
+							sx={{
+								'& span': {
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+								},
 							}}>
-							<DownloadIcon w='20px' h='15px' /> Download Report
+							<DownloadIcon w='20px' h='15px' />
+							<Text fontSize='13px' fontWeight='600' ml='5px'>
+								Download
+							</Text>
 						</MenuButton>
 						<MenuList>
 							<MenuItem
@@ -352,31 +524,31 @@ const CustomTable = ({ individualItems, setFirst, first }) => {
 								<ModalOverlay />
 								<ModalContent>
 									<ModalHeader
-										bg='var(--chakra-colors-mainBlue)'
+										fontWeight='600'
+										bg='mainBlue'
 										color='white'
-										mb='10px'
-										fontSize='15px'
-										fontWeight='500'
-										padding='15px 15px'>
-										Download Report by Date Range
+										fontSize='16px'
+										padding='12px'>
+										Select Date Range
 									</ModalHeader>
 									<ModalCloseButton
+										mt='5px'
 										color='white'
 										size='lg'
-										mt='8px'
 									/>
 									<ModalBody>
 										<Box
 											display='flex'
 											flexDirection='column'
 											sx={{
-												'& .p-calendar': {
-													border: '1px solid #ccc',
-													width: '100%',
-													borderRadius: '5px',
-												},
 												'& .p-calendar input': {
 													height: '30px',
+												},
+												'& .p-calendar .p-inputtext ': {
+													padding: '5px 10px',
+													borderRadius: '5px',
+													mr: '0px',
+													bg: '#dedede',
 												},
 											}}>
 											<Text
@@ -385,29 +557,33 @@ const CustomTable = ({ individualItems, setFirst, first }) => {
 												fontSize='14px'>
 												Select Your Date - Range
 											</Text>
-											<Calendar
-												value={dates}
-												onChange={(e) =>
-													setDates(e.value)
-												}
-												selectionMode='range'
-												readOnlyInput
-												hideOnRangeSelection
-											/>
 										</Box>
 									</ModalBody>
 
 									<ModalFooter>
 										<Button
-											colorScheme='blue'
 											mr={3}
+											padding='15px'
+											fontSize='13px'
+											bg='var(--chakra-colors-mainBlue)'
+											_hover={{
+												bg: 'var(--chakra-colors-mainBlue)',
+											}}
+											color='white'
 											onClick={
 												onCloseDownloadReportModal
 											}>
 											Close
 										</Button>
-										<Button variant='ghost'>
-											Secondary Action
+										<Button
+											padding='15px'
+											fontSize='13px'
+											bg='var(--chakra-colors-mainBlue)'
+											_hover={{
+												bg: 'var(--chakra-colors-mainBlue)',
+											}}
+											color='white'>
+											Filter
 										</Button>
 									</ModalFooter>
 								</ModalContent>
@@ -415,310 +591,401 @@ const CustomTable = ({ individualItems, setFirst, first }) => {
 						</MenuList>
 					</Menu>
 
-					<Box
-						sx={{
-							'& button': {
-								color: '#718296',
-								padding: '7px 10px',
-								fontSize: '14px',
-								border: '1px solid #dee2e6',
-							},
-							'& button:hover': {
-								bg: 'rgb(0, 48, 96)',
-								borderRadius: '5px',
-							},
-							'& button:hover span': {
-								color: 'white',
-							},
-						}}>
-						<Button
-							type='button'
-							icon='pi pi-filter-slash'
-							label='Clear'
-							outlined
-							onClick={clearFilter}
-							_hover={{
-								color: 'white',
-							}}
-						/>
-					</Box>
-					<Box
-						sx={{
-							'& button': {
-								color: '#718296',
-								padding: '7px 10px',
-								fontSize: '14px',
-								border: '1px solid #dee2e6',
-							},
-							'& button:hover': {
-								bg: 'rgb(0, 48, 96)',
-								borderRadius: '5px',
-							},
-							'& button:hover span': {
-								color: 'white',
-							},
-						}}>
-						<Button
-							type='button'
-							icon='pi pi-filter'
-							label='Filter'
-							outlined
-							onClick={onOpenFilterModal}
-							_hover={{
-								color: 'white',
-							}}
-						/>
-						<Drawer
-							isOpen={isOpenFilterModal}
-							placement='right'
-							onClose={onCloseFilterModal}
-							size='xl'>
-							<DrawerOverlay />
-							<DrawerContent>
-								<DrawerCloseButton
-									color='white'
-									size='lg'
-									mt='8px'
-								/>
-								<DrawerHeader
-									bg='var(--chakra-colors-mainBlue)'
-									color='white'
-									mb='10px'
-									fontSize='17px'
-									fontWeight='500'
-									padding='15px 15px'>
-									Filter Table Report by Column
-								</DrawerHeader>
-
-								<DrawerBody>
-									{visibleColumns.map((column) => (
-										<Box key={column.field}>
-											<Text
-												color='var(--chakra-colors-textBlack)'
-												fontWeight='600'
-												fontSize='14px'
-												mt='15px'
-												mb='5px'>
-												{column.header
-													.split('_') // Split by underscore
-													.map((word) =>
-														word
-															.split(/(?=[A-Z])/) // Split camel case
-															.map(
-																(w) =>
-																	w
-																		.charAt(
-																			0
-																		)
-																		.toUpperCase() +
-																	w.slice(1)
-															)
-															.join(' ')
-													)
-													.join(' ')}
-											</Text>
-											<Box display='flex' gap='15px'>
-												<Select
-													placeholder='Select option'
-													size='lg'
-													fontSize='14px'
-													h='35px'
-													value={
-														columnFilters[
-															column.field
-														]?.condition || ''
-													}
-													onChange={(e) =>
-														handleColumnFilterConditionChange(
-															column.field,
-															e.target.value
-														)
-													}>
-													<option value='like'>
-														Contain
-													</option>
-													<option value='notLike'>
-														Not Contain
-													</option>
-													<option value='greaterThan'>
-														Greater Than
-													</option>
-													<option value='greaterThanOrEqual'>
-														Greater Than or Equal
-													</option>
-													<option value='lessThan'>
-														Less Than
-													</option>
-													<option value='lessThanOrEqual'>
-														Less Than or Equal
-													</option>
-													<option value='between'>
-														Between
-													</option>
-												</Select>
-												<Input
-													h='35px'
-													fontSize='14px'
-													padding='10px 10px'
-													value={
-														columnFilters[
-															column.field
-														]?.value || ''
-													}
-													onChange={(e) =>
-														handleColumnFilterValueChange(
-															column.field,
-															e.target.value
-														)
-													}
-													placeholder={`Filter ${column.header}`}
-												/>
-											</Box>
-										</Box>
-									))}
-								</DrawerBody>
-
-								<DrawerFooter padding='15px 25px'>
-									<ChakraButton
-										mr={3}
-										padding='15px'
-										fontSize='13px'
-										bg='var(--chakra-colors-mainBlue)'
-										color='white'
-										onClick={onCloseFilterModal}>
-										Cancel
-									</ChakraButton>
-									<ChakraButton
-										padding='15px'
-										fontSize='13px'
-										bg='var(--chakra-colors-mainBlue)'
-										color='white'>
-										Save
-									</ChakraButton>
-								</DrawerFooter>
-							</DrawerContent>
-						</Drawer>
-					</Box>
-					<Link to='/reports/sales-product-wise/graph-view'>
-						<Box
-							sx={{
-								'& button': {
-									color: '#718296',
-									padding: '7px 10px',
-									fontSize: '14px',
-									border: '1px solid #dee2e6',
-								},
-								'& button:hover': {
-									bg: 'rgb(0, 48, 96)',
-									borderRadius: '5px',
-								},
-								'& button:hover span': {
-									color: 'white',
-								},
-							}}>
-							<Button
-								type='button'
-								icon='pi pi-chart-bar'
-								label='Graph View'
-								outlined
-								_hover={{
-									color: 'white',
-								}}
+					<Modal
+						isOpen={isOpenFilterModal}
+						onClose={onCloseFilterModal}
+						size='xl'
+						isCentered>
+						<ModalOverlay />
+						<ModalContent minW='40%'>
+							<ModalHeader
+								fontWeight='600'
+								bg='mainBlue'
+								color='white'
+								fontSize='16px'
+								padding='12px'>
+								Filter Table Report by Column
+							</ModalHeader>
+							<ModalCloseButton
+								mt='5px'
+								color='white'
+								size='lg'
 							/>
-						</Box>
-					</Link>
+							<ModalBody>
+								<Box
+									height='60vh'
+									overflowY='scroll'
+									overflowX='hidden'>
+									{getColumns(data).map((column) => {
+										const formattedHeader = formatHeader(
+											column.header
+										);
+										return (
+											<Box key={column.field}>
+												<Text
+													color='var(--chakra-colors-textBlack)'
+													fontWeight='600'
+													fontSize='14px'
+													mt='10px'
+													mb='3px'>
+													{formattedHeader}
+												</Text>
+												<Box
+													display='flex'
+													gap='15px'
+													mr='10px'>
+													<Select
+														placeholder='Select option'
+														size='lg'
+														fontSize='12px'
+														h='35px'
+														value={
+															columnFilters[
+																column.field
+															]?.condition || ''
+														}
+														onChange={(e) =>
+															handleColumnFilterConditionChange(
+																column.field,
+																e.target.value
+															)
+														}>
+														<option value='like'>
+															Contain
+														</option>
+														<option value='notLike'>
+															Not Contain
+														</option>
+														<option value='greaterThan'>
+															Greater Than
+														</option>
+														<option value='greaterThanOrEqual'>
+															Greater Than or
+															Equal
+														</option>
+														<option value='lessThan'>
+															Less Than
+														</option>
+														<option value='lessThanOrEqual'>
+															Less Than or Equal
+														</option>
+														<option value='between'>
+															Between
+														</option>
+													</Select>
+													<Input
+														h='35px'
+														fontSize='12px'
+														padding='10px 10px'
+														value={
+															columnFilters[
+																column.field
+															]?.value || ''
+														}
+														onChange={(e) =>
+															handleColumnFilterValueChange(
+																column.field,
+																e.target.value
+															)
+														}
+														placeholder={`Filter ${column.header}`}
+													/>
+												</Box>
+											</Box>
+										);
+									})}
+								</Box>
+							</ModalBody>
+
+							<ModalFooter>
+								<Button
+									mr={3}
+									padding='15px'
+									fontSize='13px'
+									bg='var(--chakra-colors-mainBlue)'
+									_hover={{
+										bg: 'var(--chakra-colors-mainBlue)',
+									}}
+									color='white'
+									onClick={onCloseFilterModal}>
+									Reset
+								</Button>
+								<Button
+									padding='15px'
+									fontSize='13px'
+									bg='var(--chakra-colors-mainBlue)'
+									_hover={{
+										bg: 'var(--chakra-colors-mainBlue)',
+									}}
+									color='white'>
+									Filter
+								</Button>
+							</ModalFooter>
+						</ModalContent>
+					</Modal>
 				</Box>
 			</Box>
-		);
-	};
 
-	const clearFilter = () => {
-		setGlobalFilterValue('');
-	};
-
-	const onGlobalFilterChange = (e) => {
-		setGlobalFilterValue(e.target.value);
-		dataTable.current.filter(e.target.value, 'contains');
-	};
-
-	const loadCarsLazy = (event) => {
-		if (!individualItems) return;
-		const { first } = event;
-		setFirst(first);
-		const remainingRows = totalRecords - first;
-		const loadMoreRows = Math.min(remainingRows, 20);
-		setRows(loadMoreRows);
-		setLazyLoading(true);
-		setTimeout(() => {
-			setLazyLoading(false);
-		}, Math.random() * 1000 + 100);
-	};
-
-	const loadingTemplate = (options) => {
-		return (
-			<div
-				className='flex align-items-center'
-				style={{
-					height: '17px',
-					flexGrow: '1',
-					overflow: 'hidden',
-					justifyContent: 'center',
-				}}>
-				<Skeleton
-					width={
-						options.cellEven
-							? options.field === 'year'
-								? '30%'
-								: '40%'
-							: '60%'
-					}
-					height='1rem'
-				/>
-			</div>
-		);
-	};
-
-	return (
-		<CssWrapper>
 			<Box
-				className='card'
+				mt='10px'
 				background='var(--chakra-colors-white)'
-				style={{ width: '100%', overflowX: 'auto' }}>
-				<DataTable
-					ref={dataTable}
-					value={getFilteredCustomers()}
-					first={first}
-					rows={rows}
-					loading={loading}
-					// dataKey='id'
-					header={renderHeader()}
-					scrollable
-					virtualScrollerOptions={{
-						lazy: true,
-						onLazyLoad: loadCarsLazy,
-						itemSize: 100,
-						delay: 200,
-						showLoader: true,
-						loading: lazyLoading,
-						loadingTemplate,
-					}}
-					tableStyle={{ minWidth: '50rem' }}
-					emptyMessage='No customers found.'
-					globalFilter={globalFilterValue}>
-					{visibleColumns.map((col) => (
-						<Column
-							key={col.field}
-							field={col.field}
-							header={col.header.toUpperCase()}
-							sortable
-							style={{
-								minWidth: '150px',
-							}}
-						/>
-					))}
-				</DataTable>
+				style={{ width: '100%', overflowX: 'auto' }}
+				height='calc(100vh - 195px)'>
+				<DragDropContext onDragEnd={handleDragEnd}>
+					<Droppable droppableId='columns' direction='horizontal'>
+						{(provided) => (
+							<TableContainer
+								ref={provided.innerRef}
+								marginRight='5px'>
+								<Table variant='simple' width='100%'>
+									<Thead>
+										<Tr bg='#cfd8e1'>
+											{selectedColumns.map(
+												(columnName, index) => {
+													const column = getColumns(
+														data
+													).find(
+														(col) =>
+															col.field ===
+															columnName
+													);
+													const formattedHeader =
+														formatHeader(
+															column.header
+														);
+													return (
+														<Draggable
+															key={columnName}
+															draggableId={
+																columnName
+															}
+															index={index}>
+															{(provided) => (
+																<Th
+																	{...provided.draggableProps}
+																	{...provided.dragHandleProps}
+																	ref={
+																		provided.innerRef
+																	}
+																	padding='15px 10px'
+																	fontSize='13px'
+																	fontWeight='500'
+																	textTransform='capitalize'
+																	fontFamily='Poppins, sans-serif'
+																	color='black'>
+																	{
+																		formattedHeader
+																	}
+																</Th>
+															)}
+														</Draggable>
+													);
+												}
+											)}
+										</Tr>
+									</Thead>
+									<Tbody>
+										{filteredItems.map((item, rowIndex) => {
+											return (
+												<Tr
+													key={rowIndex}
+													alignItems='flex-start'
+													_hover={{
+														backgroundColor:
+															'#ebebeb',
+													}}>
+													{selectedColumns.map(
+														(
+															columnName,
+															colIndex
+														) => {
+															return (
+																<Td
+																	key={
+																		columnName
+																	}
+																	padding='10px'
+																	ref={
+																		rowIndex ===
+																			filteredItems.length -
+																				1 &&
+																		colIndex ===
+																			selectedColumns.length -
+																				1
+																			? lastItemRef
+																			: null
+																	}>
+																	<Tooltip
+																		fontSize='10px'
+																		lineHeight='15px'
+																		padding='10px'
+																		placement='bottom-start'
+																		hasArrow
+																		label={
+																			item[
+																				columnName
+																			]
+																		}>
+																		<Text
+																			fontSize='12px'
+																			color={
+																				columnName ===
+																				'Customer Code'
+																					? '#0771da'
+																					: '#3b3b3b'
+																			}
+																			whiteSpace='nowrap'
+																			width={
+																				columnName ===
+																				'Item Description'
+																					? '300px'
+																					: columnName ===
+																					  'Item Name'
+																					? '200px'
+																					: '100px'
+																			}
+																			overflow='hidden'
+																			textOverflow='ellipsis'>
+																			{
+																				item[
+																					columnName
+																				]
+																			}
+																		</Text>
+																	</Tooltip>
+																</Td>
+															);
+														}
+													)}
+												</Tr>
+											);
+										})}
+									</Tbody>
+								</Table>
+							</TableContainer>
+						)}
+					</Droppable>
+				</DragDropContext>
+
+				{isFetching && (
+					<Box
+						display='flex'
+						alignItems='center'
+						justifyContent='center'
+						py={4}>
+						<Spinner color='blue.500' />
+					</Box>
+				)}
+
+				<Modal
+					isOpen={isOpen}
+					onClose={handleModalClose}
+					size='xl'
+					isCentered>
+					<ModalOverlay />
+					<ModalContent minW='40%'>
+						<ModalHeader
+							fontWeight='600'
+							bg='mainBlue'
+							color='white'
+							fontSize='16px'
+							padding='12px'>
+							Select Columns to Show
+						</ModalHeader>
+						<ModalCloseButton mt='5px' color='white' size='lg' />
+						<ModalBody pt='10px'>
+							<Box padding='0px 10px' borderRadius='5px'>
+								<Checkbox
+									isChecked={selectAll}
+									onChange={handleSelectAllToggle}
+									mb={4}
+									size='lg'
+									fontWeight='600'>
+									Select All
+								</Checkbox>
+							</Box>
+							<Box
+								height='60vh'
+								overflowY='scroll'
+								overflowX='hidden'
+								display='flex'
+								flexWrap='wrap'
+								gap='15px'
+								sx={{
+									'& .columnCheckBox:nth-child(odd)': {
+										bg: 'borderGrayLight',
+									},
+								}}>
+								{getColumns(data).map((column) => {
+									const formattedHeader = formatHeader(
+										column.field
+									);
+
+									return (
+										<Box
+											key={column.field}
+											className='columnCheckBox'
+											padding='5px'
+											bg='rgba(231,231,231,1)'
+											borderRadius='5px'
+											width='48%'>
+											<Checkbox
+												size='lg'
+												display='flex'
+												padding='5px'
+												borderColor='mainBluemedium'
+												key={column.field}
+												defaultChecked={selectedColumns.includes(
+													column.field
+												)}
+												isChecked={selectedColumns.includes(
+													column.field
+												)}
+												onChange={() =>
+													toggleColumn(column.field)
+												}>
+												<Text
+													fontWeight='500'
+													ml='10px'
+													fontSize='12px'
+													color='textBlackDeep'>
+													{formattedHeader}
+												</Text>
+											</Checkbox>
+										</Box>
+									);
+								})}
+							</Box>
+						</ModalBody>
+						<ModalFooter>
+							<Button
+								mr={3}
+								padding='15px'
+								fontSize='12px'
+								bg='var(--chakra-colors-mainBlue)'
+								color='white'
+								_hover={{
+									bg: 'var(--chakra-colors-mainBlue)',
+								}}
+								onClick={handleModalClose}>
+								Cancel
+							</Button>
+							<Button
+								padding='15px'
+								fontSize='12px'
+								bg='var(--chakra-colors-mainBlue)'
+								_hover={{
+									bg: 'var(--chakra-colors-mainBlue)',
+								}}
+								color='white'
+								onClick={handleApplyChanges}>
+								Apply Changes
+							</Button>
+						</ModalFooter>
+					</ModalContent>
+				</Modal>
 			</Box>
-		</CssWrapper>
+		</Box>
 	);
 };
 
