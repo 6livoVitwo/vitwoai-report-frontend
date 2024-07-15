@@ -7,20 +7,29 @@ import NoDataFound from '../../../asset/images/nodatafound.png';
 
 const SalesCustomerWiseTableView = () => {
 	const authData = useSelector((state) => state.auth);
-	const [page, setPage] = useState(30);
+	const [page, setPage] = useState(1);
+	const [filters, setFilters] = useState([
+		{
+			column: 'invoice_date',
+			operator: 'between',
+			type: 'date',
+			value: ['2023-06-01', '2023-06-11'],
+		},
+	]);
+	const [dateRange, setDateRange] = useState();
 	const [individualItems, setIndividualItems] = useState([]);
 	const {
 		data: sales,
 		isLoading,
 		isFetching,
 	} = useFetchSalesQuery({
+		filters,
 		page,
 		authDetails: authData.authDetails,
 	});
 
 	const salesData = sales?.content;
-
-	// Extract relevant fields and flatten nested objects
+	const pageInfo = sales?.lastPage;
 	const flattenObject = (obj, prefix = '') => {
 		let result = {};
 		for (let key in obj) {
@@ -64,36 +73,6 @@ const SalesCustomerWiseTableView = () => {
 			setIndividualItems(items);
 		}
 	}, [sales]);
-
-	const tableFilterFieldMapping = {
-		'Customer Code': 'customer.customer_code',
-		'Customer Name': 'customer.customer_code',
-		'Bill-Add': 'customer.customer_code',
-		'Ship-Add': 'customer.customer_code',
-		'GST No': 'customer.customer_code',
-		'State Name': 'customer.customer_code',
-		'State Code': 'customer.customer_code',
-		'Batch No': 'customer.customer_code',
-		'Batch Date (Received Date)': 'customer.customer_code',
-		'Item Code': 'customer.customer_code',
-		'Item Name': 'customer.customer_code',
-		'Item Description': 'customer.customer_code',
-		'Item Group': 'customer.customer_code',
-		Unit: 'customer.customer_code',
-		HSN: 'customer.customer_code',
-		'GST %': 'customer.customer_code',
-		MRP: 'customer.customer_code',
-		'Trade Discount %': 'customer.customer_code',
-		'Trade Discount Value': 'customer.customer_code',
-		Currency: 'customer.customer_code',
-		'Quotation No': 'customer.customer_code',
-		'Quotation Date': 'customer.customer_code',
-		'Quotation Qty': 'customer.customer_code',
-		'Customer Code': 'customer.customer_code',
-		'Customer Code': 'customer.customer_code',
-		'Customer Code': 'customer.customer_code',
-		'Customer Code': 'customer.customer_code',
-	};
 
 	const extractFields = (data) => ({
 		'Customer Code': data.customer_code,
@@ -155,6 +134,7 @@ const SalesCustomerWiseTableView = () => {
 	});
 
 	const newArray = individualItems.map(extractFields);
+	console.log(newArray, 'newArray');
 
 	return (
 		<Box>
@@ -177,8 +157,10 @@ const SalesCustomerWiseTableView = () => {
 				<CustomTable
 					individualItems={newArray}
 					page={page}
+					setDateRange={setDateRange}
 					setPage={setPage}
 					isFetching={isFetching}
+					pageInfo={pageInfo}
 				/>
 			) : (
 				<Box
