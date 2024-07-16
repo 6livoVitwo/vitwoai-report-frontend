@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react';
 import { IoMdAdd } from 'react-icons/io';
 import GraphViewSettings from './graphViewSettings';
-import { chartGroup, chartsData } from '../fakeData';
+import { chartGroup, chartsData, dashboardView } from '../fakeData';
 import MyCharts from '../nivoCharts/MyCharts';
 import { MdBookmarkAdded } from 'react-icons/md';
 import { FiPlus, FiSettings } from 'react-icons/fi';
@@ -25,9 +25,11 @@ import { camelCaseToReadable } from '../../../utils/common';
 const Dashboard = () => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [localChartGroup, setLocalChartGroup] = useState(chartGroup);
-	const [allCharts, setAllCharts] = useState(chartsData.charts || []);
+	const [allCharts, setAllCharts] = useState(chartsData);
 	const [groupButton, setGroupButton] = useState('All');
-	const [dashboardView, setDashboardView] = useState(chartsData.charts || []);
+	const [graphViewSettings, setGraphViewSettings] = useState(
+		dashboardView?.charts || []
+	);
 	const [singleGraphData, setSingleGraphData] = useState({});
 
 	const {
@@ -38,48 +40,20 @@ const Dashboard = () => {
 
 	const findChartsByGroup = (group) => {
 		const filteredCharts = chartsData.charts.filter((chart) => chart.group === group);
-		console.log({ filteredCharts })
-		setAllCharts(filteredCharts || []);
+		setAllCharts((prev) => ({ ...prev, charts: filteredCharts }));
 	}
 	const handleGroupButton = (group) => {
-		console.log({ group })
 		findChartsByGroup(group)
 		setGroupButton(group)
 	}
 
 	const handleAllButton = () => {
-		setAllCharts(chartsData.charts || []);
+		setAllCharts(chartsData);
 		setGroupButton('All');
 	}
 
-	console.log({ allCharts });
-
 	const handleToggleAddChart = (index, chart) => {
-		console.log({ index, chart });
-		setAllCharts((prev) => {
-			const foundIndex = prev.findIndex((item) => item.id === chart.id);
-
-			if (foundIndex !== -1) {
-				// Toggle the pinned state for the existing chart
-				return prev.map((item, i) => {
-					if (i === foundIndex) {
-						return { ...item, pinned: !item.pinned };
-					} else {
-						return item;
-					}
-				});
-			} else {
-				// Add the new chart with pinned set to true
-				return [
-					...prev,
-					{
-						...chart,
-						pinned: true,
-					},
-				];
-			}
-		});
-		setDashboardView((prev) => {
+		setGraphViewSettings((prev) => {
 			const foundIndex = prev.findIndex((item) => item.id === chart.id);
 
 			if (foundIndex !== -1) {
@@ -105,7 +79,6 @@ const Dashboard = () => {
 	};
 
 	const handleGraphSettings = (chart) => {
-		console.log({ chart });
 		onOpenGraphSettingsModal();
 		setSingleGraphData(chart);
 	};
@@ -168,7 +141,7 @@ const Dashboard = () => {
 								backgroundColor: '#003060',
 								color: 'white',
 							}}>
-							Chart Configuration
+							Select Your Chart
 						</DrawerHeader>
 						<DrawerBody>
 							<Box
@@ -256,7 +229,7 @@ const Dashboard = () => {
 								justifyContent='space-between'
 							// marginTop='10px'
 							>
-								{allCharts?.map((chart, index) => {
+								{graphViewSettings?.map((chart, index) => {
 									return (
 										<Box
 											key={index}
@@ -319,7 +292,7 @@ const Dashboard = () => {
 																mr: '6px',
 															}}
 														/>
-														Configure
+														Select Graph
 													</Button>
 													{chart?.pinned ? (
 														<Button
@@ -385,7 +358,7 @@ const Dashboard = () => {
 			</Box>
 
 			<Box display='flex' flexWrap='wrap' justifyContent='space-between'>
-				{dashboardView?.map((chart, index) => {
+				{graphViewSettings?.map((chart, index) => {
 					if (chart?.pinned === false) return null;
 					return (
 						<Box

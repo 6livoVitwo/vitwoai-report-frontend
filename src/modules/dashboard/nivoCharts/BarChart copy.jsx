@@ -1,15 +1,13 @@
-import { Box, Button } from '@chakra-ui/react';
 import { ResponsiveBar } from '@nivo/bar';
 import React, { useEffect, useState } from 'react';
+import { barChartData } from '../chartData';
 
-const BarChart = ({ variant = 'grouped-vertical' }) => {
+const BarChart = ({ data = barChartData, variant = 'grouped-vertical' }) => {
 	const [barData, setBarData] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
-	const [isError, setIsError] = useState(false);
-	const [formDate, setFormDate] = useState('2023-01-15');
-	const [toDate, setToDate] = useState('2023-10-16');
+	const [isError, setIsError] = useState(true);
 
-	const [barBody, setBarBody] = useState({
+	const barBody = {
 		"xaxis": "items.goodsItems.goodsGroup.goodGroupName",
 		"yaxis": [
 			"salesPgi.salesDelivery.totalAmount",
@@ -30,12 +28,6 @@ const BarChart = ({ variant = 'grouped-vertical' }) => {
 				"value": 1
 			},
 			{
-				"column": "invoice_date",
-				"operator": "between",
-				"type": "date",
-				"value": ["2023-01-15", "2023-10-16"]
-			},
-			{
 				"column": "location_id",
 				"operator": "equal",
 				"type": "Integer",
@@ -48,7 +40,7 @@ const BarChart = ({ variant = 'grouped-vertical' }) => {
 				"value": 1
 			}
 		]
-	})
+	}
 
 	useEffect(() => {
 		const fetchBarData = async () => {
@@ -67,9 +59,8 @@ const BarChart = ({ variant = 'grouped-vertical' }) => {
 				}
 
 				const result = await response.json();
-				setBarData(result.content);
+				setBarData(result);
 				setIsLoading(false);
-				setIsError(false);
 			} catch (err) {
 				console.log(err);
 				setIsLoading(false);
@@ -78,23 +69,21 @@ const BarChart = ({ variant = 'grouped-vertical' }) => {
 		}
 
 		fetchBarData();
-	}, [ barBody ]);
+	}, []);
 
-	console.log({ barData });
+	console.log({ barData })
 
-	const dataKeys = Object.keys(barData[0] || {});
-	const keysCommaSeparated = dataKeys.join(',');
-	// exclude xaxis key
-	const keys = keysCommaSeparated.split(',').filter(key => key !== 'xaxis');
-	// const keys = keysCommaSeparated.split(',');
+	const { content: apiData } = barData;
+	console.log({ apiData })
 
-	if (isLoading) {
-		return <div>Loading...</div>;
-	}
+	// const dataKeys = Object.keys(apiData[0]);
+	// console.log({ dataKeys })
+  
+	
+	// separate by comma
+	// const keys = dataKeys.join(',');
+	// console.log({ keys })
 
-	if (isError) {
-		return <div>Error loading data</div>;
-	}
 
 	let groupMode = 'grouped';
 	let layout = 'vertical';
@@ -111,29 +100,17 @@ const BarChart = ({ variant = 'grouped-vertical' }) => {
 		groupMode = 'stacked';
 		layout = 'vertical';
 	}
-
-	const handleDateFilter = () => {
-		console.log('handleDateFilter');
-		console.log({ formDate, toDate });
-
-		setBarBody({
-			...barBody,
-			"filter": [
-				{
-					"column": "invoice_date",
-					"operator": "between",
-					"type": "date",
-					"value": [formDate, toDate]
-				}
-			]
-		})
-	}
-
 	return (
 		<>
 			<ResponsiveBar
-				data={barData}
-				keys={keys}
+				data={apiData}
+				keys={[
+					'all_total_amt',
+					'quotation.totalAmount',
+					'salesOrder.totalAmount',
+					'salesPgi.salesDelivery.totalAmount',
+					'salesPgi.totalAmount',
+				]}
 				indexBy='xaxis'
 				margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
 				padding={0.3}
@@ -240,13 +217,6 @@ const BarChart = ({ variant = 'grouped-vertical' }) => {
 					e.indexValue
 				}
 			/>
-			<Box sx={{ border: '1px solid #dee2e6', mt: 0, py:1, bgColor: 'white' }}>
-				{/* date */}
-				<input style={{ border: '1px solid blue' }} placeholder='yyyy-mm-dd' type="text" onChange={(e) => setFormDate(e.target.value)} />
-				between
-				<input style={{ border: '1px solid blue' }} type="text" placeholder='yyyy-mm-dd' onChange={(e) => setToDate(e.target.value)} />
-				<Button variant='solid' colorScheme='teal' onClick={handleDateFilter}>Filter</Button>
-			</Box>
 		</>
 	);
 };

@@ -14,15 +14,11 @@ const AllCharts = () => {
     // const [groupWiseChartCount, setGroupWiseChartCount] = useState();
     const [groupButton, setGroupButton] = useState('All');
 
-    console.log({ chartsData })
-
     const findChartsByGroup = (group) => {
         const filteredCharts = chartsData.charts.filter((chart) => chart.group === group);
-        console.log({ filteredCharts })
         setAllCharts((prev) => ({ ...prev, charts: filteredCharts }));
     }
     const handleGroupButton = (group) => {
-        console.log({ group })
         findChartsByGroup(group)
         setGroupButton(group)
     }
@@ -39,7 +35,6 @@ const AllCharts = () => {
     } = useDisclosure();
 
     const handleGraphSettings = (chart) => {
-        console.log({ chart });
         onOpenGraphSettingsModal();
         setSingleGraphData(chart);
     };
