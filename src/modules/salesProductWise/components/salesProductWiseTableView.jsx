@@ -43,20 +43,29 @@ const SalesProductWiseTableView = () => {
     page: 0,
     size: 50,
   });
+
   const [dateRange, setDateRange] = useState();
-  const [individualItems, setIndividualItems] = useState([]);
   const {
     data: sales,
     isLoading,
     isFetching,
+    isError,
+    error,
   } = useFetchSalesQuery({
     filters,
     page,
     authDetails: authData.authDetails,
   });
 
-  const salesData = sales?.content;
-  const pageInfo = sales?.lastPage;
+  if (isError) {
+    console.error("Error fetching sales data:", error);
+  }
+
+  // Extract and flatten sales data
+  const salesData = sales?.content || [];
+  const pageInfo = sales?.lastPage || 1;
+
+  // Utility function to flatten nested objects
   const flattenObject = (obj, prefix = "") => {
     let result = {};
     for (let key in obj) {
@@ -78,47 +87,42 @@ const SalesProductWiseTableView = () => {
     return result;
   };
 
-  useEffect(() => {
-    if (salesData) {
-      let items = [];
+  // Process sales data to extract individual items
+  const [individualItems, setIndividualItems] = useState([]);
 
-      salesData.forEach((invoice) => {
+  useEffect(() => {
+    if (salesData.length) {
+      const items = salesData.flatMap((invoice) => {
         const flattenedInvoice = flattenObject(invoice);
-        if (invoice.items && invoice.items.length > 0) {
-          invoice.items.forEach((item) => {
-            const flattenedItem = flattenObject(item, "item.");
-            items.push({ ...flattenedInvoice, ...flattenedItem });
-          });
-        } else {
-          items.push(flattenedInvoice);
-        }
+        return invoice.items && invoice.items.length > 0
+          ? invoice.items.map((item) => {
+              const flattenedItem = flattenObject(item, "item.");
+              return { ...flattenedInvoice, ...flattenedItem };
+            })
+          : [flattenedInvoice];
       });
 
       setIndividualItems(items);
     }
-  }, [sales]);
+  }, [salesData]);
 
-  const extractFields = (data) => {
-    return {
-      "Item Name": data["items.itemName"],
-      "Sales Delivery Total Amount": data["SUM(salesPgi.salesDelivery.totalAmount)"],
-      "Sales Pgi Total Amount": data["SUM(salesPgi.totalAmount)"],
-      "Quotation": data["SUM(salesPgi.totalAmount)"],
-      "Sales Order": data["SUM(salesOrder.totalAmount)"],
-      "Total Qty": data["SUM(items.qty)"],
-      "Sub Total": data["SUM(items.basePrice - items.totalDiscountAmt)"],
-      "Total Amount": data["SUM(all_total_amt)"],
-
-    };
-  };
-
-  const newArray = individualItems.map((item) => {
-    let itemObj = extractFields(item);
-    // console.log(itemObj);
-    return itemObj;
+  // Function to extract fields from each item
+  const extractFields = (data, index) => ({
+    "SL No": index+1,
+    "Item Name": data["items.itemName"],
+    "Sales Delivery Total Amount":
+      data["SUM(salesPgi.salesDelivery.totalAmount)"],
+    "Sales Pgi Total Amount": data["SUM(salesPgi.totalAmount)"],
+    Quotation: data["SUM(salesPgi.totalAmount)"],
+    "Sales Order": data["SUM(salesOrder.totalAmount)"],
+    "Total Qty": data["SUM(items.qty)"],
+    "Sub Total": data["SUM(items.basePrice - items.totalDiscountAmt)"],
+    "Total Amount": data["SUM(all_total_amt)"],
   });
-  console.log(newArray, "newArray");
 
+  // Convert individual items into new array with the necessary fields
+  const newArray = individualItems.map(extractFields);
+console.log("same probem",newArray);
   return (
     <Box>
       {isLoading ? (
@@ -136,11 +140,10 @@ const SalesProductWiseTableView = () => {
             size="xl"
           />
         </Box>
-      ) : individualItems.length > 0 ? (
+      ) : newArray.length > 0 ? (
         <CustomTable
           individualItems={newArray}
           page={page}
-          setDateRange={setDateRange}
           setPage={setPage}
           isFetching={isFetching}
           pageInfo={pageInfo}
