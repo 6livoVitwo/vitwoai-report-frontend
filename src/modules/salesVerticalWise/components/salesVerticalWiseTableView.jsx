@@ -109,11 +109,15 @@ const SalesProductWiseTableView = () => {
   }, [salesData]);
   console.log("salesData", salesData);
 
-    const formatDate = (dateString) => {
+  const formatDate = (dateString) => {
     try {
-      const [year, month, day] = dateString.split('-').map(Number);
+      const [year, month, day] = dateString.split("-").map(Number);
       const date = new Date(year, month - 1, day);
-      return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
     } catch (error) {
       return "Invalid Date";
     }
@@ -121,7 +125,7 @@ const SalesProductWiseTableView = () => {
 
   // Function to extract fields from each item
   const extractFields = (data, index) => ({
-    "SL No": index+1,
+    "SL No": index + 1,
     "Functional Area": data["companyFunction.functionalities_name"],
     "Sales Delivery Total Amount":
       data["SUM(salesPgi.salesDelivery.totalAmount)"],
@@ -137,7 +141,7 @@ const SalesProductWiseTableView = () => {
 
   // Convert individual items into new array with the necessary fields
   const newArray = individualItems.map(extractFields);
-console.log("same probem",newArray);
+  console.log("same probem", newArray);
   return (
     <Box>
       {isLoading ? (
