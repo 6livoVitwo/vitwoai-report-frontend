@@ -87,6 +87,8 @@ const CustomTable = ({
 		// loadMoreData();
 	}, []);
 
+	console.log('test');
+
 	useEffect(() => {
 		const initialColumns = getColumns(data)
 			.slice(0, 8)
