@@ -1,90 +1,166 @@
-import React, { useState } from 'react';
-import CustomTable from './salesProductWiseCustomTable';
-import { Box, Heading, Spinner, Text } from '@chakra-ui/react';
-import { jwtDecode } from 'jwt-decode';
-import { useSelector } from 'react-redux';
-import { useFetchSalesQuery } from '../slice/salesBySlice';
+import React, { useState, useEffect } from "react";
+import CustomTable from "./salesProductWiseCustomTable";
+import { Box, Spinner, Image } from "@chakra-ui/react";
+import { useSelector } from "react-redux";
+import { useFetchSalesQuery } from "../slice/salesBySlice";
+import NoDataFound from "../../../asset/images/nodatafound.png";
 
 const SalesProductWiseTableView = () => {
-	const authData = useSelector((state) => state.auth);
-	const decoded = jwtDecode(authData.authDetails);
-	const [first, setFirst] = useState(0);
-	const {
-		data: sales,
-		error,
-		isLoading,
-	} = useFetchSalesQuery({ first, authDetails: authData.authDetails });
+  const authData = useSelector((state) => state.auth);
+  const [page, setPage] = useState(1);
+  const [filters, setFilters] = useState({
+    data: [
+      "items.itemName",
+      "SUM(salesPgi.salesDelivery.totalAmount)",
+      "SUM(salesPgi.totalAmount)",
+      "SUM(quotation.totalAmount)",
+      "SUM(salesOrder.totalAmount)",
+      "SUM(items.qty)",
+      "SUM(items.basePrice - items.totalDiscountAmt)",
+      "SUM(all_total_amt)",
+    ],
+    groupBy: ["items.itemName"],
+    filter: [
+      {
+        column: "company_id",
+        operator: "equal",
+        type: "Integer",
+        value: 1,
+      },
+      {
+        column: "location_id",
+        operator: "equal",
+        type: "Integer",
+        value: 1,
+      },
+      {
+        column: "branch_id",
+        operator: "equal",
+        type: "Integer",
+        value: 1,
+      },
+    ],
+    page: 0,
+    size: 50,
+  });
 
-	const salesData = sales?.content;
-	function flattenObject(obj) {
-		const result = {};
+  const [dateRange, setDateRange] = useState();
+  const {
+    data: sales,
+    isLoading,
+    isFetching,
+    isError,
+    error,
+  } = useFetchSalesQuery({
+    filters,
+    page,
+    authDetails: authData.authDetails,
+  });
 
-		function flatten(obj, prefix = '') {
-			for (let key in obj) {
-				if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
-					flatten(obj[key], `${prefix}${key}.`);
-				} else if (Array.isArray(obj[key])) {
-					obj[key].forEach((item, index) => {
-						flatten(item, `${prefix}${key}[${index}].`);
-					});
-				} else {
-					result[`${prefix}${key}`] = obj[key];
-				}
-			}
-		}
+  if (isError) {
+    console.error("Error fetching sales data:", error);
+  }
 
-		flatten(obj);
-		return result;
-	}
+  // Extract and flatten sales data
+  const salesData = sales?.content || [];
+  const pageInfo = sales?.lastPage || 1;
 
-	let individualItems = [];
-	salesData?.forEach((invoice) => {
-		invoice.items.forEach((item) => {
-			const flattenedItem = flattenObject(item);
-			individualItems.push(flattenedItem);
-		});
-	});
+  // Utility function to flatten nested objects
+  const flattenObject = (obj, prefix = "") => {
+    let result = {};
+    for (let key in obj) {
+      if (typeof obj[key] === "object" && obj[key] !== null) {
+        if (Array.isArray(obj[key])) {
+          obj[key].forEach((item, index) => {
+            Object.assign(
+              result,
+              flattenObject(item, `${prefix}${key}[${index}].`)
+            );
+          });
+        } else {
+          Object.assign(result, flattenObject(obj[key], `${prefix}${key}.`));
+        }
+      } else {
+        result[`${prefix}${key}`] = obj[key];
+      }
+    }
+    return result;
+  };
 
-	return (
-		<Box>
-			<Box m='15px 0px' textAlign='center'>
-				<Heading
-					textTransform='capitalize'
-					color='mainBlue'
-					pb='5px'
-					fontWeight='700'
-					fontSize='22px'>
-					{decoded.data.companyName}
-				</Heading>
-				<Text fontWeight='600' fontSize='13px' color='textGray'>
-					Location - {decoded.data.locationName}
-				</Text>
-			</Box>
+  // Process sales data to extract individual items
+  const [individualItems, setIndividualItems] = useState([]);
 
-			{isLoading ? (
-				<Box
-					height='calc(100vh - 150px)'
-					width='100%'
-					display='flex'
-					alignItems='center'
-					justifyContent='center'>
-					<Spinner
-						thickness='4px'
-						speed='0.65s'
-						emptyColor='gray.200'
-						color='blue.500'
-						size='xl'
-					/>
-				</Box>
-			) : (
-				<CustomTable
-					first={first}
-					setFirst={setFirst}
-					individualItems={individualItems}
-				/>
-			)}
-		</Box>
-	);
+  useEffect(() => {
+    if (salesData.length) {
+      const items = salesData.flatMap((invoice) => {
+        const flattenedInvoice = flattenObject(invoice);
+        return invoice.items && invoice.items.length > 0
+          ? invoice.items.map((item) => {
+              const flattenedItem = flattenObject(item, "item.");
+              return { ...flattenedInvoice, ...flattenedItem };
+            })
+          : [flattenedInvoice];
+      });
+
+      setIndividualItems(items);
+    }
+  }, [salesData]);
+
+  // Function to extract fields from each item
+  const extractFields = (data, index) => ({
+    "SL No": index+1,
+    "Item Name": data["items.itemName"],
+    "Sales Delivery Total Amount":
+      data["SUM(salesPgi.salesDelivery.totalAmount)"],
+    "Sales Pgi Total Amount": data["SUM(salesPgi.totalAmount)"],
+    Quotation: data["SUM(salesPgi.totalAmount)"],
+    "Sales Order": data["SUM(salesOrder.totalAmount)"],
+    "Total Qty": data["SUM(items.qty)"],
+    "Sub Total": data["SUM(items.basePrice - items.totalDiscountAmt)"],
+    "Total Amount": data["SUM(all_total_amt)"],
+  });
+
+  // Convert individual items into new array with the necessary fields
+  const newArray = individualItems.map(extractFields);
+console.log("same probem",newArray);
+  return (
+    <Box>
+      {isLoading ? (
+        <Box
+          height="calc(100vh - 75px)"
+          width="100%"
+          display="flex"
+          alignItems="center"
+          justifyContent="center">
+          <Spinner
+            thickness="4px"
+            speed="0.65s"
+            emptyColor="gray.200"
+            color="blue.500"
+            size="xl"
+          />
+        </Box>
+      ) : newArray.length > 0 ? (
+        <CustomTable
+          individualItems={newArray}
+          page={page}
+          setPage={setPage}
+          isFetching={isFetching}
+          pageInfo={pageInfo}
+        />
+      ) : (
+        <Box
+          bg="white"
+          width="100%"
+          height="calc(100vh - 103px)"
+          display="flex"
+          alignItems="center"
+          justifyContent="center">
+          <Image src={NoDataFound} alt="No Data Available" />
+        </Box>
+      )}
+    </Box>
+  );
 };
 
 export default SalesProductWiseTableView;

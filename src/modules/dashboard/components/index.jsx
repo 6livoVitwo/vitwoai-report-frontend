@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from "react";
 import {
 	Box,
 	Drawer,
@@ -30,11 +30,11 @@ const Dashboard = () => {
 	const [dashboardView, setDashboardView] = useState(chartsData.charts || []);
 	const [singleGraphData, setSingleGraphData] = useState({});
 
-	const {
-		onOpen: onOpenGraphSettingsModal,
-		onClose: onCloseGraphSettingsModal,
-		isOpen: isOpenGraphSettingsModal,
-	} = useDisclosure();
+  const {
+    onOpen: onOpenGraphSettingsModal,
+    onClose: onCloseGraphSettingsModal,
+    isOpen: isOpenGraphSettingsModal,
+  } = useDisclosure();
 
 	const findChartsByGroup = (group) => {
 		const filteredCharts = chartsData.charts.filter((chart) => chart.group === group);
@@ -82,27 +82,25 @@ const Dashboard = () => {
 		setDashboardView((prev) => {
 			const foundIndex = prev.findIndex((item) => item.id === chart.id);
 
-			if (foundIndex !== -1) {
-				// Toggle the pinned state for the existing chart
-				return prev.map((item, i) => {
-					if (i === foundIndex) {
-						return { ...item, pinned: !item.pinned };
-					} else {
-						return item;
-					}
-				});
-			} else {
-				// Add the new chart with pinned set to true
-				return [
-					...prev,
-					{
-						...chart,
-						pinned: true,
-					},
-				];
-			}
-		});
-	};
+      if (foundIndex !== -1) {
+        return prev.map((item, i) => {
+          if (i === foundIndex) {
+            return { ...item, pinned: !item.pinned };
+          } else {
+            return item;
+          }
+        });
+      } else {
+        return [
+          ...prev,
+          {
+            ...chart,
+            pinned: true,
+          },
+        ];
+      }
+    });
+  };
 
 	const handleGraphSettings = (chart) => {
 		console.log({ chart });
@@ -367,22 +365,22 @@ const Dashboard = () => {
 							</Box>
 						</DrawerBody>
 
-						<DrawerFooter>
-							<Button
-								variant='outline'
-								style={{
-									padding: '20px 20px',
-									fontSize: '14px',
-									color: '#718296',
-								}}
-								mr={3}
-								onClick={onClose}>
-								Cancel
-							</Button>
-						</DrawerFooter>
-					</DrawerContent>
-				</Drawer>
-			</Box>
+            <DrawerFooter>
+              <Button
+                variant="outline"
+                style={{
+                  padding: "20px 20px",
+                  fontSize: "14px",
+                  color: "#718296",
+                }}
+                mr={3}
+                onClick={onClose}>
+                Cancel
+              </Button>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
+      </Box>
 
 			<Box display='flex' flexWrap='wrap' justifyContent='space-between'>
 				{dashboardView?.map((chart, index) => {
@@ -463,13 +461,13 @@ const Dashboard = () => {
 				})}
 			</Box>
 
-			<GraphViewSettings
-				isOpen={isOpenGraphSettingsModal}
-				onClose={onCloseGraphSettingsModal}
-				singleGraphData={singleGraphData}
-			/>
-		</>
-	);
+      <GraphViewSettings
+        isOpen={isOpenGraphSettingsModal}
+        onClose={onCloseGraphSettingsModal}
+        singleGraphData={singleGraphData}
+      />
+    </>
+  );
 };
 
 export default Dashboard;

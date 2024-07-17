@@ -46,7 +46,7 @@ const BoxPlot = ({ data = boxPlotChartData }) => {
                     legendOffset: -40,
                     truncateTickAt: 0
                 }}
-                colors={{ scheme: 'nivo' }}
+                colors={{ scheme: 'blues' }}
                 borderRadius={2}
                 borderWidth={2}
                 borderColor={{

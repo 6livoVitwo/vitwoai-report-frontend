@@ -8,7 +8,7 @@ const AreaBump = ({ data = areaBumpData }) => {
             data={data}
             margin={{ top: 40, right: 100, bottom: 40, left: 100 }}
             spacing={8}
-            colors={{ scheme: 'nivo' }}
+            colors={{ scheme: 'blues' }}
             blendMode="multiply"
             defs={[
                 {

@@ -140,7 +140,7 @@ const BarChart = ({ variant = 'grouped-vertical' }) => {
 				groupMode={groupMode}
 				layout={layout}
 				indexScale={{ type: 'band', round: true }}
-				colors={{ scheme: 'nivo' }}
+				colors={{ scheme: 'blues' }}
 				defs={[
 					{
 						id: 'dots',
