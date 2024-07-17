@@ -9111,80 +9111,6 @@ export const circlePackingChartData = {
         }
     ]
 }
-export const streamChartData = [
-    {
-        "Raoul": 141,
-        "Josiane": 85,
-        "Marcel": 23,
-        "René": 84,
-        "Paul": 42,
-        "Jacques": 200
-    },
-    {
-        "Raoul": 12,
-        "Josiane": 189,
-        "Marcel": 121,
-        "René": 173,
-        "Paul": 86,
-        "Jacques": 187
-    },
-    {
-        "Raoul": 31,
-        "Josiane": 143,
-        "Marcel": 51,
-        "René": 76,
-        "Paul": 115,
-        "Jacques": 146
-    },
-    {
-        "Raoul": 197,
-        "Josiane": 49,
-        "Marcel": 42,
-        "René": 154,
-        "Paul": 39,
-        "Jacques": 178
-    },
-    {
-        "Raoul": 49,
-        "Josiane": 191,
-        "Marcel": 33,
-        "René": 84,
-        "Paul": 173,
-        "Jacques": 179
-    },
-    {
-        "Raoul": 165,
-        "Josiane": 41,
-        "Marcel": 115,
-        "René": 198,
-        "Paul": 94,
-        "Jacques": 164
-    },
-    {
-        "Raoul": 165,
-        "Josiane": 137,
-        "Marcel": 46,
-        "René": 145,
-        "Paul": 98,
-        "Jacques": 92
-    },
-    {
-        "Raoul": 194,
-        "Josiane": 196,
-        "Marcel": 178,
-        "René": 128,
-        "Paul": 101,
-        "Jacques": 95
-    },
-    {
-        "Raoul": 112,
-        "Josiane": 20,
-        "Marcel": 157,
-        "René": 199,
-        "Paul": 113,
-        "Jacques": 90
-    }
-]
 export const timeRangeChartData = [
     {
         "value": 264,
@@ -13034,3 +12960,77 @@ export const voronoiChartData = [
         "y": 65.56770397577682
     }
 ]
+export const streamChartData = [
+  {
+    "Raoul": 30,
+    "Josiane": 97,
+    "Marcel": 191,
+    "René": 156,
+    "Paul": 150,
+    "Jacques": 168,
+  },
+  {
+    "Raoul": 190,
+    "Josiane": 54,
+    "Marcel": 180,
+    "René": 130,
+    "Paul": 90,
+    "Jacques": 69,
+  },
+  {
+    "Raoul": 159,
+    "Josiane": 162,
+    "Marcel": 74,
+    "René": 195,
+    "Paul": 182,
+    "Jacques": 97,
+  },
+  {
+    "Raoul": 194,
+    "Josiane": 87,
+    "Marcel": 131,
+    "René": 135,
+    "Paul": 166,
+    "Jacques": 19,
+  },
+  {
+    "Raoul": 82,
+    "Josiane": 169,
+    "Marcel": 45,
+    "René": 142,
+    "Paul": 67,
+    "Jacques": 136,
+  },
+  {
+    "Raoul": 199,
+    "Josiane": 150,
+    "Marcel": 161,
+    "René": 160,
+    "Paul": 23,
+    "Jacques": 131,
+  },
+  {
+    "Raoul": 113,
+    "Josiane": 168,
+    "Marcel": 83,
+    "René": 17,
+    "Paul": 142,
+    "Jacques": 68,
+  },
+  {
+    "Raoul": 163,
+    "Josiane": 35,
+    "Marcel": 50,
+    "René": 103,
+    "Paul": 69,
+    "Jacques": 59,
+  },
+  {
+    "Raoul": 186,
+    "Josiane": 181,
+    "Marcel": 99,
+    "René": 18,
+    "Paul": 16,
+    "Jacques": 27,
+  },
+];
