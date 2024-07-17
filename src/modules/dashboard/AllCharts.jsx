@@ -14,15 +14,11 @@ const AllCharts = () => {
     // const [groupWiseChartCount, setGroupWiseChartCount] = useState();
     const [groupButton, setGroupButton] = useState('All');
 
-    console.log({ chartsData })
-
     const findChartsByGroup = (group) => {
         const filteredCharts = chartsData.charts.filter((chart) => chart.group === group);
-        console.log({ filteredCharts })
         setAllCharts((prev) => ({ ...prev, charts: filteredCharts }));
     }
     const handleGroupButton = (group) => {
-        console.log({ group })
         findChartsByGroup(group)
         setGroupButton(group)
     }
@@ -39,7 +35,6 @@ const AllCharts = () => {
     } = useDisclosure();
 
     const handleGraphSettings = (chart) => {
-        console.log({ chart });
         onOpenGraphSettingsModal();
         setSingleGraphData(chart);
     };
@@ -52,11 +47,21 @@ const AllCharts = () => {
                 <Button
                     sx={{
                         border: groupButton === 'All' ? '1px solid #dee2e6' : '1px solid #dee2e6',
-                        bgColor: groupButton === 'All' && '#1c6364',
+                        bgColor: groupButton === 'All' && '#e05e5e',
+                        color: groupButton === 'All' && 'white',
                     }}
-                    colorScheme='teal' variant='solid' onClick={handleAllButton}>
+                    variant='solid'
+                    onClick={handleAllButton}
+                >
                     All
-                    <Badge ml='1' colorScheme='red' variant='solid'>
+                    <Badge
+                        ml='1'
+                        sx={{
+                            bgColor: groupButton === 'All' ? '#EDF2F7' : '#e05e5e',
+                            color: groupButton === 'All' ? '#e05e5e' : 'white',
+                        }}
+                        variant='solid'
+                    >
                         {chartsData.charts.length}
                     </Badge>
                 </Button>
@@ -64,12 +69,22 @@ const AllCharts = () => {
                     <Button
                         sx={{
                             border: groupButton === localChartGroup[key] ? '1px solid #dee2e6' : '1px solid #dee2e6',
-                            bgColor: groupButton === localChartGroup[key] && '#1c6364',
+                            bgColor: groupButton === localChartGroup[key] && '#e05e5e',
+                            color: groupButton === localChartGroup[key] && 'white',
                         }}
-                        onClick={() => handleGroupButton(localChartGroup[key])} key={key} colorScheme='teal' variant='solid'
+                        onClick={() => handleGroupButton(localChartGroup[key])}
+                        key={key}
+                        variant='solid'
                     >
                         {camelCaseToReadable(localChartGroup[key])}
-                        <Badge ml='1' colorScheme='red' variant='solid'>
+                        <Badge
+                            ml='1'
+                            sx={{
+                                bgColor: groupButton === localChartGroup[key] ? '#EDF2F7' : '#e05e5e',
+                                color: groupButton === localChartGroup[key] ? '#e05e5e' : 'white',
+                            }}
+                            variant='solid'
+                        >
                             {chartsData.charts.filter((chart) => chart.group === localChartGroup[key]).length}
                         </Badge>
                     </Button>
@@ -93,7 +108,7 @@ const AllCharts = () => {
             </Box> */}
 
             {/* ******************************************************* */}
-            <Box display='flex' flexWrap='wrap' justifyContent='space-between'>
+            <Box display='flex' flexWrap='wrap' justifyContent='space-between' mt={10}>
                 {allCharts?.charts?.map((chart, index) => {
                     // if (chart?.pinned === false) return null;
                     return (
@@ -108,7 +123,9 @@ const AllCharts = () => {
                                 sx={{
                                     backgroundColor: 'white',
                                     padding: '15px',
+                                    my: 2.5,
                                     borderRadius: '8px',
+                                    border: '1px solid #dee2e6',
                                     transition: 'box-shadow 0.3s ease-in-out',
                                     '&:hover': {
                                         boxShadow:

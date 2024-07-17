@@ -19,7 +19,6 @@ import WaffleChart from './WaffleChart';
 
 const MyCharts = ({ chart }) => {
 	const { type, data } = chart;
-	console.log({ type, data });
 
 	let chartData = '';
 
