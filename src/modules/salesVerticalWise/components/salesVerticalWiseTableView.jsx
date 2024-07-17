@@ -107,6 +107,7 @@ const SalesProductWiseTableView = () => {
       setIndividualItems(items);
     }
   }, [salesData]);
+  console.log("salesData", salesData);
 
     const formatDate = (dateString) => {
     try {
