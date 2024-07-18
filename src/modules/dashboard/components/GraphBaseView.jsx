@@ -23,7 +23,7 @@ import WaffleChart from '../nivoCharts/WaffleChart'
 import StreamChart from '../nivoCharts/StreamChart'
 import TimeRange from "../nivoCharts/TimeRange"
 import Sankey from '../nivoCharts/Sankey'
-// import ChoroplethChart from '../nivoCharts/ChoroplethChart'
+import ChoroplethChart from '../nivoCharts/ChoroplethChart'
 import ChordChart from '../nivoCharts/ChordChart'
 import NetworkGraph from '../nivoCharts/NetworkGraph'
 import ParallelCoordinate from '../nivoCharts/ParallelCoordinate'
@@ -146,7 +146,7 @@ const GraphBaseView = ({ singleGraphData = {}, setIsVariant = () => { } }) => {
               {singleGraphData.type === "voronoi" && <VoronoiGraph />}
               {singleGraphData.type === "circlePacking" && <CirclePacking />}
               {singleGraphData.type === "bullet" && <BulletGraph />}
-              {/* {singleGraphData.type === "choropleth" && <ChoroplethChart />} */}
+              {singleGraphData.type === "choropleth" && <ChoroplethChart />}
             </Box>
             {/* <LineGraph id="lineChartShow" /> */}
           </Box>

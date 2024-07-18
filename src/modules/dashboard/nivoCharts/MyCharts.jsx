@@ -26,7 +26,7 @@ import SwarmPlot from "./SwarmPlot";
 import VoronoiGraph from "./VoronoiGraph";
 import CirclePacking from "./CirclePacking";
 import BulletGraph from "./BulletGraph";
-// import ChoroplethChart from "./ChoroplethChart"
+import ChoroplethChart from "./ChoroplethChart"
 
 const MyCharts = ({ chart }) => {
   const { type, data } = chart;
@@ -87,10 +87,9 @@ const MyCharts = ({ chart }) => {
     chartData = <CirclePacking data={data} />;
   } else if (type === "bullet") {
     chartData = <BulletGraph data={data} />;
-  }
-    //   else if (type === "choropleth") {
-    //     chartData = <ChoroplethChart data={data} />;
-    //   }
+  } else if (type === "choropleth") {
+        chartData = <ChoroplethChart data={data} />;
+      }
 
     return <>{chartData}</>;
 };
