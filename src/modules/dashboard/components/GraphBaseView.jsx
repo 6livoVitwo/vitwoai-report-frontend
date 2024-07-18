@@ -21,11 +21,17 @@ import TreeChart from '../nivoCharts/TreeChart'
 import TreeMap from '../nivoCharts/TreeMap'
 import WaffleChart from '../nivoCharts/WaffleChart'
 import StreamChart from '../nivoCharts/StreamChart'
-import TimeRange from "../nivoCharts/TimeRange";
+import TimeRange from "../nivoCharts/TimeRange"
 import Sankey from '../nivoCharts/Sankey'
 // import ChoroplethChart from '../nivoCharts/ChoroplethChart'
 import ChordChart from '../nivoCharts/ChordChart'
-
+import NetworkGraph from '../nivoCharts/NetworkGraph'
+import ParallelCoordinate from '../nivoCharts/ParallelCoordinate'
+import SwarmPlot from '../nivoCharts/SwarmPlot'
+import VoronoiGraph from "../nivoCharts/VoronoiGraph"
+import CirclePacking from "../nivoCharts/CirclePacking"
+import BulletGraph from "../nivoCharts/BulletGraph"
+  
 const GraphBaseView = ({ singleGraphData = {}, setIsVariant = () => { } }) => {
   return (
     <>
@@ -132,6 +138,14 @@ const GraphBaseView = ({ singleGraphData = {}, setIsVariant = () => { } }) => {
               {singleGraphData.type === "timeRange" && <TimeRange />}
               {singleGraphData.type === "sankey" && <Sankey />}
               {singleGraphData.type === "chord" && <ChordChart />}
+              {singleGraphData.type === "network" && <NetworkGraph />}
+              {singleGraphData.type === "parallelCoordinates" && (
+                <ParallelCoordinate />
+              )}
+              {singleGraphData.type === "swarmPlot" && <SwarmPlot />}
+              {singleGraphData.type === "voronoi" && <VoronoiGraph />}
+              {singleGraphData.type === "circlePacking" && <CirclePacking />}
+              {singleGraphData.type === "bullet" && <BulletGraph />}
               {/* {singleGraphData.type === "choropleth" && <ChoroplethChart />} */}
             </Box>
             {/* <LineGraph id="lineChartShow" /> */}
