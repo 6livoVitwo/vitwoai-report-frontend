@@ -2,7 +2,7 @@ import { Box } from '@chakra-ui/react';
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 
-const SalesCustomerWise = () => {
+const SalesProductWise = () => {
 	return (
 		<Box>
 			<Outlet />
@@ -10,4 +10,4 @@ const SalesCustomerWise = () => {
 	);
 };
 
-export default SalesCustomerWise;
+export default SalesProductWise;

@@ -2,7 +2,7 @@ import { Box } from '@chakra-ui/react';
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 
-const TransactionalDayBook = () => {
+const SalesSoWise = () => {
 	return (
 		<Box>
 			<Outlet />
@@ -10,4 +10,4 @@ const TransactionalDayBook = () => {
 	);
 };
 
-export default TransactionalDayBook;
+export default SalesSoWise;

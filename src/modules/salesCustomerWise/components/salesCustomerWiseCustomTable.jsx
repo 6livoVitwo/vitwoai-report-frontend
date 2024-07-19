@@ -325,13 +325,48 @@ const CustomTable = ({
 			const formattedStartDate = formatDate(start);
 			const formattedEndDate = formatDate(end);
 			const newArrayValue = [
-				{
-					column: 'invoice_date',
-					operator: 'between',
-					type: 'date',
-					value: [formattedStartDate, formattedEndDate],
-				},
-			];
+        {
+          data: [
+            "customer.trade_name",
+            "customer.customer_code",
+            "customer.customer_gstin",
+            "SUM(igst)",
+            "SUM(sgst)",
+            "SUM(cgst)",
+            "SUM(due_amount)",
+            "SUM(salesPgi.salesDelivery.totalAmount)",
+            "SUM(salesPgi.totalAmount)",
+            "SUM(quotation.totalAmount)",
+            "SUM(salesOrder.totalAmount)",
+            "SUM(items.qty)",
+            "SUM(items.basePrice - items.totalDiscountAmt)",
+            "SUM(all_total_amt)",
+          ],
+          groupBy: ["customer.trade_name"],
+          filter: [
+            {
+              column: "company_id",
+              operator: "equal",
+              type: "Integer",
+              value: 1,
+            },
+            {
+              column: "location_id",
+              operator: "equal",
+              type: "Integer",
+              value: 1,
+            },
+            {
+              column: "branch_id",
+              operator: "equal",
+              type: "Integer",
+              value: 1,
+            },
+          ],
+          page: 0,
+          size: 50,
+        },
+      ];
 			setDateRange(newArrayValue);
 		} else {
 			setDateRange([]);

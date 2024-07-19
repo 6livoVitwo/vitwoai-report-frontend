@@ -1,180 +1,187 @@
-import React, { useState, useEffect } from 'react';
-import CustomTable from './salesCustomerWiseCustomTable';
-import { Box, Spinner, Image } from '@chakra-ui/react';
-import { useSelector } from 'react-redux';
-import { useFetchSalesQuery } from '../slice/salesBySlice';
-import NoDataFound from '../../../asset/images/nodatafound.png';
+import React, { useState, useEffect } from "react";
+import CustomTable from "./salesCustomerWiseCustomTable";
+import { Box, Spinner, Image } from "@chakra-ui/react";
+import { useSelector } from "react-redux";
+import { useFetchSalesQuery } from "../slice/salesBySlice";
+import NoDataFound from "../../../asset/images/nodatafound.png";
 
 const SalesCustomerWiseTableView = () => {
-	const authData = useSelector((state) => state.auth);
-	const [page, setPage] = useState(1);
-	const [filters, setFilters] = useState([
-		{
-			column: 'invoice_date',
-			operator: 'between',
-			type: 'date',
-			value: ['2023-06-01', '2023-06-11'],
-		},
-	]);
-	const [dateRange, setDateRange] = useState();
-	const [individualItems, setIndividualItems] = useState([]);
-	const {
-		data: sales,
-		isLoading,
-		isFetching,
-	} = useFetchSalesQuery({
-		filters,
-		page,
-		authDetails: authData.authDetails,
-	});
+  const authData = useSelector((state) => state.auth);
+  const [page, setPage] = useState(1);
+  const [filters, setFilters] = useState({
+    data: [
+      "customer.trade_name",
+      "customer.customer_code",
+      "customer.customer_gstin",
+      "SUM(igst)",
+      "SUM(sgst)",
+      "SUM(cgst)",
+      "SUM(due_amount)",
+      "SUM(salesPgi.salesDelivery.totalAmount)",
+      "SUM(salesPgi.totalAmount)",
+      "SUM(quotation.totalAmount)",
+      "SUM(salesOrder.totalAmount)",
+      "SUM(items.qty)",
+      "SUM(items.basePrice - items.totalDiscountAmt)",
+      "SUM(all_total_amt)",
+    ],
+    groupBy: ["customer.trade_name"],
+    filter: [
+      {
+        column: "company_id",
+        operator: "equal",
+        type: "Integer",
+        value: 1,
+      },
+      {
+        column: "location_id",
+        operator: "equal",
+        type: "Integer",
+        value: 1,
+      },
+      {
+        column: "branch_id",
+        operator: "equal",
+        type: "Integer",
+        value: 1,
+      },
+    ],
+    page: 0,
+    size: 50,
+  });
 
-	const salesData = sales?.content;
-	const pageInfo = sales?.lastPage;
-	const flattenObject = (obj, prefix = '') => {
-		let result = {};
-		for (let key in obj) {
-			if (typeof obj[key] === 'object' && obj[key] !== null) {
-				if (Array.isArray(obj[key])) {
-					obj[key].forEach((item, index) => {
-						Object.assign(
-							result,
-							flattenObject(item, `${prefix}${key}[${index}].`)
-						);
-					});
-				} else {
-					Object.assign(
-						result,
-						flattenObject(obj[key], `${prefix}${key}.`)
-					);
-				}
-			} else {
-				result[`${prefix}${key}`] = obj[key];
-			}
-		}
-		return result;
-	};
+  const [dateRange, setDateRange] = useState();
+  const {
+    data: sales,
+    isLoading,
+    isFetching,
+    isError,
+    error,
+  } = useFetchSalesQuery({
+    filters,
+    page,
+    authDetails: authData.authDetails,
+  });
 
-	useEffect(() => {
-		if (salesData) {
-			let items = [];
+  if (isError) {
+    console.error("Error fetching sales data:", error);
+  }
 
-			salesData.forEach((invoice) => {
-				const flattenedInvoice = flattenObject(invoice);
-				if (invoice.items && invoice.items.length > 0) {
-					invoice.items.forEach((item) => {
-						const flattenedItem = flattenObject(item, 'item.');
-						items.push({ ...flattenedInvoice, ...flattenedItem });
-					});
-				} else {
-					items.push(flattenedInvoice);
-				}
-			});
+  // Extract and flatten sales data
+  const salesData = sales?.content || [];
+  const pageInfo = sales?.lastPage || 1;
 
-			setIndividualItems(items);
-		}
-	}, [sales]);
+  // Utility function to flatten nested objects
+  const flattenObject = (obj, prefix = "") => {
+    let result = {};
+    for (let key in obj) {
+      if (typeof obj[key] === "object" && obj[key] !== null) {
+        if (Array.isArray(obj[key])) {
+          obj[key].forEach((item, index) => {
+            Object.assign(
+              result,
+              flattenObject(item, `${prefix}${key}[${index}].`)
+            );
+          });
+        } else {
+          Object.assign(result, flattenObject(obj[key], `${prefix}${key}.`));
+        }
+      } else {
+        result[`${prefix}${key}`] = obj[key];
+      }
+    }
+    return result;
+  };
 
-	const extractFields = (data) => ({
-		'Customer Code': data.customer_code,
-		'Customer Name': data.trade_name,
-		'Bill-Add': data.customer_billing_address,
-		'Ship-Add': data.customer_shipping_address,
-		'GST No': data.customer_gstin,
-		'State Name': data.customer_address_state,
-		'State Code': data.customer_address_state_code,
-		'Batch No': '',
-		'Batch Date (Received Date)': '',
-		'Item Code': data.item?.itemCode,
-		'Item Name': data.item?.itemName,
-		'Item Description': data.itemDesc,
-		'Item Group': data.goodGroupName || '',
-		Unit: data.uomName || '',
-		HSN: data.hsnCode || '',
-		'GST %': data.tax,
-		MRP: data.unitPrice || '',
-		'Trade Discount %': data.totalDiscount,
-		'Trade Discount Value': data.totalDiscountAmt || '',
-		Currency: data.currency_name || '',
-		'Quotation No': data.quotation_no,
-		'Quotation Date': data.posting_date,
-		'Quotation Qty': '',
-		'Quotation Value': data.totalAmount,
-		'Quotation Created On': data.created_at,
-		'Quotation Created By': data.created_by_value,
-		'Quotation Accepted On': '',
-		'SO No': '',
-		'SO Date': '',
-		'SO Qty': '',
-		'SO Rate': '',
-		'SO Value': '',
-		'SO Created On': '',
-		'SO Created By': '',
-		'PGI No': '', // Need additional logic for PGI details
-		'PGI Date': '',
-		'PGI Created On': '',
-		'PGI Created By': '',
-		'Delivery No': '', // Need additional logic for delivery details
-		'Delivery Date': '',
-		'Delivery Qty': '',
-		'Delivery Value': '',
-		'Delivery Created On': '',
-		'Delivery Created By': '',
-		'Delivery Remarks': '',
-		'Invoice No': data.invoice_no || '',
-		'Invoice Date': data.invoice_date || '',
-		'Invoice Qty': '',
-		'Invoice Rate': '',
-		'Invoice Value': data.all_total_amt || '',
-		'Invoice Created On': data.created_at || '',
-		'Invoice Created By': data.created_by || '',
-		'Collection Status': '',
-		'Collection Mode': '',
-		'Collect in Bank': '',
-		'Collected On': '',
-	});
+  // Process sales data to extract individual items
+  const [individualItems, setIndividualItems] = useState([]);
 
-	const newArray = individualItems.map(extractFields);
-	console.log(newArray, 'newArray');
+  useEffect(() => {
+    if (salesData.length) {
+      const items = salesData.flatMap((invoice) => {
+        const flattenedInvoice = flattenObject(invoice);
+        return invoice.items && invoice.items.length > 0
+          ? invoice.items.map((item) => {
+              const flattenedItem = flattenObject(item, "item.");
+              return { ...flattenedInvoice, ...flattenedItem };
+            })
+          : [flattenedInvoice];
+      });
 
-	return (
-		<Box>
-			{isLoading ? (
-				<Box
-					height='calc(100vh - 75px)'
-					width='100%'
-					display='flex'
-					alignItems='center'
-					justifyContent='center'>
-					<Spinner
-						thickness='4px'
-						speed='0.65s'
-						emptyColor='gray.200'
-						color='blue.500'
-						size='xl'
-					/>
-				</Box>
-			) : individualItems.length > 0 ? (
-				<CustomTable
-					individualItems={newArray}
-					page={page}
-					setDateRange={setDateRange}
-					setPage={setPage}
-					isFetching={isFetching}
-					pageInfo={pageInfo}
-				/>
-			) : (
-				<Box
-					bg='white'
-					width='100%'
-					height='calc(100vh - 103px)'
-					display='flex'
-					alignItems='center'
-					justifyContent='center'>
-					<Image src={NoDataFound} alt='No Data Available' />
-				</Box>
-			)}
-		</Box>
-	);
+      setIndividualItems(items);
+    }
+  }, [salesData]);
+
+  // Function to extract fields from each item
+  const extractFields = (data, index) => ({
+    "SL No": index + 1,
+    "Trade Name": data["customer.trade_name"],
+    "Customer Code": data["customer.customer_code"],
+    "Customer GSTIN": data["customer.customer_gstin"],
+    IGST: data["SUM(igst)"],
+    SGST: data["SUM(sgst)"],
+    CGST: data["SUM(cgst)"],
+    "Due Amount": data["SUM(due_amount)"],
+    "Sales Delivery": data["SUM(salesPgi.salesDelivery.totalAmount)"],
+    "Sales PGI TotalAmount": data["SUM(salesPgi.totalAmount)"],
+    Quotation: data["SUM(quotation.totalAmount)"],
+    "Sales Order Total Amount": data["SUM(salesOrder.totalAmount)"],
+    "Items Quantity": data["SUM(items.qty)"],
+    "Best Price": data["SUM(items.basePrice - items.totalDiscountAmt)"],
+    "Total Amount": data["SUM(all_total_amt)"],
+
+    // "Item Name": data["items.itemName"],
+    // "Sales Delivery Total Amount":
+    //   data["SUM(salesPgi.salesDelivery.totalAmount)"],
+    // "Sales Pgi Total Amount": data["SUM(salesPgi.totalAmount)"],
+    // Quotation: data["SUM(salesPgi.totalAmount)"],
+    // "Sales Order": data["SUM(salesOrder.totalAmount)"],
+    // "Total Qty": data["SUM(items.qty)"],
+    // "Sub Total": data["SUM(items.basePrice - items.totalDiscountAmt)"],
+    // "Total Amount": data["SUM(all_total_amt)"],
+  });
+
+  // Convert individual items into new array with the necessary fields
+  const newArray = individualItems.map(extractFields);
+console.log("same probem",newArray);
+  return (
+    <Box>
+      {isLoading ? (
+        <Box
+          height="calc(100vh - 75px)"
+          width="100%"
+          display="flex"
+          alignItems="center"
+          justifyContent="center">
+          <Spinner
+            thickness="4px"
+            speed="0.65s"
+            emptyColor="gray.200"
+            color="blue.500"
+            size="xl"
+          />
+        </Box>
+      ) : newArray.length > 0 ? (
+        <CustomTable
+          individualItems={newArray}
+          page={page}
+          setPage={setPage}
+          isFetching={isFetching}
+          pageInfo={pageInfo}
+        />
+      ) : (
+        <Box
+          bg="white"
+          width="100%"
+          height="calc(100vh - 103px)"
+          display="flex"
+          alignItems="center"
+          justifyContent="center">
+          <Image src={NoDataFound} alt="No Data Available" />
+        </Box>
+      )}
+    </Box>
+  );
 };
 
 export default SalesCustomerWiseTableView;
