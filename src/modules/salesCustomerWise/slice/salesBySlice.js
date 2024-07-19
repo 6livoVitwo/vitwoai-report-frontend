@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const salesApi = createApi({
 	reducerPath: 'salesApi',
 	baseQuery: fetchBaseQuery({
-		baseUrl: 'http://192.168.0.115:8080/',
+		baseUrl: 'http://192.168.0.133:8081/',
 		prepareHeaders: (headers) => {
 			const token = localStorage.getItem('authToken');
 			if (token) {
@@ -16,7 +16,7 @@ export const salesApi = createApi({
 		fetchSales: builder.query({
 			query: ({ page, filters }) => {
 				return {
-					url: `sales/salesdata-adv-filter?pageSize=${page}`,
+					url: `sales/sales-groupby-data?pageSize=${page}`,
 					method: 'POST',
 					body: JSON.stringify(filters),
 					headers: {

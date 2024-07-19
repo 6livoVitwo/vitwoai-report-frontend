@@ -20,7 +20,18 @@ import Sunburst from '../nivoCharts/Sunburst'
 import TreeChart from '../nivoCharts/TreeChart'
 import TreeMap from '../nivoCharts/TreeMap'
 import WaffleChart from '../nivoCharts/WaffleChart'
-
+import StreamChart from '../nivoCharts/StreamChart'
+import TimeRange from "../nivoCharts/TimeRange"
+import Sankey from '../nivoCharts/Sankey'
+import ChoroplethChart from '../nivoCharts/ChoroplethChart'
+import ChordChart from '../nivoCharts/ChordChart'
+import NetworkGraph from '../nivoCharts/NetworkGraph'
+import ParallelCoordinate from '../nivoCharts/ParallelCoordinate'
+import SwarmPlot from '../nivoCharts/SwarmPlot'
+import VoronoiGraph from "../nivoCharts/VoronoiGraph"
+import CirclePacking from "../nivoCharts/CirclePacking"
+import BulletGraph from "../nivoCharts/BulletGraph"
+  
 const GraphBaseView = ({ singleGraphData = {}, setIsVariant = () => { } }) => {
   return (
     <>
@@ -123,6 +134,19 @@ const GraphBaseView = ({ singleGraphData = {}, setIsVariant = () => { } }) => {
               {singleGraphData.type === "tree" && <TreeChart />}
               {singleGraphData.type === "treeMap" && <TreeMap />}
               {singleGraphData.type === "waffle" && <WaffleChart />}
+              {singleGraphData.type === "stream" && <StreamChart />}
+              {singleGraphData.type === "timeRange" && <TimeRange />}
+              {singleGraphData.type === "sankey" && <Sankey />}
+              {singleGraphData.type === "chord" && <ChordChart />}
+              {singleGraphData.type === "network" && <NetworkGraph />}
+              {singleGraphData.type === "parallelCoordinates" && (
+                <ParallelCoordinate />
+              )}
+              {singleGraphData.type === "swarmPlot" && <SwarmPlot />}
+              {singleGraphData.type === "voronoi" && <VoronoiGraph />}
+              {singleGraphData.type === "circlePacking" && <CirclePacking />}
+              {singleGraphData.type === "bullet" && <BulletGraph />}
+              {singleGraphData.type === "choropleth" && <ChoroplethChart />}
             </Box>
             {/* <LineGraph id="lineChartShow" /> */}
           </Box>
@@ -154,50 +178,48 @@ const GraphBaseView = ({ singleGraphData = {}, setIsVariant = () => { } }) => {
       <Box>
         <Grid templateColumns="repeat(2, 1fr)" gap={6}>
           <Stack spacing={3}>
-            <Text fontSize="sm" fontWeight="500">X Axis</Text>
-            <Select
-              placeholder='Select One'
-              size='lg'
-            >
-              <option value='country'>Country</option>
-              <option value='state'>State</option>
+            <Text fontSize="sm" fontWeight="500">
+              X Axis
+            </Text>
+            <Select placeholder="Select One" size="lg">
+              <option value="country">Country</option>
+              <option value="state">State</option>
             </Select>
           </Stack>
           <Stack spacing={3}>
-            <Text fontSize="sm" fontWeight="500">Y Axis</Text>
-            <Select
-              placeholder='Select One'
-              size='lg'
-            >
-              <option value='option1'>Male</option>
-              <option value='option2'>Female</option>
-              <option value='option3'>Food</option>
-              <option value='option3'>Weather</option>
+            <Text fontSize="sm" fontWeight="500">
+              Y Axis
+            </Text>
+            <Select placeholder="Select One" size="lg">
+              <option value="option1">Male</option>
+              <option value="option2">Female</option>
+              <option value="option3">Food</option>
+              <option value="option3">Weather</option>
             </Select>
           </Stack>
         </Grid>
         <Grid templateColumns="repeat(1, 1fr)" gap={6} mt={6}>
-          <Stack spacing={[1, 5]} direction={['column', 'row']}>
-            <Checkbox size='md' colorScheme='green' defaultChecked>
+          <Stack spacing={[1, 5]} direction={["column", "row"]}>
+            <Checkbox size="md" colorScheme="green" defaultChecked>
               Population
             </Checkbox>
-            <Checkbox size='md' colorScheme='orange' defaultChecked>
+            <Checkbox size="md" colorScheme="orange" defaultChecked>
               Avarage Age
             </Checkbox>
-            <Checkbox size='md' colorScheme='blue' defaultChecked>
+            <Checkbox size="md" colorScheme="blue" defaultChecked>
               Median Age
             </Checkbox>
-            <Checkbox size='md' colorScheme='red' defaultChecked>
+            <Checkbox size="md" colorScheme="red" defaultChecked>
               Total Population
             </Checkbox>
-            <Checkbox size='md' colorScheme='pink' defaultChecked>
+            <Checkbox size="md" colorScheme="pink" defaultChecked>
               Cover Total Area
             </Checkbox>
           </Stack>
         </Grid>
       </Box>
     </>
-  )
+  );
 }
 
 export default GraphBaseView

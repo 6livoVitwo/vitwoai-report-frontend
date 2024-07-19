@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Heading, Text } from '@chakra-ui/react';
-import SalesCustomerWiseChart from './salesCustomerWiseChart';
+import SalesProductWiseChart from './salesCustomerWiseChart';
 import ChartDrawer from './chartDrawer';
 import { useSelector } from 'react-redux';
 import { jwtDecode } from 'jwt-decode';
@@ -63,7 +63,7 @@ const SalesCustomerWiseGraphView = () => {
 				</Text>
 			</Box>
 			<ChartDrawer graphData={graphData} />
-			<SalesCustomerWiseChart />
+			<SalesProductWiseChart />
 		</Box>
 	);
 };

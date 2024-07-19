@@ -1,4 +1,4 @@
-export const CustomerService = {
+export const ProductService = {
 	getData() {
 		return [
 			{
@@ -1084,19 +1084,19 @@ export const CustomerService = {
 		];
 	},
 
-	getCustomersSmall() {
+	getProductsSmall() {
 		return Promise.resolve(this.getData().slice(0, 10));
 	},
 
-	getCustomersMedium() {
+	getProductsMedium() {
 		return Promise.resolve(this.getData().slice(0, 50));
 	},
 
-	getCustomersLarge() {
+	getProductsLarge() {
 		return Promise.resolve(this.getData().slice(0, 200));
 	},
 
-	getCustomersXLarge() {
+	getProductsXLarge() {
 		return Promise.resolve(this.getData());
 	},
 };
