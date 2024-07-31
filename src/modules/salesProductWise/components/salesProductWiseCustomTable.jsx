@@ -46,7 +46,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 const CustomTable = ({
-	setPage,
+	// setPage,
 	individualItems,
 	isFetching,
 	setDateRange,
@@ -76,12 +76,12 @@ const CustomTable = ({
 		isOpen: isOpenDownloadReportModal,
 	} = useDisclosure();
 
-	const loadMoreData = async () => {
-		setLoading(true);
-		setData((prevData) => [...prevData, ...individualItems]);
-		setPage((prevPage) => prevPage + 1);
-		setLoading(false);
-	};
+	// const loadMoreData = async () => {
+	// 	setLoading(true);
+	// 	setData((prevData) => [...prevData, ...individualItems]);
+	// 	setPage((prevPage) => prevPage + 1);
+	// 	setLoading(false);
+	// };
 
 	useEffect(() => {
 		// loadMoreData();
@@ -238,7 +238,7 @@ const CustomTable = ({
 			if (observer.current) observer.current.disconnect();
 			observer.current = new IntersectionObserver((entries) => {
 				if (entries[0].isIntersecting) {
-					loadMoreData();
+					// loadMoreData();
 				}
 			});
 			if (node) observer.current.observe(node);

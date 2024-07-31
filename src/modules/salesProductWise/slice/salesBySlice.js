@@ -14,9 +14,9 @@ export const salesApi = createApi({
   }),
   endpoints: (builder) => ({
     fetchSales: builder.query({
-      query: ({ page, filters }) => {
+      query: ({ filters }) => {
         return {
-          url: `sales/sales-groupby-data?pageSize=${page}`,
+          url: `sales/sales-groupby-data`,
           method: "POST",
           body: JSON.stringify(filters),
           headers: {
