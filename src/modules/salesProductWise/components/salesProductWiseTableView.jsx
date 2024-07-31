@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import CustomTable from "./salesProductWiseCustomTable";
 import { Box, Spinner, Image } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
@@ -7,7 +7,7 @@ import NoDataFound from "../../../asset/images/nodatafound.png";
 
 const SalesProductWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
-  const [page, setPage] = useState(1);
+
   const [filters, setFilters] = useState({
     data: [
       "items.itemName",
@@ -44,7 +44,10 @@ const SalesProductWiseTableView = () => {
     size: 50,
   });
 
-  const [dateRange, setDateRange] = useState();
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [individualItems, setIndividualItems] = useState([]);
+  
   const {
     data: sales,
     isLoading,
@@ -52,30 +55,39 @@ const SalesProductWiseTableView = () => {
     isError,
     error,
   } = useFetchSalesQuery({
-    filters,
-    page,
+    filters: { ...filters, page },
     authDetails: authData.authDetails,
   });
 
-  if (isError) {
-    console.error("Error fetching sales data:", error);
-  }
+  const tableContainerRef = useRef(null);
 
-  // Extract and flatten sales data
-  const salesData = sales?.content || [];
-  const pageInfo = sales?.lastPage || 1;
+  useEffect(() => {
+    if (sales?.content?.length) {
+      setIndividualItems((prevItems) => [
+        ...prevItems,
+        ...sales.content.flatMap((invoice) => {
+          const flattenedInvoice = flattenObject(invoice);
+          return invoice.items?.length
+            ? invoice.items.map((item) => {
+                const flattenedItem = flattenObject(item, "item.");
+                return { ...flattenedInvoice, ...flattenedItem };
+              })
+            : [flattenedInvoice];
+        }),
+      ]);
+      setHasMore(sales.content.length === filters.size); // Determine if more data is available
+    } else {
+      setHasMore(false);
+    }
+  }, [sales, filters.size]);
 
-  // Utility function to flatten nested objects
   const flattenObject = (obj, prefix = "") => {
     let result = {};
     for (let key in obj) {
       if (typeof obj[key] === "object" && obj[key] !== null) {
         if (Array.isArray(obj[key])) {
           obj[key].forEach((item, index) => {
-            Object.assign(
-              result,
-              flattenObject(item, `${prefix}${key}[${index}].`)
-            );
+            Object.assign(result, flattenObject(item, `${prefix}${key}[${index}].`));
           });
         } else {
           Object.assign(result, flattenObject(obj[key], `${prefix}${key}.`));
@@ -87,31 +99,30 @@ const SalesProductWiseTableView = () => {
     return result;
   };
 
-  // Process sales data to extract individual items
-  const [individualItems, setIndividualItems] = useState([]);
+  const handleScroll = useCallback(() => {
+    if (
+      tableContainerRef.current &&
+      tableContainerRef.current.scrollHeight - tableContainerRef.current.scrollTop <=
+        tableContainerRef.current.clientHeight + 10
+    ) {
+      if (!isFetching && hasMore) {
+        setPage((prevPage) => prevPage + 1);
+      }
+    }
+  }, [isFetching, hasMore]);
 
   useEffect(() => {
-    if (salesData.length) {
-      const items = salesData.flatMap((invoice) => {
-        const flattenedInvoice = flattenObject(invoice);
-        return invoice.items && invoice.items.length > 0
-          ? invoice.items.map((item) => {
-              const flattenedItem = flattenObject(item, "item.");
-              return { ...flattenedInvoice, ...flattenedItem };
-            })
-          : [flattenedInvoice];
-      });
-
-      setIndividualItems(items);
+    const container = tableContainerRef.current;
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+      return () => container.removeEventListener("scroll", handleScroll);
     }
-  }, [salesData]);
+  }, [handleScroll]);
 
-  // Function to extract fields from each item
   const extractFields = (data, index) => ({
-    "SL No": index+1,
+    "SL No": index + 1,
     "Item Name": data["items.itemName"],
-    "Sales Delivery Total Amount":
-      data["SUM(salesPgi.salesDelivery.totalAmount)"],
+    "Sales Delivery Total Amount": data["SUM(salesPgi.salesDelivery.totalAmount)"],
     "Sales Pgi Total Amount": data["SUM(salesPgi.totalAmount)"],
     Quotation: data["SUM(salesPgi.totalAmount)"],
     "Sales Order": data["SUM(salesOrder.totalAmount)"],
@@ -120,12 +131,11 @@ const SalesProductWiseTableView = () => {
     "Total Amount": data["SUM(all_total_amt)"],
   });
 
-  // Convert individual items into new array with the necessary fields
   const newArray = individualItems.map(extractFields);
-console.log("same probem",newArray);
+
   return (
-    <Box>
-      {isLoading ? (
+    <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
+      {isLoading && !isFetching ? (
         <Box
           height="calc(100vh - 75px)"
           width="100%"
@@ -141,13 +151,7 @@ console.log("same probem",newArray);
           />
         </Box>
       ) : newArray.length > 0 ? (
-        <CustomTable
-          individualItems={newArray}
-          page={page}
-          setPage={setPage}
-          isFetching={isFetching}
-          pageInfo={pageInfo}
-        />
+        <CustomTable individualItems={newArray} />
       ) : (
         <Box
           bg="white"

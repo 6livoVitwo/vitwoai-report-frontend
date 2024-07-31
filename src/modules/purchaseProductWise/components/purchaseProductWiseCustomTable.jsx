@@ -46,7 +46,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 const CustomTable = ({
-	// setPage,
+	setPage,
 	individualItems,
 	isFetching,
 	setDateRange,
@@ -76,12 +76,12 @@ const CustomTable = ({
 		isOpen: isOpenDownloadReportModal,
 	} = useDisclosure();
 
-	// const loadMoreData = async () => {
-	// 	setLoading(true);
-	// 	setData((prevData) => [...prevData, ...individualItems]);
-	// 	setPage((prevPage) => prevPage + 1);
-	// 	setLoading(false);
-	// };
+	const loadMoreData = async () => {
+		setLoading(true);
+		setData((prevData) => [...prevData, ...individualItems]);
+		setPage((prevPage) => prevPage + 1);
+		setLoading(false);
+	};
 
 	useEffect(() => {
 		// loadMoreData();
@@ -238,7 +238,7 @@ const CustomTable = ({
 			if (observer.current) observer.current.disconnect();
 			observer.current = new IntersectionObserver((entries) => {
 				if (entries[0].isIntersecting) {
-					// loadMoreData();
+					loadMoreData();
 				}
 			});
 			if (node) observer.current.observe(node);
@@ -327,42 +327,35 @@ const CustomTable = ({
 			const newArrayValue = [
         {
           data: [
-            'items.itemName',
-            'SUM(salesPgi.salesDelivery.totalAmount)',
-            'SUM(salesPgi.totalAmount)',
-            'SUM(quotation.totalAmount)',
-            'SUM(salesOrder.totalAmount)',
-            'SUM(items.qty)',
-            'SUM(items.basePrice - items.totalDiscountAmt)',
-            'SUM(all_total_amt)',
+            "items.goodName",
+            "items.goodCode",
+            "SUM(items.goodQty)",
+            "SUM(items.receivedQty)",
+            "SUM(items.totalAmount)",
           ],
-          groupBy: ['items.itemName'],
+          groupBy: ["items.goodName"],
           filter: [
             {
-              column: 'company_id',
-              operator: 'equal',
-              type: 'Integer',
+              column: "companyId",
+              operator: "equal",
+              type: "integer",
               value: 1,
             },
             {
-              column: 'location_id',
-              operator: 'equal',
-              type: 'Integer',
+              column: "branchId",
+              operator: "equal",
+              type: "integer",
               value: 1,
             },
             {
-              column: 'branch_id',
-              operator: 'equal',
-              type: 'Integer',
+              column: "locationId",
+              operator: "equal",
+              type: "integer",
               value: 1,
             },
           ],
           page: 0,
           size: 50,
-          // column: 'invoice_date',
-          // operator: 'between',
-          // type: 'date',
-          // value: [formattedStartDate, formattedEndDate],
         },
       ];
 			setDateRange(newArrayValue);

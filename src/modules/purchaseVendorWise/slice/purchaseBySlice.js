@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-export const salesApi = createApi({
-  reducerPath: "salesApi",
+export const purchasesApi = createApi({
+  reducerPath: "purchasesApi",
   baseQuery: fetchBaseQuery({
     baseUrl: "http://192.168.0.133:8081/",
     prepareHeaders: (headers) => {
@@ -14,9 +14,9 @@ export const salesApi = createApi({
   }),
   endpoints: (builder) => ({
     fetchSales: builder.query({
-      query: ({ filters }) => {
+      query: ({ page, filters }) => {
         return {
-          url: `sales/sales-groupby-data`,
+          url: `purchase/purchase-groupby-data?pageSize=${page}`,
           method: "POST",
           body: JSON.stringify(filters),
           headers: {
@@ -28,4 +28,4 @@ export const salesApi = createApi({
   }),
 });
 
-export const { useFetchSalesQuery } = salesApi;
+export const { useFetchSalesQuery } = purchasesApi;
