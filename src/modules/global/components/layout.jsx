@@ -3,22 +3,24 @@ import styled from '@emotion/styled';
 import { useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import {
-	Flex,
-	Wrap,
-	Box,
-	Image,
-	Heading,
-	useBoolean,
-	Text,
-	keyframes,
-	useMediaQuery,
-	Link as Anchor,
-} from '@chakra-ui/react';
+  Flex,
+  Wrap,
+  Box,
+  Image,
+  Heading,
+  useBoolean,
+  Text,
+  keyframes,
+  useMediaQuery,
+  Link as Anchor,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  Breadcrumb,
+} from "@chakra-ui/react";
 
 import Navigation from './navigation';
 import { setDarkMode } from '../slice';
 import logoDark from '../../../asset/images/vitwo-logo-dark.png';
-
 const CssWrapper = styled.div`
 	.nav-collapse .sidebar nav {
 		padding: 20px 13px 20px 8px;
@@ -229,12 +231,12 @@ const CssWrapper = styled.div`
 `;
 
 const Layout = ({ portalId }) => {
-	const { pathname } = useLocation();
-	const dispatch = useDispatch();
-	const [menuCollapse, setmenuCollapse] = useBoolean(true);
-	const [isLessThan1023px] = useMediaQuery('(max-width: 1023px)');
+  const { pathname } = useLocation();
+  const dispatch = useDispatch();
+  const [menuCollapse, setmenuCollapse] = useBoolean(true);
+  const [isLessThan1023px] = useMediaQuery("(max-width: 1023px)");
 
-	const bellshake = keyframes`
+  const bellshake = keyframes`
         0% { transform: rotate(0); }
         25% { transform: rotate(8deg); }
         50% { transform: rotate(-8deg); }
@@ -246,331 +248,328 @@ const Layout = ({ portalId }) => {
         100% { transform: rotate(0); }
     `;
 
-	const animation = `${bellshake} .5s cubic-bezier(.36,.07,.19,.97) both`;
+  const animation = `${bellshake} .5s cubic-bezier(.36,.07,.19,.97) both`;
 
-	useEffect(() => {
-		if (
-			window.matchMedia &&
-			window.matchMedia('(prefers-color-scheme: dark)').matches
-		) {
-			dispatch(setDarkMode(true));
-		}
+  useEffect(() => {
+    if (
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+    ) {
+      dispatch(setDarkMode(true));
+    }
 
-		const darkModeListener = window.matchMedia(
-			'(prefers-color-scheme: dark)'
-		);
-		const handleDarkModeChange = (event) => {
-			dispatch(setDarkMode(event.matches));
-		};
+    const darkModeListener = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleDarkModeChange = (event) => {
+      dispatch(setDarkMode(event.matches));
+    };
 
-		darkModeListener.addEventListener('change', handleDarkModeChange);
+    darkModeListener.addEventListener("change", handleDarkModeChange);
 
-		return () => {
-			darkModeListener.removeEventListener(
-				'change',
-				handleDarkModeChange
-			);
-		};
-	}, []);
+    return () => {
+      darkModeListener.removeEventListener("change", handleDarkModeChange);
+    };
+  }, []);
 
-	return (
-		<CssWrapper>
-			<Flex
-				flexDirection='row'
-				w='100vw'
-				minH='100vh'
-				h='100vh'
-				justify='left'
-				align='top'
-				className={`commonContainer ${
-					menuCollapse ? 'nav-collapse' : ''
-				}`}
-				alignSelf='flex-start'
-				position='relative'
-				bg='mainLightModeBackgroundColor'>
-				<Box
-					position='fixed'
-					bg='rgba(0,0,0,0.5)'
-					height='100vh'
-					width='100vw'
-					opacity={menuCollapse ? '1' : '0'}
-					display={{
-						base: `${menuCollapse ? 'block' : 'none'}`,
-						lg: 'none',
-					}}
-					onClick={setmenuCollapse.toggle}
-					// transition={{ base: '0.5s ease', lg: 'unset' }}
-					zIndex='111'>
-					Overlay
-				</Box>
+  const breadcrumbItems = pathname
+    .split("/")
+    .filter(Boolean)
+    .map((part, index, array) => {
+    //   const href = `/${array.slice(0, index + 1).join("/")}`;
+      return {
+        label: part.replace(/-/g, " "),
+        // href: href,
+        isCurrentPage: index === array.length - 1,
+      };
+    });
 
-				<Box
-					className='navigation'
-					w={{
-						base: `${menuCollapse ? '210px' : '0px'}`,
-						lg: `${menuCollapse ? '70px' : '210px'}`,
-					}}
-					h='100vh'
-					pos='fixed'
-					left='0'
-					zIndex={6}
-					background='lfgLightBlue'
-					overflow={menuCollapse ? 'visible' : 'hidden'}
-					transition='0.5s ease all'
-					borderRight='1px solid var(--chakra-colors-veryLightBlueColor)'>
-					<Box
-						pos='relative'
-						as='aside'
-						className='sidebar'
-						w={['100%', '100%', '100%']}
-						h='100%'
-						display='flex'
-						flexDirection='column'
-						boxShadow={
-							isLessThan1023px
-								? 'rgb(0 0 0 / 15%) 7.4px 7.4px 7.2px'
-								: ''
-						}
-						bg='#003060'>
-						<Box
-							h={{ base: '55px', lg: '60px' }}
-							boxShadow='-3px 3px 16px var(--chakra-colors-boxShadowLightBlackColor)'
-							bg='white'
-							borderBottom='1px solid var(--chakra-colors-veryLightBlueColor)'>
-							<Box
-								className='logo'
-								p={{
-									base: '42px 12px 12px 15px',
-									lg: '57px 12px 0px 15px',
-								}}
-								transition='all 0.4s ease-in-out'
-								pos='relative'>
-								<Image
-									srcSet={logoDark}
-									alt='logo'
-									alignSelf='center'
-									pos='absolute'
-									w='auto'
-									h={{ base: '34px', lg: '35px' }}
-									className='logo-img'
-									maxWidth='unset'
-									top='12px'
-								/>
-							</Box>
-						</Box>
-						<Wrap
-							display='block'
-							flexDirection='row'
-							fontWeight='500'
-							fontSize={{ base: '1.4rem', lg: '1.6rem' }}
-							color='white'
-							p='20px 10px'
-							h={{
-								base: 'calc(100vh - 100px)',
-								lg: 'calc(100vh - 100px)',
-							}}
-							className='navHolder'
-							transition='all 0.4s ease-in-out'
-							sx={{
-								'&.navHolder': {
-									overflow: 'hidden',
-								},
-								'&.navHolder:hover': {
-									paddingRight: '9px',
-									overflowY: 'scroll',
-								},
-								'&:hover::-webkit-scrollbar': {
-									width: '4px',
-									background: 'var(--chakra-colors-gray-200)',
-								},
+  return (
+    <CssWrapper>
+      <Flex
+        flexDirection="row"
+        w="100vw"
+        minH="100vh"
+        h="100vh"
+        justify="left"
+        align="top"
+        className={`commonContainer ${menuCollapse ? "nav-collapse" : ""}`}
+        alignSelf="flex-start"
+        position="relative"
+        bg="mainLightModeBackgroundColor">
+        <Box
+          position="fixed"
+          bg="rgba(0,0,0,0.5)"
+          height="100vh"
+          width="100vw"
+          opacity={menuCollapse ? "1" : "0"}
+          display={{
+            base: `${menuCollapse ? "block" : "none"}`,
+            lg: "none",
+          }}
+          onClick={setmenuCollapse.toggle}
+          // transition={{ base: '0.5s ease', lg: 'unset' }}
+          zIndex="111">
+          Overlay
+        </Box>
 
-								'&:hover::-webkit-scrollbar-thumb': {
-									background: 'var(--chakra-colors-gray-300)',
-									borderRadius: '4px',
-									transition: 'all 0.3s ease-in-out',
-								},
-								'& .chakra-wrap__list .chakra-wrap__listitem': {
-									width: '190px',
-								},
-								'& .chakra-collapse .chakra-wrap__list .chakra-wrap__listitem':
-									{
-										width: '100%',
-									},
+        <Box
+          className="navigation"
+          w={{
+            base: `${menuCollapse ? "210px" : "0px"}`,
+            lg: `${menuCollapse ? "70px" : "210px"}`,
+          }}
+          h="100vh"
+          pos="fixed"
+          left="0"
+          zIndex={6}
+          background="lfgLightBlue"
+          overflow={menuCollapse ? "visible" : "hidden"}
+          transition="0.5s ease all"
+          borderRight="1px solid var(--chakra-colors-veryLightBlueColor)">
+          <Box
+            pos="relative"
+            as="aside"
+            className="sidebar"
+            w={["100%", "100%", "100%"]}
+            h="100%"
+            display="flex"
+            flexDirection="column"
+            boxShadow={
+              isLessThan1023px ? "rgb(0 0 0 / 15%) 7.4px 7.4px 7.2px" : ""
+            }
+            bg="#003060">
+            <Box
+              h={{ base: "55px", lg: "60px" }}
+              boxShadow="-3px 3px 16px var(--chakra-colors-boxShadowLightBlackColor)"
+              bg="white"
+              borderBottom="1px solid var(--chakra-colors-veryLightBlueColor)">
+              <Box
+                className="logo"
+                p={{
+                  base: "42px 12px 12px 15px",
+                  lg: "57px 12px 0px 15px",
+                }}
+                transition="all 0.4s ease-in-out"
+                pos="relative">
+                <Image
+                  srcSet={logoDark}
+                  alt="logo"
+                  alignSelf="center"
+                  pos="absolute"
+                  w="auto"
+                  h={{ base: "34px", lg: "35px" }}
+                  className="logo-img"
+                  maxWidth="unset"
+                  top="12px"
+                />
+              </Box>
+            </Box>
+            <Wrap
+              display="block"
+              flexDirection="row"
+              fontWeight="500"
+              fontSize={{ base: "1.4rem", lg: "1.6rem" }}
+              color="white"
+              p="20px 10px"
+              h={{
+                base: "calc(100vh - 100px)",
+                lg: "calc(100vh - 100px)",
+              }}
+              className="navHolder"
+              transition="all 0.4s ease-in-out"
+              sx={{
+                "&.navHolder": {
+                  overflow: "hidden",
+                },
+                "&.navHolder:hover": {
+                  paddingRight: "9px",
+                  overflowY: "scroll",
+                },
+                "&:hover::-webkit-scrollbar": {
+                  width: "4px",
+                  background: "var(--chakra-colors-gray-200)",
+                },
 
-								'.chakra-wrap__listitem': {
-									borderRadius: '8px',
-									transition: 'width 0.3s ease',
-								},
-								'.chakra-wrap__listitem > a': {
-									textDecoration: 'none',
-								},
-								'.chakra-wrap__listitem > a:hover': {
-									bg: 'var(--chakra-colors-mainBlue)',
-									color: 'var(--chakra-colors-white)',
-								},
-								'.chakra-wrap__listitem > a.active': {
-									bg: '#cfd8e1',
-									color: '#003060',
-								},
-								'.chakra-wrap__listitem > a > i > svg:hover': {
-									color: 'var(--chakra-colors-white)',
-								},
-								'.chakra-wrap__listitem > a[aria-current=page]>i>svg':
-									{
-										color: '#003060',
-									},
-								'.chakra-accordion__button': {
-									width: '190px',
-									borderRadius: '8px',
-								},
-								'.chakra-accordion__button:hover': {
-									background: 'rgb(215, 229, 244)',
-									color: 'mainBlue',
-								},
-								'.chakra-accordion__button:hover > a ': {
-									borderRight: '1px solid',
-									borderColor: '#f1f7fd',
-									transition: '0.5s ease all',
-								},
-								'.chakra-collapse .chakra-wrap__listitem .chakra-accordion__button':
-									{
-										width: '100%',
-										borderRadius: '8px',
-									},
-								'.chakra-collapse .chakra-wrap__listitem .chakra-accordion__button:hover':
-									{
-										background: 'rgb(215, 229, 244)',
-									},
-								'.chakra-accordion__button > a': {
-									textDecoration: 'none',
-								},
-								'.chakra-collapse .chakra-wrap__listitem .chakra-collapse .chakra-accordion__panel .chakra-wrap__list > a':
-									{
-										textDecoration: 'none',
-									},
-								'.chakra-collapse .chakra-wrap__listitem .chakra-collapse .chakra-accordion__panel .chakra-wrap__list > a >span':
-									{
-										textDecoration: 'none',
-										fontSize: '1.4rem',
-									},
-								'.chakra-collapse .chakra-wrap__listitem .chakra-collapse .chakra-accordion__panel .chakra-wrap__list > a:hover ':
-									{
-										background:
-											'var(--chakra-colors-mainBlue)',
-										color: 'white !important',
-									},
-								'.chakra-accordion__button[aria-expanded="true"]':
-									{
-										width: '190px',
-										bg: '#D7E5F4',
-										borderRadius: '10px 10px 0px 0px',
-										color: 'mainBlue',
-									},
-								'.chakra-accordion__item': {
-									border: 'none',
-								},
-								'.chakra-wrap__listitem .chakra-accordion button + svg':
-									{
-										position: 'absolute',
-										right: '10px',
-										transition: 'opacity 0.4s ease 0s',
-										opacity: '0.5',
-									},
-								'& .chakra-accordion .chakra-accordion__item .chakra-collapse .chakra-accordion__panel .chakra-wrap .chakra-wrap__list .chakra-wrap__listitem':
-									{
-										width: '90%',
-										margin: '0 auto',
-									},
-								'& .chakra-accordion .chakra-accordion__item .chakra-collapse .chakra-accordion__panel .chakra-wrap .chakra-wrap__list .chakra-wrap__listitem > a':
-									{
-										mb: '5px',
-										color: 'mainBlue',
-									},
-								'& .chakra-accordion .chakra-accordion__item .chakra-collapse .chakra-accordion__panel .chakra-wrap .chakra-wrap__list .chakra-wrap__listitem > a:hover':
-									{
-										color: 'white',
-									},
-								'& .chakra-accordion .chakra-accordion__item .chakra-collapse .chakra-accordion__panel .chakra-wrap .chakra-wrap__list .chakra-wrap__listitem > a.active':
-									{
-										color: 'white',
-									},
-								'@media screen and (max-width: 1023px)': {
-									'&.navHolder': {
-										overflowY: 'auto',
-										overflowX: 'hidden',
-									},
-								},
-							}}>
-							<Navigation
-								menuCollapse={menuCollapse}
-								setmenuCollapse={setmenuCollapse}
-							/>
-						</Wrap>
-					</Box>
-				</Box>
-				<Box
-					ml={{
-						base: `${menuCollapse ? '0px' : '0px'}`,
-						lg: `${menuCollapse ? '70px' : '210px'}`,
-					}}
-					width='100%'
-					transition='margin 0.5s ease'
-					overflow={{ base: 'scroll', lg: 'unset' }}>
-					<Box
-						className='header'
-						h={{ base: '55px', lg: '60px' }}
-						bg='white'
-						pos='fixed'
-						top='0'
-						borderBottom='1px solid var(--chakra-colors-veryLightBlueColor)'
-						zIndex='99'
-						left={{
-							base: `${menuCollapse ? '0px' : '0px'}`,
-							lg: `${menuCollapse ? '70px' : '210px'}`,
-						}}
-						transition='all 0.5s ease'
-						width={{
-							base: `${menuCollapse ? '100%' : '100%'}`,
-							lg: `${
-								menuCollapse
-									? 'calc(100% - 60px)'
-									: 'calc(100% - 210px)'
-							}`,
-						}}>
-						<Box
-							pos='relative'
-							h={{ base: '55px', lg: '60px' }}
-							bg='white'
-							p={{ base: '7px 20px', lg: '15px 20px' }}
-							borderBottom='1px solid var(--chakra-colors-veryLightBlueColor)'
-							boxShadow='0px 0px 20px var(--chakra-colors-gray-200)'
-							display='flex'
-							justifyContent='space-between'
-							sx={{
-								'& > .progressBar': {
-									bg: 'var(--chakra-colors-gray-100)',
-								},
-							}}>
-							<Box
-								pos='absolute'
-								left='20px'
-								top={{ base: '17px', lg: '22px' }}
-								cursor='pointer'
-								w='38px'
-								h='38px'
-								textAlign='center'
-								color='mainBlue'
-								onClick={setmenuCollapse.toggle}>
-								<svg
-									className='icon'
-									width='20px'
-									height='21px'
-									display='inline-block'>
-									<use xlinkHref='/icon/icons.svg#icon-navmenu-collapse' />
-								</svg>
-							</Box>
+                "&:hover::-webkit-scrollbar-thumb": {
+                  background: "var(--chakra-colors-gray-300)",
+                  borderRadius: "4px",
+                  transition: "all 0.3s ease-in-out",
+                },
+                "& .chakra-wrap__list .chakra-wrap__listitem": {
+                  width: "190px",
+                },
+                "& .chakra-collapse .chakra-wrap__list .chakra-wrap__listitem":
+                  {
+                    width: "100%",
+                  },
 
-							{/* <Box
+                ".chakra-wrap__listitem": {
+                  borderRadius: "8px",
+                  transition: "width 0.3s ease",
+                },
+                ".chakra-wrap__listitem > a": {
+                  textDecoration: "none",
+                },
+                ".chakra-wrap__listitem > a:hover": {
+                  bg: "var(--chakra-colors-mainBlue)",
+                  color: "var(--chakra-colors-white)",
+                },
+                ".chakra-wrap__listitem > a.active": {
+                  bg: "#cfd8e1",
+                  color: "#003060",
+                },
+                ".chakra-wrap__listitem > a > i > svg:hover": {
+                  color: "var(--chakra-colors-white)",
+                },
+                ".chakra-wrap__listitem > a[aria-current=page]>i>svg": {
+                  color: "#003060",
+                },
+                ".chakra-accordion__button": {
+                  width: "190px",
+                  borderRadius: "8px",
+                },
+                ".chakra-accordion__button:hover": {
+                  background: "rgb(215, 229, 244)",
+                  color: "mainBlue",
+                },
+                ".chakra-accordion__button:hover > a ": {
+                  borderRight: "1px solid",
+                  borderColor: "#f1f7fd",
+                  transition: "0.5s ease all",
+                },
+                ".chakra-collapse .chakra-wrap__listitem .chakra-accordion__button":
+                  {
+                    width: "100%",
+                    borderRadius: "8px",
+                  },
+                ".chakra-collapse .chakra-wrap__listitem .chakra-accordion__button:hover":
+                  {
+                    background: "rgb(215, 229, 244)",
+                  },
+                ".chakra-accordion__button > a": {
+                  textDecoration: "none",
+                },
+                ".chakra-collapse .chakra-wrap__listitem .chakra-collapse .chakra-accordion__panel .chakra-wrap__list > a":
+                  {
+                    textDecoration: "none",
+                  },
+                ".chakra-collapse .chakra-wrap__listitem .chakra-collapse .chakra-accordion__panel .chakra-wrap__list > a >span":
+                  {
+                    textDecoration: "none",
+                    fontSize: "1.4rem",
+                  },
+                ".chakra-collapse .chakra-wrap__listitem .chakra-collapse .chakra-accordion__panel .chakra-wrap__list > a:hover ":
+                  {
+                    background: "var(--chakra-colors-mainBlue)",
+                    color: "white !important",
+                  },
+                '.chakra-accordion__button[aria-expanded="true"]': {
+                  width: "190px",
+                  bg: "#D7E5F4",
+                  borderRadius: "10px 10px 0px 0px",
+                  color: "mainBlue",
+                },
+                ".chakra-accordion__item": {
+                  border: "none",
+                },
+                ".chakra-wrap__listitem .chakra-accordion button + svg": {
+                  position: "absolute",
+                  right: "10px",
+                  transition: "opacity 0.4s ease 0s",
+                  opacity: "0.5",
+                },
+                "& .chakra-accordion .chakra-accordion__item .chakra-collapse .chakra-accordion__panel .chakra-wrap .chakra-wrap__list .chakra-wrap__listitem":
+                  {
+                    width: "90%",
+                    margin: "0 auto",
+                  },
+                "& .chakra-accordion .chakra-accordion__item .chakra-collapse .chakra-accordion__panel .chakra-wrap .chakra-wrap__list .chakra-wrap__listitem > a":
+                  {
+                    mb: "5px",
+                    color: "mainBlue",
+                  },
+                "& .chakra-accordion .chakra-accordion__item .chakra-collapse .chakra-accordion__panel .chakra-wrap .chakra-wrap__list .chakra-wrap__listitem > a:hover":
+                  {
+                    color: "white",
+                  },
+                "& .chakra-accordion .chakra-accordion__item .chakra-collapse .chakra-accordion__panel .chakra-wrap .chakra-wrap__list .chakra-wrap__listitem > a.active":
+                  {
+                    color: "white",
+                  },
+                "@media screen and (max-width: 1023px)": {
+                  "&.navHolder": {
+                    overflowY: "auto",
+                    overflowX: "hidden",
+                  },
+                },
+              }}>
+              <Navigation
+                menuCollapse={menuCollapse}
+                setmenuCollapse={setmenuCollapse}
+              />
+            </Wrap>
+          </Box>
+        </Box>
+        <Box
+          ml={{
+            base: `${menuCollapse ? "0px" : "0px"}`,
+            lg: `${menuCollapse ? "70px" : "210px"}`,
+          }}
+          width="100%"
+          transition="margin 0.5s ease"
+          overflow={{ base: "scroll", lg: "unset" }}>
+          <Box
+            className="header"
+            h={{ base: "55px", lg: "60px" }}
+            bg="white"
+            pos="fixed"
+            top="0"
+            borderBottom="1px solid var(--chakra-colors-veryLightBlueColor)"
+            zIndex="99"
+            left={{
+              base: `${menuCollapse ? "0px" : "0px"}`,
+              lg: `${menuCollapse ? "70px" : "210px"}`,
+            }}
+            transition="all 0.5s ease"
+            width={{
+              base: `${menuCollapse ? "100%" : "100%"}`,
+              lg: `${
+                menuCollapse ? "calc(100% - 60px)" : "calc(100% - 210px)"
+              }`,
+            }}>
+            <Box
+              pos="relative"
+              h={{ base: "55px", lg: "60px" }}
+              bg="white"
+              p={{ base: "7px 20px", lg: "15px 20px" }}
+              borderBottom="1px solid var(--chakra-colors-veryLightBlueColor)"
+              boxShadow="0px 0px 20px var(--chakra-colors-gray-200)"
+              display="flex"
+              justifyContent="space-between"
+              sx={{
+                "& > .progressBar": {
+                  bg: "var(--chakra-colors-gray-100)",
+                },
+              }}>
+              <Box
+                pos="absolute"
+                left="20px"
+                top={{ base: "17px", lg: "22px" }}
+                cursor="pointer"
+                w="38px"
+                h="38px"
+                textAlign="center"
+                color="mainBlue"
+                onClick={setmenuCollapse.toggle}>
+                <svg
+                  className="icon"
+                  width="20px"
+                  height="21px"
+                  display="inline-block">
+                  <use xlinkHref="/icon/icons.svg#icon-navmenu-collapse" />
+                </svg>
+              </Box>
+
+              <Box
                 p="0 0 0 38px"
                 display={{ base: "none", lg: "flex" }}
                 alignItems="center">
@@ -580,106 +579,113 @@ const Layout = ({ portalId }) => {
                   fontWeight="600"
                   color="mainBlue"
                   textTransform="capitalize">
-                  {pathname.split("/")[1].split("-").join(" ").trim()}
+                  {/* {pathname.split("/")[1].split("-").join(" ").trim()} */}
+                  <Breadcrumb fontSize="lg" spacing="8px">
+                    {breadcrumbItems.map((item, index) => (
+                      <BreadcrumbItem
+                        key={index}
+                        isCurrentPage={item.isCurrentPage}>
+                        <BreadcrumbLink
+                        >
+                          {item.label}
+                        </BreadcrumbLink>
+                      </BreadcrumbItem>
+                    ))}
+                  </Breadcrumb>
                 </Heading>
-              </Box> */}
+              </Box>
 
-							<Box display={{ base: 'block', lg: 'none' }}></Box>
+              <Box display={{ base: "block", lg: "none" }}></Box>
 
-							<Box
-								className='icon_notification'
-								pos='absolute'
-								color='mainBlue'
-								right={{ base: '135px', lg: '20px' }}
-								bottom={{ base: '15px', lg: '22px' }}
-								cursor='pointer'
-								_hover={{
-									animation: `${animation}`,
-									transformOrigin: 'top',
-								}}>
-								<svg
-									className='icon'
-									width='20px'
-									height='21px'>
-									<use xlinkHref='/icon/icons.svg#icon-notification' />
-								</svg>
-							</Box>
-						</Box>
-					</Box>
-					<Box
-						ref={portalId}
-						w='100%'
-						p={{
-							base: '80px 15px 40px',
-							lg: '10px',
-						}}
-						height='calc(100vh - 94px)'
-						overflow='auto'
-						pos={{ base: '', lg: 'sticky' }}
-						top='60px'
-						bg='white'
-						zIndex='111'
-					/>
-					<Flex
-						display={{ base: 'none', lg: 'flex' }}
-						left={{
-							base: `${menuCollapse ? '0px' : '0px'}`,
-							lg: `${menuCollapse ? '70px' : '210px'}`,
-						}}
-						transition='all 0.5s ease'
-						width={{
-							base: `${menuCollapse ? '100%' : '100%'}`,
-							lg: `${
-								menuCollapse
-									? 'calc(100% - 60px)'
-									: 'calc(100% - 210px)'
-							}`,
-						}}
-						bg='mainLightModeBackgroundColor'
-						pos='fixed'
-						bottom='0'
-						height='33px'
-						lineHeight='3.3rem'
-						justifyContent='space-between'
-						p='0 20px'
-						zIndex='99'>
-						<Box
-							color='mainBlue'
-							fontSize='1.3rem'
-							fontWeight='400'
-							flex='0 0 50%'>
-							&copy; Copyright {new Date().getFullYear()}{' '}
-							<Text as='strong' color='mainBlue' fontWeight='500'>
-								6 livo Technology Pvt Ltd.
-							</Text>
-							All Rights Reserved.
-						</Box>
-						<Box
-							flex='0 0 50%'
-							textAlign='right'
-							color='bodyFontColor'
-							fontSize='1rem'
-							sx={{
-								'& span': {
-									color: 'mainBlue',
-									fontWeight: '500',
-									fontSize: '1.1rem',
-								},
-							}}>
-							Powered by
-							<Anchor
-								isExternal
-								textDecoration='none'
-								color='mainBlue'
-								fontWeight='500'>
-								Vitwo
-							</Anchor>
-						</Box>
-					</Flex>
-				</Box>
-			</Flex>
-		</CssWrapper>
-	);
+              <Box
+                className="icon_notification"
+                pos="absolute"
+                color="mainBlue"
+                right={{ base: "135px", lg: "20px" }}
+                bottom={{ base: "15px", lg: "22px" }}
+                cursor="pointer"
+                _hover={{
+                  animation: `${animation}`,
+                  transformOrigin: "top",
+                }}>
+                <svg className="icon" width="20px" height="21px">
+                  <use xlinkHref="/icon/icons.svg#icon-notification" />
+                </svg>
+              </Box>
+            </Box>
+          </Box>
+          <Box
+            ref={portalId}
+            w="100%"
+            p={{
+              base: "80px 15px 40px",
+              lg: "10px",
+            }}
+            height="calc(100vh - 94px)"
+            overflow="auto"
+            pos={{ base: "", lg: "sticky" }}
+            top="60px"
+            bg="white"
+            zIndex="111"
+          />
+          <Flex
+            display={{ base: "none", lg: "flex" }}
+            left={{
+              base: `${menuCollapse ? "0px" : "0px"}`,
+              lg: `${menuCollapse ? "70px" : "210px"}`,
+            }}
+            transition="all 0.5s ease"
+            width={{
+              base: `${menuCollapse ? "100%" : "100%"}`,
+              lg: `${
+                menuCollapse ? "calc(100% - 60px)" : "calc(100% - 210px)"
+              }`,
+            }}
+            bg="mainLightModeBackgroundColor"
+            pos="fixed"
+            bottom="0"
+            height="33px"
+            lineHeight="3.3rem"
+            justifyContent="space-between"
+            p="0 20px"
+            zIndex="99">
+            <Box
+              color="mainBlue"
+              fontSize="1.3rem"
+              fontWeight="400"
+              flex="0 0 50%">
+              &copy; Copyright {new Date().getFullYear()}{" "}
+              <Text as="strong" color="mainBlue" fontWeight="500">
+                6 livo Technology Pvt Ltd.
+              </Text>
+              All Rights Reserved.
+            </Box>
+            <Box
+              flex="0 0 50%"
+              textAlign="right"
+              color="bodyFontColor"
+              fontSize="1rem"
+              sx={{
+                "& span": {
+                  color: "mainBlue",
+                  fontWeight: "500",
+                  fontSize: "1.1rem",
+                },
+              }}>
+              Powered by
+              <Anchor
+                isExternal
+                textDecoration="none"
+                color="mainBlue"
+                fontWeight="500">
+                Vitwo
+              </Anchor>
+            </Box>
+          </Flex>
+        </Box>
+      </Flex>
+    </CssWrapper>
+  );
 };
 
 export default Layout;
