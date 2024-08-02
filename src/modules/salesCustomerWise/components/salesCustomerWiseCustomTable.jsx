@@ -44,9 +44,11 @@ import { faFileExcel } from '@fortawesome/free-solid-svg-icons';
 import { DownloadIcon } from '@chakra-ui/icons';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { Dropdown } from 'primereact/dropdown';
+import { useNavigate } from 'react-router-dom';
 
 const CustomTable = ({
-	setPage,
+	// setPage,
 	individualItems,
 	isFetching,
 	setDateRange,
@@ -62,6 +64,7 @@ const CustomTable = ({
 	const [columnFilters, setColumnFilters] = useState({});
 	const [startDate, setStartDate] = useState(null);
 	const [endDate, setEndDate] = useState(null);
+	const [selectedReport, setSelectedReport] = useState(null);
 
 	const toast = useToast();
 	const observer = useRef();
@@ -75,17 +78,41 @@ const CustomTable = ({
 		onClose: onCloseDownloadReportModal,
 		isOpen: isOpenDownloadReportModal,
 	} = useDisclosure();
+	const navigate = useNavigate();
 
-	const loadMoreData = async () => {
-		setLoading(true);
-		setData((prevData) => [...prevData, ...individualItems]);
-		setPage((prevPage) => prevPage + 1);
-		setLoading(false);
-	};
+	const reportOptions = [
+		{
+			label: 'Product Wise',
+			value: '/reports/sales-product-wise/table-view',
+		},
+		{
+			label: 'Customer Wise',
+			value: '/reports/sales-customer-wise/table-view',
+		},
+		{
+			label: 'Vertical Wise',
+			value: '/reports/sales-vertical-wise/table-view',
+		},
+		{ label: 'So Wise', value: '/reports/sales-so-wise/table-view' },
+	];
+
+	// const loadMoreData = async () => {
+	// 	setLoading(true);
+	// 	setData((prevData) => [...prevData, ...individualItems]);
+	// 	setPage((prevPage) => prevPage + 1);
+	// 	setLoading(false);
+	// };
 
 	useEffect(() => {
-		// loadMoreData();
-	}, []);
+		if (selectedReport) {
+			navigate(`${selectedReport}`);
+		}
+	}, [selectedReport, navigate]);
+
+	const handleReportChange = (e) => {
+		const selectedValue = e.value;
+		setSelectedReport(selectedValue);
+	};
 
 	console.log('test');
 
@@ -240,7 +267,7 @@ const CustomTable = ({
 			if (observer.current) observer.current.disconnect();
 			observer.current = new IntersectionObserver((entries) => {
 				if (entries[0].isIntersecting) {
-					loadMoreData();
+					// loadMoreData();
 				}
 			});
 			if (node) observer.current.observe(node);
@@ -327,48 +354,48 @@ const CustomTable = ({
 			const formattedStartDate = formatDate(start);
 			const formattedEndDate = formatDate(end);
 			const newArrayValue = [
-        {
-          data: [
-            "customer.trade_name",
-            "customer.customer_code",
-            "customer.customer_gstin",
-            "SUM(igst)",
-            "SUM(sgst)",
-            "SUM(cgst)",
-            "SUM(due_amount)",
-            "SUM(salesPgi.salesDelivery.totalAmount)",
-            "SUM(salesPgi.totalAmount)",
-            "SUM(quotation.totalAmount)",
-            "SUM(salesOrder.totalAmount)",
-            "SUM(items.qty)",
-            "SUM(items.basePrice - items.totalDiscountAmt)",
-            "SUM(all_total_amt)",
-          ],
-          groupBy: ["customer.trade_name"],
-          filter: [
-            {
-              column: "company_id",
-              operator: "equal",
-              type: "Integer",
-              value: 1,
-            },
-            {
-              column: "location_id",
-              operator: "equal",
-              type: "Integer",
-              value: 1,
-            },
-            {
-              column: "branch_id",
-              operator: "equal",
-              type: "Integer",
-              value: 1,
-            },
-          ],
-          page: 0,
-          size: 50,
-        },
-      ];
+				{
+					data: [
+						'customer.trade_name',
+						'customer.customer_code',
+						'customer.customer_gstin',
+						'SUM(igst)',
+						'SUM(sgst)',
+						'SUM(cgst)',
+						'SUM(due_amount)',
+						'SUM(salesPgi.salesDelivery.totalAmount)',
+						'SUM(salesPgi.totalAmount)',
+						'SUM(quotation.totalAmount)',
+						'SUM(salesOrder.totalAmount)',
+						'SUM(items.qty)',
+						'SUM(items.basePrice - items.totalDiscountAmt)',
+						'SUM(all_total_amt)',
+					],
+					groupBy: ['customer.trade_name'],
+					filter: [
+						{
+							column: 'company_id',
+							operator: 'equal',
+							type: 'Integer',
+							value: 1,
+						},
+						{
+							column: 'location_id',
+							operator: 'equal',
+							type: 'Integer',
+							value: 1,
+						},
+						{
+							column: 'branch_id',
+							operator: 'equal',
+							type: 'Integer',
+							value: 1,
+						},
+					],
+					page: 0,
+					size: 50,
+				},
+			];
 			setDateRange(newArrayValue);
 		} else {
 			setDateRange([]);
@@ -411,7 +438,7 @@ const CustomTable = ({
 						},
 					}}>
 					<Box display='flex' gap='10px' alignItems='center'>
-						<Text fontSize='14px' fontWeight='500'>
+						{/* <Text fontSize='14px' fontWeight='500'>
 							Select Date :
 						</Text>
 						<Box
@@ -445,7 +472,17 @@ const CustomTable = ({
 								minDate={startDate}
 								placeholderText='End Date'
 							/>
-						</Box>
+						</Box> */}
+						<Dropdown
+							value={selectedReport}
+							options={reportOptions}
+							onChange={(e) => {
+								handleReportChange(e);
+							}}
+							optionLabel='label'
+							placeholder='Select Sales Type'
+							style={{ width: '200px' }}
+						/>
 					</Box>
 
 					<Button
@@ -916,7 +953,7 @@ const CustomTable = ({
 								flexWrap='wrap'
 								gap='15px'
 								sx={{
-									'& .columnCheckBox:nth-of-type(odd)': {
+									'& .columnCheckBox:nth-child(odd)': {
 										bg: 'borderGrayLight',
 									},
 								}}>
@@ -962,18 +999,6 @@ const CustomTable = ({
 							</Box>
 						</ModalBody>
 						<ModalFooter>
-							<Button
-								mr={3}
-								padding='15px'
-								fontSize='12px'
-								bg='var(--chakra-colors-mainBlue)'
-								color='white'
-								_hover={{
-									bg: 'var(--chakra-colors-mainBlue)',
-								}}
-								onClick={handleModalClose}>
-								Cancel
-							</Button>
 							<Button
 								padding='15px'
 								fontSize='12px'

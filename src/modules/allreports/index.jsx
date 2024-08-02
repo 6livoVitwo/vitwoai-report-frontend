@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Heading, Text, Flex, Button } from '@chakra-ui/react';
-import { Dropdown } from 'primereact/dropdown';
+import { Box, Heading, Flex, Button } from '@chakra-ui/react';
 import ReportsCards from '../dashboard/components/ReportsCards';
-// import CheckImg from "../../asset/images/check-gif.gif"
 import TransactionalDayBookImage from '../../asset/images/Transactional-Day-Book.png';
 import BalanceSheet from '../../asset/images/google-sheets.png';
 import ProfitLoss from '../../asset/images/profit&loss.png';
@@ -231,7 +229,6 @@ const Allreports = () => {
 		}
 	};
 	const [activeButton, setActiveButton] = useState(null);
-
 	return (
 		<>
 			<Box
