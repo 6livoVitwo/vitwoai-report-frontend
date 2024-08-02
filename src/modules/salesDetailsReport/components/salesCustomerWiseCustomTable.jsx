@@ -706,7 +706,9 @@ const SalesDetailedCustomTable = ({ setPage, newArray, setDateRange }) => {
 											<Tr key={index}>
 												{selectedColumns.map(
 													(column, colIndex) => (
-														<Td key={colIndex}>
+														<Td
+															key={colIndex}
+															padding='10px'>
 															<Text
 																fontSize='13px'
 																whiteSpace='nowrap'
