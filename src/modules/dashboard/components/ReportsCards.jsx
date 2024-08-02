@@ -29,9 +29,9 @@ const ReportsCards = ({ cards, setFavoriteCard }) => {
                 display="flex"
                 flexDirection="column"
                 padding="20px"
-                transition="0.5s ease"
+                // transition="0.5s ease"
                 _hover={{
-                  transform: "scale(1.05)",
+                  // transform: "scale(1.05)",
                   border: "1px solid #b5b2b28a",
                 }}>
                 <Box
