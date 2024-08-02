@@ -19,7 +19,6 @@ import ProfitAndLoss from '../modules/profitAndLoss/components/index';
 import Receivable from '../modules/receivable/components/index';
 import InventoryAgeingIssueDate from '../modules/inventoryAgeingIssueDate/components/index';
 import InventoryAgeingReceivedDate from '../modules/inventoryAgeingReceivedDate/components/index';
-import ProductWise from '../modules/productWise/components/index';
 import TransactionalDayBookTableView from '../modules/transactionalDayBook/components/transactionalDayBookTableView';
 import TransactionalDayBookGraphView from '../modules/transactionalDayBook/components/transactionalDayBookGraphView';
 import BalanceSheetTableView from '../modules/balanceSheet/components/balanceSheetTableView';
@@ -28,8 +27,6 @@ import ProfitAndLossGraphView from '../modules/profitAndLoss/components/profitAn
 import ProfitAndLossTableView from '../modules/profitAndLoss/components/profitAndLossTableView';
 import InventoryAgeingReceivedDateGraphView from '../modules/inventoryAgeingReceivedDate/components/inventoryAgeingReceivedDateGraphView';
 import InventoryAgeingReceivedDateTableView from '../modules/inventoryAgeingReceivedDate/components/inventoryAgeingReceivedDateTableView';
-import ProductWiseGraphView from '../modules/productWise/components/productWiseGraphView';
-import ProductWiseTableView from '../modules/productWise/components/productWiseTableView';
 import ProductionOrder from '../modules/productionOrder/components/index';
 import ProductionOrderTableView from '../modules/productionOrder/components/productionOrderTableView';
 import ProductionOrderGraphView from '../modules/productionOrder/components/productionOrderGraphView';
@@ -39,9 +36,6 @@ import ProductionOrderTrackingGraphView from '../modules/productionOrderTracking
 import SectionWise from '../modules/sectionWise/components/index';
 import SectionWiseTableView from '../modules/sectionWise/components/sectionWiseTableView';
 import SectionWiseGraphView from '../modules/sectionWise/components/sectionWiseGraphView';
-import VendorWise from '../modules/vendorWise/components/index';
-import VendorWiseTableView from '../modules/vendorWise/components/vendorWiseTableView';
-import VendorWiseGraphView from '../modules/vendorWise/components/vendorWiseGraphView';
 import TdsReturn from '../modules/tdsReturn/components/index';
 import TdsReturnTableView from '../modules/tdsReturn/components/tdsReturnTableView';
 import TdsReturnGraphView from '../modules/tdsReturn/components/tdsReturnGraphView';
@@ -92,6 +86,7 @@ import PurchaseProductWiseGraphView from '../modules/purchaseProductWise/compone
 import PurchaseVendorWise from '../modules/purchaseVendorWise/components';
 import PurchaseVendorWiseTableView from '../modules/purchaseVendorWise/components/purchaseVendorWiseTableView';
 import PurchaseVendorWiseGraphView from '../modules/purchaseVendorWise/components/purchaseVendorWiseGraphView';
+import SalesDetails from '../modules/salesDetailsReport/components';
 const Dashboard = lazy(() => import('../modules/dashboard/components'));
 
 const AllRoutes = () => {
@@ -857,6 +852,18 @@ const AllRoutes = () => {
 							}
 						/>
 					</Route>
+
+					<Route
+						path='/reports/sales-details-report'
+						element={
+							<PortalForLayout
+								globalLayout={globalStaticFragmennt}
+								portalId={commonPortalRef}>
+								<SalesDetails
+									globalLayout={setGlobalStaticFragmennt}
+								/>
+							</PortalForLayout>
+						}></Route>
 
 					<Route
 						path='/reports/sales-product-wise'
