@@ -34,6 +34,7 @@ import {
 	MenuButton,
 	MenuList,
 	MenuItem,
+  IconButton,
 } from '@chakra-ui/react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import debounce from 'lodash/debounce';
@@ -46,6 +47,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Dropdown } from "primereact/dropdown";
 import { useNavigate } from "react-router-dom";
+import { FaChartLine } from "react-icons/fa"; 
 
 const CustomTable = ({
 	// setPage,
@@ -917,6 +919,34 @@ const CustomTable = ({
             </ModalFooter>
           </ModalContent>
         </Modal>
+      </Box>
+      <Box position="fixed" bottom="16px" right="16px" zIndex="tooltip">
+        <Tooltip label="Graph View" aria-label="Graph View">
+          <IconButton
+            icon={<FaChartLine />}
+            aria-label="Graph View"
+            size="lg"
+            borderRadius="full"
+            boxShadow="lg"
+            onClick={() => {
+              console.log("Graph button clicked");
+            }}
+            fontSize="2xl"
+            width="50px"
+            height="50px"
+            bg="rgba(213, 232, 251, 0.5)"
+            _hover={{
+              bg: "mainBlue",
+              color: "white",
+            }}
+            _active={{
+              bg: "teal.600",
+            }}
+            _focus={{
+              boxShadow: "outline",
+            }}
+          />
+        </Tooltip>
       </Box>
     </Box>
   );

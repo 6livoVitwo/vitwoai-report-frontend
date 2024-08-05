@@ -87,6 +87,8 @@ import PurchaseVendorWise from '../modules/purchaseVendorWise/components';
 import PurchaseVendorWiseTableView from '../modules/purchaseVendorWise/components/purchaseVendorWiseTableView';
 import PurchaseVendorWiseGraphView from '../modules/purchaseVendorWise/components/purchaseVendorWiseGraphView';
 import SalesDetails from '../modules/salesDetailsReport/components';
+import PurchasePoWiseTableView from '../modules/purchasePoWise/components/purchasePoWiseTableView';
+import PurchasePoWiseGraphView from '../modules/purchasePoWise/components/purchasePoWiseGraphView';
 const Dashboard = lazy(() => import('../modules/dashboard/components'));
 
 const AllRoutes = () => {
@@ -1030,7 +1032,7 @@ const AllRoutes = () => {
 								<PortalForLayout
 									globalLayout={globalStaticFragmennt}
 									portalId={commonPortalRef}>
-									<PoWiseTableView
+									<PurchasePoWiseTableView
 										globalLayout={setGlobalStaticFragmennt}
 									/>
 								</PortalForLayout>
@@ -1042,7 +1044,7 @@ const AllRoutes = () => {
 								<PortalForLayout
 									globalLayout={globalStaticFragmennt}
 									portalId={commonPortalRef}>
-									<PoWiseGraphView
+									<PurchasePoWiseGraphView
 										globalLayout={setGlobalStaticFragmennt}
 									/>
 								</PortalForLayout>

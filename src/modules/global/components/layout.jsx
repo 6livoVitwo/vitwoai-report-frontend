@@ -660,7 +660,7 @@ const Layout = ({ portalId }) => {
               </Text>
               All Rights Reserved.
             </Box>
-            <Box
+            {/* <Box
               flex="0 0 50%"
               textAlign="right"
               color="bodyFontColor"
@@ -680,7 +680,7 @@ const Layout = ({ portalId }) => {
                 fontWeight="500">
                 Vitwo
               </Anchor>
-            </Box>
+            </Box> */}
           </Flex>
         </Box>
       </Flex>
