@@ -1,20 +1,18 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { salesApi } from "../modules/salesProductWise/slice/salesBySlice";
-import { purchasesApi } from "../modules/purchaseProductWise/slice/purchaseBySlice";
-import themeReducer from "../modules/global/slice/index";
+import themeReducer from "../features/global/slice/index";
 import authReducer from "../router/slice/index";
+import { apiSlice } from "../features/apis/apiSlice";
+import dashboardReducer from "../features/dashboardNew/slice/graphSlice";
 
 const store = configureStore({
   reducer: {
     theme: themeReducer,
     auth: authReducer,
-    [salesApi.reducerPath]: salesApi.reducer,
-    [purchasesApi.reducerPath]: purchasesApi.reducer,
+    dashboard: dashboardReducer,
+    [apiSlice.reducerPath]: apiSlice.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware()
-      .concat(salesApi.middleware)
-      .concat(purchasesApi.middleware),
+    getDefaultMiddleware().concat(apiSlice.middleware),
 });
 
 export default store;

@@ -1,147 +1,147 @@
-import React, { useState, lazy, Suspense, useRef, useEffect } from 'react';
-import { Provider, useDispatch } from 'react-redux';
+import React, { useState, lazy, Suspense, useRef, useEffect } from "react";
+import { Provider, useDispatch } from "react-redux";
 import {
-	BrowserRouter as Router,
-	Routes,
-	Route,
-	useLocation,
-	useNavigate,
-} from 'react-router-dom';
-import HashLoader from 'react-spinners/HashLoader';
-import Store from '../store/store';
-import { Box, Center, Container } from '@chakra-ui/react';
-import DetectOffline from '../modules/global/components/ofline';
-import Layout from '../modules/global/components/layout';
-import PortalForLayout from '../modules/global/components/PortalForLayout';
-import TransactionalDayBook from '../modules/transactionalDayBook/components/index';
-import BalanceSheet from '../modules/balanceSheet/components/index';
-import ProfitAndLoss from '../modules/profitAndLoss/components/index';
-import Receivable from '../modules/receivable/components/index';
-import InventoryAgeingIssueDate from '../modules/inventoryAgeingIssueDate/components/index';
-import InventoryAgeingReceivedDate from '../modules/inventoryAgeingReceivedDate/components/index';
-import TransactionalDayBookTableView from '../modules/transactionalDayBook/components/transactionalDayBookTableView';
-import TransactionalDayBookGraphView from '../modules/transactionalDayBook/components/transactionalDayBookGraphView';
-import BalanceSheetTableView from '../modules/balanceSheet/components/balanceSheetTableView';
-import BalanceSheetGraphView from '../modules/balanceSheet/components/balanceSheetGraphView';
-import ProfitAndLossGraphView from '../modules/profitAndLoss/components/profitAndLossGraphView';
-import ProfitAndLossTableView from '../modules/profitAndLoss/components/profitAndLossTableView';
-import InventoryAgeingReceivedDateGraphView from '../modules/inventoryAgeingReceivedDate/components/inventoryAgeingReceivedDateGraphView';
-import InventoryAgeingReceivedDateTableView from '../modules/inventoryAgeingReceivedDate/components/inventoryAgeingReceivedDateTableView';
-import ProductionOrder from '../modules/productionOrder/components/index';
-import ProductionOrderTableView from '../modules/productionOrder/components/productionOrderTableView';
-import ProductionOrderGraphView from '../modules/productionOrder/components/productionOrderGraphView';
-import ProductionOrderTracking from '../modules/productionOrderTracking/components/index';
-import ProductionOrderTrackingTableView from '../modules/productionOrderTracking/components/productionOrderTrackingTableView';
-import ProductionOrderTrackingGraphView from '../modules/productionOrderTracking/components/productionOrderTrackingGraphView';
-import SectionWise from '../modules/sectionWise/components/index';
-import SectionWiseTableView from '../modules/sectionWise/components/sectionWiseTableView';
-import SectionWiseGraphView from '../modules/sectionWise/components/sectionWiseGraphView';
-import TdsReturn from '../modules/tdsReturn/components/index';
-import TdsReturnTableView from '../modules/tdsReturn/components/tdsReturnTableView';
-import TdsReturnGraphView from '../modules/tdsReturn/components/tdsReturnGraphView';
-import ExceptionReport from '../modules/exceptionReport/components/index';
-import ExceptionReportTableView from '../modules/exceptionReport/components/exceptionReportTableView';
-import ExceptionReportGraphView from '../modules/exceptionReport/components/exceptionReportGraphView';
-import TrialBalance from '../modules/trialBalance/components/index';
-import TrialBalanceTableView from '../modules/trialBalance/components/trialBalanceTableView';
-import TrialBalanceGraphView from '../modules/trialBalance/components/trialBalanceGraphView';
-import ReceivableTableView from '../modules/receivable/components/receivableTableView';
-import ReceivableGraphView from '../modules/receivable/components/receivableGraphView';
-import PayableTableView from '../modules/payable/components/payableTableView';
-import PayableGraphView from '../modules/payable/components/payableGraphView';
-import Payable from '../modules/payable/components/index';
-import InventoryAgeingIssueDateTableView from '../modules/inventoryAgeingIssueDate/components/inventoryAgeingIssueDateTableView';
-import InventoryAgeingIssueDateGraphView from '../modules/inventoryAgeingIssueDate/components/inventoryAgeingIssueDateGraphView';
-import StockReport from '../modules/stockReport/components/index';
-import StockReportTableView from '../modules/stockReport/components/stockReportTableView';
-import StockReportGraphView from '../modules/stockReport/components/stockReportGraphView';
-import StockLog from '../modules/stockLog';
-import StockLogTableView from '../modules/stockLog/stockLogTableView';
-import StockLogGraphView from '../modules/stockLog/stockLogGraphView';
-import SpentAnalysis from '../modules/spentAnalysis/components/index';
-import SpentAnalysisTableView from '../modules/spentAnalysis/components/spentAnalysisTableView';
-import SpentAnalysisGraphView from '../modules/spentAnalysis/components/spentAnalysisGraphView';
-import SalesProductWise from '../modules/salesProductWise/components/index';
-import SalesProductWiseTableView from '../modules/salesProductWise/components/salesProductWiseTableView';
-import SalesProductWiseGraphView from '../modules/salesProductWise/components/salesProductWiseGraphView';
-import SalesCustomerWise from '../modules/salesCustomerWise/components/index';
-import SalesCustomerWiseTableView from '../modules/salesCustomerWise/components/salesCustomerWiseTableView';
-import SalesCustomerWiseGraphView from '../modules/salesCustomerWise/components/salesCustomerWiseGraphView';
-import SalesVerticalWise from '../modules/salesVerticalWise/components/index';
-import SalesVerticalWiseTableView from '../modules/salesVerticalWise/components/salesVerticalWiseTableView';
-import SalesVerticalWiseGraphView from '../modules/salesVerticalWise/components/salesVerticalWiseGraphView';
-import PoWise from '../modules/poWise/components/index';
-import PoWiseTableView from '../modules/poWise/components/poWiseTableView';
-import PoWiseGraphView from '../modules/poWise/components/poWiseGraphView';
-import SalesSoWise from '../modules/salesSoWise/components/index';
-import SalesSoWiseTableView from '../modules/salesSoWise/components/salesSoWiseTableView';
-import SalesSoWiseGraphView from '../modules/salesSoWise/components/salesSoWiseGraphView';
-import GlobalCss from '../modules/global/css';
-import { setAuthDetails } from './slice';
-import Allreports from '../modules/allreports';
-import AllCharts from '../modules/dashboard/AllCharts';
-import PurchaseProductWise from '../modules/purchaseProductWise/components';
-import PurchaseProductWiseTableView from '../modules/purchaseProductWise/components/purchaseProductWiseTableView';
-import PurchaseProductWiseGraphView from '../modules/purchaseProductWise/components/purchaseProductWiseGraphView';
-import PurchaseVendorWise from '../modules/purchaseVendorWise/components';
-import PurchaseVendorWiseTableView from '../modules/purchaseVendorWise/components/purchaseVendorWiseTableView';
-import PurchaseVendorWiseGraphView from '../modules/purchaseVendorWise/components/purchaseVendorWiseGraphView';
-import SalesDetails from '../modules/salesDetailsReport/components';
-import PurchasePoWiseTableView from '../modules/purchasePoWise/components/purchasePoWiseTableView';
-import PurchasePoWiseGraphView from '../modules/purchasePoWise/components/purchasePoWiseGraphView';
-import Reportdetails from '../modules/reportdetails';
-const Dashboard = lazy(() => import('../modules/dashboard/components'));
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+import HashLoader from "react-spinners/HashLoader";
+import Store from "../store/store";
+import { Box, Center, Container } from "@chakra-ui/react";
+import DetectOffline from "../features/global/components/ofline";
+import Layout from "../features/global/components/layout";
+import PortalForLayout from "../features/global/components/PortalForLayout";
+import TransactionalDayBook from "../features/transactionalDayBook/components/index";
+import BalanceSheet from "../features/balanceSheet/components/index";
+import ProfitAndLoss from "../features/profitAndLoss/components/index";
+import Receivable from "../features/receivable/components/index";
+import InventoryAgeingIssueDate from "../features/inventoryAgeingIssueDate/components/index";
+import InventoryAgeingReceivedDate from "../features/inventoryAgeingReceivedDate/components/index";
+import TransactionalDayBookTableView from "../features/transactionalDayBook/components/transactionalDayBookTableView";
+import TransactionalDayBookGraphView from "../features/transactionalDayBook/components/transactionalDayBookGraphView";
+import BalanceSheetTableView from "../features/balanceSheet/components/balanceSheetTableView";
+import BalanceSheetGraphView from "../features/balanceSheet/components/balanceSheetGraphView";
+import ProfitAndLossGraphView from "../features/profitAndLoss/components/profitAndLossGraphView";
+import ProfitAndLossTableView from "../features/profitAndLoss/components/profitAndLossTableView";
+import InventoryAgeingReceivedDateGraphView from "../features/inventoryAgeingReceivedDate/components/inventoryAgeingReceivedDateGraphView";
+import InventoryAgeingReceivedDateTableView from "../features/inventoryAgeingReceivedDate/components/inventoryAgeingReceivedDateTableView";
+import ProductionOrder from "../features/productionOrder/components/index";
+import ProductionOrderTableView from "../features/productionOrder/components/productionOrderTableView";
+import ProductionOrderGraphView from "../features/productionOrder/components/productionOrderGraphView";
+import ProductionOrderTracking from "../features/productionOrderTracking/components/index";
+import ProductionOrderTrackingTableView from "../features/productionOrderTracking/components/productionOrderTrackingTableView";
+import ProductionOrderTrackingGraphView from "../features/productionOrderTracking/components/productionOrderTrackingGraphView";
+import SectionWise from "../features/sectionWise/components/index";
+import SectionWiseTableView from "../features/sectionWise/components/sectionWiseTableView";
+import SectionWiseGraphView from "../features/sectionWise/components/sectionWiseGraphView";
+import TdsReturn from "../features/tdsReturn/components/index";
+import TdsReturnTableView from "../features/tdsReturn/components/tdsReturnTableView";
+import TdsReturnGraphView from "../features/tdsReturn/components/tdsReturnGraphView";
+import ExceptionReport from "../features/exceptionReport/components/index";
+import ExceptionReportTableView from "../features/exceptionReport/components/exceptionReportTableView";
+import ExceptionReportGraphView from "../features/exceptionReport/components/exceptionReportGraphView";
+import TrialBalance from "../features/trialBalance/components/index";
+import TrialBalanceTableView from "../features/trialBalance/components/trialBalanceTableView";
+import TrialBalanceGraphView from "../features/trialBalance/components/trialBalanceGraphView";
+import ReceivableTableView from "../features/receivable/components/receivableTableView";
+import ReceivableGraphView from "../features/receivable/components/receivableGraphView";
+import PayableTableView from "../features/payable/components/payableTableView";
+import PayableGraphView from "../features/payable/components/payableGraphView";
+import Payable from "../features/payable/components/index";
+import InventoryAgeingIssueDateTableView from "../features/inventoryAgeingIssueDate/components/inventoryAgeingIssueDateTableView";
+import InventoryAgeingIssueDateGraphView from "../features/inventoryAgeingIssueDate/components/inventoryAgeingIssueDateGraphView";
+import StockReport from "../features/stockReport/components/index";
+import StockReportTableView from "../features/stockReport/components/stockReportTableView";
+import StockReportGraphView from "../features/stockReport/components/stockReportGraphView";
+import StockLog from "../features/stockLog";
+import StockLogTableView from "../features/stockLog/stockLogTableView";
+import StockLogGraphView from "../features/stockLog/stockLogGraphView";
+import SpentAnalysis from "../features/spentAnalysis/components/index";
+import SpentAnalysisTableView from "../features/spentAnalysis/components/spentAnalysisTableView";
+import SpentAnalysisGraphView from "../features/spentAnalysis/components/spentAnalysisGraphView";
+import SalesProductWise from "../features/salesProductWise/components/index";
+import SalesProductWiseTableView from "../features/salesProductWise/components/salesProductWiseTableView";
+import SalesProductWiseGraphView from "../features/salesProductWise/components/salesProductWiseGraphView";
+import SalesCustomerWise from "../features/salesCustomerWise/components/index";
+import SalesCustomerWiseTableView from "../features/salesCustomerWise/components/salesCustomerWiseTableView";
+import SalesCustomerWiseGraphView from "../features/salesCustomerWise/components/salesCustomerWiseGraphView";
+import SalesVerticalWise from "../features/salesVerticalWise/components/index";
+import SalesVerticalWiseTableView from "../features/salesVerticalWise/components/salesVerticalWiseTableView";
+import SalesVerticalWiseGraphView from "../features/salesVerticalWise/components/salesVerticalWiseGraphView";
+import PoWise from "../features/poWise/components/index";
+import PoWiseTableView from "../features/poWise/components/poWiseTableView";
+import PoWiseGraphView from "../features/poWise/components/poWiseGraphView";
+import SalesSoWise from "../features/salesSoWise/components/index";
+import SalesSoWiseTableView from "../features/salesSoWise/components/salesSoWiseTableView";
+import SalesSoWiseGraphView from "../features/salesSoWise/components/salesSoWiseGraphView";
+import GlobalCss from "../features/global/css";
+import { setAuthDetails } from "./slice";
+import Allreports from "../features/allreports";
+import AllCharts from "../features/dashboard/AllCharts";
+import PurchaseProductWise from "../features/purchaseProductWise/components";
+import PurchaseProductWiseTableView from "../features/purchaseProductWise/components/purchaseProductWiseTableView";
+import PurchaseProductWiseGraphView from "../features/purchaseProductWise/components/purchaseProductWiseGraphView";
+import PurchaseVendorWise from "../features/purchaseVendorWise/components";
+import PurchaseVendorWiseTableView from "../features/purchaseVendorWise/components/purchaseVendorWiseTableView";
+import PurchaseVendorWiseGraphView from "../features/purchaseVendorWise/components/purchaseVendorWiseGraphView";
+import SalesDetails from "../features/salesDetailsReport/components";
+import PurchasePoWiseTableView from "../features/purchasePoWise/components/purchasePoWiseTableView";
+import PurchasePoWiseGraphView from "../features/purchasePoWise/components/purchasePoWiseGraphView";
+import Reportdetails from "../features/reportdetails";
+const Dashboard = lazy(() => import("../features/dashboard/components"));
 
 const AllRoutes = () => {
-	const locate = useLocation();
-	const dispatch = useDispatch();
-	const nevigate = useNavigate();
-	const [globalStaticFragmennt, setGlobalStaticFragmennt] = useState(
-		() => false
-	);
-	const commonPortalRef = useRef();
+  const locate = useLocation();
+  const dispatch = useDispatch();
+  const nevigate = useNavigate();
+  const [globalStaticFragmennt, setGlobalStaticFragmennt] = useState(
+    () => false
+  );
+  const commonPortalRef = useRef();
 
-	useEffect(() => {
-		const getTokenFromURL = () => {
-			const url = window.location.href;
-			const tokenIndex = url.indexOf('token=');
-			if (tokenIndex !== -1) {
-				const token = url.substring(tokenIndex + 6);
-				return token;
-			} else {
-				return null;
-			}
-		};
+  useEffect(() => {
+    const getTokenFromURL = () => {
+      const url = window.location.href;
+      const tokenIndex = url.indexOf("token=");
+      if (tokenIndex !== -1) {
+        const token = url.substring(tokenIndex + 6);
+        return token;
+      } else {
+        return null;
+      }
+    };
 
-		const storeTokenLocally = (token) => {
-			if (typeof Storage !== 'undefined') {
-				localStorage.setItem('authToken', token);
+    const storeTokenLocally = (token) => {
+      if (typeof Storage !== "undefined") {
+        localStorage.setItem("authToken", token);
 
-				setGlobalStaticFragmennt(true);
-				nevigate('/');
-				console.log('Token stored successfully.');
-			} else {
-				console.log(
-					'Sorry, your browser does not support Web Storage. Token cannot be stored.'
-				);
-			}
-		};
-		const token = getTokenFromURL();
-		if (token !== null) {
-			storeTokenLocally(token);
-		} else {
-			console.log('Token not found in the URL.');
-		}
+        setGlobalStaticFragmennt(true);
+        nevigate("/");
+        console.log("Token stored successfully.");
+      } else {
+        console.log(
+          "Sorry, your browser does not support Web Storage. Token cannot be stored."
+        );
+      }
+    };
+    const token = getTokenFromURL();
+    if (token !== null) {
+      storeTokenLocally(token);
+    } else {
+      console.log("Token not found in the URL.");
+    }
 
-		// Check if token already exists in local storage
-		const existingToken = localStorage.getItem('authToken');
-		if (existingToken) {
-			setGlobalStaticFragmennt(true);
-		}
-		dispatch(setAuthDetails(existingToken));
-	}, [dispatch]);
+    // Check if token already exists in local storage
+    const existingToken = localStorage.getItem("authToken");
+    if (existingToken) {
+      setGlobalStaticFragmennt(true);
+    }
+    dispatch(setAuthDetails(existingToken));
+  }, [dispatch]);
 
-	return (
+  return (
     <>
       {globalStaticFragmennt ? <Layout portalId={commonPortalRef} /> : ""}
       <Suspense
@@ -1004,25 +1004,25 @@ const AllRoutes = () => {
 };
 
 const RouteHolder = () => {
-	return (
-		<Provider store={Store}>
-			<GlobalCss />
-			<Container
-				display='flex'
-				flexDirection='row'
-				justifyContent='center'
-				className='wrapper'
-				p={0}
-				maxW='100vw'
-				minH='100vh'
-				color='grey.100'>
-				<DetectOffline showOverlay={false} showToast />
-				<Router>
-					<AllRoutes />
-				</Router>
-			</Container>
-		</Provider>
-	);
+  return (
+    <Provider store={Store}>
+      <GlobalCss />
+      <Container
+        display="flex"
+        flexDirection="row"
+        justifyContent="center"
+        className="wrapper"
+        p={0}
+        maxW="100vw"
+        minH="100vh"
+        color="grey.100">
+        <DetectOffline showOverlay={false} showToast />
+        <Router>
+          <AllRoutes />
+        </Router>
+      </Container>
+    </Provider>
+  );
 };
 
 export default RouteHolder;
