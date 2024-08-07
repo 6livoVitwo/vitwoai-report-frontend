@@ -26,29 +26,24 @@ import {
   Checkbox,
   Input,
   Text,
-  Tooltip,
-  Spinner,
   Select,
   useToast,
   Menu,
   MenuButton,
   MenuList,
   MenuItem,
-  IconButton,
 } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChartSimple, faFilter } from "@fortawesome/free-solid-svg-icons";
+import { faChartSimple } from "@fortawesome/free-solid-svg-icons";
 import { saveAs } from "file-saver";
 import { faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { DownloadIcon } from "@chakra-ui/icons";
+import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { Dropdown } from "primereact/dropdown";
-import { useNavigate } from "react-router-dom";
-import { FaChartLine } from "react-icons/fa";
 
-const CustomTable = ({ setPage, isFetching, setDateRange, newArray }) => {
+const CustomTable = ({ setPage, newArray, setDateRange, alignment }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
@@ -59,11 +54,10 @@ const CustomTable = ({ setPage, isFetching, setDateRange, newArray }) => {
   const [columnFilters, setColumnFilters] = useState({});
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [selectedReport, setSelectedReport] = useState(null);
+  const [lastPage, setLastPage] = useState(false);
 
   const toast = useToast();
   const tableContainerRef = useRef(null);
-  const observer = useRef();
   const {
     onOpen: onOpenFilterModal,
     onClose: onCloseFilterModal,
@@ -74,42 +68,34 @@ const CustomTable = ({ setPage, isFetching, setDateRange, newArray }) => {
     onClose: onCloseDownloadReportModal,
     isOpen: isOpenDownloadReportModal,
   } = useDisclosure();
-  const navigate = useNavigate();
 
-  const reportOptions = [
-    { label: "Product Wise", value: "/reports/sales-product-wise/table-view" },
-    {
-      label: "Customer Wise",
-      value: "/reports/sales-customer-wise/table-view",
-    },
-    {
-      label: "Vertical Wise",
-      value: "/reports/sales-vertical-wise/table-view",
-    },
-    { label: "So Wise", value: "/reports/sales-so-wise/table-view" },
-  ];
+    const getColumnStyle = (header) => ({
+      textAlign: alignment[header] || "left",
+    });
 
   const loadMoreData = async () => {
-    if (!loading) {
-      setLoading(true);
-      const moreData = [...newArray];
+    if (loading || lastPage) {
+      return; // Prevent duplicate calls if already loading or if the last page has been reached
+    }
+
+    setLoading(true);
+
+    try {
+      // Fetch or generate new data
+      const moreData = [...newArray]; // Assuming newArray contains new data
+
       setData((prevData) => {
-        const uniqueData = [...new Set([...prevData, ...moreData])];
+        const newData = [...prevData, ...moreData];
+        const uniqueData = Array.from(
+          new Set(newData.map((item) => JSON.stringify(item)))
+        ).map((item) => JSON.parse(item));
         return uniqueData;
       });
+
       setPage((prevPage) => prevPage + 1);
+    } finally {
       setLoading(false);
     }
-  };
-  useEffect(() => {
-    if (selectedReport) {
-      navigate(`${selectedReport}`);
-    }
-  }, [selectedReport, navigate]);
-
-  const handleReportChange = (e) => {
-    const selectedValue = e.value;
-    setSelectedReport(selectedValue);
   };
 
   useEffect(() => {
@@ -250,41 +236,27 @@ const CustomTable = ({ setPage, isFetching, setDateRange, newArray }) => {
       .join(" ");
   };
 
-  const lastItemRef = useCallback(
-    (node) => {
-      if (loading) return;
-      if (observer.current) observer.current.disconnect();
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) {
-        }
-      });
-      if (node) observer.current.observe(node);
-    },
-    [loading]
-  );
+  const handleScroll = () => {
+    const { scrollTop, scrollHeight, clientHeight } = tableContainerRef.current;
+
+    if (scrollTop + clientHeight >= scrollHeight - 5) {
+      // Adjust the threshold as needed
+      loadMoreData();
+    }
+  };
 
   useEffect(() => {
-    const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } =
-        tableContainerRef.current;
-
-      const tempScrollHeight = Math.floor(scrollHeight - scrollTop);
-      const scrollEndPercentage = (tempScrollHeight / clientHeight) * 100;
-      if (scrollEndPercentage <= 100) {
-        loadMoreData();
-      }
-    };
-
     const container = tableContainerRef.current;
     if (container) {
       container.addEventListener("scroll", handleScroll);
     }
+
     return () => {
       if (container) {
         container.removeEventListener("scroll", handleScroll);
       }
     };
-  }, [loadMoreData]);
+  }, [loading, lastPage]); // Added dependencies to ensure it re-registers properly
 
   const handleColumnFilterConditionChange = (field, condition) => {
     condition = String(condition);
@@ -322,11 +294,6 @@ const CustomTable = ({ setPage, isFetching, setDateRange, newArray }) => {
     }));
   };
 
-  const excludedKeys = [];
-  const columnFiltersArray = Object.keys(columnFilters)
-    .filter((key) => !excludedKeys.includes(key))
-    .map((key) => columnFilters[key]);
-
   const exportToExcel = () => {
     import("xlsx").then((xlsx) => {
       const worksheet = xlsx.utils.json_to_sheet(filteredItems);
@@ -362,41 +329,14 @@ const CustomTable = ({ setPage, isFetching, setDateRange, newArray }) => {
   };
   const updateArrayValue = (start, end) => {
     if (start && end) {
+      const formattedStartDate = formatDate(start);
+      const formattedEndDate = formatDate(end);
       const newArrayValue = [
         {
-          data: [
-            "items.itemName",
-            "SUM(salesPgi.salesDelivery.totalAmount)",
-            "SUM(salesPgi.totalAmount)",
-            "SUM(quotation.totalAmount)",
-            "SUM(salesOrder.totalAmount)",
-            "SUM(items.qty)",
-            "SUM(items.basePrice - items.totalDiscountAmt)",
-            "SUM(all_total_amt)",
-          ],
-          groupBy: ["items.itemName"],
-          filter: [
-            {
-              column: "company_id",
-              operator: "equal",
-              type: "Integer",
-              value: 1,
-            },
-            {
-              column: "location_id",
-              operator: "equal",
-              type: "Integer",
-              value: 1,
-            },
-            {
-              column: "branch_id",
-              operator: "equal",
-              type: "Integer",
-              value: 1,
-            },
-          ],
-          page: 0,
-          size: 50,
+          column: "invoice_date",
+          operator: "between",
+          type: "date",
+          value: [formattedStartDate, formattedEndDate],
         },
       ];
       setDateRange(newArrayValue);
@@ -406,13 +346,14 @@ const CustomTable = ({ setPage, isFetching, setDateRange, newArray }) => {
   };
 
   return (
-    <Box bg="white" padding="10px" borderRadius="5px">
+    <Box bg="white" padding="0px 10px" borderRadius="5px">
       <Box
         display="flex"
         borderRadius="5px"
         alignItems="center"
         justifyContent="space-between"
         padding="10px"
+        marginBottom="10px"
         boxShadow="1px 2px 15px 2px #00000012"
         sx={{
           "& input:placeholder": {
@@ -420,39 +361,44 @@ const CustomTable = ({ setPage, isFetching, setDateRange, newArray }) => {
           },
         }}>
         <Input
+          onChange={handleSearchChange}
           width="20%"
           bg="#dedede"
           padding="15px"
           borderRadius="5px"
           placeholder="Search Global Data"
-          onChange={handleSearchChange}
         />
-
         <Box
           display="flex"
-          alignItems="center"
+          justifyContent="space-between"
           gap="10px"
           sx={{
-            "& .p-calendar .p-inputtext ": {
-              padding: "5px 10px",
-              borderRadius: "5px",
-              mr: "10px",
+            "& .react-datepicker-wrapper input": {
               bg: "#dedede",
+              padding: "5px 10px",
+              fontSize: "12px",
+              width: "100px",
+              borderRadius: "5px",
+              outline: "none",
             },
           }}>
-          <Box display="flex" gap="10px" alignItems="center">
-            <Dropdown
-              value={selectedReport}
-              options={reportOptions}
-              onChange={(e) => {
-                handleReportChange(e);
-              }}
-              optionLabel="label"
-              placeholder="Select Sales Type"
-              style={{ width: "200px" }}
-            />
-          </Box>
-
+          <DatePicker
+            selected={startDate}
+            onChange={handleStartDateChange}
+            dateFormat="yyyy/MM/dd"
+            placeholderText="Start Date"
+            className="datepicker"
+          />
+          <DatePicker
+            selected={endDate}
+            onChange={handleEndDateChange}
+            dateFormat="yyyy/MM/dd"
+            placeholderText="End Date"
+            className="datepicker"
+          />
+          {/* <Button onClick={exportToExcel} ml='4'>
+						<FontAwesomeIcon icon={faFileExcel} /> Export to Excel
+					</Button> */}
           <Button
             onClick={onOpen}
             padding="15px"
@@ -466,22 +412,6 @@ const CustomTable = ({ setPage, isFetching, setDateRange, newArray }) => {
               Column
             </Text>
           </Button>
-
-          <Button
-            onClick={onOpenFilterModal}
-            bg="mainBlue"
-            color="white"
-            padding="15px"
-            _hover={{
-              color: "white",
-              bg: "mainBlue",
-            }}>
-            <FontAwesomeIcon w={4} h={4} icon={faFilter} />
-            <Text fontSize="13px" fontWeight="600" ml="5px">
-              Filter
-            </Text>
-          </Button>
-
           <Menu>
             <MenuButton
               bg="mainBlue"
@@ -694,235 +624,180 @@ const CustomTable = ({ setPage, isFetching, setDateRange, newArray }) => {
           </Modal>
         </Box>
       </Box>
-
-      <Box
-        mt="10px"
-        background="var(--chakra-colors-white)"
-        style={{ width: "100%", overflowX: "auto" }}
-        height="calc(100vh - 195px)">
+      <TableContainer
+        ref={tableContainerRef}
+        className="table-tableContainerRef"
+        overflowY="auto"
+        height="calc(100vh - 179px)"
+        width="calc(100vw - 115px)">
         <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable droppableId="columns" direction="horizontal">
+          <Droppable droppableId="droppable" direction="horizontal">
             {(provided) => (
-              <TableContainer
+              <Table
+                {...provided.droppableProps}
                 ref={provided.innerRef}
-                className="table-tableContainerRef"
-                overflowY="auto"
-                height="calc(100vh - 179px)"
-                width="calc(100vw - 115px)">
-                <Table variant="simple" width="100%">
-                  <Thead>
-                    <Tr bg="#cfd8e1">
-                      {selectedColumns.map((columnName, index) => {
-                        const column = getColumns(data).find(
-                          (col) => col.field === columnName
-                        );
-                        const formattedHeader = formatHeader(column.header);
-                        return (
-                          <Draggable
-                            key={columnName}
-                            draggableId={columnName}
-                            index={index}>
-                            {(provided) => (
-                              <Th
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                ref={provided.innerRef}
-                                padding="15px 10px"
-                                fontSize="13px"
-                                fontWeight="500"
-                                textTransform="capitalize"
-                                fontFamily="Poppins, sans-serif"
-                                color="black">
-                                {formattedHeader}
-                              </Th>
-                            )}
-                          </Draggable>
-                        );
-                      })}
+                variant="simple">
+                <Thead>
+                  <Tr bg="#cfd8e1">
+                    {selectedColumns.map((column, index) => (
+                      <Draggable
+                        key={column}
+                        draggableId={column}
+                        index={index}>
+                        {(provided) => (
+                          <Th
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            padding="15px 10px"
+                            fontSize="13px"
+                            fontWeight="500"
+                            textTransform="capitalize"
+                            fontFamily="Poppins, sans-serif"
+                            color="black">
+                            {formatHeader(column)}
+                          </Th>
+                        )}
+                      </Draggable>
+                    ))}
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {filteredItems.length > 0 ? (
+                    filteredItems.map((item, index) => (
+                      <Tr key={index}>
+                        {selectedColumns.map((column, colIndex) => (
+                          <Td
+                            key={colIndex}
+                            padding="10px"
+                            style={getColumnStyle(column)}>
+                            <Text
+                              fontSize="13px"
+                              whiteSpace="nowrap"
+                              width={
+                                column === "description"
+                                  ? "300px"
+                                  : column === "name"
+                                  ? "200px"
+                                  : "100px"
+                              }
+                              overflow="hidden"
+                              textOverflow="ellipsis">
+                              {item[column]}
+                            </Text>
+                          </Td>
+                        ))}
+                      </Tr>
+                    ))
+                  ) : (
+                    <Tr>
+                      <Td textAlign="center" colSpan={selectedColumns.length}>
+                        No data available
+                      </Td>
                     </Tr>
-                  </Thead>
-                  <Tbody>
-                    {filteredItems.map((item, rowIndex) => {
-                      return (
-                        <Tr
-                          key={rowIndex}
-                          alignItems="flex-start"
-                          _hover={{
-                            backgroundColor: "#ebebeb",
-                          }}>
-                          {selectedColumns.map((columnName, colIndex) => {
-                            return (
-                              <Td
-                                key={columnName}
-                                padding="10px"
-                                ref={
-                                  rowIndex === filteredItems.length - 1 &&
-                                  colIndex === selectedColumns.length - 1
-                                    ? lastItemRef
-                                    : null
-                                }>
-                                <Tooltip
-                                  fontSize="10px"
-                                  lineHeight="15px"
-                                  padding="10px"
-                                  placement="bottom-start"
-                                  hasArrow
-                                  label={item[columnName]}>
-                                  <Text
-                                    fontSize="12px"
-                                    color={
-                                      columnName === "Customer Code"
-                                        ? "#0771da"
-                                        : "#3b3b3b"
-                                    }
-                                    whiteSpace="nowrap"
-                                    width={
-                                      columnName === "Item Description"
-                                        ? "300px"
-                                        : columnName === "Item Name"
-                                        ? "200px"
-                                        : "100px"
-                                    }
-                                    overflow="hidden"
-                                    textOverflow="ellipsis">
-                                    {item[columnName]}
-                                  </Text>
-                                </Tooltip>
-                              </Td>
-                            );
-                          })}
-                        </Tr>
-                      );
-                    })}
-                  </Tbody>
-                </Table>
-              </TableContainer>
+                  )}
+                </Tbody>
+              </Table>
             )}
           </Droppable>
         </DragDropContext>
+      </TableContainer>
 
-        {isFetching && (
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            py={4}>
-            <Spinner color="blue.500" />
-          </Box>
-        )}
+      <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered>
+        <ModalOverlay />
+        <ModalContent minW="40%">
+          <ModalHeader
+            fontWeight="600"
+            bg="mainBlue"
+            color="white"
+            fontSize="16px"
+            padding="12px">
+            Select Columns to Show
+          </ModalHeader>
+          <ModalCloseButton mt="5px" color="white" size="lg" />
+          <ModalBody pt="10px">
+            <Box padding="0px 10px" borderRadius="5px">
+              <Checkbox
+                isChecked={selectAll}
+                onChange={handleSelectAllToggle}
+                mb={4}
+                size="lg"
+                fontWeight="600">
+                Select All
+              </Checkbox>
+            </Box>
+            <Box
+              height="60vh"
+              overflowY="scroll"
+              overflowX="hidden"
+              display="flex"
+              flexWrap="wrap"
+              gap="15px"
+              sx={{
+                "& .columnCheckBox:nth-of-type(odd)": {
+                  bg: "borderGrayLight",
+                },
+              }}>
+              {getColumns(data).map((column) => {
+                const formattedHeader = formatHeader(column.field);
 
-        <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered>
-          <ModalOverlay />
-          <ModalContent minW="40%">
-            <ModalHeader
-              fontWeight="600"
-              bg="mainBlue"
-              color="white"
-              fontSize="16px"
-              padding="12px">
-              Select Columns to Show
-            </ModalHeader>
-            <ModalCloseButton mt="5px" color="white" size="lg" />
-            <ModalBody pt="10px">
-              <Box padding="0px 10px" borderRadius="5px">
-                <Checkbox
-                  isChecked={selectAll}
-                  onChange={handleSelectAllToggle}
-                  mb={4}
-                  size="lg"
-                  fontWeight="600">
-                  Select All
-                </Checkbox>
-              </Box>
-              <Box
-                height="60vh"
-                overflowY="scroll"
-                overflowX="hidden"
-                display="flex"
-                flexWrap="wrap"
-                gap="15px"
-                sx={{
-                  "& .columnCheckBox:nth-child(odd)": {
-                    bg: "borderGrayLight",
-                  },
-                }}>
-                {getColumns(data).map((column) => {
-                  const formattedHeader = formatHeader(column.field);
-
-                  return (
-                    <Box
-                      key={column.field}
-                      className="columnCheckBox"
+                return (
+                  <Box
+                    key={column.field}
+                    className="columnCheckBox"
+                    padding="5px"
+                    bg="rgba(231,231,231,1)"
+                    borderRadius="5px"
+                    width="48%">
+                    <Checkbox
+                      size="lg"
+                      display="flex"
                       padding="5px"
-                      bg="rgba(231,231,231,1)"
-                      borderRadius="5px"
-                      width="48%">
-                      <Checkbox
-                        size="lg"
-                        display="flex"
-                        padding="5px"
-                        borderColor="mainBluemedium"
-                        key={column.field}
-                        defaultChecked={selectedColumns.includes(column.field)}
-                        isChecked={selectedColumns.includes(column.field)}
-                        onChange={() => toggleColumn(column.field)}>
-                        <Text
-                          fontWeight="500"
-                          ml="10px"
-                          fontSize="12px"
-                          color="textBlackDeep">
-                          {formattedHeader}
-                        </Text>
-                      </Checkbox>
-                    </Box>
-                  );
-                })}
-              </Box>
-            </ModalBody>
-            <ModalFooter>
-              <Button
-                padding="15px"
-                fontSize="12px"
-                bg="var(--chakra-colors-mainBlue)"
-                _hover={{
-                  bg: "var(--chakra-colors-mainBlue)",
-                }}
-                color="white"
-                onClick={handleApplyChanges}>
-                Apply Changes
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
-      </Box>
-      <Box position="fixed" bottom="16px" right="16px" zIndex="tooltip">
-        <Tooltip label="Graph View" aria-label="Graph View">
-          <IconButton
-            icon={<FaChartLine />}
-            aria-label="Graph View"
-            size="lg"
-            borderRadius="full"
-            boxShadow="lg"
-            onClick={() => {
-              console.log("Graph button clicked");
-            }}
-            fontSize="2xl"
-            width="50px"
-            height="50px"
-            bg="rgba(213, 232, 251, 0.5)"
-            _hover={{
-              bg: "mainBlue",
-              color: "white",
-            }}
-            _active={{
-              bg: "teal.600",
-            }}
-            _focus={{
-              boxShadow: "outline",
-            }}
-          />
-        </Tooltip>
-      </Box>
+                      borderColor="mainBluemedium"
+                      key={column.field}
+                      defaultChecked={selectedColumns.includes(column.field)}
+                      isChecked={selectedColumns.includes(column.field)}
+                      onChange={() => toggleColumn(column.field)}>
+                      <Text
+                        fontWeight="500"
+                        ml="10px"
+                        fontSize="12px"
+                        color="textBlackDeep">
+                        {formattedHeader}
+                      </Text>
+                    </Checkbox>
+                  </Box>
+                );
+              })}
+            </Box>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              mr={3}
+              padding="15px"
+              fontSize="12px"
+              bg="var(--chakra-colors-mainBlue)"
+              color="white"
+              _hover={{
+                bg: "var(--chakra-colors-mainBlue)",
+              }}
+              onClick={handleModalClose}>
+              Cancel
+            </Button>
+            <Button
+              padding="15px"
+              fontSize="12px"
+              bg="var(--chakra-colors-mainBlue)"
+              _hover={{
+                bg: "var(--chakra-colors-mainBlue)",
+              }}
+              color="white"
+              onClick={handleApplyChanges}>
+              Apply Changes
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };

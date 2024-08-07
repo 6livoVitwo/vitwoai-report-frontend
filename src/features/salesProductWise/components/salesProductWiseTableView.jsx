@@ -47,6 +47,7 @@ const SalesProductWiseTableView = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [individualItems, setIndividualItems] = useState([]);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   const {
     data: sales,
@@ -55,34 +56,16 @@ const SalesProductWiseTableView = () => {
     isError,
     error,
   } = useProductWiseSalesQuery({
-    // filters: { ...filters, page },
     filters,
+    page,
     authDetails: authData.authDetails,
   });
+
   const pageInfo = sales?.lastPage;
 
   const tableContainerRef = useRef(null);
 
-  useEffect(() => {
-    if (sales?.content?.length) {
-      setIndividualItems((prevItems) => [
-        ...prevItems,
-        ...sales.content.flatMap((invoice) => {
-          const flattenedInvoice = flattenObject(invoice);
-          return invoice.items?.length
-            ? invoice.items.map((item) => {
-                const flattenedItem = flattenObject(item, "item.");
-                return { ...flattenedInvoice, ...flattenedItem };
-              })
-            : [flattenedInvoice];
-        }),
-      ]);
-      setHasMore(sales.content.length === filters.size); // Determine if more data is available
-    } else {
-      setHasMore(false);
-    }
-  }, [sales, filters.size]);
-
+  // Function to flatten objects
   const flattenObject = (obj, prefix = "") => {
     let result = {};
     for (let key in obj) {
@@ -104,27 +87,7 @@ const SalesProductWiseTableView = () => {
     return result;
   };
 
-  // const handleScroll = useCallback(() => {
-  //   if (
-  //     tableContainerRef.current &&
-  //     tableContainerRef.current.scrollHeight -
-  //       tableContainerRef.current.scrollTop <=
-  //       tableContainerRef.current.clientHeight + 10
-  //   ) {
-  //     if (!isFetching && hasMore) {
-  //       setPage((prevPage) => prevPage + 1);
-  //     }
-  //   }
-  // }, [isFetching, hasMore]);
-
-  // useEffect(() => {
-  //   const container = tableContainerRef.current;
-  //   if (container) {
-  //     container.addEventListener("scroll", handleScroll);
-  //     return () => container.removeEventListener("scroll", handleScroll);
-  //   }
-  // }, [handleScroll]);
-
+  // Function to extract fields for the table
   const extractFields = (data, index) => ({
     "SL No": index + 1,
     "Item Name": data["items.itemName"],
@@ -138,8 +101,61 @@ const SalesProductWiseTableView = () => {
     "Total Amount": data["SUM(all_total_amt)"],
   });
 
-  const newArray = individualItems.map(extractFields);
-  console.log(newArray, "newArray - Sales product Wise");
+  // Handle new data from the API
+  useEffect(() => {
+    if (sales?.content?.length) {
+      setIndividualItems((prevItems) => {
+        const newItems = sales.content.flatMap((invoice) => {
+          const flattenedInvoice = flattenObject(invoice);
+          return invoice.items?.length
+            ? invoice.items.map((item) => {
+                const flattenedItem = flattenObject(item, "item.");
+                return { ...flattenedInvoice, ...flattenedItem };
+              })
+            : [flattenedInvoice];
+        });
+
+        const uniqueItems = [
+          ...prevItems,
+          ...newItems.filter(
+            (item) =>
+              !prevItems.some(
+                (prevItem) => prevItem.uniqueKey === item.uniqueKey
+              )
+          ),
+        ];
+
+        return uniqueItems;
+      });
+      setHasMore(sales.content.length === filters.size); // Determine if more data is available
+      setLoadingMore(false);
+    } else {
+      setHasMore(false);
+      setLoadingMore(false);
+    }
+  }, [sales, filters.size]);
+
+  // Handle scrolling to trigger loading more data
+  const handleScroll = useCallback(() => {
+    if (!loadingMore && hasMore && tableContainerRef.current) {
+      const bottom =
+        tableContainerRef.current.scrollHeight ===
+        tableContainerRef.current.scrollTop +
+          tableContainerRef.current.clientHeight;
+      if (bottom) {
+        setLoadingMore(true);
+        setPage((prevPage) => prevPage + 1);
+      }
+    }
+  }, [hasMore, loadingMore]);
+
+  useEffect(() => {
+    const container = tableContainerRef.current;
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+      return () => container.removeEventListener("scroll", handleScroll);
+    }
+  }, [handleScroll]);
 
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
@@ -160,11 +176,22 @@ const SalesProductWiseTableView = () => {
         </Box>
       ) : individualItems.length > 0 ? (
         <CustomTable
-          newArray={newArray}
+          newArray={individualItems.map((item, index) =>
+            extractFields(item, index)
+          )}
           page={page}
           setPage={setPage}
           isFetching={isFetching}
           pageInfo={pageInfo}
+          alignment={{
+            "Sales Delivery Total Amount": "right",
+            "Sales Pgi Total Amount": "right",
+            Quotation: "right",
+            "Sales Order": "right",
+            "Total Qty": "right",
+            "Sub Total": "right",
+            "Total Amount": "right",
+          }}
         />
       ) : (
         <Box

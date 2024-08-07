@@ -90,6 +90,7 @@ import SalesDetails from "../features/salesDetailsReport/components";
 import PurchasePoWiseTableView from "../features/purchasePoWise/components/purchasePoWiseTableView";
 import PurchasePoWiseGraphView from "../features/purchasePoWise/components/purchasePoWiseGraphView";
 import Reportdetails from "../features/reportdetails";
+import DashboardNew from "../features/dashboardNew/pages/DashboardNew";
 const Dashboard = lazy(() => import("../features/dashboard/components"));
 
 const AllRoutes = () => {
@@ -158,6 +159,16 @@ const AllRoutes = () => {
                 globalLayout={globalStaticFragmennt}
                 portalId={commonPortalRef}>
                 <Dashboard globalLayout={setGlobalStaticFragmennt} />
+              </PortalForLayout>
+            }
+          />
+          <Route
+            path="/new-dashboard"
+            element={
+              <PortalForLayout
+                globalLayout={globalStaticFragmennt}
+                portalId={commonPortalRef}>
+                <DashboardNew globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
             }
           />
