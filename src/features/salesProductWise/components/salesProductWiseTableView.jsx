@@ -44,7 +44,7 @@ const SalesProductWiseTableView = () => {
     size: 50,
   });
 
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [individualItems, setIndividualItems] = useState([]);
 
@@ -55,9 +55,11 @@ const SalesProductWiseTableView = () => {
     isError,
     error,
   } = useProductWiseSalesQuery({
-    filters: { ...filters, page },
+    // filters: { ...filters, page },
+    filters,
     authDetails: authData.authDetails,
   });
+  const pageInfo = sales?.lastPage;
 
   const tableContainerRef = useRef(null);
 
@@ -102,26 +104,26 @@ const SalesProductWiseTableView = () => {
     return result;
   };
 
-  const handleScroll = useCallback(() => {
-    if (
-      tableContainerRef.current &&
-      tableContainerRef.current.scrollHeight -
-        tableContainerRef.current.scrollTop <=
-        tableContainerRef.current.clientHeight + 10
-    ) {
-      if (!isFetching && hasMore) {
-        setPage((prevPage) => prevPage + 1);
-      }
-    }
-  }, [isFetching, hasMore]);
+  // const handleScroll = useCallback(() => {
+  //   if (
+  //     tableContainerRef.current &&
+  //     tableContainerRef.current.scrollHeight -
+  //       tableContainerRef.current.scrollTop <=
+  //       tableContainerRef.current.clientHeight + 10
+  //   ) {
+  //     if (!isFetching && hasMore) {
+  //       setPage((prevPage) => prevPage + 1);
+  //     }
+  //   }
+  // }, [isFetching, hasMore]);
 
-  useEffect(() => {
-    const container = tableContainerRef.current;
-    if (container) {
-      container.addEventListener("scroll", handleScroll);
-      return () => container.removeEventListener("scroll", handleScroll);
-    }
-  }, [handleScroll]);
+  // useEffect(() => {
+  //   const container = tableContainerRef.current;
+  //   if (container) {
+  //     container.addEventListener("scroll", handleScroll);
+  //     return () => container.removeEventListener("scroll", handleScroll);
+  //   }
+  // }, [handleScroll]);
 
   const extractFields = (data, index) => ({
     "SL No": index + 1,
@@ -137,6 +139,7 @@ const SalesProductWiseTableView = () => {
   });
 
   const newArray = individualItems.map(extractFields);
+  console.log(newArray, "newArray - Sales product Wise");
 
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
@@ -155,8 +158,14 @@ const SalesProductWiseTableView = () => {
             size="xl"
           />
         </Box>
-      ) : newArray.length > 0 ? (
-        <CustomTable individualItems={newArray} />
+      ) : individualItems.length > 0 ? (
+        <CustomTable
+          newArray={newArray}
+          page={page}
+          setPage={setPage}
+          isFetching={isFetching}
+          pageInfo={pageInfo}
+        />
       ) : (
         <Box
           bg="white"

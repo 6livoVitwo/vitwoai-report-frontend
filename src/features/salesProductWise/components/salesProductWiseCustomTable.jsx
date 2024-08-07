@@ -43,21 +43,13 @@ import { faChartSimple, faFilter } from "@fortawesome/free-solid-svg-icons";
 import { saveAs } from "file-saver";
 import { faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { DownloadIcon } from "@chakra-ui/icons";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
 import { useNavigate } from "react-router-dom";
-import { FaChartLine } from 'react-icons/fa'; 
+import { FaChartLine } from "react-icons/fa";
 
-
-const CustomTable = ({
-  // setPage,
-  individualItems,
-  isFetching,
-  setDateRange,
-  pageInfo,
-}) => {
-  const [data, setData] = useState([...individualItems]);
+const CustomTable = ({ setPage, isFetching, setDateRange, newArray }) => {
+  const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
   const [selectedColumns, setSelectedColumns] = useState([]);
@@ -70,6 +62,7 @@ const CustomTable = ({
   const [selectedReport, setSelectedReport] = useState(null);
 
   const toast = useToast();
+  const tableContainerRef = useRef(null);
   const observer = useRef();
   const {
     onOpen: onOpenFilterModal,
@@ -96,13 +89,18 @@ const CustomTable = ({
     { label: "So Wise", value: "/reports/sales-so-wise/table-view" },
   ];
 
-  // const loadMoreData = async () => {
-  // 	setLoading(true);
-  // 	setData((prevData) => [...prevData, ...individualItems]);
-  // 	setPage((prevPage) => prevPage + 1);
-  // 	setLoading(false);
-  // };
-
+  const loadMoreData = async () => {
+    if (!loading) {
+      setLoading(true);
+      const moreData = [...newArray];
+      setData((prevData) => {
+        const uniqueData = [...new Set([...prevData, ...moreData])];
+        return uniqueData;
+      });
+      setPage((prevPage) => prevPage + 1);
+      setLoading(false);
+    }
+  };
   useEffect(() => {
     if (selectedReport) {
       navigate(`${selectedReport}`);
@@ -258,13 +256,35 @@ const CustomTable = ({
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting) {
-          // loadMoreData();
         }
       });
       if (node) observer.current.observe(node);
     },
     [loading]
   );
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } =
+        tableContainerRef.current;
+
+      const tempScrollHeight = Math.floor(scrollHeight - scrollTop);
+      const scrollEndPercentage = (tempScrollHeight / clientHeight) * 100;
+      if (scrollEndPercentage <= 100) {
+        loadMoreData();
+      }
+    };
+
+    const container = tableContainerRef.current;
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+    }
+    return () => {
+      if (container) {
+        container.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, [loadMoreData]);
 
   const handleColumnFilterConditionChange = (field, condition) => {
     condition = String(condition);
@@ -342,8 +362,6 @@ const CustomTable = ({
   };
   const updateArrayValue = (start, end) => {
     if (start && end) {
-      const formattedStartDate = formatDate(start);
-      const formattedEndDate = formatDate(end);
       const newArrayValue = [
         {
           data: [
@@ -379,10 +397,6 @@ const CustomTable = ({
           ],
           page: 0,
           size: 50,
-          // column: 'invoice_date',
-          // operator: 'between',
-          // type: 'date',
-          // value: [formattedStartDate, formattedEndDate],
         },
       ];
       setDateRange(newArrayValue);
@@ -427,46 +441,10 @@ const CustomTable = ({
             },
           }}>
           <Box display="flex" gap="10px" alignItems="center">
-            {/* <Text fontSize='14px' fontWeight='500'>
-							Select Date :
-						</Text>
-						<Box
-							display='flex'
-							justifyContent='space-between'
-							gap='10px'
-							sx={{
-								'& .react-datepicker-wrapper input': {
-									bg: '#dedede',
-									padding: '5px 10px',
-									fontSize: '12px',
-									width: '100px',
-									borderRadius: '5px',
-									outline: 'none',
-								},
-							}}>
-							<DatePicker
-								selected={startDate}
-								onChange={handleStartDateChange}
-								selectsStart
-								startDate={startDate}
-								endDate={endDate}
-								placeholderText='Start Date'
-							/>
-							<DatePicker
-								selected={endDate}
-								onChange={handleEndDateChange}
-								selectsEnd
-								startDate={startDate}
-								endDate={endDate}
-								minDate={startDate}
-								placeholderText='End Date'
-							/>
-						</Box> */}
             <Dropdown
               value={selectedReport}
               options={reportOptions}
               onChange={(e) => {
-                // console.log("Dropdown Changed:", e.value);
                 handleReportChange(e);
               }}
               optionLabel="label"
@@ -725,7 +703,12 @@ const CustomTable = ({
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="columns" direction="horizontal">
             {(provided) => (
-              <TableContainer ref={provided.innerRef} marginRight="5px">
+              <TableContainer
+                ref={provided.innerRef}
+                className="table-tableContainerRef"
+                overflowY="auto"
+                height="calc(100vh - 179px)"
+                width="calc(100vw - 115px)">
                 <Table variant="simple" width="100%">
                   <Thead>
                     <Tr bg="#cfd8e1">
@@ -926,7 +909,7 @@ const CustomTable = ({
             fontSize="2xl"
             width="50px"
             height="50px"
-            bg="rgba(213, 232, 251, 0.5)" 
+            bg="rgba(213, 232, 251, 0.5)"
             _hover={{
               bg: "mainBlue",
               color: "white",
