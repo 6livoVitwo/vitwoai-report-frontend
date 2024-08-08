@@ -32,6 +32,7 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
+  IconButton,
 } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
@@ -40,8 +41,13 @@ import { faChartSimple } from "@fortawesome/free-solid-svg-icons";
 import { saveAs } from "file-saver";
 import { faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { DownloadIcon } from "@chakra-ui/icons";
+import { useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { Dropdown } from "primereact/dropdown";
+import { Tooltip } from "chart.js";
+
+
 
 const CustomTable = ({ setPage, newArray, setDateRange, alignment }) => {
   const [data, setData] = useState([...newArray]);
@@ -55,6 +61,8 @@ const CustomTable = ({ setPage, newArray, setDateRange, alignment }) => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [lastPage, setLastPage] = useState(false);
+  	const [selectedReport, setSelectedReport] = useState(null);
+
 
   const toast = useToast();
   const tableContainerRef = useRef(null);
@@ -71,18 +79,46 @@ const CustomTable = ({ setPage, newArray, setDateRange, alignment }) => {
 
     const getColumnStyle = (header) => ({
       textAlign: alignment[header] || "left",
-    });
+  });
+  
+  	const navigate = useNavigate();
+
+  	const reportOptions = [
+      {
+        label: "Product Wise",
+        value: "/reports/sales-product-wise/table-view",
+      },
+      {
+        label: "Customer Wise",
+        value: "/reports/sales-customer-wise/table-view",
+      },
+      {
+        label: "Vertical Wise",
+        value: "/reports/sales-vertical-wise/table-view",
+      },
+      { label: "So Wise", value: "/reports/sales-so-wise/table-view" },
+    ];
+
+    	useEffect(() => {
+        if (selectedReport) {
+          navigate(`${selectedReport}`);
+        }
+      }, [selectedReport, navigate]);
+
+      const handleReportChange = (e) => {
+        const selectedValue = e.value;
+        setSelectedReport(selectedValue);
+      };
 
   const loadMoreData = async () => {
     if (loading || lastPage) {
-      return; // Prevent duplicate calls if already loading or if the last page has been reached
+      return; 
     }
 
     setLoading(true);
 
     try {
-      // Fetch or generate new data
-      const moreData = [...newArray]; // Assuming newArray contains new data
+      const moreData = [...newArray];
 
       setData((prevData) => {
         const newData = [...prevData, ...moreData];
@@ -240,7 +276,6 @@ const CustomTable = ({ setPage, newArray, setDateRange, alignment }) => {
     const { scrollTop, scrollHeight, clientHeight } = tableContainerRef.current;
 
     if (scrollTop + clientHeight >= scrollHeight - 5) {
-      // Adjust the threshold as needed
       loadMoreData();
     }
   };
@@ -256,7 +291,7 @@ const CustomTable = ({ setPage, newArray, setDateRange, alignment }) => {
         container.removeEventListener("scroll", handleScroll);
       }
     };
-  }, [loading, lastPage]); // Added dependencies to ensure it re-registers properly
+  }, [loading, lastPage]); 
 
   const handleColumnFilterConditionChange = (field, condition) => {
     condition = String(condition);
@@ -382,19 +417,15 @@ const CustomTable = ({ setPage, newArray, setDateRange, alignment }) => {
               outline: "none",
             },
           }}>
-          <DatePicker
-            selected={startDate}
-            onChange={handleStartDateChange}
-            dateFormat="yyyy/MM/dd"
-            placeholderText="Start Date"
-            className="datepicker"
-          />
-          <DatePicker
-            selected={endDate}
-            onChange={handleEndDateChange}
-            dateFormat="yyyy/MM/dd"
-            placeholderText="End Date"
-            className="datepicker"
+          <Dropdown
+            value={selectedReport}
+            options={reportOptions}
+            onChange={(e) => {
+              handleReportChange(e);
+            }}
+            optionLabel="label"
+            placeholder="Select Sales Type"
+            style={{ width: "200px" }}
           />
           {/* <Button onClick={exportToExcel} ml='4'>
 						<FontAwesomeIcon icon={faFileExcel} /> Export to Excel
@@ -702,7 +733,33 @@ const CustomTable = ({ setPage, newArray, setDateRange, alignment }) => {
           </Droppable>
         </DragDropContext>
       </TableContainer>
-
+      <Button
+        position="fixed"
+        bottom="4"
+        right="4"
+        aria-label="Graph View"
+        size="lg"
+        borderRadius="full"
+        boxShadow="lg"
+        onClick={() => {
+          console.log("Graph button clicked");
+        }}
+        fontSize="2xl"
+        width="50px"
+        height="50px"
+        bg="rgba(213, 232, 251, 0.5)"
+        _hover={{
+          bg: "mainBlue",
+          color: "white",
+        }}
+        _active={{
+          bg: "teal.600",
+        }}
+        _focus={{
+          boxShadow: "outline",
+        }}>
+          <FontAwesomeIcon icon={faChartSimple} size="lg" />
+        </Button>
       <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered>
         <ModalOverlay />
         <ModalContent minW="40%">

@@ -65,7 +65,6 @@ const SalesProductWiseTableView = () => {
 
   const tableContainerRef = useRef(null);
 
-  // Function to flatten objects
   const flattenObject = (obj, prefix = "") => {
     let result = {};
     for (let key in obj) {
@@ -87,12 +86,10 @@ const SalesProductWiseTableView = () => {
     return result;
   };
 
-  // Function to extract fields for the table
   const extractFields = (data, index) => ({
     "SL No": index + 1,
     "Item Name": data["items.itemName"],
-    "Sales Delivery Total Amount":
-      data["SUM(salesPgi.salesDelivery.totalAmount)"],
+    "Sales Delivery Total Amount": data["SUM(salesPgi.salesDelivery.totalAmount)"],
     "Sales Pgi Total Amount": data["SUM(salesPgi.totalAmount)"],
     Quotation: data["SUM(salesPgi.totalAmount)"],
     "Sales Order": data["SUM(salesOrder.totalAmount)"],
@@ -101,7 +98,6 @@ const SalesProductWiseTableView = () => {
     "Total Amount": data["SUM(all_total_amt)"],
   });
 
-  // Handle new data from the API
   useEffect(() => {
     if (sales?.content?.length) {
       setIndividualItems((prevItems) => {
@@ -127,7 +123,7 @@ const SalesProductWiseTableView = () => {
 
         return uniqueItems;
       });
-      setHasMore(sales.content.length === filters.size); // Determine if more data is available
+      setHasMore(sales.content.length === filters.size); 
       setLoadingMore(false);
     } else {
       setHasMore(false);
@@ -135,7 +131,6 @@ const SalesProductWiseTableView = () => {
     }
   }, [sales, filters.size]);
 
-  // Handle scrolling to trigger loading more data
   const handleScroll = useCallback(() => {
     if (!loadingMore && hasMore && tableContainerRef.current) {
       const bottom =

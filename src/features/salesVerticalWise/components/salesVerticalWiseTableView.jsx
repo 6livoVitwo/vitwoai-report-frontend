@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import CustomTable from "./salesVerticalWiseCustomTable";
 import { Box, Spinner, Image } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
-import { useVerticalWiseSalesQuery } from "../slice/salesVerticalWiseApi";
 import NoDataFound from "../../../asset/images/nodatafound.png";
+import { useVerticalWiseSalesQuery } from "../slice/salesVerticalWiseApi";
 
-const SalesProductWiseTableView = () => {
+const SalesVerticalWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
-  const [page, setPage] = useState(1);
+
   const [filters, setFilters] = useState({
     data: [
       "invoice_date",
@@ -17,7 +17,6 @@ const SalesProductWiseTableView = () => {
       "SUM(quotation.totalAmount)",
       "SUM(salesOrder.totalAmount)",
       "SUM(items.qty)",
-      "SUM(due_amount)",
       "SUM(items.basePrice - items.totalDiscountAmt)",
       "SUM(all_total_amt)",
     ],
@@ -46,7 +45,25 @@ const SalesProductWiseTableView = () => {
     size: 50,
   });
 
-  const [dateRange, setDateRange] = useState();
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [individualItems, setIndividualItems] = useState([]);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+      const formatDate = (dateString) => {
+        try {
+          const [year, month, day] = dateString.split("-").map(Number);
+          const date = new Date(year, month - 1, day);
+          return date.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          });
+        } catch (error) {
+          return "Invalid Date";
+        }
+      };
+
   const {
     data: sales,
     isLoading,
@@ -59,15 +76,10 @@ const SalesProductWiseTableView = () => {
     authDetails: authData.authDetails,
   });
 
-  if (isError) {
-    console.error("Error fetching sales data:", error);
-  }
+  const pageInfo = sales?.lastPage;
 
-  // Extract and flatten sales data
-  const salesData = sales?.content || [];
-  const pageInfo = sales?.lastPage || 1;
+  const tableContainerRef = useRef(null);
 
-  // Utility function to flatten nested objects
   const flattenObject = (obj, prefix = "") => {
     let result = {};
     for (let key in obj) {
@@ -89,41 +101,6 @@ const SalesProductWiseTableView = () => {
     return result;
   };
 
-  // Process sales data to extract individual items
-  const [individualItems, setIndividualItems] = useState([]);
-
-  useEffect(() => {
-    if (salesData.length) {
-      const items = salesData.flatMap((invoice) => {
-        const flattenedInvoice = flattenObject(invoice);
-        return invoice.items && invoice.items.length > 0
-          ? invoice.items.map((item) => {
-              const flattenedItem = flattenObject(item, "item.");
-              return { ...flattenedInvoice, ...flattenedItem };
-            })
-          : [flattenedInvoice];
-      });
-
-      setIndividualItems(items);
-    }
-  }, [salesData]);
-  console.log("salesData", salesData);
-
-  const formatDate = (dateString) => {
-    try {
-      const [year, month, day] = dateString.split("-").map(Number);
-      const date = new Date(year, month - 1, day);
-      return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-    } catch (error) {
-      return "Invalid Date";
-    }
-  };
-
-  // Function to extract fields from each item
   const extractFields = (data, index) => ({
     "SL No": index + 1,
     "Functional Area": data["companyFunction.functionalities_name"],
@@ -139,12 +116,63 @@ const SalesProductWiseTableView = () => {
     "Invoice date": formatDate(data["invoice_date"]),
   });
 
-  // Convert individual items into new array with the necessary fields
-  const newArray = individualItems.map(extractFields);
-  console.log("same probem", newArray);
+  useEffect(() => {
+    if (sales?.content?.length) {
+      setIndividualItems((prevItems) => {
+        const newItems = sales.content.flatMap((invoice) => {
+          const flattenedInvoice = flattenObject(invoice);
+          return invoice.items?.length
+            ? invoice.items.map((item) => {
+                const flattenedItem = flattenObject(item, "item.");
+                return { ...flattenedInvoice, ...flattenedItem };
+              })
+            : [flattenedInvoice];
+        });
+
+        const uniqueItems = [
+          ...prevItems,
+          ...newItems.filter(
+            (item) =>
+              !prevItems.some(
+                (prevItem) => prevItem.uniqueKey === item.uniqueKey
+              )
+          ),
+        ];
+
+        return uniqueItems;
+      });
+      setHasMore(sales.content.length === filters.size);
+      setLoadingMore(false);
+    } else {
+      setHasMore(false);
+      setLoadingMore(false);
+    }
+  }, [sales, filters.size]);
+
+  const handleScroll = useCallback(() => {
+    if (!loadingMore && hasMore && tableContainerRef.current) {
+      const bottom =
+        tableContainerRef.current.scrollHeight ===
+        tableContainerRef.current.scrollTop +
+          tableContainerRef.current.clientHeight;
+      if (bottom) {
+        setLoadingMore(true);
+        setPage((prevPage) => prevPage + 1);
+      }
+    }
+  }, [hasMore, loadingMore]);
+
+  useEffect(() => {
+    const container = tableContainerRef.current;
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+      return () => container.removeEventListener("scroll", handleScroll);
+    }
+  }, [handleScroll]);
+
   return (
-    <Box>
-      {isLoading ? (
+    <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
+      {isLoading && !isFetching ? (
         <Box
           height="calc(100vh - 75px)"
           width="100%"
@@ -159,13 +187,24 @@ const SalesProductWiseTableView = () => {
             size="xl"
           />
         </Box>
-      ) : newArray.length > 0 ? (
+      ) : individualItems.length > 0 ? (
         <CustomTable
-          individualItems={newArray}
+          newArray={individualItems.map((item, index) =>
+            extractFields(item, index)
+          )}
           page={page}
           setPage={setPage}
           isFetching={isFetching}
           pageInfo={pageInfo}
+          alignment={{
+            "Sales Delivery Total Amount": "right",
+            "Sales Pgi Total Amount": "right",
+            Quotation: "right",
+            "Sales Order": "right",
+            "Total Qty": "right",
+            "Sub Total": "right",
+            "Total Amount": "right",
+          }}
         />
       ) : (
         <Box
@@ -182,4 +221,4 @@ const SalesProductWiseTableView = () => {
   );
 };
 
-export default SalesProductWiseTableView;
+export default SalesVerticalWiseTableView;

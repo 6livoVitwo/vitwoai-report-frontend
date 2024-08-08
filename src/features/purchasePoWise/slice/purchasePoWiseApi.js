@@ -5,7 +5,7 @@ export const purchasePoWiseApi = apiSlice.injectEndpoints({
     poWisePurchase: builder.query({
       query: ({ page, filters }) => {
         return {
-          url: `purchase/purchase-groupby-data`,
+          url: `purchase/purchase-groupby-data?pageNumber=${page}&pageSize=10`,
           method: "POST",
           body: JSON.stringify(filters),
           headers: {
