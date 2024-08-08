@@ -42,12 +42,16 @@ import { saveAs } from "file-saver";
 import { faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { DownloadIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
-import { Tooltip } from "chart.js";
 
-const CustomTable = ({ setPage, newArray, setDateRange, alignment }) => {
+const CustomTable = ({
+  setPage,
+  newArray,
+  setDateRange,
+  alignment,
+  pageInfo,
+}) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
@@ -56,8 +60,6 @@ const CustomTable = ({ setPage, newArray, setDateRange, alignment }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [columnFilters, setColumnFilters] = useState({});
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
   const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
 
@@ -113,6 +115,7 @@ const CustomTable = ({ setPage, newArray, setDateRange, alignment }) => {
     }
 
     setLoading(true);
+    console.log("Current Fetch Api data:", data.length);
 
     try {
       const moreData = [...newArray];
@@ -122,10 +125,14 @@ const CustomTable = ({ setPage, newArray, setDateRange, alignment }) => {
         const uniqueData = Array.from(
           new Set(newData.map((item) => JSON.stringify(item)))
         ).map((item) => JSON.parse(item));
+         console.log("Data after merge:", uniqueData);
         return uniqueData;
       });
-
-      setPage((prevPage) => prevPage + 1);
+      if (pageInfo != true) {
+        setPage((prevPage) => prevPage + 1);
+      } else {
+        console.log("No more data");
+      }
     } finally {
       setLoading(false);
     }
@@ -345,17 +352,6 @@ const CustomTable = ({ setPage, newArray, setDateRange, alignment }) => {
       );
     });
   };
-
-  const handleStartDateChange = (date) => {
-    setStartDate(date);
-    updateArrayValue(date, endDate);
-  };
-
-  const handleEndDateChange = (date) => {
-    setEndDate(date);
-    updateArrayValue(startDate, date);
-  };
-
   const formatDate = (date) => {
     return date.toISOString().split("T")[0];
   };
@@ -424,9 +420,6 @@ const CustomTable = ({ setPage, newArray, setDateRange, alignment }) => {
             placeholder="Select Sales Type"
             style={{ width: "200px" }}
           />
-          {/* <Button onClick={exportToExcel} ml='4'>
-						<FontAwesomeIcon icon={faFileExcel} /> Export to Excel
-					</Button> */}
           <Button
             onClick={onOpen}
             padding="15px"
@@ -857,4 +850,3 @@ const CustomTable = ({ setPage, newArray, setDateRange, alignment }) => {
 };
 
 export default CustomTable;
-

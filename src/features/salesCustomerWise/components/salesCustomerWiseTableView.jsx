@@ -8,7 +8,11 @@ import { useCustomerWiseSalesQuery } from "../slice/customerWiseSalesApi";
 const SalesProductWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
 
-  const [filters, setFilters] = useState({
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(50);  
+  const [individualItems, setIndividualItems] = useState([]);
+
+  let filters = {
     data: [
       "customer.trade_name",
       "customer.customer_code",
@@ -47,27 +51,22 @@ const SalesProductWiseTableView = () => {
       },
     ],
     page: 0,
-    size: 50,
-  });
-
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [individualItems, setIndividualItems] = useState([]);
-  const [loadingMore, setLoadingMore] = useState(false);
-
+    size: 20,
+  };
   const {
     data: sales,
     isLoading,
     isFetching,
-    isError,
-    error,
   } = useCustomerWiseSalesQuery({
     filters,
     page,
+    size,
     authDetails: authData.authDetails,
   });
 
   const pageInfo = sales?.lastPage;
+
+  console.log("last page", pageInfo);
 
   const tableContainerRef = useRef(null);
 
@@ -108,7 +107,6 @@ const SalesProductWiseTableView = () => {
     "Items Quantity": data["SUM(items.qty)"],
     "Best Price": data["SUM(items.basePrice - items.totalDiscountAmt)"],
     "Total Amount": data["SUM(all_total_amt)"],
-
   });
 
   useEffect(() => {
@@ -124,6 +122,9 @@ const SalesProductWiseTableView = () => {
             : [flattenedInvoice];
         });
 
+         console.log("Previous items:", prevItems);
+         console.log("New items:", newItems);
+
         const uniqueItems = [
           ...prevItems,
           ...newItems.filter(
@@ -134,36 +135,12 @@ const SalesProductWiseTableView = () => {
           ),
         ];
 
+          console.log("Unique items:", uniqueItems);
+
         return uniqueItems;
       });
-      setHasMore(sales.content.length === filters.size);
-      setLoadingMore(false);
-    } else {
-      setHasMore(false);
-      setLoadingMore(false);
     }
   }, [sales, filters.size]);
-
-  const handleScroll = useCallback(() => {
-    if (!loadingMore && hasMore && tableContainerRef.current) {
-      const bottom =
-        tableContainerRef.current.scrollHeight ===
-        tableContainerRef.current.scrollTop +
-          tableContainerRef.current.clientHeight;
-      if (bottom) {
-        setLoadingMore(true);
-        setPage((prevPage) => prevPage + 1);
-      }
-    }
-  }, [hasMore, loadingMore]);
-
-  useEffect(() => {
-    const container = tableContainerRef.current;
-    if (container) {
-      container.addEventListener("scroll", handleScroll);
-      return () => container.removeEventListener("scroll", handleScroll);
-    }
-  }, [handleScroll]);
 
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
@@ -190,7 +167,8 @@ const SalesProductWiseTableView = () => {
           page={page}
           setPage={setPage}
           isFetching={isFetching}
-          pageInfo={pageInfo}
+            pageInfo={pageInfo}
+            setSize={setSize}
           alignment={{
             IGST: "right",
             SGST: "right",
@@ -214,4 +192,3 @@ const SalesProductWiseTableView = () => {
 };
 
 export default SalesProductWiseTableView;
-

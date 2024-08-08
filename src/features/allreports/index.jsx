@@ -28,197 +28,203 @@ import SalesSoWise from '../../asset/images/sales-so-wise.png';
 
 const Allreports = () => {
 	const cardsData = [
-		{
-			'card catagory': 'Accounting Reports',
-			cards: [
-				{
-					id: '1',
-					name: 'Transactional Day Book',
-					link: '/reports/transactional-day-book/table-view',
-					imgsrc: TransactionalDayBookImage,
-				},
-				{
-					id: '2',
-					name: 'Balance Sheet',
-					link: '/reports/balance-sheet/table-view',
-					imgsrc: BalanceSheet,
-				},
-				{
-					id: '3',
-					name: 'Profit and Loss',
-					link: '/reports/profit-and-loss/table-view',
-					imgsrc: ProfitLoss,
-				},
-				{
-					id: '4',
-					name: 'Trial Balance',
-					link: '/reports/trial-balance/table-view',
-					imgsrc: TrialBalance,
-				},
-			],
-		},
-		{
-			'card catagory': 'Ageing Analysis',
-			cards: [
-				{
-					id: '5',
-					name: 'Receivable',
-					link: '/reports/receivable/table-view',
-					imgsrc: Receivable,
-				},
-				{
-					id: '6',
-					name: 'Payable',
-					link: '/reports/payable/table-view',
-					imgsrc: Payable,
-				},
-				{
-					id: '7',
-					name: 'Inventory Ageing (Issue Date)',
-					link: '/reports/inventory-ageing-issue-date/table-view',
-					imgsrc: InventoryAgeingIssue,
-				},
-				{
-					id: '8',
-					name: 'Inventory Ageing (Received Date)',
-					link: '/reports/inventory-ageing-received-date/table-view',
-					imgsrc: InventoryAgeingReceived,
-				},
-			],
-		},
-		{
-			'card catagory': 'Purchase Register',
-			cards: [
-				{
-					id: '9',
-					name: 'Product Wise',
-					link: '/reports/product-wise/table-view',
-					imgsrc: ProductWise,
-				},
-				{
-					id: '10',
-					name: 'Vendor Wise',
-					link: '/reports/vendor-wise/table-view',
-					imgsrc: VendorWise,
-				},
-				{
-					id: '11',
-					name: 'PO Wise',
-					link: '/reports/po-wise/table-view',
-					imgsrc: PoWise,
-				},
-			],
-		},
+    {
+      "card catagory": "Accounting Reports",
+      cards: [
+        {
+          id: "1",
+          name: "Transactional Day Book",
+          link: "/reports/transactional-day-book/table-view",
+          imgsrc: TransactionalDayBookImage,
+        },
+        {
+          id: "2",
+          name: "Balance Sheet",
+          link: "/reports/balance-sheet/table-view",
+          imgsrc: BalanceSheet,
+        },
+        {
+          id: "3",
+          name: "Profit and Loss",
+          link: "/reports/profit-and-loss/table-view",
+          imgsrc: ProfitLoss,
+        },
+        {
+          id: "4",
+          name: "Trial Balance",
+          link: "/reports/trial-balance/table-view",
+          imgsrc: TrialBalance,
+        },
+      ],
+    },
+    {
+      "card catagory": "Ageing Analysis",
+      cards: [
+        {
+          id: "5",
+          name: "Receivable",
+          link: "/reports/receivable/table-view",
+          imgsrc: Receivable,
+        },
+        {
+          id: "6",
+          name: "Payable",
+          link: "/reports/payable/table-view",
+          imgsrc: Payable,
+        },
+        {
+          id: "7",
+          name: "Inventory Ageing (Issue Date)",
+          link: "/reports/inventory-ageing-issue-date/table-view",
+          imgsrc: InventoryAgeingIssue,
+        },
+        {
+          id: "8",
+          name: "Inventory Ageing (Received Date)",
+          link: "/reports/inventory-ageing-received-date/table-view",
+          imgsrc: InventoryAgeingReceived,
+        },
+      ],
+    },
+    {
+      "card catagory": "Purchase Register",
+      cards: [
+        {
+          id: "9",
+          name: "Product Wise",
+          link: "/reports/product-wise/table-view",
+          imgsrc: ProductWise,
+        },
+        {
+          id: "10",
+          name: "Vendor Wise",
+          link: "/reports/vendor-wise/table-view",
+          imgsrc: VendorWise,
+        },
+        {
+          id: "11",
+          name: "PO Wise",
+          link: "/reports/po-wise/table-view",
+          imgsrc: PoWise,
+        },
+      ],
+    },
 
-		{
-			'card catagory': 'Production Report',
-			cards: [
-				{
-					id: '12',
-					name: 'Production Order',
-					link: '/reports/production-order/table-view',
-					imgsrc: ProductionOrder,
-				},
-				{
-					id: '13',
-					name: 'Production Order Tracking',
-					link: '/reports/production-order-tracking/table-view',
-					imgsrc: ProductionOrderTracking,
-				},
-			],
-		},
-		{
-			'card catagory': 'TDS Report',
-			cards: [
-				{
-					id: '14',
-					name: 'Section Wise',
-					link: '/reports/section-wise/table-view',
-					imgsrc: TdsSectionWise,
-				},
-				{
-					id: '15',
-					name: 'Vendor Wise',
-					link: '/reports/vendor-wise/table-view',
-					imgsrc: TdsVendorWise,
-				},
-				{
-					id: '16',
-					name: 'TDS Return',
-					link: '/reports/tds-return/table-view',
-					imgsrc: TdsReturn,
-				},
-			],
-		},
-		{
-			'card catagory': 'Exception Report',
-			cards: [
-				{
-					id: '17',
-					name: 'Exception Report',
-					link: '/reports/exception-report/table-view',
-					imgsrc: ExceptionReport,
-				},
-			],
-		},
-		{
-			'card catagory': 'Inventory Report',
-			cards: [
-				{
-					id: '18',
-					name: 'Stock Report',
-					link: '/reports/stock-report/table-view',
-					imgsrc: InventorystockReport,
-				},
-				{
-					id: '19',
-					name: 'Stock Log',
-					link: '/reports/stock-log/table-view',
-					imgsrc: InventoryStocklog,
-				},
-			],
-		},
-		{
-			'card catagory': 'Spent Analysis',
-			cards: [
-				{
-					id: '20',
-					name: 'Spent Analysis',
-					link: '/reports/spent-analysis/table-view',
-					imgsrc: SpentAnalysis,
-				},
-			],
-		},
-		{
-			'card catagory': 'Sales Register',
-			cards: [
-				{
-					id: '21',
-					name: 'Product Wise',
-					link: '/reports/sales-product-wise/table-view',
-					imgsrc: SalesproductWise,
-				},
-				{
-					id: '22',
-					name: 'Customer Wise',
-					link: '/reports/sales-customer-wise/table-view',
-					imgsrc: SalesCustomerWise,
-				},
-				{
-					id: '23',
-					name: 'Vertical Wise',
-					link: '/reports/sales-vertical-wise/table-view',
-					imgsrc: SalesVerticalWise,
-				},
-				{
-					id: '24',
-					name: 'So Wise',
-					link: '/reports/sales-so-wise/table-view',
-					imgsrc: SalesSoWise,
-				},
-			],
-		},
-	];
+    {
+      "card catagory": "Production Report",
+      cards: [
+        {
+          id: "12",
+          name: "Production Order",
+          link: "/reports/production-order/table-view",
+          imgsrc: ProductionOrder,
+        },
+        {
+          id: "13",
+          name: "Production Order Tracking",
+          link: "/reports/production-order-tracking/table-view",
+          imgsrc: ProductionOrderTracking,
+        },
+      ],
+    },
+    {
+      "card catagory": "TDS Report",
+      cards: [
+        {
+          id: "14",
+          name: "Section Wise",
+          link: "/reports/section-wise/table-view",
+          imgsrc: TdsSectionWise,
+        },
+        {
+          id: "15",
+          name: "Vendor Wise",
+          link: "/reports/vendor-wise/table-view",
+          imgsrc: TdsVendorWise,
+        },
+        {
+          id: "16",
+          name: "TDS Return",
+          link: "/reports/tds-return/table-view",
+          imgsrc: TdsReturn,
+        },
+      ],
+    },
+    {
+      "card catagory": "Exception Report",
+      cards: [
+        {
+          id: "17",
+          name: "Exception Report",
+          link: "/reports/exception-report/table-view",
+          imgsrc: ExceptionReport,
+        },
+      ],
+    },
+    {
+      "card catagory": "Inventory Report",
+      cards: [
+        {
+          id: "18",
+          name: "Stock Report",
+          link: "/reports/stock-report/table-view",
+          imgsrc: InventorystockReport,
+        },
+        {
+          id: "19",
+          name: "Stock Log",
+          link: "/reports/stock-log/table-view",
+          imgsrc: InventoryStocklog,
+        },
+      ],
+    },
+    {
+      "card catagory": "Spent Analysis",
+      cards: [
+        {
+          id: "20",
+          name: "Spent Analysis",
+          link: "/reports/spent-analysis/table-view",
+          imgsrc: SpentAnalysis,
+        },
+      ],
+    },
+    {
+      "card catagory": "Sales Register",
+      cards: [
+        {
+          id: "21",
+          name: "Product Wise",
+          link: "/reports/sales-product-wise/table-view",
+          imgsrc: SalesproductWise,
+        },
+        {
+          id: "22",
+          name: "Customer Wise",
+          link: "/reports/sales-customer-wise/table-view",
+          imgsrc: SalesCustomerWise,
+        },
+        {
+          id: "23",
+          name: "Vertical Wise",
+          link: "/reports/sales-vertical-wise/table-view",
+          imgsrc: SalesVerticalWise,
+        },
+        {
+          id: "24",
+          name: "So Wise",
+          link: "/reports/sales-so-wise/table-view",
+          imgsrc: SalesSoWise,
+        },
+        {
+          id: "25",
+          name: "Kam Wise",
+          link: "/reports/sales-so-wise/table-view",
+          imgsrc: SalesSoWise,
+        },
+      ],
+    },
+  ];
 
 	// *****************scrollbar types button**********************
 	const handleButtonClick = (index, category) => {
