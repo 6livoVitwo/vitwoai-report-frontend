@@ -621,7 +621,7 @@ const Layout = ({ portalId }) => {
               base: "80px 15px 40px",
               lg: "10px",
             }}
-            height="calc(100vh - 94px)"
+            height="calc(100vh - 55px)"
             overflow="auto"
             pos={{ base: "", lg: "sticky" }}
             top="60px"
