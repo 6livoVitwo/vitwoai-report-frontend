@@ -109,34 +109,49 @@ const CustomTable = ({
     setSelectedReport(selectedValue);
   };
 
-  const loadMoreData = async () => {
-    if (loading || lastPage) {
-      return;
+ const loadMoreData = async () => {
+  if (loading || lastPage) return;
+
+  setLoading(true);
+  console.log("Loading more data...");
+
+  try {
+    const moreData = [...newArray]; 
+
+    setData((prevData) => {
+      const newData = [...prevData, ...moreData];
+      const uniqueData = Array.from(new Set(newData.map((item) => JSON.stringify(item))))
+                                .map((item) => JSON.parse(item));
+      return uniqueData;
+    });
+
+    if (pageInfo !== true) {
+      setPage((prevPage) => prevPage + 1);
+    } else {
+      setLastPage(true);
     }
+  } catch (error) {
+    console.error("Failed to fetch more data:", error);
+  } finally {
+    setLoading(false);
+  }
+};
 
-    setLoading(true);
-    console.log("Current Fetch Api data:", data.length);
 
-    try {
-      const moreData = [...newArray];
+ useEffect(() => {
+   console.log("Data updated:", data);
+ }, [data]);
 
-      setData((prevData) => {
-        const newData = [...prevData, ...moreData];
-        const uniqueData = Array.from(
-          new Set(newData.map((item) => JSON.stringify(item)))
-        ).map((item) => JSON.parse(item));
-         console.log("Data after merge:", uniqueData);
-        return uniqueData;
-      });
-      if (pageInfo != true) {
-        setPage((prevPage) => prevPage + 1);
-      } else {
-        console.log("No more data");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+  console.log("Selected columns:", selectedColumns);
+  console.log("Default columns:", defaultColumns);
+  console.log("Select all:", selectAll);
+  console.log("Column filters:", columnFilters);
+  console.log("Page info:", pageInfo);
+  console.log("Last page:", lastPage);                  
+  console.log("Selected report:", selectedReport);
+  console.log("Loading:", loading);
+  console.log("Data:", data);
+  console.log("Alignment:", alignment);
 
   useEffect(() => {
     const initialColumns = getColumns(data)
@@ -284,18 +299,16 @@ const CustomTable = ({
     }
   };
 
-  useEffect(() => {
-    const container = tableContainerRef.current;
-    if (container) {
-      container.addEventListener("scroll", handleScroll);
-    }
-
-    return () => {
-      if (container) {
-        container.removeEventListener("scroll", handleScroll);
-      }
-    };
-  }, [loading, lastPage]);
+useEffect(() => {
+  const container = tableContainerRef.current;
+  if (container) {
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }
+}, [loading, lastPage]);
+  
+  console.log({ filteredItems, columnFilters, searchQuery, selectedColumns })
+  console.log({ defaultColumns, selectedColumns })
 
   const handleColumnFilterConditionChange = (field, condition) => {
     condition = String(condition);
@@ -355,23 +368,23 @@ const CustomTable = ({
   const formatDate = (date) => {
     return date.toISOString().split("T")[0];
   };
-  const updateArrayValue = (start, end) => {
-    if (start && end) {
-      const formattedStartDate = formatDate(start);
-      const formattedEndDate = formatDate(end);
-      const newArrayValue = [
-        {
-          column: "invoice_date",
-          operator: "between",
-          type: "date",
-          value: [formattedStartDate, formattedEndDate],
-        },
-      ];
-      setDateRange(newArrayValue);
-    } else {
-      setDateRange([]);
-    }
-  };
+  // const updateArrayValue = (start, end) => {
+  //   if (start && end) {
+  //     const formattedStartDate = formatDate(start);
+  //     const formattedEndDate = formatDate(end);
+  //     const newArrayValue = [
+  //       {
+  //         column: "invoice_date",
+  //         operator: "between",
+  //         type: "date",
+  //         value: [formattedStartDate, formattedEndDate],
+  //       },
+  //     ];
+  //     setDateRange(newArrayValue);
+  //   } else {
+  //     setDateRange([]);
+  //   }
+  // };
 
   return (
     <Box bg="white" padding="0px 10px" borderRadius="5px">

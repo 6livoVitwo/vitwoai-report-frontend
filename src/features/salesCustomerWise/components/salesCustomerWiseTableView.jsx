@@ -1,15 +1,15 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import CustomTable from "./salesCustomerWiseCustomTable";
 import { Box, Spinner, Image } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useCustomerWiseSalesQuery } from "../slice/customerWiseSalesApi";
 
-const SalesProductWiseTableView = () => {
+const SalesCustomerWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
 
   const [page, setPage] = useState(0);
-  const [size, setSize] = useState(50);  
+  const [size, setSize] = useState(50);
   const [individualItems, setIndividualItems] = useState([]);
 
   let filters = {
@@ -111,36 +111,30 @@ const SalesProductWiseTableView = () => {
 
   useEffect(() => {
     if (sales?.content?.length) {
-      setIndividualItems((prevItems) => {
-        const newItems = sales.content.flatMap((invoice) => {
-          const flattenedInvoice = flattenObject(invoice);
-          return invoice.items?.length
-            ? invoice.items.map((item) => {
-                const flattenedItem = flattenObject(item, "item.");
-                return { ...flattenedInvoice, ...flattenedItem };
-              })
-            : [flattenedInvoice];
-        });
-
-         console.log("Previous items:", prevItems);
-         console.log("New items:", newItems);
-
-        const uniqueItems = [
-          ...prevItems,
-          ...newItems.filter(
-            (item) =>
-              !prevItems.some(
-                (prevItem) => prevItem.uniqueKey === item.uniqueKey
-              )
-          ),
-        ];
-
-          console.log("Unique items:", uniqueItems);
-
-        return uniqueItems;
+      const newItems = sales.content.flatMap((invoice) => {
+        const flattenedInvoice = flattenObject(invoice);
+        return invoice.items?.length
+          ? invoice.items.map((item) => {
+              const flattenedItem = flattenObject(item, "item.");
+              return { ...flattenedInvoice, ...flattenedItem };
+            })
+          : [flattenedInvoice];
       });
+      setIndividualItems((prevItems) => [...prevItems, ...newItems]);
     }
-  }, [sales, filters.size]);
+  }, [sales]);
+
+  console.log("sales - SalesCustomerWiseTableView", sales);
+  console.log("individual items", individualItems);
+  console.log("page", page);
+  console.log("size", size);
+  console.log("page info", pageInfo);
+  console.log("last page", pageInfo);
+  console.log("is fetching", isFetching);
+  console.log("is loading", isLoading);
+  console.log("table container ref", tableContainerRef);
+  console.log("filters", filters);
+  console.log("auth data", authData);
 
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
@@ -167,8 +161,8 @@ const SalesProductWiseTableView = () => {
           page={page}
           setPage={setPage}
           isFetching={isFetching}
-            pageInfo={pageInfo}
-            setSize={setSize}
+          pageInfo={pageInfo}
+          setSize={setSize}
           alignment={{
             IGST: "right",
             SGST: "right",
@@ -191,4 +185,5 @@ const SalesProductWiseTableView = () => {
   );
 };
 
-export default SalesProductWiseTableView;
+export default SalesCustomerWiseTableView;
+
