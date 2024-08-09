@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import CustomTable from "./purchaseProductWiseCustomTable";
+import CustomTable from "./salesKamWiseCustomTable";
 import { Box, Spinner, Image } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
-import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
+import { useKamWiseSalesQuery } from "../slice/salesKamWiseApi";
 
-const PurchaseProductWiseTableView = () => {
+const SalesKamWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(50);
@@ -13,30 +13,42 @@ const PurchaseProductWiseTableView = () => {
 
   let filters = {
     data: [
-      "items.goodName",
-      "items.goodCode",
-      "SUM(items.goodQty)",
-      "SUM(items.receivedQty)",
-      "SUM(items.totalAmount)",
+      "kam.kamCode",
+      "kam.kamName",
+      "kam.email",
+      "kam.emp_code",
+      "kam.designation",
+      "kam.contact",
+      "invoice_no",
+      "invoice_date",
+      "SUM(due_amount)",
+      "SUM(salesPgi.salesDelivery.totalAmount)",
+      "SUM(salesPgi.totalAmount)",
+      "SUM(quotation.totalAmount)",
+      "SUM(salesOrder.totalAmount)",
+      "SUM(items.qty)",
+      "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
+      "SUM(all_total_amt)",
+      "SUM(items.totalTax)",
     ],
-    groupBy: ["items.goodName"],
+    groupBy: ["kam.kamName", "kam.kamCode"],
     filter: [
       {
-        column: "companyId",
+        column: "company_id",
         operator: "equal",
-        type: "integer",
+        type: "Integer",
         value: 1,
       },
       {
-        column: "branchId",
+        column: "location_id",
         operator: "equal",
-        type: "integer",
+        type: "Integer",
         value: 1,
       },
       {
-        column: "locationId",
+        column: "branch_id",
         operator: "equal",
-        type: "integer",
+        type: "Integer",
         value: 1,
       },
     ],
@@ -48,7 +60,7 @@ const PurchaseProductWiseTableView = () => {
     isLoading,
     isFetching,
     error,
-  } = useProductWisePurchaseQuery({
+  } = useKamWiseSalesQuery({
     filters,
     page,
     size,
@@ -81,12 +93,15 @@ const PurchaseProductWiseTableView = () => {
   };
 
   const extractFields = (data, index) => ({
-   "SL No": index + 1,
-    "Good Name": data["items.goodName"],
-    "Good Code": data["items.goodCode"],
-    "Total Quantity": data["SUM(items.goodQty)"],
-    "Received Quantity": data["SUM(items.receivedQty)"],
-    "Total Amount": data["SUM(items.totalAmount)"],
+    "SL No": index + 1,
+    "Kam Name": data["kam.kamName"],
+    Email: data["kam.email"],
+    "Emp Code": data["kam.emp_code"],
+    Designation: data["kam.designation"],
+    Contact: data["kam.contact"],
+    "Invoice No": data["invoice_no"],
+    Invoice_date: data["invoice_date"],
+    "Due Amount": data["SUM(due_amount)"],
   });
 
   useEffect(() => {
@@ -152,9 +167,9 @@ const PurchaseProductWiseTableView = () => {
           pageInfo={pageInfo}
           setSize={setSize}
           alignment={{
-            "Total Quantity": "right",
-            "Received Quantity": "right",
-            "Total Amount": "right",
+          "SO Total Amount": "right",
+            "SD Total Amount": "right",
+            "Base Price": "right",
           }}
         />
       )}
@@ -162,4 +177,4 @@ const PurchaseProductWiseTableView = () => {
   );
 };
 
-export default PurchaseProductWiseTableView;
+export default SalesKamWiseTableView;

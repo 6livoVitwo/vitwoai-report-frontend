@@ -1,12 +1,12 @@
 import { apiSlice } from "../../apis/apiSlice";
 
-export const purchaseProductWiseApi = apiSlice.injectEndpoints({
+export const salesKamWiseApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    productWisePurchase: builder.query({
+    kamWiseSales: builder.query({
       query: ({ filters, page }) => {
         const body = JSON.stringify({ ...filters, page });
         return {
-          url: `purchase/purchase-groupby-data`,
+          url: `sales/sales-groupby-data`,
           method: "POST",
           body,
           headers: {
@@ -18,4 +18,4 @@ export const purchaseProductWiseApi = apiSlice.injectEndpoints({
   }),
 });
 
-export const { useProductWisePurchaseQuery } = purchaseProductWiseApi;
+export const { useKamWiseSalesQuery } = salesKamWiseApi;

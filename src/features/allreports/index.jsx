@@ -219,7 +219,7 @@ const Allreports = () => {
         {
           id: "25",
           name: "Kam Wise",
-          link: "/reports/sales-so-wise/table-view",
+          link: "/reports/sales-kam-wise/table-view",
           imgsrc: SalesSoWise,
         },
       ],

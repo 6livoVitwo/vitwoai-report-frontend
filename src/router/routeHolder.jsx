@@ -91,6 +91,9 @@ import PurchasePoWiseTableView from "../features/purchasePoWise/components/purch
 import PurchasePoWiseGraphView from "../features/purchasePoWise/components/purchasePoWiseGraphView";
 import Reportdetails from "../features/reportdetails";
 import DashboardNew from "../features/dashboardNew/pages/DashboardNew";
+import SalesKamWise from "../features/salesKamWise/components";
+import SalesKamWiseTableView from "../features/salesKamWise/components/salesKamWiseTableView";
+import SalesKamWiseGraphView from "../features/salesKamWise/components/salesKamWiseGraphView";
 const Dashboard = lazy(() => import("../features/dashboard/components"));
 
 const AllRoutes = () => {
@@ -967,6 +970,41 @@ const AllRoutes = () => {
                   globalLayout={globalStaticFragmennt}
                   portalId={commonPortalRef}>
                   <SalesSoWiseGraphView
+                    globalLayout={setGlobalStaticFragmennt}
+                  />
+                </PortalForLayout>
+              }
+            />
+          </Route>
+
+          <Route
+            path="/reports/sales-kam-wise/"
+            element={
+              <PortalForLayout
+                globalLayout={globalStaticFragmennt}
+                portalId={commonPortalRef}>
+                <SalesKamWise globalLayout={setGlobalStaticFragmennt} />
+              </PortalForLayout>
+            }>
+            <Route
+              path="/reports/sales-kam-wise/table-view"
+              element={
+                <PortalForLayout
+                  globalLayout={globalStaticFragmennt}
+                  portalId={commonPortalRef}>
+                  <SalesKamWiseTableView
+                    globalLayout={setGlobalStaticFragmennt}
+                  />
+                </PortalForLayout>
+              }
+            />
+            <Route
+              path="/reports/sales-kam-wise/graph-view"
+              element={
+                <PortalForLayout
+                  globalLayout={globalStaticFragmennt}
+                  portalId={commonPortalRef}>
+                  <SalesKamWiseGraphView
                     globalLayout={setGlobalStaticFragmennt}
                   />
                 </PortalForLayout>
