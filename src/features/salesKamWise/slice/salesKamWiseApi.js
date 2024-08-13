@@ -1,8 +1,8 @@
 import { apiSlice } from "../../apis/apiSlice";
 
-export const salesVerticalWiseApi = apiSlice.injectEndpoints({
+export const salesKamWiseApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    verticalWiseSales: builder.query({
+    kamWiseSales: builder.query({
       query: ({ filters, page }) => {
         const body = JSON.stringify({ ...filters, page });
         return {
@@ -18,5 +18,4 @@ export const salesVerticalWiseApi = apiSlice.injectEndpoints({
   }),
 });
 
-export const { useVerticalWiseSalesQuery } = salesVerticalWiseApi;
-
+export const { useKamWiseSalesQuery } = salesKamWiseApi;

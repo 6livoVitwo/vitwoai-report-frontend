@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import CustomTable from "./salesProductWiseCustomTable";
 import { Box, Spinner, Image } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
@@ -7,9 +7,12 @@ import { useProductWiseSalesQuery } from "../slice/salesProductWiseApi";
 
 const SalesProductWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(50);
+  const [individualItems, setIndividualItems] = useState([]);
 
-  const [filters, setFilters] = useState({
-    data: [
+  let filters = {
+     data: [
       "items.itemName",
       "SUM(salesPgi.salesDelivery.totalAmount)",
       "SUM(salesPgi.totalAmount)",
@@ -41,23 +44,17 @@ const SalesProductWiseTableView = () => {
       },
     ],
     page: 0,
-    size: 50,
-  });
-
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [individualItems, setIndividualItems] = useState([]);
-  const [loadingMore, setLoadingMore] = useState(false);
-
+    size: 20,
+  };
   const {
     data: sales,
     isLoading,
     isFetching,
-    isError,
     error,
   } = useProductWiseSalesQuery({
     filters,
     page,
+    size,
     authDetails: authData.authDetails,
   });
 
@@ -100,84 +97,66 @@ const SalesProductWiseTableView = () => {
 
   useEffect(() => {
     if (sales?.content?.length) {
-      setIndividualItems((prevItems) => {
-        const newItems = sales.content.flatMap((invoice) => {
-          const flattenedInvoice = flattenObject(invoice);
-          return invoice.items?.length
-            ? invoice.items.map((item) => {
-                const flattenedItem = flattenObject(item, "item.");
-                return { ...flattenedInvoice, ...flattenedItem };
-              })
-            : [flattenedInvoice];
-        });
-
-        const uniqueItems = [
-          ...prevItems,
-          ...newItems.filter(
-            (item) =>
-              !prevItems.some(
-                (prevItem) => prevItem.uniqueKey === item.uniqueKey
-              )
-          ),
-        ];
-
-        return uniqueItems;
+      const newItems = sales.content.flatMap((invoice) => {
+        const flattenedInvoice = flattenObject(invoice);
+        return invoice.items?.length
+          ? invoice.items.map((item) => {
+              const flattenedItem = flattenObject(item, "item.");
+              return { ...flattenedInvoice, ...flattenedItem };
+            })
+          : [flattenedInvoice];
       });
-      setHasMore(sales.content.length === filters.size); 
-      setLoadingMore(false);
-    } else {
-      setHasMore(false);
-      setLoadingMore(false);
+      setIndividualItems((prevItems) => [...prevItems, ...newItems]);
     }
-  }, [sales, filters.size]);
+  }, [sales]);
 
-  const handleScroll = useCallback(() => {
-    if (!loadingMore && hasMore && tableContainerRef.current) {
-      const bottom =
-        tableContainerRef.current.scrollHeight ===
-        tableContainerRef.current.scrollTop +
-          tableContainerRef.current.clientHeight;
-      if (bottom) {
-        setLoadingMore(true);
-        setPage((prevPage) => prevPage + 1);
-      }
-    }
-  }, [hasMore, loadingMore]);
-
-  useEffect(() => {
-    const container = tableContainerRef.current;
-    if (container) {
-      container.addEventListener("scroll", handleScroll);
-      return () => container.removeEventListener("scroll", handleScroll);
-    }
-  }, [handleScroll]);
+  if (isLoading) {
+    return (
+      <Box
+        height="calc(100vh - 75px)"
+        width="100%"
+        display="flex"
+        alignItems="center"
+        justifyContent="center">
+        <Spinner
+          thickness="4px"
+          speed="0.65s"
+          emptyColor="gray.200"
+          color="blue.500"
+          size="xl"
+        />
+      </Box>
+    );
+  }
+  if (error) {
+    return (
+      <Box
+        bg="white"
+        width="100%"
+        height="calc(100vh - 103px)"
+        display="flex"
+        alignItems="center"
+        justifyContent="center">
+        <Image src={NoDataFound} alt="No Data Available" />
+      </Box>
+    );
+  }
+  const newArray = individualItems.map((data, index) =>
+    extractFields(data, index)
+  );
+  // console.log(sales, 'main data');
+  // console.log(newArray, 'newArray');
 
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
-      {isLoading && !isFetching ? (
-        <Box
-          height="calc(100vh - 75px)"
-          width="100%"
-          display="flex"
-          alignItems="center"
-          justifyContent="center">
-          <Spinner
-            thickness="4px"
-            speed="0.65s"
-            emptyColor="gray.200"
-            color="blue.500"
-            size="xl"
-          />
-        </Box>
-      ) : individualItems.length > 0 ? (
+      {individualItems.length > 0 && (
         <CustomTable
-          newArray={individualItems.map((item, index) =>
-            extractFields(item, index)
-          )}
+          newArray={newArray}
           page={page}
           setPage={setPage}
           isFetching={isFetching}
           pageInfo={pageInfo}
+          setSize={setSize}
           alignment={{
             "Sales Delivery Total Amount": "right",
             "Sales Pgi Total Amount": "right",
@@ -188,16 +167,6 @@ const SalesProductWiseTableView = () => {
             "Total Amount": "right",
           }}
         />
-      ) : (
-        <Box
-          bg="white"
-          width="100%"
-          height="calc(100vh - 103px)"
-          display="flex"
-          alignItems="center"
-          justifyContent="center">
-          <Image src={NoDataFound} alt="No Data Available" />
-        </Box>
       )}
     </Box>
   );

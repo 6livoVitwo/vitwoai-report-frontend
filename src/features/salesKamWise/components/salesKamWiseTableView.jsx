@@ -1,21 +1,24 @@
 import React, { useState, useEffect, useRef } from "react";
-import CustomTable from "./salesSoWiseCustomTable";
+import CustomTable from "./salesKamWiseCustomTable";
 import { Box, Spinner, Image } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
-import { useSoWiseSalesQuery } from "../slice/salesSoWiseApi";
+import { useKamWiseSalesQuery } from "../slice/salesKamWiseApi";
 
-const SalesSoWiseTableView = () => {
+const SalesKamWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(50);
   const [individualItems, setIndividualItems] = useState([]);
 
   let filters = {
-     data: [
-      "customer.trade_name",
-      "customer.customer_code",
-      "salesOrder.so_number",
+    data: [
+      "kam.kamCode",
+      "kam.kamName",
+      "kam.email",
+      "kam.emp_code",
+      "kam.designation",
+      "kam.contact",
       "invoice_no",
       "invoice_date",
       "SUM(due_amount)",
@@ -28,7 +31,7 @@ const SalesSoWiseTableView = () => {
       "SUM(all_total_amt)",
       "SUM(items.totalTax)",
     ],
-    groupBy: ["salesOrder.so_id"],
+    groupBy: ["kam.kamName", "kam.kamCode"],
     filter: [
       {
         column: "company_id",
@@ -57,7 +60,7 @@ const SalesSoWiseTableView = () => {
     isLoading,
     isFetching,
     error,
-  } = useSoWiseSalesQuery({
+  } = useKamWiseSalesQuery({
     filters,
     page,
     size,
@@ -91,23 +94,14 @@ const SalesSoWiseTableView = () => {
 
   const extractFields = (data, index) => ({
     "SL No": index + 1,
-    "Trade Name": data["customer.trade_name"],
-    "Custom Code": data["customer.customer_code"],
-    "SO Total Amount": data["SUM(salesOrder.totalAmount)"],
-    "SD Total Amount": data["SUM(salesPgi.salesDelivery.totalAmount)"],
-    "Base Price":
-      data[
-        "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)"
-      ],
+    "Kam Name": data["kam.kamName"],
+    Email: data["kam.email"],
+    "Emp Code": data["kam.emp_code"],
+    Designation: data["kam.designation"],
+    Contact: data["kam.contact"],
     "Invoice No": data["invoice_no"],
-    "SO No": data["salesOrder.so_number"],
     Invoice_date: data["invoice_date"],
-    "Item Quantity": data["SUM(items.qty)"],
-    "Total Amount": data["SUM(all_total_amt)"],
-    "Sales PGI Total Amount": data["SUM(salesPgi.totalAmount)"],
-    "Sales Quotation Amount": data["SUM(quotation.totalAmount)"],
     "Due Amount": data["SUM(due_amount)"],
-    "Total Tax": data["SUM(items.totalTax)"],
   });
 
   useEffect(() => {
@@ -183,4 +177,4 @@ const SalesSoWiseTableView = () => {
   );
 };
 
-export default SalesSoWiseTableView;
+export default SalesKamWiseTableView;

@@ -32,7 +32,6 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
-  IconButton,
 } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
@@ -42,12 +41,10 @@ import { saveAs } from "file-saver";
 import { faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { DownloadIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
-import { Tooltip } from "chart.js";
 
-const CustomTable = ({ setPage, newArray, setDateRange, alignment }) => {
+const CustomTable = ({ setPage, newArray, alignment }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
@@ -56,8 +53,6 @@ const CustomTable = ({ setPage, newArray, setDateRange, alignment }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [columnFilters, setColumnFilters] = useState({});
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
   const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
 
@@ -108,25 +103,15 @@ const CustomTable = ({ setPage, newArray, setDateRange, alignment }) => {
   };
 
   const loadMoreData = async () => {
-    if (loading || lastPage) {
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const moreData = [...newArray];
-
+    if (!loading) {
+      setLoading(true);
+      // Fetch or generate new data
+      const moreData = [...newArray]; // Assuming newArray contains new data
       setData((prevData) => {
-        const newData = [...prevData, ...moreData];
-        const uniqueData = Array.from(
-          new Set(newData.map((item) => JSON.stringify(item)))
-        ).map((item) => JSON.parse(item));
+        const uniqueData = [...new Set([...prevData, ...moreData])];
         return uniqueData;
       });
-
       setPage((prevPage) => prevPage + 1);
-    } finally {
       setLoading(false);
     }
   };
@@ -205,7 +190,7 @@ const CustomTable = ({ setPage, newArray, setDateRange, alignment }) => {
   };
 
   const filteredItems = useMemo(() => {
-    let filteredData = [...data];
+    let filteredData = [...newArray];
     Object.keys(columnFilters).forEach((field) => {
       const filter = columnFilters[field];
       filteredData = filteredData.filter((item) => {
@@ -281,13 +266,8 @@ const CustomTable = ({ setPage, newArray, setDateRange, alignment }) => {
     const container = tableContainerRef.current;
     if (container) {
       container.addEventListener("scroll", handleScroll);
+      return () => container.removeEventListener("scroll", handleScroll);
     }
-
-    return () => {
-      if (container) {
-        container.removeEventListener("scroll", handleScroll);
-      }
-    };
   }, [loading, lastPage]);
 
   const handleColumnFilterConditionChange = (field, condition) => {
@@ -346,36 +326,10 @@ const CustomTable = ({ setPage, newArray, setDateRange, alignment }) => {
     });
   };
 
-  const handleStartDateChange = (date) => {
-    setStartDate(date);
-    updateArrayValue(date, endDate);
-  };
-
-  const handleEndDateChange = (date) => {
-    setEndDate(date);
-    updateArrayValue(startDate, date);
-  };
-
-  const formatDate = (date) => {
-    return date.toISOString().split("T")[0];
-  };
-  const updateArrayValue = (start, end) => {
-    if (start && end) {
-      const formattedStartDate = formatDate(start);
-      const formattedEndDate = formatDate(end);
-      const newArrayValue = [
-        {
-          column: "invoice_date",
-          operator: "between",
-          type: "date",
-          value: [formattedStartDate, formattedEndDate],
-        },
-      ];
-      setDateRange(newArrayValue);
-    } else {
-      setDateRange([]);
-    }
-  };
+  // console.log(data, 'data');
+  console.log(newArray, "newArray");
+  console.log(selectedColumns, "selectedColumns");
+  console.log(filteredItems, "filteredItems");
 
   return (
     <Box bg="white" padding="0px 10px" borderRadius="5px">
@@ -424,9 +378,6 @@ const CustomTable = ({ setPage, newArray, setDateRange, alignment }) => {
             placeholder="Select Sales Type"
             style={{ width: "200px" }}
           />
-          {/* <Button onClick={exportToExcel} ml='4'>
-						<FontAwesomeIcon icon={faFileExcel} /> Export to Excel
-					</Button> */}
           <Button
             onClick={onOpen}
             padding="15px"
@@ -738,9 +689,6 @@ const CustomTable = ({ setPage, newArray, setDateRange, alignment }) => {
         size="lg"
         borderRadius="full"
         boxShadow="lg"
-        onClick={() => {
-          console.log("Graph button clicked");
-        }}
         fontSize="2xl"
         width="50px"
         height="50px"
