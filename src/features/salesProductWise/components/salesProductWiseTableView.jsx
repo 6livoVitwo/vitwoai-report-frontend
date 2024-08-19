@@ -12,7 +12,7 @@ const SalesProductWiseTableView = () => {
   const [individualItems, setIndividualItems] = useState([]);
 
   let filters = {
-     data: [
+    data: [
       "items.itemName",
       "SUM(salesPgi.salesDelivery.totalAmount)",
       "SUM(salesPgi.totalAmount)",
@@ -21,26 +21,45 @@ const SalesProductWiseTableView = () => {
       "SUM(items.qty)",
       "SUM(items.basePrice - items.totalDiscountAmt)",
       "SUM(all_total_amt)",
+      "invoice_date",
     ],
     groupBy: ["items.itemName"],
     filter: [
       {
         column: "company_id",
         operator: "equal",
-        type: "Integer",
-        value: 1,
-      },
-      {
-        column: "location_id",
-        operator: "equal",
-        type: "Integer",
+        type: "integer",
         value: 1,
       },
       {
         column: "branch_id",
         operator: "equal",
-        type: "Integer",
+        type: "integer",
         value: 1,
+      },
+      {
+        column: "location_id",
+        operator: "equal",
+        type: "integer",
+        value: 1,
+      },
+      {
+        column: "invoice_date",
+        operator: "between",
+        type: "date",
+        value: ["2023-10-15", "2023-10-16"],
+      },
+      {
+        column: "invoice_no",
+        operator: "like",
+        type: "string",
+        value: "INV-0000000010",
+      },
+      {
+        column: "customer.trade_name",
+        operator: "like",
+        type: "string",
+        value: "Mindtree",
       },
     ],
     page: 0,
@@ -83,11 +102,19 @@ const SalesProductWiseTableView = () => {
     return result;
   };
 
+    const formatDate = (date) => {
+      if (!date) return "";
+      const [year, month, day] = date.split("-");
+      return `${day}-${month}-${year}`;
+    };
+
   const extractFields = (data, index) => ({
     "SL No": index + 1,
     "Item Name": data["items.itemName"],
-    "Sales Delivery Total Amount": data["SUM(salesPgi.salesDelivery.totalAmount)"],
+    "Sales Delivery Total Amount":
+      data["SUM(salesPgi.salesDelivery.totalAmount)"],
     "Sales Pgi Total Amount": data["SUM(salesPgi.totalAmount)"],
+    "Invoice Date": formatDate(data["invoice_date"]),
     Quotation: data["SUM(salesPgi.totalAmount)"],
     "Sales Order": data["SUM(salesOrder.totalAmount)"],
     "Total Qty": data["SUM(items.qty)"],

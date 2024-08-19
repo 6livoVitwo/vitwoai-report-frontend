@@ -32,6 +32,11 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverHeader,
+  PopoverBody,
 } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
@@ -43,6 +48,8 @@ import { DownloadIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
+import ReactDatePicker from "react-datepicker";
+
 
 const CustomTable = ({ setPage, newArray, alignment }) => {
   const [data, setData] = useState([...newArray]);
@@ -55,6 +62,8 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
   const [columnFilters, setColumnFilters] = useState({});
   const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null); 
 
   const toast = useToast();
   const tableContainerRef = useRef(null);
@@ -115,6 +124,8 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
       setLoading(false);
     }
   };
+
+  
 
   useEffect(() => {
     const initialColumns = getColumns(data)
@@ -189,6 +200,10 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     debouncedSearchQuery(e.target.value);
   };
 
+  const parseDate = (dateString) => {
+    return new Date(Date.parse(dateString));
+  };
+
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray];
     Object.keys(columnFilters).forEach((field) => {
@@ -233,8 +248,20 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
       });
     }
 
+if (startDate && endDate) {
+  filteredData = filteredData.filter((item) => {
+    const rawDate = item["Invoice Date"];
+    const date = parseDate(rawDate);
+    console.log("Start Date:", startDate);
+    console.log("End Date:", endDate);
+    console.log("Raw Item Date:", rawDate);
+    console.log("Item Date:", date);
+    return date >= startDate && date <= endDate;
+  });
+}
+
     return filteredData;
-  }, [data, searchQuery, columnFilters]);
+  }, [data, searchQuery, columnFilters, startDate, endDate]);
 
   const formatHeader = (header) => {
     header = header.trim();
@@ -281,6 +308,13 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     }));
   };
 
+    const handleApplyFilters = () => {
+      setPage(1);
+      setData([]);
+      loadMoreData();
+      console.log("Working");
+    };
+
   const handleColumnFilterValueChange = (field, value) => {
     let type = typeof value;
     if (type === "object" && value instanceof Date) {
@@ -326,9 +360,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     });
   };
 
-  // console.log(data, 'data');
   console.log(newArray, "newArray");
-  console.log(selectedColumns, "selectedColumns");
   console.log(filteredItems, "filteredItems");
 
   return (
@@ -378,6 +410,23 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
             placeholder="Select Sales Type"
             style={{ width: "200px" }}
           />
+          <Box display="flex" justifyContent="space-between" gap="10px">
+            <ReactDatePicker
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+              dateFormat="dd-MM-yyyy" 
+              placeholderText="Select start date"
+            />
+            <ReactDatePicker
+              selected={endDate}
+              onChange={(date) => setEndDate(date)}
+              dateFormat="dd-MM-yyyy"
+              placeholderText="Select end date"
+            />
+
+            <Button onClick={handleApplyFilters}>Apply Filters</Button>
+          </Box>
+
           <Button
             onClick={onOpen}
             padding="15px"
@@ -635,6 +684,58 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                             fontFamily="Poppins, sans-serif"
                             color="black">
                             {formatHeader(column)}
+                            <Popover>
+                              <PopoverTrigger>
+                                <Button
+                                  variant="link"
+                                  colorScheme="teal"
+                                  size="sm">
+                                  <FontAwesomeIcon icon={faChartSimple} />
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent>
+                                <PopoverHeader>
+                                  Filter by {formatHeader(column)}
+                                </PopoverHeader>
+                                <PopoverBody>
+                                  <Input
+                                    placeholder="Value"
+                                    mb={2}
+                                    onChange={(e) =>
+                                      handleColumnFilterValueChange(
+                                        column,
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                  <Select
+                                    placeholder="Condition"
+                                    mb={2}
+                                    onChange={(e) =>
+                                      handleColumnFilterConditionChange(
+                                        column,
+                                        e.target.value
+                                      )
+                                    }>
+                                    <option value="like">Contains</option>
+                                    <option value="notLike">
+                                      Does not contain
+                                    </option>
+                                    <option value="greaterThan">
+                                      Greater than
+                                    </option>
+                                    <option value="greaterThanOrEqual">
+                                      Greater than or equal to
+                                    </option>
+                                    <option value="lessThan">Less than</option>
+                                    <option value="lessThanOrEqual">
+                                      Less than or equal to
+                                    </option>
+                                    <option value="between">Between</option>
+                                  </Select>
+                                </PopoverBody>
+                              </PopoverContent>
+                            </Popover>
                           </Th>
                         )}
                       </Draggable>
