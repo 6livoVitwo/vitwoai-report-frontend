@@ -25,6 +25,7 @@ const NivoPieChart = ({
     }
   );
 
+  
   console.log("Filtered chartData", chartData);
   console.log(
     "Data source used:",
