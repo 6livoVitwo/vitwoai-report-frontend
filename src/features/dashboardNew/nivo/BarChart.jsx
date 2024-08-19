@@ -254,3 +254,4 @@ const BarChart = ({ data = barChartData, liveData = [], variant = 'grouped-verti
 };
 
 export default BarChart;
+

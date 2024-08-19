@@ -11,11 +11,13 @@ import { addWidget, updateWidget } from '../slice/graphSlice';
 import { useSelector } from 'react-redux';
 import BarChart from '../nivo/BarChart';
 import NivoPieChart from '../nivo/PieChart';
+import LineChart from '../nivo/LineChart';
 import AreaBump from '../nivo/AreaBump';
 
 const chartComponents = {
     bar: BarChart,
     pie: NivoPieChart,
+    line: LineChart,
     areaBump: AreaBump,
     // Add other chart components here if needed
 };
@@ -119,6 +121,91 @@ const ChartConfiguration = ({ ...props }) => {
         },
       ],
       pie: [
+        {
+          wise: "sales",
+          endpoint: "/sales/sales-graph-two",
+          body: {
+            xaxis: "items.goodsItems.goodsGroup.goodGroupName",
+            yaxis: [
+              "salesPgi.salesDelivery.totalAmount",
+              "salesPgi.totalAmount",
+              "quotation.totalAmount",
+              "salesOrder.totalAmount",
+              "all_total_amt",
+            ],
+            groupBy: ["items.goodsItems.goodsGroup"],
+            valuetype: "count",
+            filter: [
+              {
+                column: "company_id",
+                operator: "equal",
+                type: "Integer",
+                value: 1,
+              },
+              {
+                column: "invoice_date",
+                operator: "between",
+                type: "date",
+                value: [formDate, toDate],
+              },
+              {
+                column: "location_id",
+                operator: "equal",
+                type: "Integer",
+                value: 1,
+              },
+              {
+                column: "branch_id",
+                operator: "equal",
+                type: "Integer",
+                value: 1,
+              },
+            ],
+          },
+        },
+        {
+          wise: "purchase",
+          endpoint: "/purchase/purchase-graph-two",
+          body: {
+            xaxis: "items.goodsItems.goodsGroup.goodGroupName",
+            yaxis: [
+              "grnInvoice.grnSubTotal",
+              "grnInvoice.grnTotalCgst",
+              "grnInvoice.grnTotalIgst",
+              "grnInvoice.grnTotalAmount",
+            ],
+            groupBy: ["items.goodsItems.goodsGroup"],
+            valuetype: "sum",
+            filter: [
+              {
+                column: "companyId",
+                operator: "equal",
+                type: "integer",
+                value: 1,
+              },
+              {
+                column: "postingDate",
+                operator: "between",
+                type: "date",
+                value: [formDate, toDate],
+              },
+              {
+                column: "branchId",
+                operator: "equal",
+                type: "integer",
+                value: 1,
+              },
+              {
+                column: "locationId",
+                operator: "equal",
+                type: "integer",
+                value: 1,
+              },
+            ],
+          },
+        },
+      ],
+      line: [
         {
           wise: "sales",
           endpoint: "/sales/sales-graph-two",
