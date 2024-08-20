@@ -1,6 +1,6 @@
 import React from 'react'
 import { ResponsiveStream } from "@nivo/stream";
-import { streamChartData } from "../chartData";
+import { streamChartData } from "../data/chartData";
 
 
 const StreamChart = ({ data = streamChartData }) => {

@@ -49,6 +49,7 @@ const LineChart = ({ data = [], liveData = [] }) => {
       data={chartData}
       margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
       xScale={{ type: "point" }}
+      colors={{ scheme: "purple_blue" }}
       yScale={{
         type: "linear",
         min: "auto",

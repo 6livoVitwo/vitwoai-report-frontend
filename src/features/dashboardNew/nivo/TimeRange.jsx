@@ -1,6 +1,6 @@
 import { ResponsiveTimeRange } from "@nivo/calendar";
 import React from "react";
-import { timeRangeChartData } from "../chartData";
+import { timeRangeChartData } from "../data/chartData";
 
 const TimeRange = ({ data = timeRangeChartData }) => {
   return (

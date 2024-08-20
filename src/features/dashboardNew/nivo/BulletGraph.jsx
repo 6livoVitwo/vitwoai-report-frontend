@@ -1,9 +1,10 @@
 import { ResponsiveBullet } from "@nivo/bullet";
 import React from "react";
-import { bulletChartData } from "../chartData";
+import { bulletChartData } from "../data/chartData";
 
 
 const BulletGraph = ({ data = bulletChartData }) => {
+  console.log("BulletGraph data", data);
   return (
     <ResponsiveBullet
       data={data}

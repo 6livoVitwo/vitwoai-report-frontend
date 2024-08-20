@@ -1,6 +1,6 @@
 import { ResponsiveSwarmPlot } from "@nivo/swarmplot";
 import React from "react";
-import { swarmPlotChartData } from "../chartData";
+import { swarmPlotChartData } from "../data/chartData";
 
 const SwarmPlot = ({ data = swarmPlotChartData }) => {
   return (

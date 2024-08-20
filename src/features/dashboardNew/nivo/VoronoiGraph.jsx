@@ -1,6 +1,6 @@
 import { ResponsiveVoronoi } from "@nivo/voronoi";
 import React from "react";
-import { voronoiChartData } from "../chartData";
+import { voronoiChartData } from "../data/chartData";
 
 
 const VoronoiGraph = ({ data = voronoiChartData }) => {

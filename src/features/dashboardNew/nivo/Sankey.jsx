@@ -1,6 +1,6 @@
 import { ResponsiveSankey } from "@nivo/sankey";
 import React from "react";
-import { sankeyChartData } from "../chartData";
+import { sankeyChartData } from "../data/chartData";
 
 const Sankey = ({ data = sankeyChartData }) => {
   return (

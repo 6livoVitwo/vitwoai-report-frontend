@@ -1,7 +1,7 @@
 
 import { ResponsiveCirclePacking } from "@nivo/circle-packing";
 import React from 'react'
-import { circlePackingChartData } from "../chartData";
+import { circlePackingChartData } from "../data/chartData";
 
 
 const CirclePacking = ({ data = circlePackingChartData }) => {

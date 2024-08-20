@@ -1,6 +1,6 @@
 import { ResponsiveChord } from "@nivo/chord";
 import React from "react";
-import { chordChartData } from "../chartData";
+import { chordChartData } from "../data/chartData";
 
 
 const ChordChart = ({ data = chordChartData }) => {

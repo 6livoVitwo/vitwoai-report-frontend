@@ -20,17 +20,6 @@ import Sunburst from '../nivoCharts/Sunburst'
 import TreeChart from '../nivoCharts/TreeChart'
 import TreeMap from '../nivoCharts/TreeMap'
 import WaffleChart from '../nivoCharts/WaffleChart'
-import StreamChart from '../nivoCharts/StreamChart'
-import TimeRange from "../nivoCharts/TimeRange"
-import Sankey from '../nivoCharts/Sankey'
-import ChoroplethChart from '../nivoCharts/ChoroplethChart'
-import ChordChart from '../nivoCharts/ChordChart'
-import NetworkGraph from '../nivoCharts/NetworkGraph'
-import ParallelCoordinate from '../nivoCharts/ParallelCoordinate'
-import SwarmPlot from '../nivoCharts/SwarmPlot'
-import VoronoiGraph from "../nivoCharts/VoronoiGraph"
-import CirclePacking from "../nivoCharts/CirclePacking"
-import BulletGraph from "../nivoCharts/BulletGraph"
   
 const GraphBaseView = ({ singleGraphData = {}, setIsVariant = () => { } }) => {
   return (
@@ -54,9 +43,6 @@ const GraphBaseView = ({ singleGraphData = {}, setIsVariant = () => { } }) => {
               border: "1px solid #c4c4c4",
             }}
             mb={3}>
-            {/* <Heading mt={4} mb={4}>
-                      Line Chart Graph
-                    </Heading> */}
             <Box
               display="flex"
               justifyContent="space-between"
@@ -78,19 +64,6 @@ const GraphBaseView = ({ singleGraphData = {}, setIsVariant = () => { } }) => {
                   fontWeight: 600,
                   color: "black",
                 }}>
-                {/* <a href="#customized-data">
-                                    <Button
-                                        variant="outline"
-                                        style={{
-                                            padding: "15px 10px",
-                                            fontSize: "12px",
-                                            color: "#718296",
-                                        }}
-                                        mr={3}>
-                                        <FiSettings style={{ marginRight: "6px" }} />
-                                        Customized Data
-                                    </Button>
-                                </a> */}
                 <Button
                   variant="outline"
                   style={{
@@ -118,7 +91,6 @@ const GraphBaseView = ({ singleGraphData = {}, setIsVariant = () => { } }) => {
             <Box sx={{ height: "300px" }}>
               {singleGraphData.type === "line" && <LineChart />}
               {singleGraphData.type === "bar" && <BarChart />}
-              {/* {singleGraphData.type === "bar" && <DivergingStackedBarChart />} */}
               {singleGraphData.type === "funnel" && <FunnelChart />}
               {singleGraphData.type === "pie" && <NivoPieChart />}
               {singleGraphData.type === "areaBump" && <AreaBump />}
@@ -134,21 +106,7 @@ const GraphBaseView = ({ singleGraphData = {}, setIsVariant = () => { } }) => {
               {singleGraphData.type === "tree" && <TreeChart />}
               {singleGraphData.type === "treeMap" && <TreeMap />}
               {singleGraphData.type === "waffle" && <WaffleChart />}
-              {singleGraphData.type === "stream" && <StreamChart />}
-              {singleGraphData.type === "timeRange" && <TimeRange />}
-              {singleGraphData.type === "sankey" && <Sankey />}
-              {singleGraphData.type === "chord" && <ChordChart />}
-              {singleGraphData.type === "network" && <NetworkGraph />}
-              {singleGraphData.type === "parallelCoordinates" && (
-                <ParallelCoordinate />
-              )}
-              {singleGraphData.type === "swarmPlot" && <SwarmPlot />}
-              {singleGraphData.type === "voronoi" && <VoronoiGraph />}
-              {singleGraphData.type === "circlePacking" && <CirclePacking />}
-              {singleGraphData.type === "bullet" && <BulletGraph />}
-              {singleGraphData.type === "choropleth" && <ChoroplethChart />}
             </Box>
-            {/* <LineGraph id="lineChartShow" /> */}
           </Box>
         </Box>
         <Box

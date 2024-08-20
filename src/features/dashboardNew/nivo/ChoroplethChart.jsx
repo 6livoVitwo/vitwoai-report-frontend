@@ -1,6 +1,6 @@
 import { ResponsiveChoropleth } from "@nivo/geo";
 import React from "react";
-import { choroplethChartData } from "../chartData";
+import { choroplethChartData } from "../data/chartData";
 
 const ChoroplethChart = ({ data = choroplethChartData }) => {
   const features = ["id"];
