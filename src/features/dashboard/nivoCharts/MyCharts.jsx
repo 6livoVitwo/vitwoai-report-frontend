@@ -16,17 +16,6 @@ import Sunburst from "./Sunburst";
 import TreeChart from "./TreeChart";
 import TreeMap from "./TreeMap";
 import WaffleChart from "./WaffleChart";
-import StreamChart from "./StreamChart";
-import TimeRange from "./TimeRange";
-import Sankey from "./Sankey";
-import ChordChart from "./ChordChart";
-import NetworkGraph from "./NetworkGraph";
-import ParallelCoordinate from "./ParallelCoordinate";
-import SwarmPlot from "./SwarmPlot";
-import VoronoiGraph from "./VoronoiGraph";
-import CirclePacking from "./CirclePacking";
-import BulletGraph from "./BulletGraph";
-import ChoroplethChart from "./ChoroplethChart"
 
 const MyCharts = ({ chart }) => {
   const { type, data } = chart;
@@ -67,31 +56,8 @@ const MyCharts = ({ chart }) => {
     chartData = <TreeMap data={data} />;
   } else if (type === "waffle") {
     chartData = <WaffleChart data={data} />;
-  } else if (type === "stream") {
-    chartData = <StreamChart data={data} />;
-  } else if (type === "timeRange") {
-    chartData = <TimeRange data={data} />;
-  } else if (type === "sankey") {
-    chartData = <Sankey data={data} />;
-  } else if (type === "chord") {
-    chartData = <ChordChart data={data} />;
-  } else if (type === "network") {
-    chartData = <NetworkGraph data={data} />;
-  } else if (type === "parallelCoordinates") {
-    chartData = <ParallelCoordinate data={data} />;
-  } else if (type === "swarmPlot") {
-    chartData = <SwarmPlot data={data} />;
-  } else if (type === "voronoi") {
-    chartData = <VoronoiGraph data={data} />;
-  } else if (type === "circlePacking") {
-    chartData = <CirclePacking data={data} />;
-  } else if (type === "bullet") {
-    chartData = <BulletGraph data={data} />;
-  } else if (type === "choropleth") {
-        chartData = <ChoroplethChart data={data} />;
-      }
-
-    return <>{chartData}</>;
+  }
+  return <>{chartData}</>;
 };
 
 export default MyCharts;

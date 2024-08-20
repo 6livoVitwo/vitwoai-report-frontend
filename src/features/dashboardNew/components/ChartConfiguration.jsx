@@ -10,10 +10,14 @@ import { useDispatch } from 'react-redux';
 import { addWidget, updateWidget } from '../slice/graphSlice';
 import { useSelector } from 'react-redux';
 import BarChart from '../nivo/BarChart';
+import NivoPieChart from '../nivo/PieChart';
+import LineChart from '../nivo/LineChart';
 import AreaBump from '../nivo/AreaBump';
 
 const chartComponents = {
     bar: BarChart,
+    pie: NivoPieChart,
+    line: LineChart,
     areaBump: AreaBump,
     // Add other chart components here if needed
 };
@@ -31,111 +35,270 @@ const ChartConfiguration = ({ ...props }) => {
     const currentWidgets = useSelector(state => state.dashboard.widgets);
 
     const [chartApiConfig, setChartApiConfig] = useState({
-        bar: [
-            {
-                wise: 'sales',
-                endpoint: '/sales/sales-graph-two',
-                body: {
-                    "xaxis": "items.goodsItems.goodsGroup.goodGroupName",
-                    "yaxis": [
-                        "salesPgi.salesDelivery.totalAmount",
-                        "salesPgi.totalAmount",
-                        "quotation.totalAmount",
-                        "salesOrder.totalAmount",
-                        "all_total_amt"
-                    ],
-                    "groupBy": [
-                        "items.goodsItems.goodsGroup"
-                    ],
-                    "valuetype": "count",
-                    "filter": [
-                        {
-                            "column": "company_id",
-                            "operator": "equal",
-                            "type": "Integer",
-                            "value": 1
-                        },
-                        {
-                            "column": "invoice_date",
-                            "operator": "between",
-                            "type": "date",
-                            "value": [formDate, toDate]
-                        },
-                        {
-                            "column": "location_id",
-                            "operator": "equal",
-                            "type": "Integer",
-                            "value": 1
-                        },
-                        {
-                            "column": "branch_id",
-                            "operator": "equal",
-                            "type": "Integer",
-                            "value": 1
-                        }
-                    ]
-                },
-            },
-            {
-                wise: 'purchase',
-                endpoint: '/purchase/purchase-graph-two',
-                body: {
-                    "xaxis": "items.goodsItems.goodsGroup.goodGroupName",
-                    "yaxis": [
-                        "grnInvoice.grnSubTotal",
-                        "grnInvoice.grnTotalCgst",
-                        "grnInvoice.grnTotalIgst",
-                        "grnInvoice.grnTotalAmount"
-                    ],
-                    "groupBy": [
-                        "items.goodsItems.goodsGroup"
-                    ],
-                    "valuetype": "sum",
-                    "filter": [
-                        {
-                            "column": "companyId",
-                            "operator": "equal",
-                            "type": "integer",
-                            "value": 1
-                        },
-                        {
-                            "column": "postingDate",
-                            "operator": "between",
-                            "type": "date",
-                            "value": [formDate, toDate]
-                        },
-                        {
-                            "column": "branchId",
-                            "operator": "equal",
-                            "type": "integer",
-                            "value": 1
-                        },
-                        {
-                            "column": "locationId",
-                            "operator": "equal",
-                            "type": "integer",
-                            "value": 1
-                        }
-                    ]
-                }
-            }
-        ],
-        pie: [{
-            wise: 'sales',
-            endpoint: '/sales/sales-graph-pie',
-            body: {
-                // JSON body for pie chart
-            },
-        }],
-        areaBump: [
-            {
-                wise: 'sales',
-                endpoint: '/sales/sales-graph-two',
-                body: {
-                    // JSON body for area bump chart
-                },
-            }
-        ],
+      bar: [
+        {
+          wise: "sales",
+          endpoint: "/sales/sales-graph-two",
+          body: {
+            xaxis: "items.goodsItems.goodsGroup.goodGroupName",
+            yaxis: [
+              "salesPgi.salesDelivery.totalAmount",
+              "salesPgi.totalAmount",
+              "quotation.totalAmount",
+              "salesOrder.totalAmount",
+              "all_total_amt",
+            ],
+            groupBy: ["items.goodsItems.goodsGroup"],
+            valuetype: "count",
+            filter: [
+              {
+                column: "company_id",
+                operator: "equal",
+                type: "Integer",
+                value: 1,
+              },
+              {
+                column: "invoice_date",
+                operator: "between",
+                type: "date",
+                value: [formDate, toDate],
+              },
+              {
+                column: "location_id",
+                operator: "equal",
+                type: "Integer",
+                value: 1,
+              },
+              {
+                column: "branch_id",
+                operator: "equal",
+                type: "Integer",
+                value: 1,
+              },
+            ],
+          },
+        },
+        {
+          wise: "purchase",
+          endpoint: "/purchase/purchase-graph-two",
+          body: {
+            xaxis: "items.goodsItems.goodsGroup.goodGroupName",
+            yaxis: [
+              "grnInvoice.grnSubTotal",
+              "grnInvoice.grnTotalCgst",
+              "grnInvoice.grnTotalIgst",
+              "grnInvoice.grnTotalAmount",
+            ],
+            groupBy: ["items.goodsItems.goodsGroup"],
+            valuetype: "sum",
+            filter: [
+              {
+                column: "companyId",
+                operator: "equal",
+                type: "integer",
+                value: 1,
+              },
+              {
+                column: "postingDate",
+                operator: "between",
+                type: "date",
+                value: [formDate, toDate],
+              },
+              {
+                column: "branchId",
+                operator: "equal",
+                type: "integer",
+                value: 1,
+              },
+              {
+                column: "locationId",
+                operator: "equal",
+                type: "integer",
+                value: 1,
+              },
+            ],
+          },
+        },
+      ],
+      pie: [
+        {
+          wise: "sales",
+          endpoint: "/sales/sales-graph-two",
+          body: {
+            xaxis: "items.goodsItems.goodsGroup.goodGroupName",
+            yaxis: [
+              "salesPgi.salesDelivery.totalAmount",
+              "salesPgi.totalAmount",
+              "quotation.totalAmount",
+              "salesOrder.totalAmount",
+              "all_total_amt",
+            ],
+            groupBy: ["items.goodsItems.goodsGroup"],
+            valuetype: "count",
+            filter: [
+              {
+                column: "company_id",
+                operator: "equal",
+                type: "Integer",
+                value: 1,
+              },
+              {
+                column: "invoice_date",
+                operator: "between",
+                type: "date",
+                value: [formDate, toDate],
+              },
+              {
+                column: "location_id",
+                operator: "equal",
+                type: "Integer",
+                value: 1,
+              },
+              {
+                column: "branch_id",
+                operator: "equal",
+                type: "Integer",
+                value: 1,
+              },
+            ],
+          },
+        },
+        {
+          wise: "purchase",
+          endpoint: "/purchase/purchase-graph-two",
+          body: {
+            xaxis: "items.goodsItems.goodsGroup.goodGroupName",
+            yaxis: [
+              "grnInvoice.grnSubTotal",
+              "grnInvoice.grnTotalCgst",
+              "grnInvoice.grnTotalIgst",
+              "grnInvoice.grnTotalAmount",
+            ],
+            groupBy: ["items.goodsItems.goodsGroup"],
+            valuetype: "sum",
+            filter: [
+              {
+                column: "companyId",
+                operator: "equal",
+                type: "integer",
+                value: 1,
+              },
+              {
+                column: "postingDate",
+                operator: "between",
+                type: "date",
+                value: [formDate, toDate],
+              },
+              {
+                column: "branchId",
+                operator: "equal",
+                type: "integer",
+                value: 1,
+              },
+              {
+                column: "locationId",
+                operator: "equal",
+                type: "integer",
+                value: 1,
+              },
+            ],
+          },
+        },
+      ],
+      line: [
+        {
+          wise: "sales",
+          endpoint: "/sales/sales-graph-two",
+          body: {
+            xaxis: "items.goodsItems.goodsGroup.goodGroupName",
+            yaxis: [
+              "salesPgi.salesDelivery.totalAmount",
+              "salesPgi.totalAmount",
+              "quotation.totalAmount",
+              "salesOrder.totalAmount",
+              "all_total_amt",
+            ],
+            groupBy: ["items.goodsItems.goodsGroup"],
+            valuetype: "count",
+            filter: [
+              {
+                column: "company_id",
+                operator: "equal",
+                type: "Integer",
+                value: 1,
+              },
+              {
+                column: "invoice_date",
+                operator: "between",
+                type: "date",
+                value: [formDate, toDate],
+              },
+              {
+                column: "location_id",
+                operator: "equal",
+                type: "Integer",
+                value: 1,
+              },
+              {
+                column: "branch_id",
+                operator: "equal",
+                type: "Integer",
+                value: 1,
+              },
+            ],
+          },
+        },
+        {
+          wise: "purchase",
+          endpoint: "/purchase/purchase-graph-two",
+          body: {
+            xaxis: "items.goodsItems.goodsGroup.goodGroupName",
+            yaxis: [
+              "grnInvoice.grnSubTotal",
+              "grnInvoice.grnTotalCgst",
+              "grnInvoice.grnTotalIgst",
+              "grnInvoice.grnTotalAmount",
+            ],
+            groupBy: ["items.goodsItems.goodsGroup"],
+            valuetype: "sum",
+            filter: [
+              {
+                column: "companyId",
+                operator: "equal",
+                type: "integer",
+                value: 1,
+              },
+              {
+                column: "postingDate",
+                operator: "between",
+                type: "date",
+                value: [formDate, toDate],
+              },
+              {
+                column: "branchId",
+                operator: "equal",
+                type: "integer",
+                value: 1,
+              },
+              {
+                column: "locationId",
+                operator: "equal",
+                type: "integer",
+                value: 1,
+              },
+            ],
+          },
+        },
+      ],
+      areaBump: [
+        {
+          wise: "sales",
+          endpoint: "/sales/sales-graph-two",
+          body: {
+            // JSON body for area bump chart
+          },
+        },
+      ],
     });
 
     const chartConfig = chartApiConfig[type];
@@ -165,7 +328,9 @@ const ChartConfiguration = ({ ...props }) => {
     );
 
     useEffect(() => {
+          console.log("Selected Config:", selectedConfig);
         if (graphData) {
+                console.log("Graph Data:", graphData);
             setChartDataApi(graphData?.content);
         }
     }, [graphData]);
@@ -246,36 +411,68 @@ const ChartConfiguration = ({ ...props }) => {
         }, 500);
     }
 
-    const handleSaveBtn = () => {
-        const widgetIndex = currentWidgets.findIndex(widget => widget.type === type);
-        if (widgetIndex === -1) {
-            const newWidgets = {
-                id: '1',
-                chartName: `Bar Chart (${wise})`,
-                title: 'Bar Chart',
-                type: 'bar',
-                group: 'distributionComparison',
-                pinned: true,
-                description: 'This is Bar Chart || imranali59059',
-                data: chartDataApi,
-            }
-            dispatch(addWidget(newWidgets))
-        } else {
-            dispatch(updateWidget({
-                index: widgetIndex,
-                chartName: wise,
-                title: 'Bar Chart',
-                type: 'bar',
-                group: 'distributionComparison',
-                pinned: true,
-                description: 'This is Bar Chart || imranali59059',
-                data: chartDataApi
-            }))
-        }
-    }
 
-    console.log('imran7711')
-    console.log(JSON.stringify(chartDataApi, null, 2))
+    //OLd code for save bar chart
+    // const handleSaveBtn = () => {
+    //     const widgetIndex = currentWidgets.findIndex(widget => widget.type === type);
+    //     if (widgetIndex === -1) {
+    //         const newWidgets = {
+    //             id: '1',
+    //             chartName: `Bar Chart (${wise})`,
+    //             title: 'Bar Chart',
+    //             type: 'bar',
+    //             group: 'distributionComparison',
+    //             pinned: true,
+    //             description: 'This is Bar Chart || imranali59059',
+    //             data: chartDataApi,
+    //         }
+    //         dispatch(addWidget(newWidgets))
+    //     } else {
+    //         dispatch(updateWidget({
+    //             index: widgetIndex,
+    //             chartName: wise,
+    //             title: 'Bar Chart',
+    //             type: 'bar',
+    //             group: 'distributionComparison',
+    //             pinned: true,
+    //             description: 'This is Bar Chart || imranali59059',
+    //             data: chartDataApi
+    //         }))
+    //     }
+    // }
+
+    //Updated code for showing all chart
+    const handleSaveBtn = () => {
+      const widgetIndex = currentWidgets.findIndex(
+        (widget) => widget.type === type
+      );
+
+      const widgetData = {
+        id: "1",
+        chartName: `Chart (${wise})`,
+        title: `${type.charAt(0).toUpperCase() + type.slice(1)} Chart`,
+        type: type,
+        group: "distributionComparison",
+        pinned: true,
+        description: `This is ${type} Chart || imranali59059`,
+        data: chartDataApi,
+      };
+
+      if (widgetIndex === -1) {
+        dispatch(addWidget(widgetData));
+      } else {
+        dispatch(
+          updateWidget({
+            index: widgetIndex,
+            ...widgetData,
+          })
+        );
+      }
+    };
+
+
+    // console.log('imran7711')
+    // console.log(JSON.stringify(chartDataApi, null, 2))
 
     return (
         <>

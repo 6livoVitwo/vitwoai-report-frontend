@@ -36,7 +36,6 @@ const DashboardNew = () => {
 
     };
 
-    console.log(`imran0011`)
     console.log({ dashboardData })
 
     return (
@@ -122,8 +121,7 @@ const DashboardNew = () => {
                                 justifyContent='space-between'
                             >
                                 {chartsData.charts.map((chart, index) => {
-                                    console.log('imran0006')
-                                    console.log({ chart })
+                                    console.log('All Chart List', chart)
                                     return (
                                         <Box
                                             key={index}
