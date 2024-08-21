@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDynamicNewQuery } from '../slice/graphApi';
-import { Alert, AlertIcon, Box, Button, Divider, Grid, Heading, Input, Select, Spinner, Stack, Text, useToast } from '@chakra-ui/react';
+import { Alert, AlertIcon, Box, Button, Checkbox, Divider, Grid, Heading, Input, Select, Spinner, Stack, Text, useToast } from '@chakra-ui/react';
 import { FiSettings } from 'react-icons/fi';
 import { IoMdColorFill } from 'react-icons/io';
 // import TypingMaster from './TypingMaster';
@@ -483,6 +483,40 @@ const selectedConfig = Array.isArray(chartConfig)
     }));
   };
 
+   const yAxisOptions = [
+     {
+       value: "salesPgi.salesDelivery.totalAmount",
+       label: "Sales PGI Delivery Amount",
+     },
+     { value: "salesPgi.totalAmount", label: "Sales PGI Amount" },
+     { value: "quotation.totalAmount", label: "Quotation Amount" },
+     { value: "salesOrder.totalAmount", label: "Sales Order Amount" },
+     { value: "all_total_amt", label: "All Total Amount" },
+  ];
+  
+   const handleYAxisChange = (e) => {
+     const value = e.target.value;
+     setChartApiConfig((prevConfig) => {
+       const selectedValues = new Set(prevConfig[type][0].body.yaxis);
+       if (selectedValues.has(value)) {
+         selectedValues.delete(value);
+       } else {
+         selectedValues.add(value);
+       }
+       return {
+         ...prevConfig,
+         [type]: prevConfig[type].map((config) => ({
+           ...config,
+           body: {
+             ...config.body,
+             yaxis: Array.from(selectedValues),
+           },
+         })),
+       };
+     });
+   };
+
+
   const handlePreviewBtn = (form, to) => {
     setPreviewLoading(true);
     setTimeout(() => {
@@ -661,32 +695,41 @@ const selectedConfig = Array.isArray(chartConfig)
               X Axis
             </Text>
             <Select
-              placeholder="Select One"
               size="lg"
               onChange={(e) => updateChartConfig("xaxis", e.target.value)}
               value={""}>
               <option value="items.goodsItems.goodsGroup.goodGroupName">
                 Goods Group Name
               </option>
-              <option value="another.option">Another Option</option>
             </Select>
           </Stack>
           <Stack spacing={3}>
             <Text fontSize="sm" fontWeight="500">
               Y Axis
             </Text>
-            <Select
-              placeholder="Select One"
+            {yAxisOptions.map((option) => (
+              <Checkbox
+                key={option.value}
+                isChecked={chartApiConfig[type][0].body.yaxis.includes(
+                  option.value
+                )}
+                onChange={handleYAxisChange}
+                value={option.value}>
+                {option.label}
+              </Checkbox>
+            ))}
+
+            {/* <Select
               size="lg"
               onChange={(e) => updateChartConfig("yaxis", [e.target.value])}>
               <option value="salesPgi.salesDelivery.totalAmount">
-                Total Amount
+                Sales PGI Delivery Amount
               </option>
-              <option value="salesPgi.totalAmount">Sales Amount</option>
+              <option value="salesPgi.totalAmount">Sales PGI Amount</option>
               <option value="quotation.totalAmount">Quotation Amount</option>
-              <option value="salesOrder.totalAmount">Order Amount</option>
+              <option value="salesOrder.totalAmount">Sales Order Amount</option>
               <option value="all_total_amt">All Total Amount</option>
-            </Select>
+            </Select> */}
           </Stack>
         </Grid>
       </Box>
