@@ -39,6 +39,7 @@ import {
 	DrawerContent,
 	DrawerBody,
 	Badge,
+  Divider,
 } from '@chakra-ui/react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import debounce from 'lodash/debounce';
@@ -52,7 +53,8 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { Dropdown } from 'primereact/dropdown';
 import { FiPlus, FiSettings } from 'react-icons/fi';
 import { chartsData } from './data/fakeData';
-import DynamicChart from '../components/DynamicChart';
+import DynamicChart from '../components/DynamicChart'; 
+import ChartConfiguration from '../components/ChartConfiguration'
 import { IoMdAdd } from 'react-icons/io';
 
 const CustomTable = ({ setPage, newArray, alignment }) => {
@@ -66,7 +68,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
   const [columnFilters, setColumnFilters] = useState({});
   const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
-  const [configureChart, setConfigureChart] = useState({}); // Default to an empty object or appropriate initial value
+  const [configureChart, setConfigureChart] = useState({});
 
   const toast = useToast();
   const tableContainerRef = useRef(null);
@@ -90,6 +92,13 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     onClose: onCloseGraphSettingDrawer,
     isOpen: isOpenGraphSettingDrawer,
   } = useDisclosure();
+
+      const {
+        isOpen: isOpenGraphSettingsModal,
+        onOpen: onOpenGraphSettingsModal,
+        onClose: onCloseGraphSettingsModal,
+      } = useDisclosure();
+
 
   const getColumnStyle = (header) => ({
     textAlign: alignment[header] || "left",
@@ -128,7 +137,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     setConfigureChart(newConfig || {});
   };
 
-  console.log(configureChart); // Add logging to inspect the value
+  console.log(configureChart);
 
   const loadMoreData = async () => {
     if (!loading) {
@@ -354,7 +363,23 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     });
   };
 
-  // console.log(data, 'data');
+     const removeProperty = (object) => {
+       if (!object) {
+         return {};
+       }
+       const { data, id, ...rest } = object;
+       return rest;
+     };
+
+   const handleConfigure = (chart) => {
+     if (!chart) {
+       return;
+     }
+     onOpenGraphSettingsModal();
+     const filterData = removeProperty(chart);
+     setConfigureChart(filterData);
+   };
+
   console.log(newArray, "newArray");
   console.log(selectedColumns, "selectedColumns");
   console.log(filteredItems, "filteredItems");
@@ -824,84 +849,98 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
             }}>
             Choose Data Wise Graph
           </DrawerHeader>
-				  <DrawerBody >
-					  Total Graph ({chartsData.charts.length})
-					  {chartsData.charts.map((chart, index) => {
-					     console.log("All Chart List", chart);
-               return (
-                 <Box
-                   key={index}
-                   width={{
-                     base: "100%",
-                     lg: "48%",
-                   }}
-                   mb={6}>
-                   <Box
-                     sx={{
-                       backgroundColor: "white",
-                       padding: "15px",
-                       my: 5,
-                       borderRadius: "8px",
-                       border: "1px solid #c4c4c4",
-                     }}
-                     mb={3}>
-                     <Box
-                       sx={{
-                         display: "flex",
-                         justifyContent: "flex-end",
-                         "& button": {
-                           color: "#718296",
-                           padding: "20px 20px",
-                           fontSize: "14px",
-                           border: "1px solid #dee2e6",
-                           backgroundColor: "white",
-                           borderRadius: "8px",
-                         },
-                         "& button:hover": {
-                           backgroundColor: "rgb(0, 48, 96)",
-                           borderRadius: "5px",
-                           color: "white",
-                         },
-                       }}
-                       mb={6}>
-                       <Button
-                         type="button"
-                         variant="outlined"
-                         style={{
-                           display: "flex",
-                           alignItems: "center",
-                           gap: 1,
-                           _hover: {
-                             color: "white",
-                           },
-                         }}>
-                         <FiSettings
-                           sx={{
-                             mr: "6px",
-                           }}
-                         />
-                         Configure
-                       </Button>
-                       <Button onClick={() => console.log("add+")} ml={3}>
-                         Add <IoMdAdd />
-                       </Button>
-                     </Box>
-                     <Box
-                       sx={{
-                         width: "100%",
-                         height: "200px",
-                       }}>
-                       <DynamicChart chart={chart} />
-                     </Box>
-                     <Badge colorScheme="blue" py={0} px={3} fontSize={9}>
-                       {chart.title}
-                     </Badge>
-                     <Text fontSize={8}>{chart.chartName}</Text>
-                   </Box>
-                 </Box>
-               );
-				  })}
-            {/* <ChartConfiguration configureChart={configureChart || {}} /> */}
+          <DrawerBody>
+            <Box
+              className="stickyTop"
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 4px",
+                p: 2,
+                my: 2,
+                flexGrow: 1,
+              }}>
+              Total Graph ({chartsData.charts.length})
+            </Box>
+            <Box display="flex" flexWrap="wrap" justifyContent="space-between">
+              {chartsData.charts.map((chart, index) => {
+                console.log("All Chart List", chart);
+                return (
+                  <Box
+                    key={index}
+                    width={{
+                      base: "100%",
+                      lg: "49.4%",
+                    }}
+                    mb={6}>
+                    <Box
+                      sx={{
+                        backgroundColor: "white",
+                        padding: "15px",
+                        my: 5,
+                        borderRadius: "8px",
+                        border: "1px solid #c4c4c4",
+                      }}
+                      mb={3}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          "& button": {
+                            color: "#718296",
+                            padding: "20px 20px",
+                            fontSize: "14px",
+                            border: "1px solid #dee2e6",
+                            backgroundColor: "white",
+                            borderRadius: "8px",
+                          },
+                          "& button:hover": {
+                            backgroundColor: "rgb(0, 48, 96)",
+                            borderRadius: "5px",
+                            color: "white",
+                          },
+                        }}
+                        mb={6}>
+                        <Button
+                          type="button"
+                          variant="outlined"
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                            _hover: {
+                              color: "white",
+                            },
+                          }}
+                          onClick={() => handleConfigure(chart)}>
+                          <FiSettings
+                            sx={{
+                              mr: "6px",
+                            }}
+                          />
+                          Configure
+                        </Button>
+                        <Button onClick={() => console.log("add+")} ml={3}>
+                          Add <IoMdAdd />
+                        </Button>
+                      </Box>
+                      <Box
+                        sx={{
+                          width: "100%",
+                          height: "200px",
+                        }}>
+                        <DynamicChart chart={chart} />
+                      </Box>
+                      <Badge colorScheme="blue" py={0} px={3} fontSize={9}>
+                        {chart.title}
+                      </Badge>
+                      <Text fontSize={8}>{chart.chartName}</Text>
+                    </Box>
+                  </Box>
+                );
+              })}
+            </Box>
           </DrawerBody>
         </DrawerContent>
       </Drawer>
@@ -1001,6 +1040,32 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      <Box>
+        <Drawer
+          isCentered
+          size="md"
+          isOpen={isOpenGraphSettingsModal}
+          onClose={onCloseGraphSettingsModal}>
+          <DrawerOverlay />
+          <DrawerContent maxW="70vw">
+            <DrawerCloseButton color="white" size="lg" mt="8px" />
+            <DrawerHeader
+              color="white"
+              mb="4px"
+              fontSize="17px"
+              fontWeight="500"
+              padding="15px 15px"
+              backgroundColor="#003060">
+              Graphical View Settings
+            </DrawerHeader>
+            <Divider orientation="horizontal" mb={6} />
+            <DrawerBody>
+              <ChartConfiguration configureChart={configureChart} />
+            </DrawerBody>
+          </DrawerContent>
+        </Drawer>
+      </Box>
     </Box>
   );
 };
