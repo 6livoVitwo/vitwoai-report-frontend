@@ -43,6 +43,8 @@ import { DownloadIcon } from '@chakra-ui/icons';
 import { useNavigate } from 'react-router-dom';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Dropdown } from 'primereact/dropdown';
+import { Calendar } from 'primereact/calendar';
+
 
 const CustomTable = ({ setPage, newArray, alignment }) => {
 	const [data, setData] = useState([...newArray]);
@@ -55,8 +57,11 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 	const [columnFilters, setColumnFilters] = useState({});
 	const [lastPage, setLastPage] = useState(false);
 	const [selectedReport, setSelectedReport] = useState(null);
+	const [startDate, setStartDate] = useState();
+	const [endDate, setEndDate] = useState();
 
 	const toast = useToast();
+
 	const tableContainerRef = useRef(null);
 	const {
 		onOpen: onOpenFilterModal,
@@ -75,20 +80,20 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 
 	const navigate = useNavigate();
 
-    const reportOptions = [
-      {
-        label: "Product Wise",
-        value: "/reports/product-wise/table-view",
-      },
-      {
-        label: "Vendor Wise",
-        value: "/reports/vendor-wise/table-view",
-      },
-      {
-        label: "PO Wise",
-        value: "/reports/po-wise/table-view",
-      },
-    ];
+	const reportOptions = [
+		{
+			label: "Product Wise",
+			value: "/reports/product-wise/table-view",
+		},
+		{
+			label: "Vendor Wise",
+			value: "/reports/vendor-wise/table-view",
+		},
+		{
+			label: "PO Wise",
+			value: "/reports/po-wise/table-view",
+		},
+	];
 
 	useEffect(() => {
 		if (selectedReport) {
@@ -106,6 +111,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 			setLoading(true);
 			// Fetch or generate new data
 			const moreData = [...newArray]; // Assuming newArray contains new data
+			console.log(moreData, "moreData")
 			setData((prevData) => {
 				const uniqueData = [...new Set([...prevData, ...moreData])];
 				return uniqueData;
@@ -114,6 +120,9 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 			setLoading(false);
 		}
 	};
+
+
+
 
 	useEffect(() => {
 		const initialColumns = getColumns(data)
@@ -264,7 +273,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 		const { scrollTop, scrollHeight, clientHeight } =
 			tableContainerRef.current;
 
-		if (scrollTop + clientHeight >= scrollHeight - 5) {
+		if (scrollTop + clientHeight >= scrollHeight - 2) {
 			loadMoreData();
 		}
 	};
@@ -273,6 +282,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 		const container = tableContainerRef.current;
 		if (container) {
 			container.addEventListener('scroll', handleScroll);
+			handleScroll();
 			return () => container.removeEventListener('scroll', handleScroll);
 		}
 	}, [loading, lastPage]);
@@ -334,9 +344,9 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 	};
 
 	// console.log(data, 'data');
-	console.log(newArray, 'newArray');
-	console.log(selectedColumns, 'selectedColumns');
-	console.log(filteredItems, 'filteredItems');
+	// console.log(newArray, 'newArray');
+	// console.log(selectedColumns, 'selectedColumns');
+	// console.log(filteredItems, 'filteredItems');
 
 	return (
 		<Box bg='white' padding='0px 10px' borderRadius='5px'>
@@ -356,6 +366,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 				<Input
 					onChange={handleSearchChange}
 					width='20%'
+					height='36px'
 					bg='#dedede'
 					padding='15px'
 					borderRadius='5px'
@@ -383,13 +394,17 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 						}}
 						optionLabel='label'
 						placeholder='Select Sales Type'
-						style={{ width: '200px' }}
+						style={{
+							width: '200px',
+							background: '#dedede',
+						}}
 					/>
 					<Button
 						onClick={onOpen}
 						padding='15px'
 						bg='mainBlue'
 						color='white'
+						height='36px'
 						_hover={{
 							bg: 'mainBlue',
 						}}>
@@ -400,10 +415,14 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 					</Button>
 					<Menu>
 						<MenuButton
+							height='31px'
 							bg='mainBlue'
 							color='white'
 							padding='5px'
 							borderRadius='5px'
+							style={{
+								height: '36px'
+							}}
 							_hover={{
 								color: 'white',
 								bg: 'mainBlue',
@@ -413,6 +432,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 									display: 'flex',
 									alignItems: 'center',
 									justifyContent: 'center',
+
 								},
 							}}>
 							<DownloadIcon w='20px' h='15px' />
@@ -482,6 +502,31 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 												fontSize='14px'>
 												Select Your Date - Range
 											</Text>
+											<Box display='flex'
+											justifyContent='space-between'
+												padding='5px'
+												alignItems='center'
+											>
+												<Calendar
+													value={startDate}
+													onChange={(e) => setStartDate(e.value)}
+													placeholder='Start Date'
+													style={{
+														width: '150px',
+														padding: '5px',
+													}}
+												/>
+												<Text>to</Text>
+												<Calendar
+													value={endDate}
+													onChange={(e) => setEndDate(e.value)}
+													placeholder='End Date'
+													style={{
+														width: '150px',
+														padding: '5px',
+													}}
+												/>
+											</Box>
 										</Box>
 									</ModalBody>
 
@@ -711,12 +756,12 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 																whiteSpace='nowrap'
 																width={
 																	column ===
-																	'description'
+																		'description'
 																		? '300px'
 																		: column ===
-																		  'name'
-																		? '200px'
-																		: '100px'
+																			'name'
+																			? '200px'
+																			: '100px'
 																}
 																overflow='hidden'
 																textOverflow='ellipsis'>
@@ -768,78 +813,66 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 				}}>
 				<FontAwesomeIcon icon={faChartSimple} size='lg' />
 			</Button>
-			<Modal
-				isOpen={isOpen}
-				onClose={handleModalClose}
-				size='xl'
-				isCentered>
+			<Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered>
 				<ModalOverlay />
-				<ModalContent minW='40%'>
+				<ModalContent minW="30%">
 					<ModalHeader
-						fontWeight='600'
-						bg='mainBlue'
-						color='white'
-						fontSize='16px'
-						padding='12px'>
+						fontWeight="600"
+						bg="mainBlue"
+						color="white"
+						fontSize="16px"
+						padding="12px">
 						Select Columns to Show
 					</ModalHeader>
-					<ModalCloseButton mt='5px' color='white' size='lg' />
-					<ModalBody pt='10px'>
-						<Box padding='0px 10px' borderRadius='5px'>
+					<ModalCloseButton mt="5px" color="white" size="lg" />
+					<ModalBody pt="10px">
+						<Box padding="0px 10px" borderRadius="5px">
 							<Checkbox
 								isChecked={selectAll}
 								onChange={handleSelectAllToggle}
 								mb={4}
-								size='lg'
-								fontWeight='600'>
+								size="lg"
+								fontWeight="600">
 								Select All
 							</Checkbox>
 						</Box>
 						<Box
-							height='60vh'
-							overflowY='scroll'
-							overflowX='hidden'
-							display='flex'
-							flexWrap='wrap'
-							gap='15px'
+							// height="60vh"
+							overflowY="scroll"
+							overflowX="hidden"
+							display="flex"
+							flexWrap="wrap"
+							gap="5px"
 							sx={{
-								'& .columnCheckBox:nth-of-type(odd)': {
-									bg: 'borderGrayLight',
+								"& .columnCheckBox:nth-of-type(odd)": {
+									bg: "borderGrayLight",
 								},
 							}}>
 							{getColumns(data).map((column) => {
-								const formattedHeader = formatHeader(
-									column.field
-								);
+								const formattedHeader = formatHeader(column.field);
 
 								return (
 									<Box
 										key={column.field}
-										className='columnCheckBox'
-										padding='5px'
-										bg='rgba(231,231,231,1)'
-										borderRadius='5px'
-										width='48%'>
+										className="columnCheckBox"
+										padding="5px"
+										bg="rgba(231,231,231,1)"
+										borderRadius="5px"
+										width="48%">
 										<Checkbox
-											size='lg'
-											display='flex'
-											padding='5px'
-											borderColor='mainBluemedium'
+											size="lg"
+											display="flex"
+											padding="5px"
+											borderColor="mainBluemedium"
 											key={column.field}
-											defaultChecked={selectedColumns.includes(
-												column.field
-											)}
-											isChecked={selectedColumns.includes(
-												column.field
-											)}
-											onChange={() =>
-												toggleColumn(column.field)
-											}>
+											defaultChecked={selectedColumns.includes(column.field)}
+											isChecked={selectedColumns.includes(column.field)}
+											onChange={() => toggleColumn(column.field)}>
 											<Text
-												fontWeight='500'
-												ml='10px'
-												fontSize='12px'
-												color='textBlackDeep'>
+												fontWeight="500"
+												ml="10px"
+												fontSize="12px"
+												color="textBlackDeep">
 												{formattedHeader}
 											</Text>
 										</Checkbox>
@@ -851,24 +884,24 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 					<ModalFooter>
 						<Button
 							mr={3}
-							padding='15px'
-							fontSize='12px'
-							bg='var(--chakra-colors-mainBlue)'
-							color='white'
+							padding="15px"
+							fontSize="12px"
+							bg="var(--chakra-colors-mainBlue)"
+							color="white"
 							_hover={{
-								bg: 'var(--chakra-colors-mainBlue)',
+								bg: "var(--chakra-colors-mainBlue)",
 							}}
 							onClick={handleModalClose}>
 							Cancel
 						</Button>
 						<Button
-							padding='15px'
-							fontSize='12px'
-							bg='var(--chakra-colors-mainBlue)'
+							padding="15px"
+							fontSize="12px"
+							bg="var(--chakra-colors-mainBlue)"
 							_hover={{
-								bg: 'var(--chakra-colors-mainBlue)',
+								bg: "var(--chakra-colors-mainBlue)",
 							}}
-							color='white'
+							color="white"
 							onClick={handleApplyChanges}>
 							Apply Changes
 						</Button>
