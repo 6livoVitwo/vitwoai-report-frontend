@@ -94,6 +94,7 @@ import DashboardNew from "../features/dashboardNew/pages/DashboardNew";
 import SalesKamWise from "../features/salesKamWise/components";
 import SalesKamWiseTableView from "../features/salesKamWise/components/salesKamWiseTableView";
 import SalesKamWiseGraphView from "../features/salesKamWise/components/salesKamWiseGraphView";
+import PurchaseDetails from "../features/purchaseDetailsReport/components";
 const Dashboard = lazy(() => import("../features/dashboard/components"));
 
 const AllRoutes = () => {
@@ -202,7 +203,27 @@ const AllRoutes = () => {
                 portalId={commonPortalRef}>
                 <Reportdetails globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
-            }></Route>
+            }/>
+              
+           
+            <Route
+              path="/reports-details/sales-details-report"
+              element={
+                <PortalForLayout
+                  globalLayout={globalStaticFragmennt}
+                  portalId={commonPortalRef}>
+                  <SalesDetails globalLayout={setGlobalStaticFragmennt} />
+                </PortalForLayout>
+              }></Route>
+              <Route
+              path="/reports-details/purchase-details-report"
+              element={
+                <PortalForLayout
+                  globalLayout={globalStaticFragmennt}
+                  portalId={commonPortalRef}>
+                  <PurchaseDetails globalLayout={setGlobalStaticFragmennt} />
+                </PortalForLayout>
+              }></Route>
           <Route
             path="/reports/transactional-day-book"
             element={
@@ -827,15 +848,7 @@ const AllRoutes = () => {
             />
           </Route>
 
-          <Route
-            path="/reports/sales-details-report"
-            element={
-              <PortalForLayout
-                globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
-                <SalesDetails globalLayout={setGlobalStaticFragmennt} />
-              </PortalForLayout>
-            }></Route>
+          
 
           <Route
             path="/reports/sales-product-wise"

@@ -1,13 +1,13 @@
-import { Box } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
 import React from 'react';
 import SalesCustomerWiseTableView from './salesCustomerWiseTableView';
 
-const SalesDetailedReport = () => {
+const SalesDetails = () => {
 	return (
 		<Box>
-			<SalesCustomerWiseTableView />
+			<SalesCustomerWiseTableView/>
 		</Box>
 	);
 };
 
-export default SalesDetailedReport;
+export default SalesDetails;
