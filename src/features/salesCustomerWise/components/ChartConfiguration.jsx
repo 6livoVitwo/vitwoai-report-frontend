@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDynamicNewQuery } from '../slice/graphApi';
-import { Alert, AlertIcon, Box, Button, Checkbox, Divider, Grid, Heading, Input, Select, Spinner, Stack, Text } from '@chakra-ui/react';
+import { Alert, AlertIcon, Box, Button, Divider, Grid, Heading, Input, Select, Spinner, Stack, Text, useToast } from '@chakra-ui/react';
 import { FiSettings } from 'react-icons/fi';
 import { IoMdColorFill } from 'react-icons/io';
 // import TypingMaster from './TypingMaster';
@@ -12,13 +12,14 @@ import { useSelector } from 'react-redux';
 import BarChart from '../../dashboardNew/nivo/BarChart';
 import NivoPieChart from "../../dashboardNew/nivo/PieChart";
 import LineChart from "../../dashboardNew/nivo/LineChart";
-import AreaBump from "../../dashboardNew/nivo/AreaBump";
+import HeatMap from '../../dashboardNew/nivo/HeatMap';
 
 const chartComponents = {
-    bar: BarChart,
-    pie: NivoPieChart,
-    line: LineChart,
-    // Add other chart components here if needed
+  bar: BarChart,
+  pie: NivoPieChart,
+  line: LineChart,
+  heatmap: HeatMap,
+  // Add other chart components here if needed
 };
 
 const ChartConfiguration = ({ configureChart }) => {
@@ -28,6 +29,7 @@ const ChartConfiguration = ({ configureChart }) => {
   const currentDate = new Date();
   const { type, group } = configureChart;
 
+  const toast = useToast()
   const [chartDataApi, setChartDataApi] = useState([]);
   const [formDate, setFormDate] = useState(lastDateOfMonth(currentDate));
   const [toDate, setToDate] = useState(today);
@@ -292,6 +294,91 @@ const ChartConfiguration = ({ configureChart }) => {
         },
       },
     ],
+    heatmap: [
+      {
+        wise: "sales",
+        endpoint: "/sales/sales-graph-two",
+        body: {
+          xaxis: "items.goodsItems.goodsGroup.goodGroupName",
+          yaxis: [
+            "salesPgi.salesDelivery.totalAmount",
+            "salesPgi.totalAmount",
+            "quotation.totalAmount",
+            "salesOrder.totalAmount",
+            "all_total_amt",
+          ],
+          groupBy: ["items.goodsItems.goodsGroup"],
+          valuetype: "count",
+          filter: [
+            {
+              column: "company_id",
+              operator: "equal",
+              type: "Integer",
+              value: 1,
+            },
+            {
+              column: "invoice_date",
+              operator: "between",
+              type: "date",
+              value: [formDate, toDate],
+            },
+            {
+              column: "location_id",
+              operator: "equal",
+              type: "Integer",
+              value: 1,
+            },
+            {
+              column: "branch_id",
+              operator: "equal",
+              type: "Integer",
+              value: 1,
+            },
+          ],
+        },
+      },
+      {
+        wise: "purchase",
+        endpoint: "/purchase/purchase-graph-two",
+        body: {
+          xaxis: "items.goodsItems.goodsGroup.goodGroupName",
+          yaxis: [
+            "grnInvoice.grnSubTotal",
+            "grnInvoice.grnTotalCgst",
+            "grnInvoice.grnTotalIgst",
+            "grnInvoice.grnTotalAmount",
+          ],
+          groupBy: ["items.goodsItems.goodsGroup"],
+          valuetype: "sum",
+          filter: [
+            {
+              column: "companyId",
+              operator: "equal",
+              type: "integer",
+              value: 1,
+            },
+            {
+              column: "postingDate",
+              operator: "between",
+              type: "date",
+              value: [formDate, toDate],
+            },
+            {
+              column: "branchId",
+              operator: "equal",
+              type: "integer",
+              value: 1,
+            },
+            {
+              column: "locationId",
+              operator: "equal",
+              type: "integer",
+              value: 1,
+            },
+          ],
+        },
+      },
+    ],
   });
 
   const chartConfig = chartApiConfig[type];
@@ -341,19 +428,39 @@ const selectedConfig = Array.isArray(chartConfig)
     return <div>No valid chart type provided</div>;
   }
 
+  // const updateChartConfig = (key, value) => {
+  //   console.log({ key, value });
+  //   setChartApiConfig((prevConfig) => ({
+  //     ...prevConfig,
+  //     [type]: {
+  //       ...prevConfig.bar,
+  //       body: {
+  //         ...prevConfig.bar.body,
+  //         [key]: value,
+  //       },
+  //     },
+  //   }));
+  // };
+
   const updateChartConfig = (key, value) => {
-    console.log({ key, value });
-    setChartApiConfig((prevConfig) => ({
-      ...prevConfig,
-      [type]: {
-        ...prevConfig.bar,
-        body: {
-          ...prevConfig.bar.body,
-          [key]: value,
-        },
+  console.log({ key, value });
+  
+  setChartApiConfig((prevConfig) => {
+    const updatedConfig = prevConfig[type].map((config) => ({
+      ...config,
+      body: {
+        ...config.body,
+        [key]: value,
       },
     }));
-  };
+
+    return {
+      ...prevConfig,
+      [type]: updatedConfig,
+    };
+  });
+};
+
 
   const handleDateChange = (form, to) => {
     console.log({ form, to });
@@ -414,7 +521,7 @@ const selectedConfig = Array.isArray(chartConfig)
       type: type,
       group: "distributionComparison",
       pinned: true,
-      description: `This is ${type} Chart || imranali59059`,
+      description: `This is ${type} Chart`,
       data: chartDataApi,
     };
 
@@ -428,6 +535,11 @@ const selectedConfig = Array.isArray(chartConfig)
         })
       );
     }
+    toast({
+      title: "Chart Saved Successfully",
+      status: "success",
+      isClosable: true,
+    })
   };
 
 
@@ -502,28 +614,6 @@ const selectedConfig = Array.isArray(chartConfig)
             </Box>
           </Box>
         </Box>
-        {/* <Box
-                    width={{
-                        base: "100%",
-                        lg: "29%",
-                    }}
-                    mb={6}>
-                    <Box
-                        sx={{
-                            backgroundColor: "white",
-                            padding: "15px",
-                            borderRadius: "8px",
-                            border: "1px solid #c4c4c4",
-                        }}
-                        mb={3}>
-                        <Box style={{ lineHeight: "1.5", fontSize: "14px" }}>
-                            <Heading mt={4} mb={4}>
-                                description
-                            </Heading>
-                            <TypingMaster />
-                        </Box>
-                    </Box>
-                </Box> */}
       </Box>
 
       <Box>
@@ -533,7 +623,6 @@ const selectedConfig = Array.isArray(chartConfig)
               Wise {wise !== "" && `(${wise})`}
             </Text>
             <Select
-              // placeholder='Select One'
               size="lg"
               onChange={(e) => setwise(e.target.value)}
               value={wise}>
@@ -589,8 +678,7 @@ const selectedConfig = Array.isArray(chartConfig)
             <Select
               placeholder="Select One"
               size="lg"
-              onChange={(e) => updateChartConfig("yaxis", [e.target.value])}
-              value={""}>
+              onChange={(e) => updateChartConfig("yaxis", [e.target.value])}>
               <option value="salesPgi.salesDelivery.totalAmount">
                 Total Amount
               </option>
@@ -599,25 +687,6 @@ const selectedConfig = Array.isArray(chartConfig)
               <option value="salesOrder.totalAmount">Order Amount</option>
               <option value="all_total_amt">All Total Amount</option>
             </Select>
-          </Stack>
-        </Grid>
-        <Grid templateColumns="repeat(1, 1fr)" gap={6} mt={6}>
-          <Stack spacing={[1, 5]} direction={["column", "row"]}>
-            <Checkbox size="md" colorScheme="green" defaultChecked>
-              Population
-            </Checkbox>
-            <Checkbox size="md" colorScheme="orange" defaultChecked>
-              Average Age
-            </Checkbox>
-            <Checkbox size="md" colorScheme="blue" defaultChecked>
-              Median Age
-            </Checkbox>
-            <Checkbox size="md" colorScheme="red" defaultChecked>
-              Total Population
-            </Checkbox>
-            <Checkbox size="md" colorScheme="pink" defaultChecked>
-              Cover Total Area
-            </Checkbox>
           </Stack>
         </Grid>
       </Box>

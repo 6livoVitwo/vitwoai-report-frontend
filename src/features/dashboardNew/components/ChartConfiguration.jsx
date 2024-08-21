@@ -454,7 +454,7 @@ const ChartConfiguration = ({ ...props }) => {
         type: type,
         group: "distributionComparison",
         pinned: true,
-        description: `This is ${type} Chart || imranali59059`,
+        description: `This is ${type} Chart `,
         data: chartDataApi,
       };
 

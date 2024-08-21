@@ -44,7 +44,7 @@ const salesCustomerSlice = createSlice({
         type: "bar",
         group: "distributionComparison",
         pinned: true,
-        description: "This is Bar Chart || imranali59059",
+        description: "This is Bar Chart",
         data: data,
       };
     },

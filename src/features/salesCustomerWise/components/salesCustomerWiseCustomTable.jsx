@@ -53,7 +53,7 @@ import { useNavigate } from 'react-router-dom';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Dropdown } from 'primereact/dropdown';
 import { FiPlus, FiSettings } from 'react-icons/fi';
-import { chartsData } from './data/fakeData';
+import { chartsData } from '../data/fakeData';
 import DynamicChart from '../components/DynamicChart'; 
 import ChartConfiguration from '../components/ChartConfiguration'
 import { IoMdAdd } from 'react-icons/io';
@@ -830,7 +830,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
             </Box>
 
             {/* Update sales graph details report */}
-            <Box>
+            <Box display="flex" flexWrap="wrap" justifyContent="space-between">
               {salesCustomerWise && salesCustomerWise?.length === 0 && (
                 <Alert
                   status="error"
@@ -844,75 +844,76 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                   No Sales Graph are there
                 </Alert>
               )}
-              {salesCustomerWise && salesCustomerWise?.map((chart, index) => {
-                       return (
-                         <Box
-                           key={index}
-                           width={{
-                             base: "100%",
-                             lg: "49%",
-                           }}
-                           mb={6}>
-                           <Box
-                             sx={{
-                               backgroundColor: "white",
-                               padding: "15px",
-                               my: 2.5,
-                               borderRadius: "8px",
-                               transition: "box-shadow 0.3s ease-in-out",
-                               border: "1px solid #dee2e6",
-                               "&:hover": {
-                                 boxShadow: "0 4px 4px rgba(0, 0, 0, 0.2)",
-                               },
-                             }}
-                             mb={3}>
-                             <Box
-                               display="flex"
-                               justifyContent="space-between"
-                               alignItems="center"
-                               mb={8}>
-                               <Box
-                                 style={{
-                                   padding: "10px",
-                                   fontWeight: 600,
-                                   color: "black",
-                                 }}>
-                                 {chart.chartName}
-                                 <Text
-                                   sx={{
-                                     color: "#718296",
-                                     fontSize: "10px",
-                                   }}>
-                                   {chart.description}
-                                 </Text>
-                               </Box>
-                               <Box
-                                 style={{
-                                   padding: "10px",
-                                   fontWeight: 600,
-                                   color: "black",
-                                 }}>
-                                 <Button
-                                   variant="outline"
-                                   style={{
-                                     padding: "15px 10px",
-                                     fontSize: "12px",
-                                     color: "#718296",
-                                   }}
-                                   mr={3}
-                                   onClick={() => handleConfigure(chart)}>
-                                   <FiSettings style={{ marginRight: "6px" }} />{" "}
-                                   Configure
-                                 </Button>
-                               </Box>
-                             </Box>
-                             <Box sx={{ height: "300px" }}>
-                               <NewMyCharts chart={chart} />
-                             </Box>
-                           </Box>
-                         </Box>
-                       );
-              })}
+              {salesCustomerWise &&
+                salesCustomerWise?.map((chart, index) => {
+                  return (
+                    <Box
+                      key={index}
+                      width={{
+                        base: "100%",
+                        lg: "49%",
+                      }}
+                      mb={6}>
+                      <Box
+                        sx={{
+                          backgroundColor: "white",
+                          padding: "15px",
+                          my: 2.5,
+                          borderRadius: "8px",
+                          transition: "box-shadow 0.3s ease-in-out",
+                          border: "1px solid #dee2e6",
+                          "&:hover": {
+                            boxShadow: "0 4px 4px rgba(0, 0, 0, 0.2)",
+                          },
+                        }}
+                        mb={3}>
+                        <Box
+                          display="flex"
+                          justifyContent="space-between"
+                          alignItems="center"
+                          mb={8}>
+                          <Box
+                            style={{
+                              padding: "10px",
+                              fontWeight: 600,
+                              color: "black",
+                            }}>
+                            {chart.chartName}
+                            <Text
+                              sx={{
+                                color: "#718296",
+                                fontSize: "10px",
+                              }}>
+                              {chart.description}
+                            </Text>
+                          </Box>
+                          <Box
+                            style={{
+                              padding: "10px",
+                              fontWeight: 600,
+                              color: "black",
+                            }}>
+                            <Button
+                              variant="outline"
+                              style={{
+                                padding: "15px 10px",
+                                fontSize: "12px",
+                                color: "#718296",
+                              }}
+                              mr={3}
+                              onClick={() => handleConfigure(chart)}>
+                              <FiSettings style={{ marginRight: "6px" }} />{" "}
+                              Configure
+                            </Button>
+                          </Box>
+                        </Box>
+                        <Box sx={{ height: "300px" }}>
+                          <NewMyCharts chart={chart} />
+                        </Box>
+                      </Box>
+                    </Box>
+                  );
+                })}
             </Box>
           </DrawerBody>
         </DrawerContent>
@@ -1015,9 +1016,9 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                           />
                           Configure
                         </Button>
-                        <Button onClick={() => console.log("add+")} ml={3}>
+                        {/* <Button onClick={() => console.log("add+")} ml={3}>
                           Add <IoMdAdd />
-                        </Button>
+                        </Button> */}
                       </Box>
                       <Box
                         sx={{
