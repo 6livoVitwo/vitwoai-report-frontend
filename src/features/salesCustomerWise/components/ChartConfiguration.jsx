@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useDynamicNewQuery } from '../../dashboardNew/slice/graphApi';
+import { useDynamicNewQuery } from '../slice/graphApi';
 import { Alert, AlertIcon, Box, Button, Checkbox, Divider, Grid, Heading, Input, Select, Spinner, Stack, Text } from '@chakra-ui/react';
 import { FiSettings } from 'react-icons/fi';
 import { IoMdColorFill } from 'react-icons/io';
@@ -7,7 +7,7 @@ import { IoMdColorFill } from 'react-icons/io';
 import { capitalizeWord, lastDateOfMonth } from '../../../utils/common';
 import { MdRemoveRedEye, MdSave } from 'react-icons/md';
 import { useDispatch } from 'react-redux';
-import { addWidget, updateWidget } from "../../dashboardNew/slice/graphSlice";
+import { addWidget, updateWidget } from "../slice/graphSlice";
 import { useSelector } from 'react-redux';
 import BarChart from '../../dashboardNew/nivo/BarChart';
 import NivoPieChart from "../../dashboardNew/nivo/PieChart";
@@ -34,7 +34,7 @@ const ChartConfiguration = ({ configureChart }) => {
   const [wise, setwise] = useState("sales");
   const [previewLoading, setPreviewLoading] = useState(false);
   const dispatch = useDispatch();
-  const currentWidgets = useSelector((state) => state.dashboard.widgets);
+  const currentWidgets = useSelector((state) => state.salescustomer.widgets);
 
   const [chartApiConfig, setChartApiConfig] = useState({
     bar: [
