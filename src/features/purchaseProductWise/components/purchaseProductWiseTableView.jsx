@@ -138,7 +138,7 @@ const PurchaseProductWiseTableView = () => {
     );
   }
   if(sales?.
-    totalPages < page){
+    totalPages <= page){
     toast({
       title: 'No More Data',
       description: 'You have reached the end of the list.',
@@ -147,6 +147,7 @@ const PurchaseProductWiseTableView = () => {
       duration:800, //(5000 ms = 5 seconds)
 		})
   }
+
   const newArray = individualItems.map((data, index) =>
     extractFields(data, index)
   );
