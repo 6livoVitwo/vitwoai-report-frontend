@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import CustomTable from "./purchasePoWiseCustomTable";
-import { Box, Spinner, Image } from "@chakra-ui/react";
+import { Box, Spinner, Image,useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { usePoWisePurchaseQuery } from "../slice/purchasePoWiseApi";
@@ -10,6 +10,8 @@ const PurchaseProductWiseTableView = () => {
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(50);
   const [individualItems, setIndividualItems] = useState([]);
+  const toast = useToast();
+
 
   let filters = {
     data: [
@@ -144,6 +146,16 @@ const PurchaseProductWiseTableView = () => {
         <Image src={NoDataFound} alt="No Data Available" />
       </Box>
     );
+  }
+  if(sales?.
+    totalPages < page){
+    toast({
+      title: 'No More Data',
+      description: 'You have reached the end of the list.',
+			status: 'warning',
+			isClosable: true,
+      duration:800, //(5000 ms = 5 seconds)
+		})
   }
   const newArray = individualItems.map((data, index) =>
     extractFields(data, index)

@@ -43,6 +43,8 @@ import { DownloadIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
+import { Calendar } from 'primereact/calendar';
+        
 
 const CustomTable = ({ setPage, newArray, alignment }) => {
   const [data, setData] = useState([...newArray]);
@@ -55,6 +57,8 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
   const [columnFilters, setColumnFilters] = useState({});
   const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
+  const [startDate, setStartDate] = useState();
+  const [endDate, setEndDate] = useState();
 
   const toast = useToast();
   const tableContainerRef = useRef(null);
@@ -75,21 +79,28 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 
   const navigate = useNavigate();
 
-  const reportOptions = [
-    {
-      label: "Product Wise",
-      value: "/reports/sales-product-wise/table-view",
-    },
-    {
-      label: "Customer Wise",
-      value: "/reports/sales-customer-wise/table-view",
-    },
-    {
-      label: "Vertical Wise",
-      value: "/reports/sales-vertical-wise/table-view",
-    },
-    { label: "So Wise", value: "/reports/sales-so-wise/table-view" },
-  ];
+	const reportOptions = [
+		{
+			label: 'Product Wise',
+			value: '/reports/sales-product-wise/table-view',
+		},
+		{
+			label: 'Customer Wise',
+			value: '/reports/sales-customer-wise/table-view',
+		},
+		{
+			label: 'Vertical Wise',
+			value: '/reports/sales-vertical-wise/table-view',
+		},
+		{ 
+			label: 'So Wise',
+		    value: '/reports/sales-so-wise/table-view' 
+		},
+		{
+			label: 'Kam wise',
+			value: '/reports/sales-kam-Wise/table-view'
+		},
+	];
 
   useEffect(() => {
     if (selectedReport) {
@@ -266,6 +277,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     const container = tableContainerRef.current;
     if (container) {
       container.addEventListener("scroll", handleScroll);
+      handleScroll()
       return () => container.removeEventListener("scroll", handleScroll);
     }
   }, [loading, lastPage]);
@@ -351,6 +363,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
           width="20%"
           bg="#dedede"
           padding="15px"
+          h='36px'
           borderRadius="5px"
           placeholder="Search Global Data"
         />
@@ -376,12 +389,16 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
             }}
             optionLabel="label"
             placeholder="Select Sales Type"
-            style={{ width: "200px" }}
+            style={{
+              width: "200px",
+              background: '#dedede'
+            }}
           />
           <Button
             onClick={onOpen}
             padding="15px"
             bg="mainBlue"
+            h='36px'
             color="white"
             _hover={{
               bg: "mainBlue",
@@ -468,6 +485,31 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                       <Text fontWeight="600" mb="5px" fontSize="14px">
                         Select Your Date - Range
                       </Text>
+                      <Box display='flex'
+                        justifyContent='space-between'
+                        padding='5px'
+                        alignItems='center'
+                      >
+                        <Calendar
+                          value={startDate}
+                          onChange={(e) => setStartDate(e.value)}
+                          placeholder='Start Date'
+                          style={{
+                            width: '150px',
+                            padding: '5px',
+                          }}
+                        />
+                        <Text>to</Text>
+                        <Calendar
+                          value={endDate}
+                          onChange={(e) => setEndDate(e.value)}
+                          placeholder='End Date'
+                          style={{
+                            width: '150px',
+                            padding: '5px',
+                          }}
+                        />
+                      </Box>
                     </Box>
                   </ModalBody>
 
@@ -657,8 +699,8 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                                 column === "description"
                                   ? "300px"
                                   : column === "name"
-                                  ? "200px"
-                                  : "100px"
+                                    ? "200px"
+                                    : "100px"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis">
@@ -707,7 +749,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
       </Button>
       <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered>
         <ModalOverlay />
-        <ModalContent minW="40%">
+        <ModalContent minW="30%">
           <ModalHeader
             fontWeight="600"
             bg="mainBlue"
@@ -734,7 +776,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
               overflowX="hidden"
               display="flex"
               flexWrap="wrap"
-              gap="15px"
+              gap="5px"
               sx={{
                 "& .columnCheckBox:nth-of-type(odd)": {
                   bg: "borderGrayLight",
