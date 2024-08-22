@@ -410,6 +410,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
         <Input
           onChange={handleSearchChange}
           width="20%"
+          height="36px"
           bg="#dedede"
           padding="15px"
           borderRadius="5px"
@@ -437,13 +438,14 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
             }}
             optionLabel="label"
             placeholder="Select Sales Type"
-            style={{ width: "200px" }}
+            style={{ width: "200px", backgroundColor: "#dedede" }}
           />
           <Button
             onClick={onOpen}
             padding="15px"
             bg="mainBlue"
             color="white"
+            height="36px"
             _hover={{
               bg: "mainBlue",
             }}>
@@ -775,7 +777,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
         size="xl">
         <DrawerOverlay />
         <DrawerContent
-          maxW="70vw"
+          maxW="88vw"
           sx={{
             "& .stickyTop": {
               position: "sticky",
@@ -927,7 +929,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
         size="xl">
         <DrawerOverlay />
         <DrawerContent
-          maxW="70vw"
+          maxW="91vw"
           sx={{
             "& .stickyTop": {
               position: "sticky",
@@ -1143,7 +1145,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
           isOpen={isOpenGraphSettingsModal}
           onClose={onCloseGraphSettingsModal}>
           <DrawerOverlay />
-          <DrawerContent maxW="70vw">
+          <DrawerContent maxW="91vw">
             <DrawerCloseButton color="white" size="lg" mt="8px" />
             <DrawerHeader
               color="white"

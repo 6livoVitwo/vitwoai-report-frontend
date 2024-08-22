@@ -1,26 +1,38 @@
-import React, { useEffect, useState } from 'react';
-import { useDynamicNewQuery } from '../slice/graphApi';
-import { Alert, AlertIcon, Box, Button, Checkbox, Divider, Grid, Heading, Input, Select, Spinner, Stack, Text, useToast } from '@chakra-ui/react';
-import { FiSettings } from 'react-icons/fi';
-import { IoMdColorFill } from 'react-icons/io';
-// import TypingMaster from './TypingMaster';
-import { capitalizeWord, lastDateOfMonth } from '../../../utils/common';
-import { MdRemoveRedEye, MdSave } from 'react-icons/md';
+import React, { useEffect, useState } from "react";
+import { useDynamicNewQuery } from "../slice/graphApi";
+import {
+  Alert,
+  AlertIcon,
+  Box,
+  Button,
+  Divider,
+  Grid,
+  Heading,
+  Input,
+  Select,
+  Spinner,
+  Stack,
+  Text,
+  useToast,
+} from "@chakra-ui/react";
+import { capitalizeWord, lastDateOfMonth } from "../../../utils/common";
+import { MdRemoveRedEye, MdSave } from "react-icons/md";
 import { MultiSelect } from "primereact/multiselect";
-import { useDispatch } from 'react-redux';
+import { useDispatch } from "react-redux";
 import { addWidget, updateWidget } from "../slice/graphSlice";
-import { useSelector } from 'react-redux';
-import BarChart from '../../dashboardNew/nivo/BarChart';
+import { useSelector } from "react-redux";
+import { Accordion, AccordionTab } from "primereact/accordion";
+import BarChart from "../../dashboardNew/nivo/BarChart";
 import NivoPieChart from "../../dashboardNew/nivo/PieChart";
 import LineChart from "../../dashboardNew/nivo/LineChart";
-import HeatMap from '../../dashboardNew/nivo/HeatMap';
+import HeatMap from "../../dashboardNew/nivo/HeatMap";
+import TypingMaster from "../../dashboardNew/components/TypingMaster";
 
 const chartComponents = {
   bar: BarChart,
   pie: NivoPieChart,
   line: LineChart,
   heatmap: HeatMap,
-  // Add other chart components here if needed
 };
 
 const ChartConfiguration = ({ configureChart }) => {
@@ -30,11 +42,12 @@ const ChartConfiguration = ({ configureChart }) => {
   const currentDate = new Date();
   const { type, group } = configureChart;
 
-  const toast = useToast()
+  const toast = useToast();
   const [chartDataApi, setChartDataApi] = useState([]);
   const [formDate, setFormDate] = useState(lastDateOfMonth(currentDate));
   const [toDate, setToDate] = useState(today);
   const [wise, setwise] = useState("sales");
+  const [valuetype, setValuetype] = useState("count");
   const [previewLoading, setPreviewLoading] = useState(false);
   const dispatch = useDispatch();
   const currentWidgets = useSelector((state) => state.salescustomer.widgets);
@@ -78,47 +91,6 @@ const ChartConfiguration = ({ configureChart }) => {
               column: "branch_id",
               operator: "equal",
               type: "Integer",
-              value: 1,
-            },
-          ],
-        },
-      },
-      {
-        wise: "purchase",
-        endpoint: "/purchase/purchase-graph-two",
-        body: {
-          xaxis: "items.goodsItems.goodsGroup.goodGroupName",
-          yaxis: [
-            "grnInvoice.grnSubTotal",
-            "grnInvoice.grnTotalCgst",
-            "grnInvoice.grnTotalIgst",
-            "grnInvoice.grnTotalAmount",
-          ],
-          groupBy: ["items.goodsItems.goodsGroup"],
-          valuetype: "sum",
-          filter: [
-            {
-              column: "companyId",
-              operator: "equal",
-              type: "integer",
-              value: 1,
-            },
-            {
-              column: "postingDate",
-              operator: "between",
-              type: "date",
-              value: [formDate, toDate],
-            },
-            {
-              column: "branchId",
-              operator: "equal",
-              type: "integer",
-              value: 1,
-            },
-            {
-              column: "locationId",
-              operator: "equal",
-              type: "integer",
               value: 1,
             },
           ],
@@ -168,47 +140,6 @@ const ChartConfiguration = ({ configureChart }) => {
           ],
         },
       },
-      {
-        wise: "purchase",
-        endpoint: "/purchase/purchase-graph-two",
-        body: {
-          xaxis: "items.goodsItems.goodsGroup.goodGroupName",
-          yaxis: [
-            "grnInvoice.grnSubTotal",
-            "grnInvoice.grnTotalCgst",
-            "grnInvoice.grnTotalIgst",
-            "grnInvoice.grnTotalAmount",
-          ],
-          groupBy: ["items.goodsItems.goodsGroup"],
-          valuetype: "sum",
-          filter: [
-            {
-              column: "companyId",
-              operator: "equal",
-              type: "integer",
-              value: 1,
-            },
-            {
-              column: "postingDate",
-              operator: "between",
-              type: "date",
-              value: [formDate, toDate],
-            },
-            {
-              column: "branchId",
-              operator: "equal",
-              type: "integer",
-              value: 1,
-            },
-            {
-              column: "locationId",
-              operator: "equal",
-              type: "integer",
-              value: 1,
-            },
-          ],
-        },
-      },
     ],
     line: [
       {
@@ -248,47 +179,6 @@ const ChartConfiguration = ({ configureChart }) => {
               column: "branch_id",
               operator: "equal",
               type: "Integer",
-              value: 1,
-            },
-          ],
-        },
-      },
-      {
-        wise: "purchase",
-        endpoint: "/purchase/purchase-graph-two",
-        body: {
-          xaxis: "items.goodsItems.goodsGroup.goodGroupName",
-          yaxis: [
-            "grnInvoice.grnSubTotal",
-            "grnInvoice.grnTotalCgst",
-            "grnInvoice.grnTotalIgst",
-            "grnInvoice.grnTotalAmount",
-          ],
-          groupBy: ["items.goodsItems.goodsGroup"],
-          valuetype: "sum",
-          filter: [
-            {
-              column: "companyId",
-              operator: "equal",
-              type: "integer",
-              value: 1,
-            },
-            {
-              column: "postingDate",
-              operator: "between",
-              type: "date",
-              value: [formDate, toDate],
-            },
-            {
-              column: "branchId",
-              operator: "equal",
-              type: "integer",
-              value: 1,
-            },
-            {
-              column: "locationId",
-              operator: "equal",
-              type: "integer",
               value: 1,
             },
           ],
@@ -338,47 +228,6 @@ const ChartConfiguration = ({ configureChart }) => {
           ],
         },
       },
-      {
-        wise: "purchase",
-        endpoint: "/purchase/purchase-graph-two",
-        body: {
-          xaxis: "items.goodsItems.goodsGroup.goodGroupName",
-          yaxis: [
-            "grnInvoice.grnSubTotal",
-            "grnInvoice.grnTotalCgst",
-            "grnInvoice.grnTotalIgst",
-            "grnInvoice.grnTotalAmount",
-          ],
-          groupBy: ["items.goodsItems.goodsGroup"],
-          valuetype: "sum",
-          filter: [
-            {
-              column: "companyId",
-              operator: "equal",
-              type: "integer",
-              value: 1,
-            },
-            {
-              column: "postingDate",
-              operator: "between",
-              type: "date",
-              value: [formDate, toDate],
-            },
-            {
-              column: "branchId",
-              operator: "equal",
-              type: "integer",
-              value: 1,
-            },
-            {
-              column: "locationId",
-              operator: "equal",
-              type: "integer",
-              value: 1,
-            },
-          ],
-        },
-      },
     ],
   });
 
@@ -386,9 +235,9 @@ const ChartConfiguration = ({ configureChart }) => {
   const { endpoint, body } = chartConfig || {};
   console.log("chartConfig1:", chartConfig);
 
-const selectedConfig = Array.isArray(chartConfig)
-  ? chartConfig.find((config) => config.wise === wise)
-  : null;
+  const selectedConfig = Array.isArray(chartConfig)
+    ? chartConfig.find((config) => config.wise === wise)
+    : null;
 
   const {
     data: graphData,
@@ -429,74 +278,38 @@ const selectedConfig = Array.isArray(chartConfig)
     return <div>No valid chart type provided</div>;
   }
 
-  // const updateChartConfig = (key, value) => {
-  //   console.log({ key, value });
-  //   setChartApiConfig((prevConfig) => ({
-  //     ...prevConfig,
-  //     [type]: {
-  //       ...prevConfig.bar,
-  //       body: {
-  //         ...prevConfig.bar.body,
-  //         [key]: value,
-  //       },
-  //     },
-  //   }));
-  // };
-
   const updateChartConfig = (key, value) => {
-  console.log({ key, value });
-  
-  setChartApiConfig((prevConfig) => {
-    const updatedConfig = prevConfig[type].map((config) => ({
-      ...config,
-      body: {
-        ...config.body,
-        [key]: value,
-      },
-    }));
+    console.log({ key, value });
 
-    return {
-      ...prevConfig,
-      [type]: updatedConfig,
-    };
-  });
-};
-
-
-  const handleDateChange = (form, to) => {
-    console.log({ form, to });
-    setChartApiConfig((prevConfig) => ({
-      ...prevConfig,
-      [type]: {
-        ...prevConfig[type],
+    setChartApiConfig((prevConfig) => {
+      const updatedConfig = prevConfig[type].map((config) => ({
+        ...config,
         body: {
-          ...prevConfig[type].body,
-          filter: [
-            {
-              column: "invoice_date",
-              operator: "between",
-              type: "date",
-              value: [form, to],
-            },
-          ],
+          ...config.body,
+          [key]: value,
         },
-      },
-    }));
+      }));
+
+      return {
+        ...prevConfig,
+        [type]: updatedConfig,
+      };
+    });
   };
 
-   const yAxisOptions = [
-     {
-       value: "salesPgi.salesDelivery.totalAmount",
-       label: "Sales PGI Delivery Amount",
-     },
-     { value: "salesPgi.totalAmount", label: "Sales PGI Amount" },
-     { value: "quotation.totalAmount", label: "Quotation Amount" },
-     { value: "salesOrder.totalAmount", label: "Sales Order Amount" },
-     { value: "all_total_amt", label: "All Total Amount" },
+  const yAxisOptions = [
+    {
+      value: "salesPgi.salesDelivery.totalAmount",
+      label: "Sales PGI Delivery Amount",
+    },
+    { value: "salesPgi.totalAmount", label: "Sales PGI Amount" },
+    { value: "quotation.totalAmount", label: "Quotation Amount" },
+    { value: "salesOrder.totalAmount", label: "Sales Order Amount" },
+    { value: "all_total_amt", label: "All Total Amount" },
   ];
-  
+
   const handleYAxisChange = (e) => {
-    const { value } = e.target; 
+    const { value } = e.target;
 
     setChartApiConfig((prevConfig) => ({
       ...prevConfig,
@@ -509,8 +322,6 @@ const selectedConfig = Array.isArray(chartConfig)
       })),
     }));
   };
-
-
 
   const handlePreviewBtn = (form, to) => {
     setPreviewLoading(true);
@@ -537,7 +348,22 @@ const selectedConfig = Array.isArray(chartConfig)
     }, 500);
   };
 
-  //Updated code for showing all chart
+  const handleValueTypeChange = (e) => {
+    const selectedValueType = e.target.value;
+    setValuetype(selectedValueType);
+
+    setChartApiConfig((prevConfig) => ({
+      ...prevConfig,
+      [type]: prevConfig[type].map((config) => ({
+        ...config,
+        body: {
+          ...config.body,
+          valuetype: selectedValueType,
+        },
+      })),
+    }));
+  };
+
   const handleSaveBtn = () => {
     const widgetIndex = currentWidgets.findIndex(
       (widget) => widget.type === type
@@ -568,9 +394,8 @@ const selectedConfig = Array.isArray(chartConfig)
       title: "Chart Saved Successfully",
       status: "success",
       isClosable: true,
-    })
+    });
   };
-
 
   return (
     <>
@@ -579,10 +404,11 @@ const selectedConfig = Array.isArray(chartConfig)
         flexWrap="wrap"
         justifyContent="space-between"
         marginTop="10px">
+        {/* show graph view */}
         <Box
           width={{
             base: "100%",
-            lg: "69%",
+            lg: "59%",
           }}
           mb={6}>
           <Box
@@ -608,140 +434,117 @@ const selectedConfig = Array.isArray(chartConfig)
                   {wise !== "" ? capitalizeWord(wise) : capitalizeWord(type)}
                 </Heading>
               </Box>
-              <Box
-                style={{
-                  padding: "10px",
-                  fontWeight: 600,
-                  color: "black",
-                }}>
-                <Button
-                  variant="outline"
-                  style={{
-                    padding: "15px 10px",
-                    fontSize: "12px",
-                    color: "#718296",
-                  }}>
-                  <FiSettings style={{ marginRight: "6px" }} />
-                  Settings
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => console.log("clicked")}
-                  style={{
-                    padding: "15px 10px",
-                    fontSize: "12px",
-                    color: "#718296",
-                    marginLeft: "8px",
-                  }}>
-                  <IoMdColorFill style={{ marginRight: "6px" }} />
-                  Variants
-                </Button>
-              </Box>
             </Box>
             <Box sx={{ height: "300px" }}>
               <ChartComponent liveData={chartDataApi} />
             </Box>
           </Box>
         </Box>
+
+        {/* show accordion */}
+        <Box
+          width={{
+            base: "100%",
+            lg: "39%",
+          }}>
+          <Accordion activeIndex={0}>
+            <AccordionTab
+              header="Basic Info"
+              headerStyle={{
+                backgroundColor: "#f0f0f0",
+                color: "#333",
+                padding: "7px",
+                fontSize: "14px",
+                fontWeight: "bold",
+                borderTopLeftRadius: "6px",
+                borderTopRightRadius: "6px",
+              }}
+              contentStyle={{
+                border: "1px solid #ecebeb",
+              }}>
+              <Box mb={3}>
+                <Box style={{ lineHeight: "1.5", fontSize: "14px" }}>
+                  <Heading mt={4} mb={4}>
+                    Graph Info
+                  </Heading>
+                  <TypingMaster />
+                </Box>
+              </Box>
+            </AccordionTab>
+            <AccordionTab
+              header="Customized Graph"
+              headerStyle={{
+                backgroundColor: "#f0f0f0",
+                color: "#333",
+                padding: "7px",
+                fontSize: "14px",
+                fontWeight: "bold",
+                borderTopLeftRadius: "6px",
+                borderTopRightRadius: "6px",
+              }}
+              contentStyle={{
+                border: "1px solid #ecebeb",
+              }}>
+              <Box>
+                <Grid templateColumns="repeat(1, 1fr)" gap={6}>
+                  <Stack spacing={3}>
+                    <Text fontSize="sm" fontWeight="500">
+                      X Axis
+                    </Text>
+                    <MultiSelect
+                      style={{ border: "1px solid #c4c4c4" }}
+                      options={yAxisOptions}
+                      value={selectedConfig?.body?.yaxis || []}
+                      onChange={(e) => handleYAxisChange(e)}
+                      optionLabel="label"
+                      placeholder="Select Y-Axis"
+                    />
+                  </Stack>
+                </Grid>
+                <Grid templateColumns="repeat(1, 1fr)" gap={6}>
+                  <Stack spacing={3}>
+                    <Text fontSize="sm" fontWeight="500">
+                      Y Axis
+                    </Text>
+                    <Select
+                      size="lg"
+                      value={valuetype}
+                      onChange={handleValueTypeChange}>
+                      <option value="count">Count</option>
+                      <option value="sum">Sum</option>
+                    </Select>
+                  </Stack>
+                </Grid>
+                <Grid templateColumns="repeat(2, 1fr)" gap={6}>
+                  <Stack spacing={3}>
+                    <Text fontSize="sm" fontWeight="500">
+                      From Date
+                    </Text>
+                    <Input
+                      size="lg"
+                      type="date"
+                      onChange={(e) => setFormDate(e.target.value)}
+                      value={formDate}
+                    />
+                  </Stack>
+                  <Stack spacing={3}>
+                    <Text fontSize="sm" fontWeight="500">
+                      To Date
+                    </Text>
+                    <Input
+                      size="lg"
+                      type="date"
+                      onChange={(e) => setToDate(e.target.value)}
+                      value={toDate}
+                    />
+                  </Stack>
+                </Grid>
+              </Box>
+            </AccordionTab>
+          </Accordion>
+        </Box>
       </Box>
 
-      <Box>
-        <Grid templateColumns="repeat(1, 1fr)" gap={6}>
-          <Stack spacing={3}>
-            <Text fontSize="sm" fontWeight="500">
-              Wise {wise !== "" && `(${wise})`}
-            </Text>
-            <Select
-              size="lg"
-              onChange={(e) => setwise(e.target.value)}
-              value={wise}>
-              <option value="sales">Sales</option>
-              <option value="purchase">Purchase</option>
-            </Select>
-          </Stack>
-        </Grid>
-        <Grid templateColumns="repeat(2, 1fr)" gap={6}>
-          <Stack spacing={3}>
-            <Text fontSize="sm" fontWeight="500">
-              From Date
-            </Text>
-            <Input
-              size="lg"
-              type="date"
-              onChange={(e) => setFormDate(e.target.value)}
-              value={formDate}
-            />
-          </Stack>
-          <Stack spacing={3}>
-            <Text fontSize="sm" fontWeight="500">
-              To Date
-            </Text>
-            <Input
-              size="lg"
-              type="date"
-              onChange={(e) => setToDate(e.target.value)}
-              value={toDate}
-            />
-          </Stack>
-        </Grid>
-        <Grid templateColumns="repeat(3, 1fr)" gap={6}>
-          <Stack spacing={3}>
-            <Text fontSize="sm" fontWeight="500">
-              X Axis
-            </Text>
-            <Select
-              size="lg"
-              onChange={(e) => updateChartConfig("xaxis", e.target.value)}
-              value={""}>
-              <option value="items.goodsItems.goodsGroup.goodGroupName">
-                Goods Group Name
-              </option>
-            </Select>
-          </Stack>
-          <Stack spacing={3}>
-            <Text fontSize="sm" fontWeight="500">
-              Y Axis
-            </Text>
-            <MultiSelect
-              options={yAxisOptions}
-              value={selectedConfig?.body?.yaxis || []} // Ensure this is an array
-              onChange={(e) => handleYAxisChange(e)} // Pass the event to your handler
-              optionLabel="label"
-              placeholder="Select Y-Axis"
-            />
-
-            {/* {yAxisOptions.map((option) => (
-              <Checkbox
-                key={option.value}
-                isChecked={chartApiConfig[type][0].body.yaxis.includes(
-                  option.value
-                )}
-                onChange={handleYAxisChange}
-                value={option.value}>
-                {option.label}
-              </Checkbox>
-            ))} */}
-          </Stack>
-        </Grid>
-        {/* <Grid templateColumns="repeat(1, 1fr)" gap={6}>
-          <Text fontSize="sm" fontWeight="500">
-            Y Axis
-          </Text>
-          <Stack spacing={[1, 5]} direction={["column", "row"]}>
-            {yAxisOptions.map((option) => (
-              <Checkbox
-                key={option.value}
-                isChecked={chartApiConfig[type][0].body.yaxis.includes(
-                  option.value
-                )}
-                onChange={handleYAxisChange}
-                value={option.value}>
-                {option.label}
-              </Checkbox>
-            ))}
-          </Stack>
-        </Grid> */}
-      </Box>
       <Divider my={6} />
       <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
         <Button
