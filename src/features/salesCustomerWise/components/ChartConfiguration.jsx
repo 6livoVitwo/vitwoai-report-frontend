@@ -6,6 +6,7 @@ import { IoMdColorFill } from 'react-icons/io';
 // import TypingMaster from './TypingMaster';
 import { capitalizeWord, lastDateOfMonth } from '../../../utils/common';
 import { MdRemoveRedEye, MdSave } from 'react-icons/md';
+import { MultiSelect } from "primereact/multiselect";
 import { useDispatch } from 'react-redux';
 import { addWidget, updateWidget } from "../slice/graphSlice";
 import { useSelector } from 'react-redux';
@@ -494,27 +495,21 @@ const selectedConfig = Array.isArray(chartConfig)
      { value: "all_total_amt", label: "All Total Amount" },
   ];
   
-   const handleYAxisChange = (e) => {
-     const value = e.target.value;
-     setChartApiConfig((prevConfig) => {
-       const selectedValues = new Set(prevConfig[type][0].body.yaxis);
-       if (selectedValues.has(value)) {
-         selectedValues.delete(value);
-       } else {
-         selectedValues.add(value);
-       }
-       return {
-         ...prevConfig,
-         [type]: prevConfig[type].map((config) => ({
-           ...config,
-           body: {
-             ...config.body,
-             yaxis: Array.from(selectedValues),
-           },
-         })),
-       };
-     });
-   };
+  const handleYAxisChange = (e) => {
+    const { value } = e.target; 
+
+    setChartApiConfig((prevConfig) => ({
+      ...prevConfig,
+      [type]: prevConfig[type].map((config) => ({
+        ...config,
+        body: {
+          ...config.body,
+          yaxis: value,
+        },
+      })),
+    }));
+  };
+
 
 
   const handlePreviewBtn = (form, to) => {
@@ -707,6 +702,32 @@ const selectedConfig = Array.isArray(chartConfig)
             <Text fontSize="sm" fontWeight="500">
               Y Axis
             </Text>
+            <MultiSelect
+              options={yAxisOptions}
+              value={selectedConfig?.body?.yaxis || []} // Ensure this is an array
+              onChange={(e) => handleYAxisChange(e)} // Pass the event to your handler
+              optionLabel="label"
+              placeholder="Select Y-Axis"
+            />
+
+            {/* {yAxisOptions.map((option) => (
+              <Checkbox
+                key={option.value}
+                isChecked={chartApiConfig[type][0].body.yaxis.includes(
+                  option.value
+                )}
+                onChange={handleYAxisChange}
+                value={option.value}>
+                {option.label}
+              </Checkbox>
+            ))} */}
+          </Stack>
+        </Grid>
+        {/* <Grid templateColumns="repeat(1, 1fr)" gap={6}>
+          <Text fontSize="sm" fontWeight="500">
+            Y Axis
+          </Text>
+          <Stack spacing={[1, 5]} direction={["column", "row"]}>
             {yAxisOptions.map((option) => (
               <Checkbox
                 key={option.value}
@@ -718,20 +739,8 @@ const selectedConfig = Array.isArray(chartConfig)
                 {option.label}
               </Checkbox>
             ))}
-
-            {/* <Select
-              size="lg"
-              onChange={(e) => updateChartConfig("yaxis", [e.target.value])}>
-              <option value="salesPgi.salesDelivery.totalAmount">
-                Sales PGI Delivery Amount
-              </option>
-              <option value="salesPgi.totalAmount">Sales PGI Amount</option>
-              <option value="quotation.totalAmount">Quotation Amount</option>
-              <option value="salesOrder.totalAmount">Sales Order Amount</option>
-              <option value="all_total_amt">All Total Amount</option>
-            </Select> */}
           </Stack>
-        </Grid>
+        </Grid> */}
       </Box>
       <Divider my={6} />
       <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
