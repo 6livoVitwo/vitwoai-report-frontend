@@ -32,11 +32,20 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverHeader,
+  PopoverBody,
+  PopoverFooter,
+  PopoverArrow,
+  PopoverCloseButton,
+  PopoverAnchor,
 } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChartSimple } from "@fortawesome/free-solid-svg-icons";
+import { faChartSimple,faChartLine} from "@fortawesome/free-solid-svg-icons";
 import { saveAs } from "file-saver";
 import { faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { DownloadIcon } from "@chakra-ui/icons";
@@ -44,7 +53,7 @@ import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
 import { Calendar } from 'primereact/calendar';
-        
+
 
 const CustomTable = ({ setPage, newArray, alignment }) => {
   const [data, setData] = useState([...newArray]);
@@ -79,28 +88,28 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 
   const navigate = useNavigate();
 
-	const reportOptions = [
-		{
-			label: 'Product Wise',
-			value: '/reports/sales-product-wise/table-view',
-		},
-		{
-			label: 'Customer Wise',
-			value: '/reports/sales-customer-wise/table-view',
-		},
-		{
-			label: 'Vertical Wise',
-			value: '/reports/sales-vertical-wise/table-view',
-		},
-		{ 
-			label: 'So Wise',
-		    value: '/reports/sales-so-wise/table-view' 
-		},
-		{
-			label: 'Kam wise',
-			value: '/reports/sales-kam-Wise/table-view'
-		},
-	];
+  const reportOptions = [
+    {
+      label: 'Product Wise',
+      value: '/reports/sales-product-wise/table-view',
+    },
+    {
+      label: 'Customer Wise',
+      value: '/reports/sales-customer-wise/table-view',
+    },
+    {
+      label: 'Vertical Wise',
+      value: '/reports/sales-vertical-wise/table-view',
+    },
+    {
+      label: 'So Wise',
+      value: '/reports/sales-so-wise/table-view'
+    },
+    {
+      label: 'Kam wise',
+      value: '/reports/sales-kam-Wise/table-view'
+    },
+  ];
 
   useEffect(() => {
     if (selectedReport) {
@@ -394,26 +403,51 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
               background: '#dedede'
             }}
           />
+          {/* Graph view  */}
+          <Button
+            aria-label="Graph View"
+            borderRadius="30px"
+            width="40px"
+            height="40px"
+            bg='transparent'
+            border='1px solid gray'
+            _hover={{
+              bg: "mainBlue",
+              color: "white",
+            }}
+            _active={{
+              bg: "teal.600",
+            }}
+            _focus={{
+              boxShadow: "outline",
+            }}>
+            <FontAwesomeIcon icon={faChartLine} fontSize='20px' />
+          </Button>
+
           <Button
             onClick={onOpen}
             padding="15px"
-            bg="mainBlue"
-            h='36px'
-            color="white"
+            bg="transparent"
+            color="mainBlue"
+            border='1px solid gray'
+            h='40px'
+            w='40px'
+            rounded='30px'
             _hover={{
               bg: "mainBlue",
+              color: 'white'
             }}>
-            <FontAwesomeIcon icon={faChartSimple} color="white" />
-            <Text fontSize="13px" fontWeight="600" ml="5px">
-              Column
-            </Text>
+            <FontAwesomeIcon icon={faChartSimple} fontSize='20px' />
+
           </Button>
           <Menu>
             <MenuButton
-              bg="mainBlue"
-              color="white"
+              color="mainBlue"
+              border='1px solid gray'
               padding="5px"
-              borderRadius="5px"
+              h='40px'
+              w='40px'
+              borderRadius="30px"
               _hover={{
                 color: "white",
                 bg: "mainBlue",
@@ -425,10 +459,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                   justifyContent: "center",
                 },
               }}>
-              <DownloadIcon w="20px" h="15px" />
-              <Text fontSize="13px" fontWeight="600" ml="5px">
-                Download
-              </Text>
+              <DownloadIcon fontSize='20px' />
             </MenuButton>
             <MenuList>
               <MenuItem
@@ -439,7 +470,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                 <Box minW="25px">
                   <FontAwesomeIcon icon={faFileExcel} />
                 </Box>
-                <Box as="span">Download Table Report</Box>
+                <Box as="span">Export Report</Box>
               </MenuItem>
               <MenuItem
                 fontSize="13px"
@@ -449,7 +480,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                 <Box minW="25px">
                   <FontAwesomeIcon icon={faFileExcel} />
                 </Box>
-                <Box as="span">Download Report By Date</Box>
+                <Box as="span">Download Report</Box>
               </MenuItem>
               <Modal
                 isCentered
@@ -677,6 +708,75 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                             fontFamily="Poppins, sans-serif"
                             color="black">
                             {formatHeader(column)}
+                            <Popover >
+                              <PopoverTrigger>
+                                <Button
+                                  bg='transparent'
+                                >
+                                  <i className=" pi pi-filter" style={{ color: 'slateblue', fontSize: '1.3rem' }}></i>
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent>
+                                <PopoverArrow />
+                                <PopoverCloseButton />
+                                {/* <PopoverHeader>Confirmation!</PopoverHeader> */}
+                                <PopoverBody h='150px' >
+                                  <Select placeholder=' Filter With '
+                                    mt='25px' p='5px'
+                                    h='39px'
+                                    border='1px solid gray'
+                                    onChange={(e) =>
+                                      handleColumnFilterConditionChange(
+                                        column,
+                                        e.target.value
+                                      )
+                                    }
+                                  >
+                                    <option value='equal'>Equal</option>
+                                    <option value='option2'>NotEqual</option>
+                                    <option value='option3'>Like</option>
+                                    <option value='option3'>Like</option>
+                                    <option value='option3'>NotLike</option>
+                                    <option value='option3'>GraterThan</option>
+                                    <option value='option3'>GraterThanOrEqual</option>
+                                    <option value='option3'>LessThan</option>
+                                    <option value='option3'>LessThanOrEqual</option>
+                                    <option value='option3'>Between</option>
+                                  </Select>
+                                  <Input placeholder='Search By Name'
+                                    mt='8px'
+                                    p='6px'
+                                    ml='5px'
+                                    w='174px'
+                                    h='39px'
+                                    border='1px solid gray'
+                                    onChange={handleSearchChange}
+                                  />
+                                </PopoverBody>
+                                <Box display='flex'
+                                  justifyContent='flex-end'
+                                  width='90%'
+                                  ml='8px'
+                                  mb='10px'
+
+                                >
+                                  <Button
+                                    bg='mainBlue'
+                                    width="58px"
+                                    color="white"
+                                    mb="5px"
+                                    outline='none'
+                                    _hover={{
+                                      color: "white",
+                                      bg: "mainBlue",
+                                    }}
+                                  >
+                                    Apply
+                                  </Button>
+
+                                </Box>
+                              </PopoverContent>
+                            </Popover>
                           </Th>
                         )}
                       </Draggable>
@@ -723,30 +823,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
           </Droppable>
         </DragDropContext>
       </TableContainer>
-      <Button
-        position="fixed"
-        bottom="4"
-        right="4"
-        aria-label="Graph View"
-        size="lg"
-        borderRadius="full"
-        boxShadow="lg"
-        fontSize="2xl"
-        width="50px"
-        height="50px"
-        bg="rgba(213, 232, 251, 0.5)"
-        _hover={{
-          bg: "mainBlue",
-          color: "white",
-        }}
-        _active={{
-          bg: "teal.600",
-        }}
-        _focus={{
-          boxShadow: "outline",
-        }}>
-        <FontAwesomeIcon icon={faChartSimple} size="lg" />
-      </Button>
+
       <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered>
         <ModalOverlay />
         <ModalContent minW="30%">

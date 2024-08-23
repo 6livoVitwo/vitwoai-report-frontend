@@ -37,11 +37,13 @@ import {
   PopoverContent,
   PopoverHeader,
   PopoverBody,
+  PopoverCloseButton,
+  PopoverArrow,
 } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChartSimple } from "@fortawesome/free-solid-svg-icons";
+import { faChartSimple, faChartLine } from "@fortawesome/free-solid-svg-icons";
 import { saveAs } from "file-saver";
 import { faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { DownloadIcon } from "@chakra-ui/icons";
@@ -65,7 +67,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
   const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
   const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null); 
+  const [endDate, setEndDate] = useState(null);
 
   const toast = useToast();
   const tableContainerRef = useRef(null);
@@ -86,28 +88,28 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 
   const navigate = useNavigate();
 
-	const reportOptions = [
-		{
-			label: 'Product Wise',
-			value: '/reports/sales-product-wise/table-view',
-		},
-		{
-			label: 'Customer Wise',
-			value: '/reports/sales-customer-wise/table-view',
-		},
-		{
-			label: 'Vertical Wise',
-			value: '/reports/sales-vertical-wise/table-view',
-		},
-		{ 
-			label: 'So Wise',
-		    value: '/reports/sales-so-wise/table-view' 
-		},
-		{
-			label: 'Kam wise',
-			value: '/reports/sales-kam-Wise/table-view'
-		},
-	];
+  const reportOptions = [
+    {
+      label: 'Product Wise',
+      value: '/reports/sales-product-wise/table-view',
+    },
+    {
+      label: 'Customer Wise',
+      value: '/reports/sales-customer-wise/table-view',
+    },
+    {
+      label: 'Vertical Wise',
+      value: '/reports/sales-vertical-wise/table-view',
+    },
+    {
+      label: 'So Wise',
+      value: '/reports/sales-so-wise/table-view'
+    },
+    {
+      label: 'Kam wise',
+      value: '/reports/sales-kam-Wise/table-view'
+    },
+  ];
 
   useEffect(() => {
     if (selectedReport) {
@@ -134,7 +136,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     }
   };
 
-  
+
 
   useEffect(() => {
     const initialColumns = getColumns(data)
@@ -257,17 +259,17 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
       });
     }
 
-if (startDate && endDate) {
-  filteredData = filteredData.filter((item) => {
-    const rawDate = item["Invoice Date"];
-    const date = parseDate(rawDate);
-    console.log("Start Date:", startDate);
-    console.log("End Date:", endDate);
-    console.log("Raw Item Date:", rawDate);
-    console.log("Item Date:", date);
-    return date >= startDate && date <= endDate;
-  });
-}
+    if (startDate && endDate) {
+      filteredData = filteredData.filter((item) => {
+        const rawDate = item["Invoice Date"];
+        const date = parseDate(rawDate);
+        console.log("Start Date:", startDate);
+        console.log("End Date:", endDate);
+        console.log("Raw Item Date:", rawDate);
+        console.log("Item Date:", date);
+        return date >= startDate && date <= endDate;
+      });
+    }
 
     return filteredData;
   }, [data, searchQuery, columnFilters, startDate, endDate]);
@@ -318,12 +320,12 @@ if (startDate && endDate) {
     }));
   };
 
-    const handleApplyFilters = () => {
-      setPage(1);
-      setData([]);
-      loadMoreData();
-      console.log("Working");
-    };
+  const handleApplyFilters = () => {
+    setPage(1);
+    setData([]);
+    loadMoreData();
+    console.log("Working");
+  };
 
   const handleColumnFilterValueChange = (field, value) => {
     let type = typeof value;
@@ -419,49 +421,55 @@ if (startDate && endDate) {
             }}
             optionLabel="label"
             placeholder="Select Sales Type"
-            style={{ width: "200px",
-              background:'#dedede'
-             }}
+            style={{
+              width: "200px",
+              background: '#dedede'
+            }}
           />
-          <Box display="flex" justifyContent="space-between"  gap="10px">
-            <ReactDatePicker
-              selected={startDate}
-              onChange={(date) => setStartDate(date)}
-              dateFormat="dd-MM-yyyy" 
-              placeholderText="Select start date"
-            />
-            <ReactDatePicker
-              selected={endDate}
-              onChange={(date) => setEndDate(date)}
-              dateFormat="dd-MM-yyyy"
-              placeholderText="Select end date"
-            />
-
-            <Button onClick={handleApplyFilters}
-            height='36px'
-            >Apply Filters</Button>
-          </Box>
+          {/* Graph view  */}
+          <Button
+            aria-label="Graph View"
+            borderRadius="30px"
+            width="40px"
+            height="40px"
+            bg='transparent'
+            border='1px solid gray'
+            _hover={{
+              bg: "mainBlue",
+              color: "white",
+            }}
+            _active={{
+              bg: "teal.600",
+            }}
+            _focus={{
+              boxShadow: "outline",
+            }}>
+            <FontAwesomeIcon icon={faChartLine} fontSize='20px' />
+          </Button>
 
           <Button
             onClick={onOpen}
             padding="15px"
-            bg="mainBlue"
-            color="white"
-            height='36px'
+            bg="transparent"
+            border='1px solid gray'
+            color="mainBlue"
+            height='40px'
+            width='40px'
+            borderRadius='30px'
             _hover={{
               bg: "mainBlue",
+              color: 'white'
             }}>
-            <FontAwesomeIcon icon={faChartSimple} color="white" />
-            <Text fontSize="13px" fontWeight="600" ml="5px">
-              Column
-            </Text>
+            <FontAwesomeIcon icon={faChartSimple} fontSize='20px' />
           </Button>
           <Menu>
             <MenuButton
-              bg="mainBlue"
-              color="white"
+              color="mainBlue"
+              border='1px solid gray'
               padding="5px"
-              borderRadius="5px"
+              height='40px'
+              width='40px'
+              borderRadius="30px"
               _hover={{
                 color: "white",
                 bg: "mainBlue",
@@ -473,10 +481,7 @@ if (startDate && endDate) {
                   justifyContent: "center",
                 },
               }}>
-              <DownloadIcon w="20px" h="15px" />
-              <Text fontSize="13px" fontWeight="600" ml="5px">
-                Download
-              </Text>
+              <DownloadIcon fontSize='20px' />
             </MenuButton>
             <MenuList>
               <MenuItem
@@ -487,7 +492,7 @@ if (startDate && endDate) {
                 <Box minW="25px">
                   <FontAwesomeIcon icon={faFileExcel} />
                 </Box>
-                <Box as="span">Download Table Report</Box>
+                <Box as="span">Export Report</Box>
               </MenuItem>
               <MenuItem
                 fontSize="13px"
@@ -497,7 +502,7 @@ if (startDate && endDate) {
                 <Box minW="25px">
                   <FontAwesomeIcon icon={faFileExcel} />
                 </Box>
-                <Box as="span">Download Report By Date</Box>
+                <Box as="span">Download Report</Box>
               </MenuItem>
               <Modal
                 isCentered
@@ -534,30 +539,30 @@ if (startDate && endDate) {
                         Select Your Date - Range
                       </Text>
                       <Box display='flex'
-                      justifyContent='space-between'
-												padding='5px'
-												alignItems='center'
-											>
-												<Calendar
-													// value={startDate}
-													// onChange={(e) => setStartDate(e.value)}
-													placeholder='Start Date'
-													style={{
-														width: '150px',
-														padding: '5px',
-													}}
-												/>
-												<Text>to</Text>
-												<Calendar
-													// value={endDate}
-													// onChange={(e) => setEndDate(e.value)}
-													placeholder='End Date'
-													style={{
-														width: '150px',
-														padding: '5px',
-													}}
-												/>
-											</Box>
+                        justifyContent='space-between'
+                        padding='5px'
+                        alignItems='center'
+                      >
+                        <Calendar
+                          // value={startDate}
+                          // onChange={(e) => setStartDate(e.value)}
+                          placeholder='Start Date'
+                          style={{
+                            width: '150px',
+                            padding: '5px',
+                          }}
+                        />
+                        <Text>to</Text>
+                        <Calendar
+                          // value={endDate}
+                          // onChange={(e) => setEndDate(e.value)}
+                          placeholder='End Date'
+                          style={{
+                            width: '150px',
+                            padding: '5px',
+                          }}
+                        />
+                      </Box>
                     </Box>
                   </ModalBody>
 
@@ -725,7 +730,7 @@ if (startDate && endDate) {
                             fontFamily="Poppins, sans-serif"
                             color="black">
                             {formatHeader(column)}
-                            <Popover>
+                            {/* <Popover>
                               <PopoverTrigger>
                                 <Button
                                   variant="link"
@@ -776,7 +781,77 @@ if (startDate && endDate) {
                                   </Select>
                                 </PopoverBody>
                               </PopoverContent>
+                            </Popover> */}
+                            <Popover >
+                              <PopoverTrigger>
+                                <Button
+                                  bg='transparent'
+                                >
+                                  <i className=" pi pi-filter" style={{ color: 'slateblue', fontSize: '1.3rem' }}></i>
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent>
+                                <PopoverArrow />
+                                <PopoverCloseButton />
+                                {/* <PopoverHeader>Confirmation!</PopoverHeader> */}
+                                <PopoverBody h='150px' >
+                                  <Select placeholder=' Filter With '
+                                    mt='25px' p='5px'
+                                    h='39px'
+                                    border='1px solid gray'
+                                    onChange={(e) =>
+                                      handleColumnFilterConditionChange(
+                                        column,
+                                        e.target.value
+                                      )
+                                    }
+                                  >
+                                    <option value='equal'>Equal</option>
+                                    <option value='option2'>NotEqual</option>
+                                    <option value='option3'>Like</option>
+                                    <option value='option3'>Like</option>
+                                    <option value='option3'>NotLike</option>
+                                    <option value='option3'>GraterThan</option>
+                                    <option value='option3'>GraterThanOrEqual</option>
+                                    <option value='option3'>LessThan</option>
+                                    <option value='option3'>LessThanOrEqual</option>
+                                    <option value='option3'>Between</option>
+                                  </Select>
+                                  <Input placeholder='Search By Name'
+                                    mt='8px'
+                                    p='6px'
+                                    ml='5px'
+                                    w='174px'
+                                    h='39px'
+                                    border='1px solid gray'
+                                    onChange={handleSearchChange}
+                                  />
+                                </PopoverBody>
+                                <Box display='flex'
+                                  justifyContent='flex-end'
+                                  width='90%'
+                                  ml='8px'
+                                  mb='10px'
+
+                                >
+                                  <Button
+                                    bg='mainBlue'
+                                    width="58px"
+                                    color="white"
+                                    mb="5px"
+                                    outline='none'
+                                    _hover={{
+                                      color: "white",
+                                      bg: "mainBlue",
+                                    }}
+                                  >
+                                    Apply
+                                  </Button>
+
+                                </Box>
+                              </PopoverContent>
                             </Popover>
+
                           </Th>
                         )}
                       </Draggable>
@@ -799,8 +874,8 @@ if (startDate && endDate) {
                                 column === "description"
                                   ? "300px"
                                   : column === "name"
-                                  ? "200px"
-                                  : "100px"
+                                    ? "200px"
+                                    : "100px"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis">
@@ -823,30 +898,7 @@ if (startDate && endDate) {
           </Droppable>
         </DragDropContext>
       </TableContainer>
-      <Button
-        position="fixed"
-        bottom="4"
-        right="4"
-        aria-label="Graph View"
-        size="lg"
-        borderRadius="full"
-        boxShadow="lg"
-        fontSize="2xl"
-        width="50px"
-        height="50px"
-        bg="rgba(213, 232, 251, 0.5)"
-        _hover={{
-          bg: "mainBlue",
-          color: "white",
-        }}
-        _active={{
-          bg: "teal.600",
-        }}
-        _focus={{
-          boxShadow: "outline",
-        }}>
-        <FontAwesomeIcon icon={faChartSimple} size="lg" />
-      </Button>
+
       <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered>
         <ModalOverlay />
         <ModalContent minW="30%">
