@@ -242,6 +242,7 @@ const SalesDetailedCustomTable = ({ setPage, newArray, setDateRange }) => {
 		const container = tableContainerRef.current;
 		if (container) {
 			container.addEventListener('scroll', handleScroll);
+			handleScroll();
 		}
 		return () => {
 			if (container) {
@@ -393,23 +394,27 @@ const SalesDetailedCustomTable = ({ setPage, newArray, setDateRange }) => {
 					</Button> */}
 					<Button
 						onClick={onOpen}
-						padding='15px'
-						bg='mainBlue'
-						color='white'
+						padding="15px"
+						bg="transparent"
+						border='1px solid gray'
+						borderRadius='30px'
+						height='40px'
+						width='40px'
+						color="mainBlue"
 						_hover={{
 							bg: 'mainBlue',
+							color:'white'
 						}}>
-						<FontAwesomeIcon icon={faChartSimple} color='white' />
-						<Text fontSize='13px' fontWeight='600' ml='5px'>
-							Column
-						</Text>
+						<FontAwesomeIcon icon={faChartSimple} fontSize='20px' />
 					</Button>
 					<Menu>
 						<MenuButton
-							bg='mainBlue'
-							color='white'
-							padding='5px'
-							borderRadius='5px'
+						    color="mainBlue"
+							border='1px solid gray'
+							padding="5px"
+							height='40px'
+							width='40px'
+							borderRadius="30px"
 							_hover={{
 								color: 'white',
 								bg: 'mainBlue',
@@ -421,10 +426,7 @@ const SalesDetailedCustomTable = ({ setPage, newArray, setDateRange }) => {
 									justifyContent: 'center',
 								},
 							}}>
-							<DownloadIcon w='20px' h='15px' />
-							<Text fontSize='13px' fontWeight='600' ml='5px'>
-								Download
-							</Text>
+							<DownloadIcon  fontSize='20px' />
 						</MenuButton>
 						<MenuList>
 							<MenuItem
@@ -435,7 +437,7 @@ const SalesDetailedCustomTable = ({ setPage, newArray, setDateRange }) => {
 								<Box minW='25px'>
 									<FontAwesomeIcon icon={faFileExcel} />
 								</Box>
-								<Box as='span'>Download Table Report</Box>
+								<Box as='span'>Export Report</Box>
 							</MenuItem>
 							<MenuItem
 								fontSize='13px'
@@ -445,7 +447,7 @@ const SalesDetailedCustomTable = ({ setPage, newArray, setDateRange }) => {
 								<Box minW='25px'>
 									<FontAwesomeIcon icon={faFileExcel} />
 								</Box>
-								<Box as='span'>Download Report By Date</Box>
+								<Box as='span'>Download Report </Box>
 							</MenuItem>
 							<Modal
 								isCentered

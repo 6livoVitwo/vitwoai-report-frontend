@@ -112,11 +112,11 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     onClose: onCloseGraphSettingsModal,
   } = useDisclosure();
 
- const {
-   isOpen: isOpenGraphDetailsView,
-   onOpen: onOpenGraphDetailsView,
-   onClose: onCloseGraphDetailsView,
- } = useDisclosure();
+  const {
+    isOpen: isOpenGraphDetailsView,
+    onOpen: onOpenGraphDetailsView,
+    onClose: onCloseGraphDetailsView,
+  } = useDisclosure();
 
   const getColumnStyle = (header) => ({
     textAlign: alignment[header] || "left",
@@ -124,28 +124,28 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 
   const navigate = useNavigate();
 
- const reportOptions = [
-   {
-     label: "Product Wise",
-     value: "/reports/sales-product-wise/table-view",
-   },
-   {
-     label: "Customer Wise",
-     value: "/reports/sales-customer-wise/table-view",
-   },
-   {
-     label: "Vertical Wise",
-     value: "/reports/sales-vertical-wise/table-view",
-   },
-   {
-     label: "So Wise",
-     value: "/reports/sales-so-wise/table-view",
-   },
-   {
-     label: "Kam wise",
-     value: "/reports/sales-kam-Wise/table-view",
-   },
- ];
+  const reportOptions = [
+    {
+      label: "Product Wise",
+      value: "/reports/sales-product-wise/table-view",
+    },
+    {
+      label: "Customer Wise",
+      value: "/reports/sales-customer-wise/table-view",
+    },
+    {
+      label: "Vertical Wise",
+      value: "/reports/sales-vertical-wise/table-view",
+    },
+    {
+      label: "So Wise",
+      value: "/reports/sales-so-wise/table-view",
+    },
+    {
+      label: "Kam wise",
+      value: "/reports/sales-kam-Wise/table-view",
+    },
+  ];
 
   useEffect(() => {
     if (selectedReport) {
@@ -328,6 +328,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     const container = tableContainerRef.current;
     if (container) {
       container.addEventListener("scroll", handleScroll);
+      handleScroll();
       return () => container.removeEventListener("scroll", handleScroll);
     }
   }, [loading, lastPage]);
@@ -410,9 +411,9 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
       return;
     }
     onOpenGraphDetailsView();
-   const filterData = removeProperty(chart);
-   setConfigureChart(filterData);
-  }
+    const filterData = removeProperty(chart);
+    setConfigureChart(filterData);
+  };
 
   console.log(newArray, "newArray");
   console.log(selectedColumns, "selectedColumns");
@@ -438,6 +439,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
           width="20%"
           height="36px"
           bg="#dedede"
+          h="36px"
           padding="15px"
           borderRadius="5px"
           placeholder="Search Global Data"
@@ -466,6 +468,28 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
             placeholder="Select Sales Type"
             style={{ width: "200px", backgroundColor: "#dedede" }}
           />
+
+          {/* Graph view  */}
+          <Button
+            aria-label="Graph View"
+            borderRadius="30px"
+            width="40px"
+            height="40px"
+            bg="transparent"
+            border="1px solid gray"
+            _hover={{
+              bg: "mainBlue",
+              color: "white",
+            }}
+            _active={{
+              bg: "teal.600",
+            }}
+            _focus={{
+              boxShadow: "outline",
+            }}>
+            <FontAwesomeIcon icon={faChartLine} fontSize="20px" />
+          </Button>
+
           <Button
             aria-label="Graph View"
             onClick={onOpenGraphAddDrawer}
@@ -531,7 +555,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                 <Box minW="25px">
                   <FontAwesomeIcon icon={faFileExcel} />
                 </Box>
-                <Box as="span">Download Table Report</Box>
+                <Box as="span">Export Report</Box>
               </MenuItem>
               <MenuItem
                 fontSize="13px"
@@ -541,7 +565,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                 <Box minW="25px">
                   <FontAwesomeIcon icon={faFileExcel} />
                 </Box>
-                <Box as="span">Download Report By Date</Box>
+                <Box as="span">Download Report</Box>
               </MenuItem>
               <Modal
                 isCentered
@@ -577,6 +601,31 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                       <Text fontWeight="600" mb="5px" fontSize="14px">
                         Select Your Date - Range
                       </Text>
+                      <Box
+                        display="flex"
+                        justifyContent="space-between"
+                        padding="5px"
+                        alignItems="center">
+                        <Calendar
+                          value={startDate}
+                          onChange={(e) => setStartDate(e.value)}
+                          placeholder="Start Date"
+                          style={{
+                            width: "150px",
+                            padding: "5px",
+                          }}
+                        />
+                        <Text>to</Text>
+                        <Calendar
+                          value={endDate}
+                          onChange={(e) => setEndDate(e.value)}
+                          placeholder="End Date"
+                          style={{
+                            width: "150px",
+                            padding: "5px",
+                          }}
+                        />
+                      </Box>
                     </Box>
                   </ModalBody>
 
@@ -1198,7 +1247,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 
       <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered>
         <ModalOverlay />
-        <ModalContent minW="40%">
+        <ModalContent minW="30%">
           <ModalHeader
             fontWeight="600"
             bg="mainBlue"
@@ -1225,7 +1274,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
               overflowX="hidden"
               display="flex"
               flexWrap="wrap"
-              gap="15px"
+              gap="5px"
               sx={{
                 "& .columnCheckBox:nth-of-type(odd)": {
                   bg: "borderGrayLight",
