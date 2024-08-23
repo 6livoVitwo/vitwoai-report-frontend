@@ -1,28 +1,53 @@
 import { ResponsivePie } from "@nivo/pie";
 import React from "react";
 
+// Transform live data to include all sections for the pie chart
 const transformLiveData = (data) => {
-  return data.map((item, index) => ({
-    id: `${item.xaxis || "unknown"}-${index}`,
-    value: item.all_total_amt || 0,
-  }));
+  // Flatten the data and ensure unique IDs for each data section
+  return data.flatMap((item, index) => [
+    {
+      id: `${item.xaxis}-AllTotalAmount-${index}`,
+      label: "All Total Amount",
+      value: item.all_total_amt || 0,
+    },
+    {
+      id: `${item.xaxis}-QuotationAmount-${index}`,
+      label: "Quotation Amount",
+      value: item.quotation?.totalAmount || 0,
+    },
+    {
+      id: `${item.xaxis}-SalesOrderAmount-${index}`,
+      label: "Sales Order Amount",
+      value: item.salesOrder?.totalAmount || 0,
+    },
+    {
+      id: `${item.xaxis}-SalesPGIDeliveryAmount-${index}`,
+      label: "Sales PGI Delivery Amount",
+      value: item.salesPgi?.salesDelivery?.totalAmount || 0,
+    },
+    {
+      id: `${item.xaxis}-SalesPGIAmount-${index}`,
+      label: "Sales PGI Amount",
+      value: item.salesPgi?.totalAmount || 0,
+    },
+  ]);
 };
+
 
 const NivoPieChart = ({
   data = [],
   liveData = [],
   variant = "grouped-vertical",
 }) => {
+  // Use transformed live data if available, otherwise fallback to static data
   const transformedLiveData = transformLiveData(liveData);
 
   console.log("Raw liveData", liveData);
   console.log("Transformed liveData", transformedLiveData);
 
+  // Filter out any data points with value of 0
   const chartData = (liveData.length > 0 ? transformedLiveData : data).filter(
-    (item) => {
-      console.log(`Checking item: ${JSON.stringify(item)}`);
-      return item.value !== undefined && item.value > 0;
-    }
+    (item) => item.value > 0
   );
 
   console.log("Filtered chartData", chartData);
@@ -31,6 +56,7 @@ const NivoPieChart = ({
     liveData.length > 0 ? "liveData" : "static data"
   );
 
+  // Handle cases where there's no valid data to display
   if (chartData.length === 0) {
     console.warn("chartData is empty or has no valid data to display.");
     return <div>No data available to display.</div>;

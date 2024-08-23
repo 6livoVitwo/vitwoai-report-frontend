@@ -262,8 +262,26 @@ const ChartConfiguration = ({ configureChart }) => {
     { value: "all_total_amt", label: "All Total Amount" },
   ];
 
+  // const handleYAxisChange = (e) => {
+  //   const { value } = e.target;
+
+  //   setChartApiConfig((prevConfig) => ({
+  //     ...prevConfig,
+  //     [type]: prevConfig[type].map((config) => ({
+  //       ...config,
+  //       body: {
+  //         ...config.body,
+  //         yaxis: value,
+  //       },
+  //     })),
+  //   }));
+  // };
+
   const handleYAxisChange = (e) => {
     const { value } = e.target;
+
+    // If it's a multi-select, you should handle arrays
+    const newValue = Array.isArray(value) ? value : [value];
 
     setChartApiConfig((prevConfig) => ({
       ...prevConfig,
@@ -271,11 +289,12 @@ const ChartConfiguration = ({ configureChart }) => {
         ...config,
         body: {
           ...config.body,
-          yaxis: value,
+          yaxis: newValue,
         },
       })),
     }));
   };
+
 
   const handlePreviewBtn = (form, to) => {
     setPreviewLoading(true);
@@ -445,7 +464,7 @@ const ChartConfiguration = ({ configureChart }) => {
                     <Text fontSize="sm" fontWeight="500">
                       X Axis
                     </Text>
-                    <MultiSelect
+                    {/* <MultiSelect
                       className="w-full sm:w-22rem"
                       display="chip"
                       style={{ border: "1px solid #e2e8f0" }}
@@ -453,7 +472,29 @@ const ChartConfiguration = ({ configureChart }) => {
                       value={selectedConfig?.body?.yaxis || []}
                       onChange={(e) => handleYAxisChange(e)}
                       placeholder="Select Y-Axis"
-                    />
+                    /> */}
+                    {type === "pie" ? (
+                      <Select
+                        size="lg"
+                        value={selectedConfig?.body?.yaxis || ""}
+                        onChange={handleYAxisChange}>
+                        {yAxisOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </Select>
+                    ) : (
+                      <MultiSelect
+                        className="w-full sm:w-22rem"
+                        display="chip"
+                        style={{ border: "1px solid #e2e8f0" }}
+                        options={yAxisOptions}
+                        value={selectedConfig?.body?.yaxis || []}
+                        onChange={(e) => handleYAxisChange(e)}
+                        placeholder="Select Y-Axis"
+                      />
+                    )}
                   </Stack>
                   <Stack spacing={3}>
                     <Text fontSize="sm" fontWeight="500">

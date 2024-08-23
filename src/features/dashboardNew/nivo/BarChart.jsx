@@ -2,13 +2,13 @@ import { ResponsiveBar } from '@nivo/bar';
 import React from 'react';
 import { barChartData } from '../data/chartData';
 
-const BarChart = ({ data = barChartData, liveData = [], variant = 'grouped-vertical' }) => {
+const BarChart = ({ data = barChartData, liveData = [], variant = 'stacked-vertical' }) => {
 
 	const dataKeys = Object.keys(liveData[0] || {});
 	const keysCommaSeparated = dataKeys.join(',');
 	const keys = keysCommaSeparated.split(',').filter(key => key !== 'xaxis');
 
-	let groupMode = 'grouped';
+	let groupMode = 'stacked';
 	let layout = 'vertical';
 	if (variant === 'grouped-horizontal') {
 		groupMode = 'grouped';
@@ -36,7 +36,7 @@ const BarChart = ({ data = barChartData, liveData = [], variant = 'grouped-verti
           groupMode={groupMode}
           layout={layout}
           indexScale={{ type: "band", round: true }}
-          colors={{ scheme: "purple_blue" }}
+          colors={{ scheme: "blues" }}
           borderColor={{
             from: "color",
             modifiers: [["darker", 1.6]],
