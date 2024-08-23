@@ -25,14 +25,12 @@ import { Accordion, AccordionTab } from "primereact/accordion";
 import BarChart from "../../dashboardNew/nivo/BarChart";
 import NivoPieChart from "../../dashboardNew/nivo/PieChart";
 import LineChart from "../../dashboardNew/nivo/LineChart";
-import HeatMap from "../../dashboardNew/nivo/HeatMap";
 import TypingMaster from "../../dashboardNew/components/TypingMaster";
 
 const chartComponents = {
   bar: BarChart,
   pie: NivoPieChart,
   line: LineChart,
-  heatmap: HeatMap,
 };
 
 const ChartConfiguration = ({ configureChart }) => {
@@ -142,50 +140,6 @@ const ChartConfiguration = ({ configureChart }) => {
       },
     ],
     line: [
-      {
-        wise: "sales",
-        endpoint: "/sales/sales-graph-two",
-        body: {
-          xaxis: "items.goodsItems.goodsGroup.goodGroupName",
-          yaxis: [
-            "salesPgi.salesDelivery.totalAmount",
-            "salesPgi.totalAmount",
-            "quotation.totalAmount",
-            "salesOrder.totalAmount",
-            "all_total_amt",
-          ],
-          groupBy: ["items.goodsItems.goodsGroup"],
-          valuetype: "count",
-          filter: [
-            {
-              column: "company_id",
-              operator: "equal",
-              type: "Integer",
-              value: 1,
-            },
-            {
-              column: "invoice_date",
-              operator: "between",
-              type: "date",
-              value: [formDate, toDate],
-            },
-            {
-              column: "location_id",
-              operator: "equal",
-              type: "Integer",
-              value: 1,
-            },
-            {
-              column: "branch_id",
-              operator: "equal",
-              type: "Integer",
-              value: 1,
-            },
-          ],
-        },
-      },
-    ],
-    heatmap: [
       {
         wise: "sales",
         endpoint: "/sales/sales-graph-two",
@@ -486,22 +440,21 @@ const ChartConfiguration = ({ configureChart }) => {
                 border: "1px solid #ecebeb",
               }}>
               <Box>
-                <Grid templateColumns="repeat(1, 1fr)" gap={6}>
+                <Grid templateColumns="repeat(2, 1fr)" gap={6}>
                   <Stack spacing={3}>
                     <Text fontSize="sm" fontWeight="500">
                       X Axis
                     </Text>
                     <MultiSelect
-                      style={{ border: "1px solid #c4c4c4" }}
+                      className="w-full sm:w-22rem"
+                      display="chip"
+                      style={{ border: "1px solid #e2e8f0" }}
                       options={yAxisOptions}
                       value={selectedConfig?.body?.yaxis || []}
                       onChange={(e) => handleYAxisChange(e)}
-                      optionLabel="label"
                       placeholder="Select Y-Axis"
                     />
                   </Stack>
-                </Grid>
-                <Grid templateColumns="repeat(1, 1fr)" gap={6}>
                   <Stack spacing={3}>
                     <Text fontSize="sm" fontWeight="500">
                       Y Axis

@@ -2,7 +2,6 @@ import {
   barChartData,
   lineChartData,
   pieChartData,
-  heatmapChartData,
 } from "./chartData";
 
 export const dashboardView = {
@@ -37,14 +36,6 @@ export const dashboardView = {
       pinned: false,
       description: "This is Line Chart",
       data: lineChartData,
-    },
-    {
-      id: "4",
-      title: "Heat Map",
-      type: "heatmap",
-      pinned: true,
-      description: "This is Heat Map",
-      data: heatmapChartData,
     },
   ],
 };
@@ -88,16 +79,6 @@ export const chartsData = {
       description: "This is Line Chart",
       data: lineChartData,
     },
-    		{
-			id: '4',
-			chartName: 'Heat Map',
-			title: 'Heat Map',
-			type: 'heatmap',
-			group: 'heatDensity',
-			pinned: true,
-			description: 'This is Heat Map',
-			data: heatmapChartData,
-		},
   ],
 };
 

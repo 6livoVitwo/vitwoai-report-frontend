@@ -1,64 +1,65 @@
 import React, {
-	useState,
-	useEffect,
-	useMemo,
-	useCallback,
-	useRef,
-} from 'react';
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import {
-	Box,
-	Button,
-	useDisclosure,
-	Table,
-	Thead,
-	Tbody,
-	Tr,
-	Th,
-	Td,
-	TableContainer,
-	Modal,
-	ModalOverlay,
-	ModalContent,
-	ModalHeader,
-	ModalFooter,
-	ModalBody,
-	ModalCloseButton,
-	Checkbox,
-	Input,
-	Text,
-	Select,
-	useToast,
-	Menu,
-	MenuButton,
-	MenuList,
-	MenuItem,
-	Drawer,
-	DrawerCloseButton,
-	DrawerHeader,
-	DrawerOverlay,
-	DrawerContent,
-	DrawerBody,
-	Badge,
+  Box,
+  Button,
+  useDisclosure,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  TableContainer,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  Checkbox,
+  Input,
+  Text,
+  Select,
+  useToast,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Drawer,
+  DrawerCloseButton,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerBody,
+  Badge,
   Divider,
   Alert,
-} from '@chakra-ui/react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import debounce from 'lodash/debounce';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChartSimple } from '@fortawesome/free-solid-svg-icons';
-import { saveAs } from 'file-saver';
-import { faFileExcel } from '@fortawesome/free-solid-svg-icons';
-import { DownloadIcon } from '@chakra-ui/icons';
-import { useNavigate } from 'react-router-dom';
-import 'react-datepicker/dist/react-datepicker.css';
-import { Dropdown } from 'primereact/dropdown';
-import { FiPlus, FiSettings } from 'react-icons/fi';
-import { chartsData } from '../data/fakeData';
-import DynamicChart from '../components/DynamicChart'; 
-import ChartConfiguration from '../components/ChartConfiguration'
-import { IoMdAdd } from 'react-icons/io';
-import { useSelector } from 'react-redux';
-import NewMyCharts from '../../dashboardNew/nivo/NewMyCharts';
+} from "@chakra-ui/react";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import debounce from "lodash/debounce";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChartSimple } from "@fortawesome/free-solid-svg-icons";
+import { saveAs } from "file-saver";
+import { faFileExcel } from "@fortawesome/free-solid-svg-icons";
+import { DownloadIcon } from "@chakra-ui/icons";
+import { useNavigate } from "react-router-dom";
+import "react-datepicker/dist/react-datepicker.css";
+import { Dropdown } from "primereact/dropdown";
+import { FiPlus, FiSettings } from "react-icons/fi";
+import { chartsData } from "../data/fakeData";
+import DynamicChart from "../components/DynamicChart";
+import ChartConfiguration from "../components/ChartConfiguration";
+import ViewChart from "./ViewChart";
+import { IoMdAdd } from "react-icons/io";
+import { useSelector } from "react-redux";
+import NewMyCharts from "../../dashboardNew/nivo/NewMyCharts";
 
 const CustomTable = ({ setPage, newArray, alignment }) => {
   const [data, setData] = useState([...newArray]);
@@ -72,9 +73,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
   const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
   const [configureChart, setConfigureChart] = useState({});
-    const salesCustomerWise = useSelector(
-      (state) => state.salescustomer.widgets
-    );
+  const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
 
   console.log(salesCustomerWise, "salesCustomerWise1");
 
@@ -101,12 +100,17 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     isOpen: isOpenGraphSettingDrawer,
   } = useDisclosure();
 
-      const {
-        isOpen: isOpenGraphSettingsModal,
-        onOpen: onOpenGraphSettingsModal,
-        onClose: onCloseGraphSettingsModal,
-      } = useDisclosure();
+  const {
+    isOpen: isOpenGraphSettingsModal,
+    onOpen: onOpenGraphSettingsModal,
+    onClose: onCloseGraphSettingsModal,
+  } = useDisclosure();
 
+ const {
+   isOpen: isOpenGraphDetailsView,
+   onOpen: onOpenGraphDetailsView,
+   onClose: onCloseGraphDetailsView,
+ } = useDisclosure();
 
   const getColumnStyle = (header) => ({
     textAlign: alignment[header] || "left",
@@ -371,22 +375,31 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     });
   };
 
-     const removeProperty = (object) => {
-       if (!object) {
-         return {};
-       }
-       const { data, id, ...rest } = object;
-       return rest;
-     };
+  const removeProperty = (object) => {
+    if (!object) {
+      return {};
+    }
+    const { data, id, ...rest } = object;
+    return rest;
+  };
 
-   const handleConfigure = (chart) => {
-     if (!chart) {
-       return;
-     }
-     onOpenGraphSettingsModal();
-     const filterData = removeProperty(chart);
-     setConfigureChart(filterData);
-   };
+  const handleConfigure = (chart) => {
+    if (!chart) {
+      return;
+    }
+    onOpenGraphSettingsModal();
+    const filterData = removeProperty(chart);
+    setConfigureChart(filterData);
+  };
+
+  const handleView = (chart) => {
+    if (!chart) {
+      return;
+    }
+    onOpenGraphDetailsView();
+   const filterData = removeProperty(chart);
+   setConfigureChart(filterData);
+  }
 
   console.log(newArray, "newArray");
   console.log(selectedColumns, "selectedColumns");
@@ -907,6 +920,19 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                               <FiSettings style={{ marginRight: "6px" }} />{" "}
                               Configure
                             </Button>
+
+                            <Button
+                              variant="outline"
+                              style={{
+                                padding: "15px 10px",
+                                fontSize: "12px",
+                                color: "#718296",
+                              }}
+                              mr={3}
+                              onClick={() => handleView(chart)}>
+                              <FiSettings style={{ marginRight: "6px" }} /> View
+                              Graph
+                            </Button>
                           </Box>
                         </Box>
                         <Box sx={{ height: "300px" }}>
@@ -920,6 +946,27 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
           </DrawerBody>
         </DrawerContent>
       </Drawer>
+
+      {/* sales graph view details */}
+      <Modal
+        onClose={onCloseGraphDetailsView}
+        isOpen={isOpenGraphDetailsView}
+        size="full">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader
+            style={{
+              backgroundColor: "#003060",
+              color: "white",
+            }}>
+            Sales Customer Detail Graph View
+          </ModalHeader>
+          <ModalCloseButton style={{ color: "white" }} />
+          <ModalBody>
+            <ViewChart configureChart={configureChart} />
+          </ModalBody>
+        </ModalContent>
+      </Modal>
 
       {/* //sales-customer-wise graph settings */}
       <Drawer
