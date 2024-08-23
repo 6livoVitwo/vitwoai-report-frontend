@@ -118,21 +118,28 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 
   const navigate = useNavigate();
 
-  const reportOptions = [
-    {
-      label: "Product Wise",
-      value: "/reports/sales-product-wise/table-view",
-    },
-    {
-      label: "Customer Wise",
-      value: "/reports/sales-customer-wise/table-view",
-    },
-    {
-      label: "Vertical Wise",
-      value: "/reports/sales-vertical-wise/table-view",
-    },
-    { label: "So Wise", value: "/reports/sales-so-wise/table-view" },
-  ];
+ const reportOptions = [
+   {
+     label: "Product Wise",
+     value: "/reports/sales-product-wise/table-view",
+   },
+   {
+     label: "Customer Wise",
+     value: "/reports/sales-customer-wise/table-view",
+   },
+   {
+     label: "Vertical Wise",
+     value: "/reports/sales-vertical-wise/table-view",
+   },
+   {
+     label: "So Wise",
+     value: "/reports/sales-so-wise/table-view",
+   },
+   {
+     label: "Kam wise",
+     value: "/reports/sales-kam-Wise/table-view",
+   },
+ ];
 
   useEffect(() => {
     if (selectedReport) {
