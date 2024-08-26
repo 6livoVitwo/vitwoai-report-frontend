@@ -428,7 +428,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
         justifyContent="space-between"
         padding="10px"
         marginBottom="10px"
-        boxShadow="1px 2px 15px 2px #00000012"
+        backgroundColor="red"
         sx={{
           "& input:placeholder": {
             color: "white",
@@ -469,35 +469,13 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
             style={{ width: "200px", backgroundColor: "#dedede" }}
           />
 
-          {/* Graph view  */}
-          <Button
-            aria-label="Graph View"
-            borderRadius="30px"
-            width="40px"
-            height="40px"
-            bg="transparent"
-            border="1px solid gray"
-            _hover={{
-              bg: "mainBlue",
-              color: "white",
-            }}
-            _active={{
-              bg: "teal.600",
-            }}
-            _focus={{
-              boxShadow: "outline",
-            }}>
-            <FontAwesomeIcon icon={faChartLine} fontSize="20px" />
-          </Button>
-
           <Button
             aria-label="Graph View"
             onClick={onOpenGraphAddDrawer}
-            borderRadius="30px"
+            borderRadius="9px"
             width="40px"
             height="40px"
-            bg="transparent"
-            border="1px solid gray"
+            bg="#ebf5ff"
             _hover={{
               bg: "mainBlue",
               color: "white",
@@ -508,43 +486,47 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
             _focus={{
               boxShadow: "outline",
             }}>
-            <FontAwesomeIcon icon={faChartLine} fontSize="20px" />
+            <FontAwesomeIcon icon={faChartLine} fontSize="16px" />
           </Button>
           <Button
             onClick={onOpen}
-            padding="15px"
-            bg="transparent"
-            border="1px solid gray"
-            borderRadius="30px"
-            height="40px"
+            borderRadius="9px"
             width="40px"
-            color="mainBlue"
+            height="40px"
+            bg="#f9eaff"
             _hover={{
               bg: "mainBlue",
               color: "white",
+            }}
+            _active={{
+              bg: "teal.600",
+            }}
+            _focus={{
+              boxShadow: "outline",
             }}>
-            <FontAwesomeIcon icon={faChartSimple} fontSize="20px" />
+            <FontAwesomeIcon
+              icon={faChartSimple}
+              fontSize="16px"
+              color="#8109b3"
+            />
           </Button>
           <Menu>
             <MenuButton
-              color="mainBlue"
-              border="1px solid gray"
-              padding="5px"
-              height="40px"
+              borderRadius="9px"
               width="40px"
-              borderRadius="30px"
+              height="40px"
+              bg="#ebffeb"
               _hover={{
-                color: "white",
                 bg: "mainBlue",
+                color: "white",
               }}
-              sx={{
-                "& span": {
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                },
+              _active={{
+                bg: "teal.600",
+              }}
+              _focus={{
+                boxShadow: "outline",
               }}>
-              <DownloadIcon fontSize="20px" />
+              <DownloadIcon fontSize="16px" color="#0a9c0a" />
             </MenuButton>
             <MenuList>
               <MenuItem
@@ -583,51 +565,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                     Select Date Range
                   </ModalHeader>
                   <ModalCloseButton mt="5px" color="white" size="lg" />
-                  <ModalBody>
-                    <Box
-                      display="flex"
-                      flexDirection="column"
-                      sx={{
-                        "& .p-calendar input": {
-                          height: "30px",
-                        },
-                        "& .p-calendar .p-inputtext ": {
-                          padding: "5px 10px",
-                          borderRadius: "5px",
-                          mr: "0px",
-                          bg: "#dedede",
-                        },
-                      }}>
-                      <Text fontWeight="600" mb="5px" fontSize="14px">
-                        Select Your Date - Range
-                      </Text>
-                      <Box
-                        display="flex"
-                        justifyContent="space-between"
-                        padding="5px"
-                        alignItems="center">
-                        <Calendar
-                          value={startDate}
-                          onChange={(e) => setStartDate(e.value)}
-                          placeholder="Start Date"
-                          style={{
-                            width: "150px",
-                            padding: "5px",
-                          }}
-                        />
-                        <Text>to</Text>
-                        <Calendar
-                          value={endDate}
-                          onChange={(e) => setEndDate(e.value)}
-                          placeholder="End Date"
-                          style={{
-                            width: "150px",
-                            padding: "5px",
-                          }}
-                        />
-                      </Box>
-                    </Box>
-                  </ModalBody>
 
                   <ModalFooter>
                     <Button
@@ -761,6 +698,9 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
           </Modal>
         </Box>
       </Box>
+      <Box backgroundColor="red">
+ggg
+      </Box>
       <TableContainer
         ref={tableContainerRef}
         className="table-tableContainerRef"
@@ -775,7 +715,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                 ref={provided.innerRef}
                 variant="simple">
                 <Thead>
-                  <Tr bg="#cfd8e1">
+                  <Tr bg="#cfd8e1" position="sticky" top="0">
                     {selectedColumns.map((column, index) => (
                       <Draggable
                         key={column}
@@ -791,9 +731,10 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                             fontWeight="500"
                             textTransform="capitalize"
                             fontFamily="Poppins, sans-serif"
-                            color="black">
+                            color="black"
+                          >
                             {formatHeader(column)}
-                            <Popover>
+                            <Popover placement="end" isLazy>
                               <PopoverTrigger>
                                 <Button bg="transparent">
                                   <i
@@ -876,7 +817,9 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                 <Tbody>
                   {filteredItems.length > 0 ? (
                     filteredItems.map((item, index) => (
-                      <Tr key={index}>
+                      <Tr
+                        key={index}
+                        bg={index % 2 === 0 ? "#f0f0f0" : "white"}>
                         {selectedColumns.map((column, colIndex) => (
                           <Td
                             key={colIndex}
@@ -913,32 +856,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
           </Droppable>
         </DragDropContext>
       </TableContainer>
-      {/* <Button
-        onClick={onOpenGraphAddDrawer}
-        position="fixed"
-        bottom="4"
-        right="4"
-        aria-label="Graph View"
-        size="lg"
-        borderRadius="full"
-        boxShadow="lg"
-        fontSize="2xl"
-        width="50px"
-        height="50px"
-        bg="rgba(213, 232, 251, 0.5)"
-        _hover={{
-          bg: "mainBlue",
-          color: "white",
-        }}
-        _active={{
-          bg: "teal.600",
-        }}
-        _focus={{
-          boxShadow: "outline",
-        }}>
-        <FontAwesomeIcon icon={faChartSimple} size="lg" />
-      </Button> */}
-      {/* //sales-customer-wise Add graph settings */}
       <Drawer
         isOpen={isOpenGraphAddDrawer}
         placement="right"
