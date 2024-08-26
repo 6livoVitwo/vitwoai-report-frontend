@@ -427,23 +427,13 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
         alignItems="center"
         justifyContent="space-between"
         padding="10px"
-        marginBottom="10px"
-        backgroundColor="red"
+        bg="#fafcfe"
         sx={{
           "& input:placeholder": {
             color: "white",
           },
         }}>
-        <Input
-          onChange={handleSearchChange}
-          width="20%"
-          height="36px"
-          bg="#dedede"
-          h="36px"
-          padding="15px"
-          borderRadius="5px"
-          placeholder="Search Global Data"
-        />
+        <Text fontWeight="550">Sales Customer Wise</Text>
         <Box
           display="flex"
           justifyContent="space-between"
@@ -458,6 +448,15 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
               outline: "none",
             },
           }}>
+          <Input
+            onChange={handleSearchChange}
+            width="200px"
+            bg="#ebf5ff"
+            h="41px"
+            padding="15px"
+            borderRadius="5px"
+            placeholder="Search Global Data"
+          />
           <Dropdown
             value={selectedReport}
             options={reportOptions}
@@ -466,8 +465,26 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
             }}
             optionLabel="label"
             placeholder="Select Sales Type"
-            style={{ width: "200px", backgroundColor: "#dedede" }}
+            style={{
+              width: "200px",
+              backgroundColor: "#ebf5ff",
+              border: "1px solid #e2e8f0",
+            }}
           />
+
+          <Button
+            borderRadius="5px"
+            // onClick={handleClearChanges}
+            w="40px"
+            h="40px"
+            bg="#f0e2e6"
+            color="#ed5786"
+            _hover={{
+              bg: "mainBlue",
+              color: "white",
+            }}>
+            <i className="pi pi-filter-slash" style={{ fontSize: "16px" }}></i>
+          </Button>
 
           <Button
             aria-label="Graph View"
@@ -475,7 +492,8 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
             borderRadius="9px"
             width="40px"
             height="40px"
-            bg="#ebf5ff"
+            bg="#e3e4fd"
+            color="#3036c2"
             _hover={{
               bg: "mainBlue",
               color: "white",
@@ -698,9 +716,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
           </Modal>
         </Box>
       </Box>
-      <Box backgroundColor="red">
-ggg
-      </Box>
+      <Box></Box>
       <TableContainer
         ref={tableContainerRef}
         className="table-tableContainerRef"
@@ -715,7 +731,7 @@ ggg
                 ref={provided.innerRef}
                 variant="simple">
                 <Thead>
-                  <Tr bg="#cfd8e1" position="sticky" top="0">
+                  <Tr bg="#f9f9f9" position="sticky" top="0">
                     {selectedColumns.map((column, index) => (
                       <Draggable
                         key={column}
@@ -728,13 +744,12 @@ ggg
                             {...provided.dragHandleProps}
                             padding="15px 10px"
                             fontSize="13px"
-                            fontWeight="500"
+                            fontWeight="550"
                             textTransform="capitalize"
                             fontFamily="Poppins, sans-serif"
-                            color="black"
-                          >
+                            color="black">
                             {formatHeader(column)}
-                            <Popover placement="end" isLazy>
+                            <Popover>
                               <PopoverTrigger>
                                 <Button bg="transparent">
                                   <i
@@ -745,17 +760,26 @@ ggg
                                     }}></i>
                                 </Button>
                               </PopoverTrigger>
-                              <PopoverContent>
+                              <PopoverContent
+                                width="300px"
+                                p="10px"
+                                boxShadow="rgba(0, 0, 0, 0.35) 0px 3px 7px"
+                                borderRadius="9px">
                                 <PopoverArrow />
-                                <PopoverCloseButton />
-                                {/* <PopoverHeader>Confirmation!</PopoverHeader> */}
-                                <PopoverBody h="150px">
+                                <PopoverBody>
+                                  <Box textAlign="center" mb="15px">
+                                    <Text fontSize="16px" fontWeight="510">
+                                      Advanced Filtered
+                                    </Text>
+                                  </Box>
                                   <Select
-                                    placeholder=" Filter With "
+                                    placeholder="Filter With"
                                     mt="25px"
                                     p="5px"
                                     h="39px"
-                                    border="1px solid gray"
+                                    width="100%"
+                                    border="1px solid #e2e8f0"
+                                    borderRadius="5px"
                                     onChange={(e) =>
                                       handleColumnFilterConditionChange(
                                         column,
@@ -781,30 +805,50 @@ ggg
                                     mt="8px"
                                     p="6px"
                                     ml="5px"
-                                    w="174px"
+                                     width="97%"
                                     h="39px"
-                                    border="1px solid gray"
+                                    border="1px solid #e2e8f0"
                                     onChange={handleSearchChange}
                                   />
                                 </PopoverBody>
                                 <Box
                                   display="flex"
-                                  justifyContent="flex-end"
-                                  width="90%"
-                                  ml="8px"
-                                  mb="10px">
-                                  <Button
-                                    bg="mainBlue"
-                                    width="58px"
-                                    color="white"
-                                    mb="5px"
-                                    outline="none"
-                                    _hover={{
-                                      color: "white",
-                                      bg: "mainBlue",
-                                    }}>
-                                    Apply
-                                  </Button>
+                                  justifyContent="space-between"
+                                  alignItems="center"
+                                  width="100%"
+                                  p="8px">
+                                  {/* Close Button on the Left */}
+                                  <Box>
+                                    <Button
+                                      bg="#64748b"
+                                      width="24px"
+                                      color="white"
+                                      mb="5px"
+                                      outline="none">
+                                      <PopoverCloseButton fontSize="7px" />
+                                    </Button>
+                                  </Box>
+
+                                  {/* Apply Button on the Right */}
+                                  <Box>
+                                    <Button
+                                      bg="#22c55e"
+                                      width="24px"
+                                      color="white"
+                                      mb="5px"
+                                      outline="none"
+                                      _hover={{
+                                        color: "white",
+                                        bg: "mainBlue",
+                                      }}>
+                                      <i
+                                        className=" pi pi-plus"
+                                        style={{
+                                          color: "white",
+                                          fontSize: "1.3rem",
+                                        }}></i>
+                                    </Button>
+                                  </Box>
                                 </Box>
                               </PopoverContent>
                             </Popover>
@@ -819,7 +863,7 @@ ggg
                     filteredItems.map((item, index) => (
                       <Tr
                         key={index}
-                        bg={index % 2 === 0 ? "#f0f0f0" : "white"}>
+                        bg={index % 2 === 0 ? "#fcfcfc" : "white"}>
                         {selectedColumns.map((column, colIndex) => (
                           <Td
                             key={colIndex}
