@@ -4,6 +4,9 @@ import { Box, Spinner, Image ,useToast} from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
+import { jwtDecode } from "jwt-decode";
+
+
 
 const PurchaseProductWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
@@ -12,6 +15,20 @@ const PurchaseProductWiseTableView = () => {
   const [individualItems, setIndividualItems] = useState([]);
   const toast = useToast();
 
+    
+   // Function to decode JWT token
+   const decodeToken = (token) => {
+    try {
+      const decodedData = jwtDecode(token); // Decode JWT token
+      console.log("Decoded JWT Data:", decodedData); // Log decoded data to console
+      return decodedData;
+    } catch (error) {
+      console.error("Invalid token", error);
+      return null;
+    }
+  };
+  // Extract auth details if available
+  const decodedAuthDetails = authData.authDetails ? decodeToken(authData.authDetails) : null;
 
   let filters = {
     data: [
@@ -27,19 +44,19 @@ const PurchaseProductWiseTableView = () => {
         column: "companyId",
         operator: "equal",
         type: "integer",
-        value: 1,
+        value: decodedAuthDetails?.companyId || 1,
       },
       {
         column: "branchId",
         operator: "equal",
         type: "integer",
-        value: 1,
+        value: decodedAuthDetails?.branchId || 1,
       },
       {
         column: "locationId",
         operator: "equal",
         type: "integer",
-        value: 1,
+        value: decodedAuthDetails?.locationId || 1,
       },
     ],
     page: 0,

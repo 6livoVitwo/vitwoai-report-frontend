@@ -469,6 +469,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
           {/* Graph view  */}
           <Button
             aria-label="Graph View"
+            onClick={onOpenGraphAddDrawer}
             borderRadius="30px"
             width="40px"
             height="40px"
@@ -796,7 +797,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                                   >
                                     <option value='equal'>Equal</option>
                                     <option value='option2'>NotEqual</option>
-                                    <option value='option3'>Like</option>
                                     <option value='option3'>Like</option>
                                     <option value='option3'>NotLike</option>
                                     <option value='option3'>GraterThan</option>

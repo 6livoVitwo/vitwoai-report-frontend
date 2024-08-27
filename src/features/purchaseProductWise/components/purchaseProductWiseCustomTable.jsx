@@ -41,11 +41,13 @@ import {
   PopoverArrow,
   PopoverCloseButton,
   PopoverAnchor,
+  background,
+  Tooltip,
 } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChartSimple, faChartLine } from "@fortawesome/free-solid-svg-icons";
+import { faChartSimple, faChartLine, faArrowDownShortWide, faArrowUpWideShort, faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { saveAs } from "file-saver";
 import { faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { DownloadIcon } from "@chakra-ui/icons";
@@ -53,6 +55,7 @@ import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
 import { Calendar } from 'primereact/calendar';
+import { useGetSelectedColumnsQuery, useSaveSelectedColumnsMutation } from "../../apis/apiSlice";
 
 
 const CustomTable = ({ setPage, newArray, alignment }) => {
@@ -61,15 +64,29 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
   const [defaultColumns, setDefaultColumns] = useState([]);
   const [selectedColumns, setSelectedColumns] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(" ");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [columnFilters, setColumnFilters] = useState({});
   const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
+  const { data: savedColumns, isLoading, isError } = useGetSelectedColumnsQuery(); // Fetch saved columns
+  const [saveColumns, { isLoading: isSaving }] = useSaveSelectedColumnsMutation(); // Mutation to save columns
+  const [sortColumn, setSortColumn] = useState(null);
+  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
+  const [filterCondition, setFilterCondition] = useState('');
+  const [filterValue, setFilterValue] = useState('');
+  const [applyFilter, setApplyFilter] = useState(false);
+  // Temporary states to hold user inputs before applying the filter
+  const [tempFilterCondition, setTempFilterCondition] = useState('');
+  const [tempFilterValue, setTempFilterValue] = useState('');
+  const [tempSearchQuery, setTempSearchQuery] = useState('');
+
+
 
   const toast = useToast();
+
   const tableContainerRef = useRef(null);
   const {
     onOpen: onOpenFilterModal,
@@ -109,10 +126,45 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     }
   }, [selectedReport, navigate]);
 
+
   const handleReportChange = (e) => {
     const selectedValue = e.value;
     setSelectedReport(selectedValue);
   };
+  
+  //function for filter 
+  const handleTempFilterConditionChange = (e) => {
+    setTempFilterCondition(e.target.value);
+  };
+  
+  const handleTempFilterValueChange = (e) => {
+    setTempFilterValue(e.target.value);
+  };
+  
+  const handleTempSearchChange = (e) => {
+    setTempSearchQuery(e.target.value);
+  };
+  
+  const handleApplyFilter = (e) => {
+    setFilterCondition(tempFilterCondition);
+    setFilterValue(tempFilterValue);
+    setSearchQuery(tempSearchQuery);
+    
+    setApplyFilter(true); // Trigger filtering when the "Apply" button is clicked
+  }
+
+  //sort asc desc
+  const handleSort = (column) => {
+    if (sortColumn === column) {
+      // Toggle sort order
+      setSortOrder((prevOrder) => (prevOrder === 'asc' ? 'desc' : 'asc'));
+    } else {
+      // Set new column and default to ascending
+      setSortColumn(column);
+      setSortOrder('asc');
+    }
+  };
+
 
   const loadMoreData = async () => {
     if (!loading) {
@@ -128,13 +180,34 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     }
   };
 
+  // useEffect(() => {
+  //   const initialColumns = getColumns(data)
+  //     .slice(0, 8)
+  //     .map((column) => column.field);
+  //   setDefaultColumns(initialColumns);
+  //   setSelectedColumns(initialColumns);
+  // }, [data]);
+
+  // const getColumns = useCallback((data) => {
+  //   if (!data || data.length === 0) {
+  //     return [];
+  //   }
+  //   const sampleItem = data[0];
+  //   return Object.keys(sampleItem).map((key) => ({
+  //     field: key,
+  //     header: key,
+  //   }));
+  // }, []);
   useEffect(() => {
-    const initialColumns = getColumns(data)
-      .slice(0, 8)
-      .map((column) => column.field);
-    setDefaultColumns(initialColumns);
-    setSelectedColumns(initialColumns);
-  }, [data]);
+    if (!isLoading && !isError && savedColumns) {
+      setDefaultColumns(savedColumns);
+      setSelectedColumns(savedColumns);
+    } else {
+      const initialColumns = getColumns(data).slice(0, 8).map((column) => column.field);
+      setDefaultColumns(initialColumns);
+      setSelectedColumns(initialColumns);
+    }
+  }, [data, savedColumns, isLoading, isError]);
 
   const getColumns = useCallback((data) => {
     if (!data || data.length === 0) {
@@ -146,6 +219,8 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
       header: key,
     }));
   }, []);
+
+
 
   const handleDragEnd = (result) => {
     if (!result.destination) {
@@ -165,6 +240,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     );
   };
 
+
   const handleSelectAllToggle = () => {
     const allColumnFields = getColumns(data).map((column) => column.field);
     if (selectAll) {
@@ -174,6 +250,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     }
     setSelectAll((prevSelectAll) => !prevSelectAll);
   };
+
 
   const handleModalClose = () => {
     setSelectedColumns(defaultColumns);
@@ -189,6 +266,27 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     });
   };
 
+  // const handleApplyChanges = async () => {
+  //   try {
+  //     await saveColumns(selectedColumns).unwrap();  // Save the selected columns to the API
+  //     toast({
+  //       title: "Columns saved successfully!",
+  //       status: "success",
+  //       isClosable: true,
+  //     });
+  //     onClose();
+  //   } catch (error) {
+  //     console.error("Failed to save columns:", error);
+  //     toast({
+  //       title: "Failed to save columns",
+  //       status: "error",
+  //       isClosable: true,
+  //     });
+  //   }
+  // };
+
+
+
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
 
   useEffect(() => {
@@ -199,51 +297,58 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 
   const handleSearchChange = (e) => {
     debouncedSearchQuery(e.target.value);
+    setSearchQuery(e.target.value);
+  };
+
+
+  const clearAllFilters = () => {
+    setColumnFilters({}); // Reset all filters
+    setSearchQuery('');   // Reset search query
+    setSortColumn('');    // Reset sort column
+    setSortOrder('asc');   // Reset sort order
+
   };
 
   const filteredItems = useMemo(() => {
-    let filteredData = [...newArray];
+    let filteredData = [...newArray]; // Copy the original data
+    // Apply column filters
     Object.keys(columnFilters).forEach((field) => {
       const filter = columnFilters[field];
-      filteredData = filteredData.filter((item) => {
-        const value = item[field];
+      if (filterCondition && filterValue) {
+        filteredData = filteredData.filter((item) => {
+          const value = item[field];
 
-        switch (filter.condition) {
-          case "equal":
-            return String(value)
-              .toLowerCase()
-              .includes(String(filter.value).toLowerCase());
-              case "notEqual":
-                return String(value)
-                  .toLowerCase()
-                  .includes(String(filter.value).toLowerCase());
-          case "like":
-            return String(value)
-              .toLowerCase()
-              .includes(String(filter.value).toLowerCase());
-          case "notLike":
-            return !String(value)
-              .toLowerCase()
-              .includes(String(filter.value).toLowerCase());
-          case "greaterThan":
-            return Number(value) > Number(filter.value);
-          case "greaterThanOrEqual":
-            return Number(value) >= Number(filter.value);
-          case "lessThan":
-            return Number(value) < Number(filter.value);
-          case "lessThanOrEqual":
-            return Number(value) <= Number(filter.value);
-          case "between":
-            return (
-              Number(value) >= Number(filter.value[0]) &&
-              Number(value) <= Number(filter.value[1])
-            );
-          default:
-            return true;
-        }
-      });
+          switch (filterCondition) {
+            case "equal":
+              return String(value).toLowerCase() === String(filter.value).toLowerCase();
+            case "notEqual":
+              return String(value).toLowerCase() !== String(filter.value).toLowerCase();
+            case "like":
+              return String(value).toLowerCase().includes(String(filter.value).toLowerCase());
+            case "notLike":
+              return !String(value).toLowerCase().includes(String(filter.value).toLowerCase());
+            case "greaterThan":
+              return Number(value) > Number(filter.value);
+            case "greaterThanOrEqual":
+              return Number(value) >= Number(filter.value);
+            case "lessThan":
+              return Number(value) < Number(filter.value);
+            case "lessThanOrEqual":
+              return Number(value) <= Number(filter.value);
+            case "between":
+              if (Array.isArray(filter.value) && filter.value.length === 2) {
+                return Number(value) >= Number(filter.value[0]) &&
+                  Number(value) <= Number(filter.value[1]);
+              }
+              return false;
+            default:
+              return true;
+          }
+        });
+      }
     });
 
+    // Apply search query
     if (searchQuery) {
       filteredData = filteredData.filter((item) => {
         const values = Object.values(item);
@@ -252,9 +357,27 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
         );
       });
     }
+    // Apply sorting
+    if (sortColumn) {
+      filteredData.sort((a, b) => {
+        if (a[sortColumn] < b[sortColumn]) return sortOrder === 'asc' ? -1 : 1;
+        if (a[sortColumn] > b[sortColumn]) return sortOrder === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
 
     return filteredData;
-  }, [data, searchQuery, columnFilters]);
+  }, [newArray, searchQuery, columnFilters, sortColumn, sortOrder, filterCondition, filterValue]);
+
+  // Reset 'applyFilter' after filtering is applied
+  useEffect(() => {
+    if (applyFilter) {
+      setApplyFilter(false);
+    }
+  }, [applyFilter]);
+
+
 
   const formatHeader = (header) => {
     header = header.trim();
@@ -370,11 +493,14 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
         <Input
           onChange={handleSearchChange}
           width="20%"
-          bg="#dedede"
           height='36px'
           padding="15px"
           borderRadius="5px"
+          border='1px solid #d7dbdd '
           placeholder="Search Global Data"
+          _hover={{
+            // border:'none'
+          }}
         />
         <Box
           display="flex"
@@ -390,6 +516,24 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
               outline: "none",
             },
           }}>
+          <Tooltip label='Clear All'
+            hasArrow
+          >
+            <Button
+              onClick={clearAllFilters}
+              borderRadius='5px'
+              w='40px'
+              h='40px'
+              bg='#d6eaf8'
+              _hover={{
+                bg: "mainBlue",
+                color: "white",
+              }}
+            >
+              <i className="pi pi-filter-slash" style={{ fontSize: '1.5rem' }}></i>
+            </Button>
+          </Tooltip>
+
           <Dropdown
             value={selectedReport}
             options={reportOptions}
@@ -400,70 +544,113 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
             placeholder="Select Sales Type"
             style={{
               width: '200px',
-              background: '#dedede',
+              // background: '#dedede',
+              border: '1px solid gray '
             }}
           />
-
+          <Popover>
+            <PopoverTrigger>
+              <Button rounded='full'
+                w='40px'
+                h='40px'
+                bg='none'
+                border='1px solid #1b4f72 '
+                _hover={{
+                  bg: "mainBlue",
+                  color: "white",
+                }}
+              >
+                Goods
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent>
+              {/* <PopoverArrow /> */}
+              <PopoverCloseButton />
+              <PopoverHeader display='flex' justifyContent='center' >
+                Select Groups
+              </PopoverHeader>
+              <PopoverBody>
+                <Box display='flex'
+                  flexDirection='column'
+                  justifyContent='space-around'
+                >
+                  <Button rounded='9px' border='1px solid gray' w='100%' p='' m='2px' h='40px' >
+                    Good Groups
+                  </Button>
+                  <Button rounded='9px' border='1px solid gray' w='100%' p='' m='2px' h='40px' >
+                    Good Items
+                  </Button>
+                </Box>
+              </PopoverBody>
+            </PopoverContent>
+          </Popover>
           {/* Graph view  */}
-          <Button
-            aria-label="Graph View"
-            borderRadius="30px"
-            width="40px"
-            height="40px"
-            bg='transparent'
-            border='1px solid gray'
-            _hover={{
-              bg: "mainBlue",
-              color: "white",
-            }}
-            _active={{
-              bg: "teal.600",
-            }}
-            _focus={{
-              boxShadow: "outline",
-            }}>
-            <FontAwesomeIcon icon={faChartLine} fontSize='20px' />
-          </Button>
-
-          <Button
-            onClick={onOpen}
-            padding="15px"
-            height='40px'
-            color="mainBlue"
-            width='40px'
-            borderRadius="30px"
-            bg="transparent"
-            border="1px solid gray"
-            _hover={{
-              bg: "mainBlue",
-              color: "white"
-            }}>
-            <FontAwesomeIcon icon={faChartSimple}
-              fontSize='20px'
-            />
-          </Button>
-          <Menu>
-            <MenuButton
-              // bg="mainBlue"
-              color="mainBlue"
-              height='40px'
-              width='40px'
-              padding="5px"
+          <Tooltip label='Graph View' hasArrow>
+            <Button
+              aria-label="Graph View"
               borderRadius="30px"
+              width="40px"
+              height="40px"
+              bg='transparent'
               border='1px solid gray'
               _hover={{
-                color: "white",
                 bg: "mainBlue",
+                color: "white",
               }}
-              sx={{
-                "& span": {
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                },
+              _active={{
+                bg: "teal.600",
+              }}
+              _focus={{
+                boxShadow: "outline",
               }}>
-              <DownloadIcon fontSize='20px' />
-            </MenuButton>
+              <FontAwesomeIcon icon={faChartLine} fontSize='20px' />
+            </Button>
+          </Tooltip>
+
+          <Tooltip label='Select Columns to Show' hasArrow>
+            <Button
+              onClick={onOpen}
+              padding="15px"
+              height='40px'
+              color="mainBlue"
+              width='40px'
+              borderRadius="30px"
+              bg="transparent"
+              border="1px solid gray"
+              _hover={{
+                bg: "mainBlue",
+                color: "white"
+              }}>
+              <FontAwesomeIcon icon={faChartSimple}
+                fontSize='20px'
+              />
+            </Button>
+          </Tooltip>
+
+          <Menu>
+            <Tooltip label='Export' hasArrow>
+
+              <MenuButton
+                color="mainBlue"
+                height='40px'
+                width='40px'
+                padding="5px"
+                borderRadius="30px"
+                border='1px solid gray'
+                _hover={{
+                  color: "white",
+                  bg: "mainBlue",
+                }}
+                sx={{
+                  "& span": {
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  },
+                }}>
+                <DownloadIcon fontSize='20px' />
+              </MenuButton>
+            </Tooltip>
             <MenuList>
               <MenuItem
                 onClick={exportToExcel}
@@ -576,6 +763,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
               </Modal>
             </MenuList>
           </Menu>
+
 
           <Modal
             isOpen={isOpenFilterModal}
@@ -693,8 +881,11 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                 {...provided.droppableProps}
                 ref={provided.innerRef}
                 variant="simple">
-                <Thead>
-                  <Tr bg="#cfd8e1">
+                <Thead style={{
+                  position: 'sticky',
+                  top: 0,
+                }}>
+                  <Tr bg="#ffffff">
                     {selectedColumns.map((column, index) => (
                       <Draggable
                         key={column}
@@ -710,43 +901,58 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                             fontWeight="500"
                             textTransform="capitalize"
                             fontFamily="Poppins, sans-serif"
-                            color="black">
+                            color="black"
+                          >
                             {formatHeader(column)}
+
+                            <Button
+                              className="A_to_Z"
+                              bg='none'
+                              _hover={{
+                                bg: 'none'
+                              }}
+                              onClick={() => handleSort(column)}
+                            >
+                              {sortColumn === column && sortOrder === 'asc' ? (
+                                <FontAwesomeIcon icon={faArrowDownShortWide} />
+                              ) : sortColumn === column && sortOrder === 'desc' ? (
+                                <FontAwesomeIcon icon={faArrowUpWideShort} />
+                              ) : (
+                                <FontAwesomeIcon icon={faArrowRightArrowLeft} rotation={90} fontSize='13px' />
+                              )}
+                            </Button>
 
                             <Popover >
                               <PopoverTrigger>
                                 <Button
                                   bg='transparent'
+                                  _hover={{
+                                    bg: 'none'
+                                  }}
                                 >
                                   <i className=" pi pi-filter" style={{ color: 'slateblue', fontSize: '1.3rem' }}></i>
                                 </Button>
                               </PopoverTrigger>
                               <PopoverContent>
                                 <PopoverArrow />
-                                <PopoverCloseButton />
+                                <PopoverCloseButton  fontSize='10px' />
                                 {/* <PopoverHeader>Confirmation!</PopoverHeader> */}
                                 <PopoverBody h='150px' >
                                   <Select placeholder=' Filter With '
                                     mt='25px' p='5px'
                                     h='39px'
                                     border='1px solid gray'
-                                    onChange={(e) =>
-                                      handleColumnFilterConditionChange(
-                                        column,
-                                        e.target.value
-                                      )
-                                    }
+                                    onChange={handleTempFilterConditionChange}
                                   >
                                     <option value='equal'>Equal</option>
-                                    <option value='option2'>NotEqual</option>
-                                    <option value='option3'>Like</option>
-                                    <option value='option3'>Like</option>
-                                    <option value='option3'>NotLike</option>
-                                    <option value='option3'>GraterThan</option>
-                                    <option value='option3'>GraterThanOrEqual</option>
-                                    <option value='option3'>LessThan</option>
-                                    <option value='option3'>LessThanOrEqual</option>
-                                    <option value='option3'>Between</option>
+                                    <option value='notEqual'>NotEqual</option>
+                                    <option value='like'>Like</option>
+                                    <option value='notLike'>NotLike</option>
+                                    <option value='greaterThan'>GraterThan</option>
+                                    <option value='greaterThanOrEqual'>GraterThanOrEqual</option>
+                                    <option value='lessThan'>LessThan</option>
+                                    <option value='lessThanOrEqual'>LessThanOrEqual</option>
+                                    <option value='between'>Between</option>
                                   </Select>
                                   <Input placeholder='Search By Name'
                                     mt='8px'
@@ -755,9 +961,10 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                                     w='174px'
                                     h='39px'
                                     border='1px solid gray'
-                                    onChange={handleSearchChange}
+                                    onChange={handleTempSearchChange}
                                   />
                                 </PopoverBody>
+                                
                                 <Box display='flex'
                                   justifyContent='flex-end'
                                   width='90%'
@@ -766,6 +973,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 
                                 >
                                   <Button
+                                    onClick={handleApplyFilter}
                                     bg='mainBlue'
                                     width="58px"
                                     color="white"
