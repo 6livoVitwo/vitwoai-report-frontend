@@ -1,50 +1,79 @@
 import React, { useState, useEffect, useRef } from "react";
 import CustomTable from "./purchaseProductWiseCustomTable";
-import { Box, Spinner, Image ,useToast} from "@chakra-ui/react";
+import ChildComponent from "./purchaseProductWiseCustomTable";
+import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
+import { jwtDecode } from "jwt-decode";
+import { useFetchDataQuery } from "../../apis/apiSlice";
 
-const PurchaseProductWiseTableView = () => {
+let filters = {
+"data": [
+        "items.goodName",
+        "items.goodCode",
+        "SUM(items.goodQty)",
+        "SUM(items.receivedQty)",
+        "SUM(items.totalAmount)"
+    ],
+    "groupBy": [
+        "items.goodName"
+    ],
+  "filter": [
+    {
+      "column": "companyId",
+      "operator": "equal",
+      "type": "integer",
+      "value":  1,
+    },
+    {
+      "column": "branchId",
+      "operator": "equal",
+      "type": "integer",
+      "value":  1,
+    },
+    {
+      "column": "locationId",
+      "operator": "equal",
+      "type": "integer",
+      "value": 1,
+    }
+  ],
+  "page": 0,
+  "size": 50,
+  "sortDir": "asc",
+  "sortBy": "items.goodName"
+}
+
+const PurchaseProductWiseTableView = ( ) => {
   const authData = useSelector((state) => state.auth);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(50);
   const [individualItems, setIndividualItems] = useState([]);
   const toast = useToast();
+  const [sortColumn, setSortColumn] = useState(null);
+  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
 
-
-  let filters = {
-    data: [
-      "items.goodName",
-      "items.goodCode",
-      "SUM(items.goodQty)",
-      "SUM(items.receivedQty)",
-      "SUM(items.totalAmount)",
-    ],
-    groupBy: ["items.goodName"],
-    filter: [
-      {
-        column: "companyId",
-        operator: "equal",
-        type: "integer",
-        value: 1,
-      },
-      {
-        column: "branchId",
-        operator: "equal",
-        type: "integer",
-        value: 1,
-      },
-      {
-        column: "locationId",
-        operator: "equal",
-        type: "integer",
-        value: 1,
-      },
-    ],
-    page: 0,
-    size: 20,
+   // Fetch data from the API with sorting parameters
+   const {data } = useFetchDataQuery(filters);
+  //  console.log('piyas');
+  //  console.log(data);
+   
+  // Function to decode JWT token
+  const decodeToken = (token) => {
+    try {
+      const decodedData = jwtDecode(token); // Decode JWT token
+      // console.log("Decoded JWT Data:", decodedData); // Log decoded data to console
+      return decodedData;
+    } catch (error) {
+      // console.error("Invalid token", error);
+      return null;
+    }
   };
+  // Extract auth details if available
+  const decodedAuthDetails = authData.authDetails ? decodeToken(authData.authDetails) : null;
+
+
   const {
     data: sales,
     isLoading,
@@ -56,6 +85,8 @@ const PurchaseProductWiseTableView = () => {
     size,
     authDetails: authData.authDetails,
   });
+
+
 
   const pageInfo = sales?.lastPage;
 
@@ -83,7 +114,7 @@ const PurchaseProductWiseTableView = () => {
   };
 
   const extractFields = (data, index) => ({
-   "SL No": index + 1,
+    "SL No": index + 1,
     "Good Name": data["items.goodName"],
     "Good Code": data["items.goodCode"],
     "Total Quantity": data["SUM(items.goodQty)"],
@@ -91,20 +122,7 @@ const PurchaseProductWiseTableView = () => {
     "Total Amount": data["SUM(items.totalAmount)"],
   });
 
-  useEffect(() => {
-    if (sales?.content?.length) {
-      const newItems = sales.content.flatMap((invoice) => {
-        const flattenedInvoice = flattenObject(invoice);
-        return invoice.items?.length
-          ? invoice.items.map((item) => {
-              const flattenedItem = flattenObject(item, "item.");
-              return { ...flattenedInvoice, ...flattenedItem };
-            })
-          : [flattenedInvoice];
-      });
-      setIndividualItems((prevItems) => [...prevItems, ...newItems]);
-    }
-  }, [sales]);
+
 
   if (isLoading) {
     return (
@@ -137,40 +155,44 @@ const PurchaseProductWiseTableView = () => {
       </Box>
     );
   }
-  if(sales?.
-    totalPages <= page){
+  if (sales?.
+    totalPages <= page) {
     toast({
       title: 'No More Data',
       description: 'You have reached the end of the list.',
-			status: 'warning',
-			isClosable: true,
-      duration:800, //(5000 ms = 5 seconds)
-		})
+      status: 'warning',
+      isClosable: true,
+      duration: 800, //(5000 ms = 5 seconds)
+    })
   }
 
-  const newArray = individualItems.map((data, index) =>
-    extractFields(data, index)
-  );
-  // console.log(sales, 'main data');
+  const mainData = sales?.content
+
+  // console.log(mainData, 'main data');
   // console.log(newArray, 'newArray');
+
 
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
-      {individualItems.length > 0 && (
+   
         <CustomTable
-          newArray={newArray}
+          newArray={mainData}
           page={page}
           setPage={setPage}
           isFetching={isFetching}
           pageInfo={pageInfo}
           setSize={setSize}
+          sortColumn={sortColumn} 
+          sortOrder={sortOrder} 
+          setSortColumn={setSortColumn} 
+          setSortOrder={setSortOrder} 
           alignment={{
             "Total Quantity": "right",
             "Received Quantity": "right",
             "Total Amount": "right",
           }}
         />
-      )}
+   
     </Box>
   );
 };

@@ -41,6 +41,7 @@ import {
 	PopoverArrow,
 	PopoverCloseButton,
 	PopoverAnchor,
+	Tooltip
 } from '@chakra-ui/react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import debounce from 'lodash/debounce';
@@ -208,6 +209,10 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 	const handleSearchChange = (e) => {
 		debouncedSearchQuery(e.target.value);
 	};
+    const handleClearChanges = () => {
+		setSearchQuery(' '); // Clear the search input
+		debouncedSearchQuery(''); // Clear the debounced search query
+	  };
 
 	const filteredItems = useMemo(() => {
 		let filteredData = [...newArray];
@@ -395,6 +400,24 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 							outline: 'none',
 						},
 					}}>
+						<Tooltip label='Clear All'
+            hasArrow
+          >
+            <Button
+              borderRadius='5px'
+              onClick={handleClearChanges}
+              w='40px'
+              h='40px'
+              bg='#d6eaf8'
+              // border='1px solid gray'
+              _hover={{
+                bg: "mainBlue",
+                color: "white",
+              }}
+            >
+              <i className="pi pi-filter-slash" style={{ fontSize: '1.5rem' }}></i>
+            </Button>
+          </Tooltip>
 					<Dropdown
 						value={selectedReport}
 						options={reportOptions}
@@ -786,7 +809,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                                   >
                                     <option value='equal'>Equal</option>
                                     <option value='option2'>NotEqual</option>
-                                    <option value='option3'>Like</option>
                                     <option value='option3'>Like</option>
                                     <option value='option3'>NotLike</option>
                                     <option value='option3'>GraterThan</option>

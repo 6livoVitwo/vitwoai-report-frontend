@@ -10,7 +10,7 @@ const SalesCustomerWiseTableView = () => {
 	const [page, setPage] = useState(0);
 	const [size, setSize] = useState(50);
 	const [individualItems, setIndividualItems] = useState([]);
-	const toast =useToast();
+	const toast = useToast();
 
 	let filters = {
     data: [
@@ -119,9 +119,9 @@ const SalesCustomerWiseTableView = () => {
 				const flattenedInvoice = flattenObject(invoice);
 				return invoice.items?.length
 					? invoice.items.map((item) => {
-							const flattenedItem = flattenObject(item, 'item.');
-							return { ...flattenedInvoice, ...flattenedItem };
-					  })
+						const flattenedItem = flattenObject(item, 'item.');
+						return { ...flattenedInvoice, ...flattenedItem };
+					})
 					: [flattenedInvoice];
 			});
 			setIndividualItems((prevItems) => [...prevItems, ...newItems]);
@@ -159,16 +159,16 @@ const SalesCustomerWiseTableView = () => {
 			</Box>
 		);
 	}
-	if(sales?.
-		totalPages < page){
+	if (sales?.
+		totalPages < page) {
 		toast({
-		  title: 'No More Data',
-		  description: 'You have reached the end of the list.',
-				status: 'warning',
-				isClosable: true,
-		  duration:800, //(5000 ms = 5 seconds)
-			})
-	  }
+			title: 'No More Data',
+			description: 'You have reached the end of the list.',
+			status: 'warning',
+			isClosable: true,
+			duration: 800, //(5000 ms = 5 seconds)
+		})
+	}
 	const newArray = individualItems.map((data, index) =>
 		extractFields(data, index)
 	);

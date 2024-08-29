@@ -11,19 +11,19 @@ const SalesVerticalWiseTableView = () => {
   const [size, setSize] = useState(50);
   const [individualItems, setIndividualItems] = useState([]);
 
-        const formatDate = (dateString) => {
-          try {
-            const [year, month, day] = dateString.split("-").map(Number);
-            const date = new Date(year, month - 1, day);
-            return date.toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            });
-          } catch (error) {
-            return "Invalid Date";
-          }
-        };
+  const formatDate = (dateString) => {
+    try {
+      const [year, month, day] = dateString.split("-").map(Number);
+      const date = new Date(year, month - 1, day);
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    } catch (error) {
+      return "Invalid Date";
+    }
+  };
 
   let filters = {
     data: [
@@ -60,6 +60,8 @@ const SalesVerticalWiseTableView = () => {
     ],
     page: 0,
     size: 20,
+    "sortDir": "asc",
+    "sortBy": "companyFunction.functionalities_name"
   };
   const {
     data: sales,
@@ -119,9 +121,9 @@ const SalesVerticalWiseTableView = () => {
         const flattenedInvoice = flattenObject(invoice);
         return invoice.items?.length
           ? invoice.items.map((item) => {
-              const flattenedItem = flattenObject(item, "item.");
-              return { ...flattenedInvoice, ...flattenedItem };
-            })
+            const flattenedItem = flattenObject(item, "item.");
+            return { ...flattenedInvoice, ...flattenedItem };
+          })
           : [flattenedInvoice];
       });
       setIndividualItems((prevItems) => [...prevItems, ...newItems]);

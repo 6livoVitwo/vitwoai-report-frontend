@@ -809,7 +809,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                                     <option value='equal'>Equal</option>
                                     <option value='option2'>NotEqual</option>
                                     <option value='option3'>Like</option>
-                                    <option value='option3'>Like</option>
                                     <option value='option3'>NotLike</option>
                                     <option value='option3'>GraterThan</option>
                                     <option value='option3'>GraterThanOrEqual</option>
