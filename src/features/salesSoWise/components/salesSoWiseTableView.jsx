@@ -13,7 +13,7 @@ const SalesSoWiseTableView = () => {
   const toast = useToast();
 
   let filters = {
-     data: [
+    data: [
       "customer.trade_name",
       "customer.customer_code",
       "salesOrder.so_number",
@@ -52,7 +52,11 @@ const SalesSoWiseTableView = () => {
     ],
     page: 0,
     size: 20,
+    "sortDir": "asc",
+    "sortBy": "customer.trade_name"
+
   };
+
   const {
     data: sales,
     isLoading,
@@ -98,7 +102,7 @@ const SalesSoWiseTableView = () => {
     "SD Total Amount": data["SUM(salesPgi.salesDelivery.totalAmount)"],
     "Base Price":
       data[
-        "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)"
+      "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)"
       ],
     "Invoice No": data["invoice_no"],
     "SO No": data["salesOrder.so_number"],
@@ -117,9 +121,9 @@ const SalesSoWiseTableView = () => {
         const flattenedInvoice = flattenObject(invoice);
         return invoice.items?.length
           ? invoice.items.map((item) => {
-              const flattenedItem = flattenObject(item, "item.");
-              return { ...flattenedInvoice, ...flattenedItem };
-            })
+            const flattenedItem = flattenObject(item, "item.");
+            return { ...flattenedInvoice, ...flattenedItem };
+          })
           : [flattenedInvoice];
       });
       setIndividualItems((prevItems) => [...prevItems, ...newItems]);
@@ -157,15 +161,15 @@ const SalesSoWiseTableView = () => {
       </Box>
     );
   }
-  if(sales?.
-    totalPages < page){
+  if (sales?.
+    totalPages < page) {
     toast({
       title: 'No More Data',
       description: 'You have reached the end of the list.',
-			status: 'warning',
-			isClosable: true,
-      duration:800, //(5000 ms = 5 seconds)
-		})
+      status: 'warning',
+      isClosable: true,
+      duration: 800, //(5000 ms = 5 seconds)
+    })
   }
   const newArray = individualItems.map((data, index) =>
     extractFields(data, index)
@@ -184,7 +188,7 @@ const SalesSoWiseTableView = () => {
           pageInfo={pageInfo}
           setSize={setSize}
           alignment={{
-          "SO Total Amount": "right",
+            "SO Total Amount": "right",
             "SD Total Amount": "right",
             "Base Price": "right",
           }}

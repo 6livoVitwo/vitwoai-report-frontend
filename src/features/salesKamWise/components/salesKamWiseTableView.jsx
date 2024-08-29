@@ -54,7 +54,10 @@ const SalesKamWiseTableView = () => {
     ],
     page: 0,
     size: 20,
+    "sortDir": "asc",
+    "sortBy": "kam.kamCode"
   };
+  
   const {
     data: sales,
     isLoading,
@@ -110,9 +113,9 @@ const SalesKamWiseTableView = () => {
         const flattenedInvoice = flattenObject(invoice);
         return invoice.items?.length
           ? invoice.items.map((item) => {
-              const flattenedItem = flattenObject(item, "item.");
-              return { ...flattenedInvoice, ...flattenedItem };
-            })
+            const flattenedItem = flattenObject(item, "item.");
+            return { ...flattenedInvoice, ...flattenedItem };
+          })
           : [flattenedInvoice];
       });
       setIndividualItems((prevItems) => [...prevItems, ...newItems]);
@@ -167,7 +170,7 @@ const SalesKamWiseTableView = () => {
           pageInfo={pageInfo}
           setSize={setSize}
           alignment={{
-          "SO Total Amount": "right",
+            "SO Total Amount": "right",
             "SD Total Amount": "right",
             "Base Price": "right",
           }}

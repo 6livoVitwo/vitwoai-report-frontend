@@ -55,10 +55,10 @@ import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
 import { Calendar } from 'primereact/calendar';
-import { useGetSelectedColumnsQuery, useSaveSelectedColumnsMutation } from "../../apis/apiSlice";
+import { useGetSelectedColumnsQuery, useSaveSelectedColumnsMutation} from "../../apis/apiSlice";
 
 
-const CustomTable = ({ setPage, newArray, alignment }) => {
+const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  setSortColumn,  setSortOrder, }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
@@ -73,8 +73,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
   const [endDate, setEndDate] = useState();
   const { data: savedColumns, isLoading, isError } = useGetSelectedColumnsQuery(); // Fetch saved columns
   const [saveColumns, { isLoading: isSaving }] = useSaveSelectedColumnsMutation(); // Mutation to save columns
-  const [sortColumn, setSortColumn] = useState(null);
-  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
   const [filterCondition, setFilterCondition] = useState('');
   const [filterValue, setFilterValue] = useState('');
   const [applyFilter, setApplyFilter] = useState(false);
@@ -164,6 +162,9 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
       setSortOrder('asc');
     }
   };
+
+  
+  
 
 
   const loadMoreData = async () => {
@@ -357,15 +358,15 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
         );
       });
     }
-    // Apply sorting
-    if (sortColumn) {
-      filteredData.sort((a, b) => {
-        if (a[sortColumn] < b[sortColumn]) return sortOrder === 'asc' ? -1 : 1;
-        if (a[sortColumn] > b[sortColumn]) return sortOrder === 'asc' ? 1 : -1;
-        return 0;
-      });
-    }
 
+    // // Apply sorting
+    // if (sortColumn) {
+    //   filteredData.sort((a, b) => {
+    //     if (a[sortColumn] < b[sortColumn]) return sortOrder === 'asc' ? -1 : 1;
+    //     if (a[sortColumn] > b[sortColumn]) return sortOrder === 'asc' ? 1 : -1;
+    //     return 0;
+    //   });
+    // }
 
     return filteredData;
   }, [newArray, searchQuery, columnFilters, sortColumn, sortOrder, filterCondition, filterValue]);
@@ -470,10 +471,10 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     });
   };
 
-  // console.log(data, 'data');
-  console.log(newArray, "newArray");
-  console.log(selectedColumns, "selectedColumns");
-  console.log(filteredItems, "filteredItems");
+  console.log(data, 'data');
+  // console.log(newArray, "newArray");
+  // console.log(selectedColumns, "selectedColumns");
+  // console.log(filteredItems, "filteredItems");
 
   return (
     <Box bg="white" padding="0px 10px" borderRadius="5px">
