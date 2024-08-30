@@ -55,24 +55,22 @@ import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
 import { Calendar } from 'primereact/calendar';
-import { useGetSelectedColumnsQuery, useSaveSelectedColumnsMutation} from "../../apis/apiSlice";
+import { useGetSelectedColumnsQuery } from "../../apis/apiSlice"; // Adjust import as needed
 
 
-const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  setSortColumn,  setSortOrder, }) => {
+const CustomTable = ({ setPage, newArray, alignment, sortColumn, sortOrder, setSortColumn, setSortOrder, filters,sortdata }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
   const [selectedColumns, setSelectedColumns] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [searchQuery, setSearchQuery] = useState(" ");
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen, onOpen, onClose, onApplyChanges } = useDisclosure();
   const [columnFilters, setColumnFilters] = useState({});
   const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
-  const { data: savedColumns, isLoading, isError } = useGetSelectedColumnsQuery(); // Fetch saved columns
-  const [saveColumns, { isLoading: isSaving }] = useSaveSelectedColumnsMutation(); // Mutation to save columns
   const [filterCondition, setFilterCondition] = useState('');
   const [filterValue, setFilterValue] = useState('');
   const [applyFilter, setApplyFilter] = useState(false);
@@ -80,7 +78,14 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
   const [tempFilterCondition, setTempFilterCondition] = useState('');
   const [tempFilterValue, setTempFilterValue] = useState('');
   const [tempSearchQuery, setTempSearchQuery] = useState('');
+  const [columns, setColumns] = useState([]);
 
+  const {data:columnData} = useGetSelectedColumnsQuery();
+
+   // Ensure columns is always an array
+  //  const columns = Array.isArray(data) ? data : [];
+  console.log("columns01010101",columnData);
+  
 
 
   const toast = useToast();
@@ -118,6 +123,16 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
     },
   ];
 
+
+  // Fetching columns data from API
+  useEffect(() => {
+    if (columns.length) {
+      // Initialize selected columns based on fetched data or some default logic
+      setSelectedColumns(columns.map(col => col.field)); // Example initialization
+    }
+  }, [columns]);
+
+
   useEffect(() => {
     if (selectedReport) {
       navigate(`${selectedReport}`);
@@ -129,42 +144,57 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
     const selectedValue = e.value;
     setSelectedReport(selectedValue);
   };
-  
+
   //function for filter 
   const handleTempFilterConditionChange = (e) => {
     setTempFilterCondition(e.target.value);
   };
-  
+
   const handleTempFilterValueChange = (e) => {
     setTempFilterValue(e.target.value);
   };
-  
+
   const handleTempSearchChange = (e) => {
     setTempSearchQuery(e.target.value);
   };
-  
+
   const handleApplyFilter = (e) => {
     setFilterCondition(tempFilterCondition);
     setFilterValue(tempFilterValue);
     setSearchQuery(tempSearchQuery);
-    
+
     setApplyFilter(true); // Trigger filtering when the "Apply" button is clicked
   }
 
   //sort asc desc
-  const handleSort = (column) => {
-    if (sortColumn === column) {
-      // Toggle sort order
-      setSortOrder((prevOrder) => (prevOrder === 'asc' ? 'desc' : 'asc'));
-    } else {
-      // Set new column and default to ascending
-      setSortColumn(column);
-      setSortOrder('asc');
-    }
-  };
+  // const handleSort = (column) => {
+  //   if (sortColumn === column) {
+  //     // Toggle sort order
+  //     setSortOrder((prevOrder) => (prevOrder === 'asc' ? 'desc' : 'asc'));
+  //   } else {
+  //     // Set new column and default to ascending
+  //     setSortColumn(column);
+  //     setSortOrder('asc');
+  //   }
+  // };
 
-  
-  
+  const handleSort = (column) => {
+   
+    const newSortOrder = (sortColumn === column && sortOrder === 'asc') ? 'desc' : 'asc';
+
+    setSortColumn(column);
+    setSortOrder(newSortOrder);
+
+    filters((prevFilters) => ({
+      ...prevFilters,
+      sortBy: column,
+      sortDir: newSortOrder,
+    }));
+  };
+  console.log('Current Filters...............', sortdata); // Debugging line
+
+
+
 
 
   const loadMoreData = async () => {
@@ -181,34 +211,14 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
     }
   };
 
-  // useEffect(() => {
-  //   const initialColumns = getColumns(data)
-  //     .slice(0, 8)
-  //     .map((column) => column.field);
-  //   setDefaultColumns(initialColumns);
-  //   setSelectedColumns(initialColumns);
-  // }, [data]);
-
-  // const getColumns = useCallback((data) => {
-  //   if (!data || data.length === 0) {
-  //     return [];
-  //   }
-  //   const sampleItem = data[0];
-  //   return Object.keys(sampleItem).map((key) => ({
-  //     field: key,
-  //     header: key,
-  //   }));
-  // }, []);
   useEffect(() => {
-    if (!isLoading && !isError && savedColumns) {
-      setDefaultColumns(savedColumns);
-      setSelectedColumns(savedColumns);
-    } else {
-      const initialColumns = getColumns(data).slice(0, 8).map((column) => column.field);
-      setDefaultColumns(initialColumns);
-      setSelectedColumns(initialColumns);
-    }
-  }, [data, savedColumns, isLoading, isError]);
+    const initialColumns = getColumns(data)
+      .slice(0, 8)
+      .map((column) => column.field);
+    setDefaultColumns(initialColumns);
+    setSelectedColumns(initialColumns);
+  }, [data]);
+
 
   const getColumns = useCallback((data) => {
     if (!data || data.length === 0) {
@@ -233,23 +243,39 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
     setSelectedColumns(newColumnsOrder);
   };
 
-  const toggleColumn = (columnName) => {
-    setSelectedColumns((prevSelectedColumns) =>
-      prevSelectedColumns.includes(columnName)
-        ? prevSelectedColumns.filter((col) => col !== columnName)
-        : [...prevSelectedColumns, columnName]
+  // const toggleColumn = (columnName) => {
+  //   setSelectedColumns((prevSelectedColumns) =>
+  //     prevSelectedColumns.includes(columnName)
+  //       ? prevSelectedColumns.filter((col) => col !== columnName)
+  //       : [...prevSelectedColumns, columnName]
+  //   );
+  // };
+  const toggleColumn = (field) => {
+    setSelectedColumns(prevSelected =>
+      prevSelected.includes(field)
+        ? prevSelected.filter(col => col !== field)
+        : [...prevSelected, field]
     );
   };
 
 
+
+
+  // const handleSelectAllToggle = () => {
+  //   const allColumnFields = getColumns(data).map((column) => column.field);
+  //   if (selectAll) {
+  //     setSelectedColumns([]);
+  //   } else {
+  //     setSelectedColumns(allColumnFields);
+  //   }
+  //   setSelectAll((prevSelectAll) => !prevSelectAll);
+  // };
   const handleSelectAllToggle = () => {
-    const allColumnFields = getColumns(data).map((column) => column.field);
-    if (selectAll) {
+    if (selectedColumns.length === columns.length) {
       setSelectedColumns([]);
     } else {
-      setSelectedColumns(allColumnFields);
+      setSelectedColumns(columns.map(col => col.field));
     }
-    setSelectAll((prevSelectAll) => !prevSelectAll);
   };
 
 
@@ -259,6 +285,7 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
   };
 
   const handleApplyChanges = () => {
+    onApplyChanges(selectedColumns);
     onClose();
     toast({
       title: "Column Added Successfully",
@@ -267,24 +294,6 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
     });
   };
 
-  // const handleApplyChanges = async () => {
-  //   try {
-  //     await saveColumns(selectedColumns).unwrap();  // Save the selected columns to the API
-  //     toast({
-  //       title: "Columns saved successfully!",
-  //       status: "success",
-  //       isClosable: true,
-  //     });
-  //     onClose();
-  //   } catch (error) {
-  //     console.error("Failed to save columns:", error);
-  //     toast({
-  //       title: "Failed to save columns",
-  //       status: "error",
-  //       isClosable: true,
-  //     });
-  //   }
-  // };
 
 
 
@@ -772,7 +781,7 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
             size="xl"
             isCentered>
             <ModalOverlay />
-            <ModalContent minW="40%">
+            {/* <ModalContent minW="40%">
               <ModalHeader
                 fontWeight="600"
                 bg="mainBlue"
@@ -865,8 +874,9 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
                   Filter
                 </Button>
               </ModalFooter>
-            </ModalContent>
+            </ModalContent> */}
           </Modal>
+
         </Box>
       </Box>
       <TableContainer
@@ -908,20 +918,21 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
 
                             <Button
                               className="A_to_Z"
-                              bg='none'
+                              bg="none"
                               _hover={{
-                                bg: 'none'
+                                bg: 'none',
                               }}
-                              onClick={() => handleSort(column)}
+                              onClick={() => handleSort('items.goodName')}
                             >
-                              {sortColumn === column && sortOrder === 'asc' ? (
+                              {filters && filters.sortBy === column && filters.sortDir === 'asc' ? (
                                 <FontAwesomeIcon icon={faArrowDownShortWide} />
-                              ) : sortColumn === column && sortOrder === 'desc' ? (
+                              ) : filters && filters.sortBy === column && filters.sortDir === 'desc' ? (
                                 <FontAwesomeIcon icon={faArrowUpWideShort} />
                               ) : (
-                                <FontAwesomeIcon icon={faArrowRightArrowLeft} rotation={90} fontSize='13px' />
+                                <FontAwesomeIcon icon={faArrowRightArrowLeft} rotation={90} fontSize="13px" />
                               )}
                             </Button>
+
 
                             <Popover >
                               <PopoverTrigger>
@@ -936,7 +947,7 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
                               </PopoverTrigger>
                               <PopoverContent>
                                 <PopoverArrow />
-                                <PopoverCloseButton  fontSize='10px' />
+                                <PopoverCloseButton fontSize='10px' />
                                 {/* <PopoverHeader>Confirmation!</PopoverHeader> */}
                                 <PopoverBody h='150px' >
                                   <Select placeholder=' Filter With '
@@ -965,7 +976,7 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
                                     onChange={handleTempSearchChange}
                                   />
                                 </PopoverBody>
-                                
+
                                 <Box display='flex'
                                   justifyContent='flex-end'
                                   width='90%'
@@ -1054,7 +1065,8 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
           <ModalBody pt="10px">
             <Box padding="0px 10px" borderRadius="5px">
               <Checkbox
-                isChecked={selectAll}
+                // isChecked={selectAll}
+                isChecked={selectedColumns.length === columns.length}
                 onChange={handleSelectAllToggle}
                 mb={4}
                 size="lg"
@@ -1063,7 +1075,6 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
               </Checkbox>
             </Box>
             <Box
-              // height="60vh"
               overflowY="scroll"
               overflowX="hidden"
               display="flex"
@@ -1074,7 +1085,9 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
                   bg: "borderGrayLight",
                 },
               }}>
-              {getColumns(data).map((column) => {
+              {/* {getColumns(data).map((column) => {
+                const formattedHeader = formatHeader(column.field); */}
+              {columns.map((column) => {
                 const formattedHeader = formatHeader(column.field);
 
                 return (
@@ -1092,6 +1105,8 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
                       borderColor="mainBluemedium"
                       key={column.field}
                       defaultChecked={selectedColumns.includes(column.field)}
+                      // isChecked={selectedColumns.includes(column.field)}
+                      // onChange={() => toggleColumn(column.field)}>
                       isChecked={selectedColumns.includes(column.field)}
                       onChange={() => toggleColumn(column.field)}>
                       <Text

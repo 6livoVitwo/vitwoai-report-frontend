@@ -55,23 +55,25 @@ const PurchaseProductWiseTableView = ( ) => {
   const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
 
    // Fetch data from the API with sorting parameters
-   const {data } = useFetchDataQuery(filters);
+   const {data:sortdata} = useFetchDataQuery(filters);
+   
+   console.log('Fetching data with filters:', filters);
   //  console.log('piyas');
   //  console.log(data);
    
   // Function to decode JWT token
-  const decodeToken = (token) => {
-    try {
-      const decodedData = jwtDecode(token); // Decode JWT token
-      // console.log("Decoded JWT Data:", decodedData); // Log decoded data to console
-      return decodedData;
-    } catch (error) {
-      // console.error("Invalid token", error);
-      return null;
-    }
-  };
+  // const decodeToken = (token) => {
+  //   try {
+  //     const decodedData = jwtDecode(token); // Decode JWT token
+  //     // console.log("Decoded JWT Data:", decodedData); // Log decoded data to console
+  //     return decodedData;
+  //   } catch (error) {
+  //     // console.error("Invalid token", error);
+  //     return null;
+  //   }
+  // };
   // Extract auth details if available
-  const decodedAuthDetails = authData.authDetails ? decodeToken(authData.authDetails) : null;
+  // const decodedAuthDetails = authData.authDetails ? decodeToken(authData.authDetails) : null;
 
 
   const {
@@ -186,6 +188,7 @@ const PurchaseProductWiseTableView = ( ) => {
           sortOrder={sortOrder} 
           setSortColumn={setSortColumn} 
           setSortOrder={setSortOrder} 
+          sortdata={sortdata}
           alignment={{
             "Total Quantity": "right",
             "Received Quantity": "right",

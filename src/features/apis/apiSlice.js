@@ -43,17 +43,6 @@ export const apiSlice = createApi({
       }),
     }),
     // Query to fetch data with sorting /sales/sales-groupby-data
-    fetchData: builder.query({
-      query: (columns) => ({
-        url: '/sales/sales-groupby-data',  //  actual endpoint
-        // params: { page, size, sortDir, sortBy },
-        method: "POST",
-        body: columns,
-      }),
-    }),
-
-    
-    // Query to fetch data with sorting /sales/sales-groupby-data
     // fetchData: builder.query({
     //   query: (columns) => ({
     //     url: '/sales/sales-groupby-data',  //  actual endpoint
@@ -62,24 +51,17 @@ export const apiSlice = createApi({
     //     body: columns,
     //   }),
     // }),
-
+    
     // Query to get selected columns
     getSelectedColumns: builder.query({
-      query: () => "/columns",
-      providesTags: ["Columns"],  // Use providesTags to mark data from this query
-    }),
-    // Mutation to save selected columns
-    saveSelectedColumns: builder.mutation({
-      query: (columns) => ({
-        url: "/columns",
-        method: "POST",
-        body: { columns },
-      }),
-      invalidatesTags: ["Columns"],  // Invalidate cache to refresh data
-    }),
+      query: () =>'/purchase/drop-down-data/product',
+      providesTags: ['Columns'],
+
+    }),  
+
   }),
 });
 
-export const { useGetSelectedColumnsQuery, useSaveSelectedColumnsMutation, useFetchDataQuery } = apiSlice;
+export const {useGetSelectedColumnsQuery, useFetchDataQuery} = apiSlice;
 
 

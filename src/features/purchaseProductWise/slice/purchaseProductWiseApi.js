@@ -15,6 +15,7 @@ export const purchaseProductWiseApi = apiSlice.injectEndpoints({
         };
       },
     }),
+    
   }),
 });
 
