@@ -63,7 +63,7 @@ import SpentAnalysisTableView from "../features/spentAnalysis/components/spentAn
 import SpentAnalysisGraphView from "../features/spentAnalysis/components/spentAnalysisGraphView";
 import SalesProductWise from "../features/salesProductWise/components/index";
 import SalesProductWiseTableView from "../features/salesProductWise/components/salesProductWiseTableView";
-import SalesProductWiseGraphView from "../features/salesProductWise/components/salesProductWiseGraphView";
+// import SalesProductWiseGraphView from "../features/salesProductWise/components/salesProductWiseGraphView";
 import SalesCustomerWise from "../features/salesCustomerWise/components/index";
 import SalesCustomerWiseTableView from "../features/salesCustomerWise/components/salesCustomerWiseTableView";
 // import SalesCustomerWiseGraphView from "../features/salesCustomerWise/components/salesCustomerWiseGraphView";
@@ -870,7 +870,7 @@ const AllRoutes = () => {
                 </PortalForLayout>
               }
             />
-            <Route
+            {/* <Route
               path="/reports/sales-product-wise/graph-view"
               element={
                 <PortalForLayout
@@ -881,7 +881,7 @@ const AllRoutes = () => {
                   />
                 </PortalForLayout>
               }
-            />
+            /> */}
           </Route>
 
           <Route

@@ -39,6 +39,15 @@ import {
   PopoverBody,
   PopoverCloseButton,
   PopoverArrow,
+  Drawer,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  DrawerHeader,
+  DrawerBody,
+  Alert,
+  Badge,
+  Divider,
 } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
@@ -50,9 +59,14 @@ import { DownloadIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
+import DynamicChart from "../components/DynamicChart";
+import ChartConfiguration from "../components/ChartConfiguration"
 import ReactDatePicker from "react-datepicker";
+import { useSelector } from "react-redux";
+import { chartsData } from "../data/fakeData";
 import { Calendar } from 'primereact/calendar';
-
+import { FiPlus, FiSettings } from "react-icons/fi";
+import NewMyCharts from "../../dashboardNew/nivo/NewMyCharts";
 
 
 const CustomTable = ({ setPage, newArray, alignment }) => {
@@ -68,6 +82,12 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
   const [selectedReport, setSelectedReport] = useState(null);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const [configureChart, setConfigureChart] = useState({});
+    const salesCustomerWise = useSelector(
+      (state) => state.salescustomer.widgets
+    );
+
+    console.log(salesCustomerWise, "salesCustomerWise1");
 
   const toast = useToast();
   const tableContainerRef = useRef(null);
@@ -81,6 +101,26 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     onClose: onCloseDownloadReportModal,
     isOpen: isOpenDownloadReportModal,
   } = useDisclosure();
+    const {
+      onOpen: onOpenGraphAddDrawer,
+      onClose: onCloseGraphAddDrawer,
+      isOpen: isOpenGraphAddDrawer,
+  } = useDisclosure();
+    const {
+      onOpen: onOpenGraphSettingDrawer,
+      onClose: onCloseGraphSettingDrawer,
+      isOpen: isOpenGraphSettingDrawer,
+  } = useDisclosure();
+    const {
+      isOpen: isOpenGraphSettingsModal,
+      onOpen: onOpenGraphSettingsModal,
+      onClose: onCloseGraphSettingsModal,
+  } = useDisclosure();
+    const {
+      isOpen: isOpenGraphDetailsView,
+      onOpen: onOpenGraphDetailsView,
+      onClose: onCloseGraphDetailsView,
+    } = useDisclosure();
 
   const getColumnStyle = (header) => ({
     textAlign: alignment[header] || "left",
@@ -372,8 +412,36 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     });
   };
 
-  console.log(newArray, "newArray");
-  console.log(filteredItems, "filteredItems");
+    const removeProperty = (object) => {
+    if (!object) {
+      return {};
+    }
+    const { data, id, ...rest } = object;
+    return rest;
+  };
+
+
+    const handleConfigure = (chart) => {
+      if (!chart) {
+        return;
+      }
+      onOpenGraphSettingsModal();
+      const filterData = removeProperty(chart);
+      setConfigureChart(filterData);
+    };
+
+    const handleView = (chart) => {
+      if (!chart) {
+        return;
+      }
+      onOpenGraphDetailsView();
+      const filterData = removeProperty(chart);
+      setConfigureChart(filterData);
+    };
+
+    console.log(newArray, "newArray");
+    console.log(selectedColumns, "selectedColumns");
+    console.log(filteredItems, "filteredItems");
 
   return (
     <Box bg="white" padding="0px 10px" borderRadius="5px">
@@ -396,7 +464,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
           bg="#dedede"
           padding="15px"
           borderRadius="5px"
-          height='36px'
+          height="36px"
           placeholder="Search Global Data"
         />
         <Box
@@ -423,17 +491,18 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
             placeholder="Select Sales Type"
             style={{
               width: "200px",
-              background: '#dedede'
+              background: "#dedede",
             }}
           />
           {/* Graph view  */}
           <Button
             aria-label="Graph View"
+            onClick={onOpenGraphAddDrawer}
             borderRadius="30px"
             width="40px"
             height="40px"
-            bg='transparent'
-            border='1px solid gray'
+            bg="transparent"
+            border="1px solid gray"
             _hover={{
               bg: "mainBlue",
               color: "white",
@@ -444,31 +513,31 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
             _focus={{
               boxShadow: "outline",
             }}>
-            <FontAwesomeIcon icon={faChartLine} fontSize='20px' />
+            <FontAwesomeIcon icon={faChartLine} fontSize="20px" />
           </Button>
 
           <Button
             onClick={onOpen}
             padding="15px"
             bg="transparent"
-            border='1px solid gray'
+            border="1px solid gray"
             color="mainBlue"
-            height='40px'
-            width='40px'
-            borderRadius='30px'
+            height="40px"
+            width="40px"
+            borderRadius="30px"
             _hover={{
               bg: "mainBlue",
-              color: 'white'
+              color: "white",
             }}>
-            <FontAwesomeIcon icon={faChartSimple} fontSize='20px' />
+            <FontAwesomeIcon icon={faChartSimple} fontSize="20px" />
           </Button>
           <Menu>
             <MenuButton
               color="mainBlue"
-              border='1px solid gray'
+              border="1px solid gray"
               padding="5px"
-              height='40px'
-              width='40px'
+              height="40px"
+              width="40px"
               borderRadius="30px"
               _hover={{
                 color: "white",
@@ -481,7 +550,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                   justifyContent: "center",
                 },
               }}>
-              <DownloadIcon fontSize='20px' />
+              <DownloadIcon fontSize="20px" />
             </MenuButton>
             <MenuList>
               <MenuItem
@@ -538,28 +607,28 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                       <Text fontWeight="600" mb="5px" fontSize="14px">
                         Select Your Date - Range
                       </Text>
-                      <Box display='flex'
-                        justifyContent='space-between'
-                        padding='5px'
-                        alignItems='center'
-                      >
+                      <Box
+                        display="flex"
+                        justifyContent="space-between"
+                        padding="5px"
+                        alignItems="center">
                         <Calendar
                           // value={startDate}
                           // onChange={(e) => setStartDate(e.value)}
-                          placeholder='Start Date'
+                          placeholder="Start Date"
                           style={{
-                            width: '150px',
-                            padding: '5px',
+                            width: "150px",
+                            padding: "5px",
                           }}
                         />
                         <Text>to</Text>
                         <Calendar
                           // value={endDate}
                           // onChange={(e) => setEndDate(e.value)}
-                          placeholder='End Date'
+                          placeholder="End Date"
                           style={{
-                            width: '150px',
-                            padding: '5px',
+                            width: "150px",
+                            padding: "5px",
                           }}
                         />
                       </Box>
@@ -730,127 +799,79 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                             fontFamily="Poppins, sans-serif"
                             color="black">
                             {formatHeader(column)}
-                            {/* <Popover>
+                            <Popover>
                               <PopoverTrigger>
-                                <Button
-                                  variant="link"
-                                  colorScheme="teal"
-                                  size="sm">
-                                  <FontAwesomeIcon icon={faChartSimple} />
+                                <Button bg="transparent">
+                                  <i
+                                    className=" pi pi-filter"
+                                    style={{
+                                      color: "slateblue",
+                                      fontSize: "1.3rem",
+                                    }}></i>
                                 </Button>
                               </PopoverTrigger>
                               <PopoverContent>
-                                <PopoverHeader>
-                                  Filter by {formatHeader(column)}
-                                </PopoverHeader>
-                                <PopoverBody>
-                                  <Input
-                                    placeholder="Value"
-                                    mb={2}
-                                    onChange={(e) =>
-                                      handleColumnFilterValueChange(
-                                        column,
-                                        e.target.value
-                                      )
-                                    }
-                                  />
+                                <PopoverArrow />
+                                <PopoverCloseButton />
+                                <PopoverBody h="150px">
                                   <Select
-                                    placeholder="Condition"
-                                    mb={2}
+                                    placeholder=" Filter With "
+                                    mt="25px"
+                                    p="5px"
+                                    h="39px"
+                                    border="1px solid gray"
                                     onChange={(e) =>
                                       handleColumnFilterConditionChange(
                                         column,
                                         e.target.value
                                       )
                                     }>
-                                    <option value="like">Contains</option>
-                                    <option value="notLike">
-                                      Does not contain
+                                    <option value="equal">Equal</option>
+                                    <option value="option2">NotEqual</option>
+                                    <option value="option3">Like</option>
+                                    <option value="option3">NotLike</option>
+                                    <option value="option3">GraterThan</option>
+                                    <option value="option3">
+                                      GraterThanOrEqual
                                     </option>
-                                    <option value="greaterThan">
-                                      Greater than
+                                    <option value="option3">LessThan</option>
+                                    <option value="option3">
+                                      LessThanOrEqual
                                     </option>
-                                    <option value="greaterThanOrEqual">
-                                      Greater than or equal to
-                                    </option>
-                                    <option value="lessThan">Less than</option>
-                                    <option value="lessThanOrEqual">
-                                      Less than or equal to
-                                    </option>
-                                    <option value="between">Between</option>
+                                    <option value="option3">Between</option>
                                   </Select>
-                                </PopoverBody>
-                              </PopoverContent>
-                            </Popover> */}
-                            <Popover >
-                              <PopoverTrigger>
-                                <Button
-                                  bg='transparent'
-                                >
-                                  <i className=" pi pi-filter" style={{ color: 'slateblue', fontSize: '1.3rem' }}></i>
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent>
-                                <PopoverArrow />
-                                <PopoverCloseButton />
-                                {/* <PopoverHeader>Confirmation!</PopoverHeader> */}
-                                <PopoverBody h='150px' >
-                                  <Select placeholder=' Filter With '
-                                    mt='25px' p='5px'
-                                    h='39px'
-                                    border='1px solid gray'
-                                    onChange={(e) =>
-                                      handleColumnFilterConditionChange(
-                                        column,
-                                        e.target.value
-                                      )
-                                    }
-                                  >
-                                    <option value='equal'>Equal</option>
-                                    <option value='option2'>NotEqual</option>
-                                    <option value='option3'>Like</option>
-                                    <option value='option3'>NotLike</option>
-                                    <option value='option3'>GraterThan</option>
-                                    <option value='option3'>GraterThanOrEqual</option>
-                                    <option value='option3'>LessThan</option>
-                                    <option value='option3'>LessThanOrEqual</option>
-                                    <option value='option3'>Between</option>
-                                  </Select>
-                                  <Input placeholder='Search By Name'
-                                    mt='8px'
-                                    p='6px'
-                                    ml='5px'
-                                    w='174px'
-                                    h='39px'
-                                    border='1px solid gray'
+                                  <Input
+                                    placeholder="Search By Name"
+                                    mt="8px"
+                                    p="6px"
+                                    ml="5px"
+                                    w="174px"
+                                    h="39px"
+                                    border="1px solid gray"
                                     onChange={handleSearchChange}
                                   />
                                 </PopoverBody>
-                                <Box display='flex'
-                                  justifyContent='flex-end'
-                                  width='90%'
-                                  ml='8px'
-                                  mb='10px'
-
-                                >
+                                <Box
+                                  display="flex"
+                                  justifyContent="flex-end"
+                                  width="90%"
+                                  ml="8px"
+                                  mb="10px">
                                   <Button
-                                    bg='mainBlue'
+                                    bg="mainBlue"
                                     width="58px"
                                     color="white"
                                     mb="5px"
-                                    outline='none'
+                                    outline="none"
                                     _hover={{
                                       color: "white",
                                       bg: "mainBlue",
-                                    }}
-                                  >
+                                    }}>
                                     Apply
                                   </Button>
-
                                 </Box>
                               </PopoverContent>
                             </Popover>
-
                           </Th>
                         )}
                       </Draggable>
@@ -873,8 +894,8 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                                 column === "description"
                                   ? "300px"
                                   : column === "name"
-                                    ? "200px"
-                                    : "100px"
+                                  ? "200px"
+                                  : "100px"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis">
@@ -897,6 +918,291 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
           </Droppable>
         </DragDropContext>
       </TableContainer>
+
+      <Drawer
+        isOpen={isOpenGraphAddDrawer}
+        placement="right"
+        onClose={onCloseGraphAddDrawer}
+        size="xl">
+        <DrawerOverlay />
+        <DrawerContent
+          maxW="88vw"
+          sx={{
+            "& .stickyTop": {
+              position: "sticky",
+              top: 0,
+              zIndex: 1,
+              backgroundColor: "white",
+            },
+          }}>
+          <DrawerCloseButton style={{ color: "white" }} />
+          <DrawerHeader
+            style={{
+              backgroundColor: "#003060",
+              color: "white",
+            }}>
+            Sales Product Wise
+          </DrawerHeader>
+          <DrawerBody>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                "& button": {
+                  color: "#718296",
+                  padding: "20px 20px",
+                  fontSize: "14px",
+                  border: "1px solid #dee2e6",
+                  backgroundColor: "white",
+                },
+                "& button:hover": {
+                  backgroundColor: "rgb(0, 48, 96)",
+                  borderRadius: "5px",
+                },
+              }}
+              mb={6}>
+              <Text fontWeight="bold">Sales Wise Graph View</Text>
+              <Button
+                type="button"
+                variant="outlined"
+                onClick={onOpenGraphSettingDrawer}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  _hover: {
+                    color: "white",
+                  },
+                }}>
+                <FiPlus />
+                Add Graph
+              </Button>
+            </Box>
+
+            {/* Update sales graph details report */}
+            <Box display="flex" flexWrap="wrap" justifyContent="space-between">
+              {salesCustomerWise && salesCustomerWise?.length === 0 && (
+                <Alert
+                  status="error"
+                  sx={{
+                    fontSize: "16px",
+                    padding: "5px",
+                    borderRadius: "5px",
+                    height: "30px",
+                    px: "10px",
+                  }}>
+                  No Sales Graph are there
+                </Alert>
+              )}
+              {salesCustomerWise &&
+                salesCustomerWise?.map((chart, index) => {
+                  return (
+                    <Box
+                      key={index}
+                      width={{
+                        base: "100%",
+                        lg: "49%",
+                      }}
+                      mb={6}>
+                      <Box
+                        sx={{
+                          backgroundColor: "white",
+                          padding: "15px",
+                          my: 2.5,
+                          borderRadius: "8px",
+                          transition: "box-shadow 0.3s ease-in-out",
+                          border: "1px solid #dee2e6",
+                          "&:hover": {
+                            boxShadow: "0 4px 4px rgba(0, 0, 0, 0.2)",
+                          },
+                        }}
+                        mb={3}>
+                        <Box
+                          display="flex"
+                          justifyContent="space-between"
+                          alignItems="center"
+                          mb={8}>
+                          <Box
+                            style={{
+                              padding: "10px",
+                              fontWeight: 600,
+                              color: "black",
+                            }}>
+                            {chart.chartName}
+                            <Text
+                              sx={{
+                                color: "#718296",
+                                fontSize: "10px",
+                              }}>
+                              {chart.description}
+                            </Text>
+                          </Box>
+                          <Box
+                            style={{
+                              padding: "10px",
+                              fontWeight: 600,
+                              color: "black",
+                            }}>
+                            <Button
+                              variant="outline"
+                              style={{
+                                padding: "15px 10px",
+                                fontSize: "12px",
+                                color: "#718296",
+                              }}
+                              mr={3}
+                              onClick={() => handleConfigure(chart)}>
+                              <FiSettings style={{ marginRight: "6px" }} />{" "}
+                              Configure
+                            </Button>
+
+                            <Button
+                              variant="outline"
+                              style={{
+                                padding: "15px 10px",
+                                fontSize: "12px",
+                                color: "#718296",
+                              }}
+                              mr={3}
+                              onClick={() => handleView(chart)}>
+                              <FiSettings style={{ marginRight: "6px" }} /> View
+                              Graph
+                            </Button>
+                          </Box>
+                        </Box>
+                        <Box sx={{ height: "300px" }}>
+                          <NewMyCharts chart={chart} />
+                        </Box>
+                      </Box>
+                    </Box>
+                  );
+                })}
+            </Box>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
+
+      {/* //sales-customer-wise graph settings */}
+      <Drawer
+        isOpen={isOpenGraphSettingDrawer}
+        placement="right"
+        onClose={onCloseGraphSettingDrawer}
+        size="xl">
+        <DrawerOverlay />
+        <DrawerContent
+          maxW="91vw"
+          sx={{
+            "& .stickyTop": {
+              position: "sticky",
+              top: 0,
+              zIndex: 1,
+              backgroundColor: "white",
+            },
+          }}>
+          <DrawerCloseButton style={{ color: "white" }} />
+          <DrawerHeader
+            style={{
+              backgroundColor: "#003060",
+              color: "white",
+            }}>
+            Choose Data Wise Graph
+          </DrawerHeader>
+          <DrawerBody>
+            <Box
+              className="stickyTop"
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 4px",
+                p: 2,
+                my: 2,
+                flexGrow: 1,
+              }}>
+              Total Graph ({chartsData.charts.length})
+            </Box>
+            <Box display="flex" flexWrap="wrap" justifyContent="space-between">
+              {chartsData.charts.map((chart, index) => {
+                console.log("All Chart List", chart);
+                return (
+                  <Box
+                    key={index}
+                    width={{
+                      base: "100%",
+                      lg: "49.4%",
+                    }}
+                    mb={6}>
+                    <Box
+                      sx={{
+                        backgroundColor: "white",
+                        padding: "15px",
+                        my: 5,
+                        borderRadius: "8px",
+                        border: "1px solid #c4c4c4",
+                      }}
+                      mb={3}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          "& button": {
+                            color: "#718296",
+                            padding: "20px 20px",
+                            fontSize: "14px",
+                            border: "1px solid #dee2e6",
+                            backgroundColor: "white",
+                            borderRadius: "8px",
+                          },
+                          "& button:hover": {
+                            backgroundColor: "rgb(0, 48, 96)",
+                            borderRadius: "5px",
+                            color: "white",
+                          },
+                        }}
+                        mb={6}>
+                        <Button
+                          type="button"
+                          variant="outlined"
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                            _hover: {
+                              color: "white",
+                            },
+                          }}
+                          onClick={() => handleConfigure(chart)}>
+                          <FiSettings
+                            sx={{
+                              mr: "6px",
+                            }}
+                          />
+                          Configure
+                        </Button>
+                        {/* <Button onClick={() => console.log("add+")} ml={3}>
+                          Add <IoMdAdd />
+                        </Button> */}
+                      </Box>
+                      <Box
+                        sx={{
+                          width: "100%",
+                          height: "200px",
+                        }}>
+                        <DynamicChart chart={chart} />
+                      </Box>
+                      <Badge colorScheme="blue" py={0} px={3} fontSize={9}>
+                        {chart.title}
+                      </Badge>
+                      <Text fontSize={8}>{chart.chartName}</Text>
+                    </Box>
+                  </Box>
+                );
+              })}
+            </Box>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
 
       <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered>
         <ModalOverlay />
@@ -993,6 +1299,32 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      <Box>
+        <Drawer
+          isCentered
+          size="md"
+          isOpen={isOpenGraphSettingsModal}
+          onClose={onCloseGraphSettingsModal}>
+          <DrawerOverlay />
+          <DrawerContent maxW="91vw">
+            <DrawerCloseButton color="white" size="lg" mt="8px" />
+            <DrawerHeader
+              color="white"
+              mb="4px"
+              fontSize="17px"
+              fontWeight="500"
+              padding="15px 15px"
+              backgroundColor="#003060">
+              Graphical View Settings
+            </DrawerHeader>
+            <Divider orientation="horizontal" mb={6} />
+            <DrawerBody>
+              <ChartConfiguration configureChart={configureChart} />
+            </DrawerBody>
+          </DrawerContent>
+        </Drawer>
+      </Box>
     </Box>
   );
 };
