@@ -9,6 +9,7 @@ import { useSelector } from 'react-redux';
 import MyCharts from '../../dashboard/nivoCharts/MyCharts';
 import DynamicChart from '../components/DynamicChart';
 import NewMyCharts from '../nivo/NewMyCharts';
+import TestComp from '../components/TestComp';
 
 const DashboardNew = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -40,6 +41,9 @@ const DashboardNew = () => {
 
     return (
         <>
+        <Box height={300}>
+            <TestComp />
+        </Box>
             <Box
                 sx={{
                     display: 'flex',
