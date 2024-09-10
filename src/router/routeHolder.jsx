@@ -63,13 +63,12 @@ import SpentAnalysisTableView from "../features/spentAnalysis/components/spentAn
 import SpentAnalysisGraphView from "../features/spentAnalysis/components/spentAnalysisGraphView";
 import SalesProductWise from "../features/salesProductWise/components/index";
 import SalesProductWiseTableView from "../features/salesProductWise/components/salesProductWiseTableView";
-import SalesProductWiseGraphView from "../features/salesProductWise/components/salesProductWiseGraphView";
+// import SalesProductWiseGraphView from "../features/salesProductWise/components/salesProductWiseGraphView";
 import SalesCustomerWise from "../features/salesCustomerWise/components/index";
 import SalesCustomerWiseTableView from "../features/salesCustomerWise/components/salesCustomerWiseTableView";
 // import SalesCustomerWiseGraphView from "../features/salesCustomerWise/components/salesCustomerWiseGraphView";
 import SalesVerticalWise from "../features/salesVerticalWise/components/index";
 import SalesVerticalWiseTableView from "../features/salesVerticalWise/components/salesVerticalWiseTableView";
-import SalesVerticalWiseGraphView from "../features/salesVerticalWise/components/salesVerticalWiseGraphView";
 import PoWise from "../features/poWise/components/index";
 import PoWiseTableView from "../features/poWise/components/poWiseTableView";
 import PoWiseGraphView from "../features/poWise/components/poWiseGraphView";
@@ -871,7 +870,7 @@ const AllRoutes = () => {
                 </PortalForLayout>
               }
             />
-            <Route
+            {/* <Route
               path="/reports/sales-product-wise/graph-view"
               element={
                 <PortalForLayout
@@ -882,7 +881,7 @@ const AllRoutes = () => {
                   />
                 </PortalForLayout>
               }
-            />
+            /> */}
           </Route>
 
           <Route
@@ -936,18 +935,6 @@ const AllRoutes = () => {
                   globalLayout={globalStaticFragmennt}
                   portalId={commonPortalRef}>
                   <SalesVerticalWiseTableView
-                    globalLayout={setGlobalStaticFragmennt}
-                  />
-                </PortalForLayout>
-              }
-            />
-            <Route
-              path="/reports/sales-vertical-wise/graph-view"
-              element={
-                <PortalForLayout
-                  globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
-                  <SalesVerticalWiseGraphView
                     globalLayout={setGlobalStaticFragmennt}
                   />
                 </PortalForLayout>
