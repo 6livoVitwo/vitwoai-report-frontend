@@ -49,7 +49,7 @@ const ChartConfiguration = ({ configureChart }) => {
         endpoint: "/sales/graph/product-wise-area-bump",
         body: {
           priceOrQty: "qty",
-          dateString: "2024-01-01 to 2024-01-31",
+          dateString: "2024-01-01 to 2024-01-10",
           // year: 2023,
         },
       },

@@ -1108,9 +1108,8 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
             }}>
             Choose Data Wise Graph
           </DrawerHeader>
-          <DrawerBody>
+          <DrawerBody blockScrollOnMount={true}>
             <Box
-              className="stickyTop"
               sx={{
                 display: "flex",
                 justifyContent: "space-between",
@@ -1180,9 +1179,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                           />
                           Configure
                         </Button>
-                        {/* <Button onClick={() => console.log("add+")} ml={3}>
-                          Add <IoMdAdd />
-                        </Button> */}
                       </Box>
                       <Box
                         sx={{
