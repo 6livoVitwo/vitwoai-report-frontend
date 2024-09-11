@@ -1,36 +1,35 @@
 import React, { useState, useEffect, useRef } from "react";
 import CustomTable from "./purchaseProductWiseCustomTable";
-import ChildComponent from "./purchaseProductWiseCustomTable";
 import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { jwtDecode } from "jwt-decode";
-import { useFetchDataQuery } from "../../apis/apiSlice";
+import { useFetchDataQuery } from "../slice/purchaseProductWiseApi";
 
 let filters = {
-"data": [
-        "items.goodName",
-        "items.goodCode",
-        "SUM(items.goodQty)",
-        "SUM(items.receivedQty)",
-        "SUM(items.totalAmount)"
-    ],
-    "groupBy": [
-        "items.goodName"
-    ],
+  "data": [
+    "items.goodName",
+    "items.goodCode",
+    "SUM(items.goodQty)",
+    "SUM(items.receivedQty)",
+    "SUM(items.totalAmount)"
+  ],
+  "groupBy": [
+    "items.goodName"
+  ],
   "filter": [
     {
       "column": "companyId",
       "operator": "equal",
       "type": "integer",
-      "value":  1,
+      "value": 1,
     },
     {
       "column": "branchId",
       "operator": "equal",
       "type": "integer",
-      "value":  1,
+      "value": 1,
     },
     {
       "column": "locationId",
@@ -45,22 +44,21 @@ let filters = {
   "sortBy": "items.goodName"
 }
 
-const PurchaseProductWiseTableView = ( ) => {
+const PurchaseProductWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(50);
-  const [individualItems, setIndividualItems] = useState([]);
   const toast = useToast();
-  const [sortColumn, setSortColumn] = useState(null);
-  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
+  const [sortColumn, setSortColumn] = useState(filters.sortBy);
+  const [sortOrder, setSortOrder] = useState(filters.sortDir); // 'asc' or 'desc'
 
-   // Fetch data from the API with sorting parameters
-   const {data:sortdata} = useFetchDataQuery(filters);
-   
-   console.log('Fetching data with filters:', filters);
+  // Fetch data from the API with sorting parameters
+  const { data: sortdata, refetch } = useFetchDataQuery(filters);
+
+  // console.log('Fetching data with filters:', filters);
   //  console.log('piyas');
-  //  console.log(data);
-   
+  //  console.log(sortdata);
+
   // Function to decode JWT token
   // const decodeToken = (token) => {
   //   try {
@@ -176,26 +174,27 @@ const PurchaseProductWiseTableView = ( ) => {
 
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
-   
-        <CustomTable
-          newArray={mainData}
-          page={page}
-          setPage={setPage}
-          isFetching={isFetching}
-          pageInfo={pageInfo}
-          setSize={setSize}
-          sortColumn={sortColumn} 
-          sortOrder={sortOrder} 
-          setSortColumn={setSortColumn} 
-          setSortOrder={setSortOrder} 
-          sortdata={sortdata}
-          alignment={{
-            "Total Quantity": "right",
-            "Received Quantity": "right",
-            "Total Amount": "right",
-          }}
-        />
-   
+
+      <CustomTable
+        newArray={mainData}
+        page={page}
+        setPage={setPage}
+        isFetching={isFetching}
+        pageInfo={pageInfo}
+        setSize={setSize}
+        sortColumn={sortColumn}
+        sortOrder={sortOrder}
+        setSortColumn={setSortColumn}
+        setSortOrder={setSortOrder}
+        sortdata={sortdata}
+        refetch={refetch}
+        alignment={{
+          "Total Quantity": "right",
+          "Received Quantity": "right",
+          "Total Amount": "right",
+        }}
+      />
+
     </Box>
   );
 };

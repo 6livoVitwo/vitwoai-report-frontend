@@ -39,11 +39,12 @@ import {
   PopoverBody,
   PopoverCloseButton,
   PopoverArrow,
+  Tooltip
 } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChartSimple, faChartLine } from "@fortawesome/free-solid-svg-icons";
+import { faChartSimple, faChartLine, faArrowDownShortWide, faArrowUpWideShort, faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { saveAs } from "file-saver";
 import { faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { DownloadIcon } from "@chakra-ui/icons";
@@ -52,22 +53,55 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
 import ReactDatePicker from "react-datepicker";
 import { Calendar } from 'primereact/calendar';
+import { filter } from "lodash";
+import { useGetSelectedColumnsQuery } from "../slice/salesProductWiseApi";
+import{useProductWiseSalesQuery} from "../slice/salesProductWiseApi";
+import { useGetGlobalsearchProductQuery } from "../slice/salesProductWiseApi";
 
 
 
-const CustomTable = ({ setPage, newArray, alignment }) => {
+const CustomTable = ({ setPage, newArray, alignment,filters}) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
   const [selectedColumns, setSelectedColumns] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [inputValue, setInputValue] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [columnFilters, setColumnFilters] = useState({});
   const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const [tempFilterCondition, setTempFilterCondition] = useState('');
+  const [filterCondition, setFilterCondition] = useState('');
+  const [filterValue, setFilterValue] = useState('');
+  const [tempFilterValue, setTempFilterValue] = useState('');
+  const [columns, setColumns] = useState([]);
+  const [sortColumn, setSortColumn] = useState();
+  const [sortOrder, setSortOrder] = useState();
+  const [currentPage, setCurrentPage] = useState(0); // Default page is 0
+  // const [applyFilter, setApplyFilter] = useState(false);
+  
+  // api call for sort A-Z 
+  const{data: kamData, refetch: refetchProductWiseSales }=useProductWiseSalesQuery({
+    filters:{
+      ...filters,
+      // sortBy:sortColumn,
+      // sortDir:sortOrder,
+     },
+    page:currentPage,
+  });
+  //api call for drop-down-data columns
+  const {data:columnData} = useGetSelectedColumnsQuery();
+   //.........Api call to get global search.......
+   const { data: searchData } = useGetGlobalsearchProductQuery(filters, {
+    skip: !searchQuery,
+  });
+
+  
+
 
   const toast = useToast();
   const tableContainerRef = useRef(null);
@@ -136,8 +170,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     }
   };
 
-
-
   useEffect(() => {
     const initialColumns = getColumns(data)
       .slice(0, 8)
@@ -156,6 +188,13 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
       header: key,
     }));
   }, []);
+  // Fetching columns data from API
+  useEffect(() => {
+    if (columns.length) {
+      // Initialize selected columns based on fetched data or some default logic
+      setSelectedColumns(columns.map(col => col.field)); // Example initialization
+    }
+  }, [columns]);
 
   const handleDragEnd = (result) => {
     if (!result.destination) {
@@ -175,14 +214,32 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     );
   };
 
+  // const handleSelectAllToggle = () => {
+  //   const allColumnFields = getColumns(data).map((column) => column.field);
+  //   if (selectAll) {
+  //     setSelectedColumns([]);
+  //   } else {
+  //     setSelectedColumns(allColumnFields);
+  //   }
+  //   setSelectAll((prevSelectAll) => !prevSelectAll);
+  // };
   const handleSelectAllToggle = () => {
-    const allColumnFields = getColumns(data).map((column) => column.field);
     if (selectAll) {
-      setSelectedColumns([]);
+      setSelectedColumns([]);     // Deselect all columns
     } else {
-      setSelectedColumns(allColumnFields);
+      const allColumns = getColumns(data)     // Select all columns
+        .concat(
+          columnData
+            ? Object.keys(columnData?.content[0] || {}).map((key) => ({
+              field: key,
+              header: key,
+            }))
+            : []
+        )
+        .map((column) => column.field);
+      setSelectedColumns(allColumns);
     }
-    setSelectAll((prevSelectAll) => !prevSelectAll);
+    setSelectAll(!selectAll);
   };
 
   const handleModalClose = () => {
@@ -199,7 +256,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     });
   };
 
-  const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
+  const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery), []);
 
   useEffect(() => {
     return () => {
@@ -208,7 +265,32 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
   }, [debouncedSearchQuery]);
 
   const handleSearchChange = (e) => {
-    debouncedSearchQuery(e.target.value);
+    setInputValue(e.target.value);
+  };
+  const handleSearchClick = () => {
+    debouncedSearchQuery(inputValue);
+  };
+  const clearAllFilters = () => {
+    setSearchQuery("");
+    setInputValue("");
+    setColumnFilters({});
+    setSortColumn("");
+  };
+
+  const handleSort = (column) => {
+    const newSortOrder = sortColumn === column && sortOrder === 'asc' ? 'desc' : 'asc';
+    // Update sort state
+    setSortColumn(column);
+    setSortOrder(newSortOrder);
+    // Trigger the API call with updated sortBy and sortDir
+    refetchProductWiseSales({
+      filters: {
+        ...filters,
+        sortBy: column,
+        sortDir: newSortOrder
+      },
+      page:currentPage,// or current page if you're paginating
+    });
   };
 
   const parseDate = (dateString) => {
@@ -216,40 +298,44 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
   };
 
   const filteredItems = useMemo(() => {
-    let filteredData = [...newArray];
+    let filteredData = [...newArray]; // Copy the original data
+    // Apply column filters+
     Object.keys(columnFilters).forEach((field) => {
       const filter = columnFilters[field];
-      filteredData = filteredData.filter((item) => {
-        const value = item[field];
-
-        switch (filter.condition) {
-          case "like":
-            return String(value)
-              .toLowerCase()
-              .includes(String(filter.value).toLowerCase());
-          case "notLike":
-            return !String(value)
-              .toLowerCase()
-              .includes(String(filter.value).toLowerCase());
-          case "greaterThan":
-            return Number(value) > Number(filter.value);
-          case "greaterThanOrEqual":
-            return Number(value) >= Number(filter.value);
-          case "lessThan":
-            return Number(value) < Number(filter.value);
-          case "lessThanOrEqual":
-            return Number(value) <= Number(filter.value);
-          case "between":
-            return (
-              Number(value) >= Number(filter.value[0]) &&
-              Number(value) <= Number(filter.value[1])
-            );
-          default:
-            return true;
-        }
-      });
+      if (filterCondition && filterValue) {
+        filteredData = filteredData.filter((item) => {
+          const value = item[field];
+          switch (filterCondition) {
+            case "equal":
+              return String(value).toLowerCase() === String(filter.value).toLowerCase();
+            case "notEqual":
+              return String(value).toLowerCase() !== String(filter.value).toLowerCase();
+            case "like":
+              return String(value).toLowerCase().includes(String(filter.value).toLowerCase());
+            case "notLike":
+              return !String(value).toLowerCase().includes(String(filter.value).toLowerCase());
+            case "greaterThan":
+              return Number(value) > Number(filter.value);
+            case "greaterThanOrEqual":
+              return Number(value) >= Number(filter.value);
+            case "lessThan":
+              return Number(value) < Number(filter.value);
+            case "lessThanOrEqual":
+              return Number(value) <= Number(filter.value);
+            case "between":
+              if (Array.isArray(filter.value) && filter.value.length === 2) {
+                return Number(value) >= Number(filter.value[0]) &&
+                  Number(value) <= Number(filter.value[1]);
+              }
+              return false;
+            default:
+              return true;
+          }
+        });
+      }
     });
 
+    // Apply search query
     if (searchQuery) {
       filteredData = filteredData.filter((item) => {
         const values = Object.values(item);
@@ -258,21 +344,46 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
         );
       });
     }
-
-    if (startDate && endDate) {
-      filteredData = filteredData.filter((item) => {
-        const rawDate = item["Invoice Date"];
-        const date = parseDate(rawDate);
-        console.log("Start Date:", startDate);
-        console.log("End Date:", endDate);
-        console.log("Raw Item Date:", rawDate);
-        console.log("Item Date:", date);
-        return date >= startDate && date <= endDate;
+    // Apply sorting
+    if (sortColumn) {
+      filteredData.sort((a, b) => {
+        if (a[sortColumn] < b[sortColumn]) return sortOrder === 'asc' ? -1 : 1;
+        if (a[sortColumn] > b[sortColumn]) return sortOrder === 'asc' ? 1 : -1;
+        return 0;
       });
     }
 
+    // Filter data to only include selected columns
+    if (selectedColumns.length > 0) {
+      filteredData = filteredData.map((item) => {
+        const filteredItem = {};
+        selectedColumns.forEach((column) => {
+          filteredItem[column] = item[column];
+        });
+        return filteredItem;
+      });
+    }
+
+    // // Apply date filtering if startDate and endDate are defined
+    // if (startDate && endDate) {
+    //   filteredData = filteredData.filter((item) => {
+    //     const rawDate = item["Invoice Date"];
+    //     const date = parseDate(rawDate);
+    //     return date >= startDate && date <= endDate;
+    //   });
+    // }
+
     return filteredData;
-  }, [data, searchQuery, columnFilters, startDate, endDate]);
+  }, [
+    newArray,
+    searchQuery,
+    columnFilters,
+    startDate,
+    endDate,
+    filterCondition,
+    filterValue,
+    selectedColumns
+  ]);
 
   const formatHeader = (header) => {
     header = header.trim();
@@ -293,39 +404,40 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
   };
 
   const handleScroll = () => {
-    const { scrollTop, scrollHeight, clientHeight } = tableContainerRef.current;
+    const { scrollTop, scrollHeight, clientHeight,scrollleft } = tableContainerRef.current;
 
-    if (scrollTop + clientHeight >= scrollHeight - 5) {
+    if (scrollleft===0 && scrollTop + clientHeight >= scrollHeight - 5 && !loading)
+       {
       loadMoreData();
     }
   };
-
   useEffect(() => {
     const container = tableContainerRef.current;
     if (container) {
       container.addEventListener("scroll", handleScroll);
-      handleScroll()
       return () => container.removeEventListener("scroll", handleScroll);
     }
   }, [loading, lastPage]);
 
-  const handleColumnFilterConditionChange = (field, condition) => {
-    condition = String(condition);
-    setColumnFilters((prevFilters) => ({
-      ...prevFilters,
-      [field]: {
-        ...prevFilters[field],
-        condition,
-      },
-    }));
+
+  //function for filter 
+  const handleTempFilterConditionChange = (e) => {
+    setTempFilterCondition(e.target.value);
+  };
+  const handleTempSearchChange = (e) => {
+    setTempFilterValue(e.target.value);
+  };
+  const handleApplyFilter = () => {
+    if (tempFilterCondition && tempFilterValue) {
+      setColumnFilters((prevFilters) => ({
+        ...prevFilters,
+        searchColumn: { condition: tempFilterCondition, value: tempFilterValue }
+      }));
+    }
   };
 
-  const handleApplyFilters = () => {
-    setPage(1);
-    setData([]);
-    loadMoreData();
-    console.log("Working");
-  };
+  // console.log("piyas111111", filteredItems);
+  // console.log("piyas22222", selectedColumns);
 
   const handleColumnFilterValueChange = (field, value) => {
     let type = typeof value;
@@ -390,15 +502,36 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
             color: "white",
           },
         }}>
-        <Input
-          onChange={handleSearchChange}
-          width="20%"
-          bg="#dedede"
-          padding="15px"
-          borderRadius="5px"
-          height='36px'
-          placeholder="Search Global Data"
-        />
+        <Box display="flex" alignItems="center" w="20%" position="relative">
+          <Input
+            onChange={handleSearchChange}
+            value={inputValue}
+            width="100%"
+            bg="#dedede"
+            padding="15px"
+            h="36px"
+            borderRadius="5px"
+            placeholder="Search Global Data"
+            pr="40px" 
+            zIndex='1'
+          />
+          <button
+            onClick={handleSearchClick}
+            style={{
+              position: "absolute",
+              right: "10px", // Adjust the position as needed
+              top: "50%",
+              transform: "translateY(-50%)",
+              border: "none",
+              background: "transparent",
+              cursor: "pointer",
+              fontSize: "20px",
+              zIndex: "2",
+            }}
+          >
+            <i className="pi pi-search" style={{ fontSize: '2rem', opacity:'0.8' }}></i>
+          </button>
+        </Box>
         <Box
           display="flex"
           justifyContent="space-between"
@@ -413,6 +546,23 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
               outline: "none",
             },
           }}>
+          <Tooltip label='Clear All'
+            hasArrow
+          >
+            <Button
+              onClick={clearAllFilters}
+              borderRadius='5px'
+              w='40px'
+              h='40px'
+              bg='#d6eaf8'
+              _hover={{
+                bg: "mainBlue",
+                color: "white",
+              }}
+            >
+              <i className="pi pi-filter-slash" style={{ fontSize: '1.5rem' }}></i>
+            </Button>
+          </Tooltip>
           <Dropdown
             value={selectedReport}
             options={reportOptions}
@@ -625,45 +775,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                           mb="3px">
                           {formattedHeader}
                         </Text>
-                        <Box display="flex" gap="15px" mr="10px">
-                          <Select
-                            placeholder="Select option"
-                            size="lg"
-                            fontSize="12px"
-                            h="35px"
-                            value={columnFilters[column.field]?.condition || ""}
-                            onChange={(e) =>
-                              handleColumnFilterConditionChange(
-                                column.field,
-                                e.target.value
-                              )
-                            }>
-                            <option value="like">Contain</option>
-                            <option value="notLike">Not Contain</option>
-                            <option value="greaterThan">Greater Than</option>
-                            <option value="greaterThanOrEqual">
-                              Greater Than or Equal
-                            </option>
-                            <option value="lessThan">Less Than</option>
-                            <option value="lessThanOrEqual">
-                              Less Than or Equal
-                            </option>
-                            <option value="between">Between</option>
-                          </Select>
-                          <Input
-                            h="35px"
-                            fontSize="12px"
-                            padding="10px 10px"
-                            value={columnFilters[column.field]?.value || ""}
-                            onChange={(e) =>
-                              handleColumnFilterValueChange(
-                                column.field,
-                                e.target.value
-                              )
-                            }
-                            placeholder={`Filter ${column.header}`}
-                          />
-                        </Box>
                       </Box>
                     );
                   })}
@@ -730,58 +841,26 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                             fontFamily="Poppins, sans-serif"
                             color="black">
                             {formatHeader(column)}
-                            {/* <Popover>
-                              <PopoverTrigger>
-                                <Button
-                                  variant="link"
-                                  colorScheme="teal"
-                                  size="sm">
-                                  <FontAwesomeIcon icon={faChartSimple} />
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent>
-                                <PopoverHeader>
-                                  Filter by {formatHeader(column)}
-                                </PopoverHeader>
-                                <PopoverBody>
-                                  <Input
-                                    placeholder="Value"
-                                    mb={2}
-                                    onChange={(e) =>
-                                      handleColumnFilterValueChange(
-                                        column,
-                                        e.target.value
-                                      )
-                                    }
-                                  />
-                                  <Select
-                                    placeholder="Condition"
-                                    mb={2}
-                                    onChange={(e) =>
-                                      handleColumnFilterConditionChange(
-                                        column,
-                                        e.target.value
-                                      )
-                                    }>
-                                    <option value="like">Contains</option>
-                                    <option value="notLike">
-                                      Does not contain
-                                    </option>
-                                    <option value="greaterThan">
-                                      Greater than
-                                    </option>
-                                    <option value="greaterThanOrEqual">
-                                      Greater than or equal to
-                                    </option>
-                                    <option value="lessThan">Less than</option>
-                                    <option value="lessThanOrEqual">
-                                      Less than or equal to
-                                    </option>
-                                    <option value="between">Between</option>
-                                  </Select>
-                                </PopoverBody>
-                              </PopoverContent>
-                            </Popover> */}
+
+                            {/* A-Z Filter  */}
+                            {formatHeader(column)}
+                            <Button
+                              className="A_to_Z"
+                              bg="none"
+                              _hover={{ bg: 'none' }}
+                              onClick={() => handleSort(column)}
+                            >
+                              {sortColumn === column ? (
+                                sortOrder === 'asc' ? (
+                                  <FontAwesomeIcon icon={faArrowDownShortWide} />
+                                ) : (
+                                  <FontAwesomeIcon icon={faArrowUpWideShort} />
+                                )
+                              ) : (
+                                <FontAwesomeIcon icon={faArrowRightArrowLeft} rotation={90} fontSize="13px" />
+                              )}
+                            </Button>
+
                             <Popover >
                               <PopoverTrigger>
                                 <Button
@@ -799,22 +878,17 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                                     mt='25px' p='5px'
                                     h='39px'
                                     border='1px solid gray'
-                                    onChange={(e) =>
-                                      handleColumnFilterConditionChange(
-                                        column,
-                                        e.target.value
-                                      )
-                                    }
+                                    onChange={handleTempFilterConditionChange}
                                   >
                                     <option value='equal'>Equal</option>
-                                    <option value='option2'>NotEqual</option>
-                                    <option value='option3'>Like</option>
-                                    <option value='option3'>NotLike</option>
-                                    <option value='option3'>GraterThan</option>
-                                    <option value='option3'>GraterThanOrEqual</option>
-                                    <option value='option3'>LessThan</option>
-                                    <option value='option3'>LessThanOrEqual</option>
-                                    <option value='option3'>Between</option>
+                                    <option value='notEqual'>NotEqual</option>
+                                    <option value='like'>Like</option>
+                                    <option value='notLike'>NotLike</option>
+                                    <option value='greaterThan'>GreaterThan</option>
+                                    <option value='greaterThanOrEqual'>GreaterThanOrEqual</option>
+                                    <option value='lessThan'>LessThan</option>
+                                    <option value='lessThanOrEqual'>LessThanOrEqual</option>
+                                    <option value='between'>Between</option>
                                   </Select>
                                   <Input placeholder='Search By Name'
                                     mt='8px'
@@ -823,7 +897,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                                     w='174px'
                                     h='39px'
                                     border='1px solid gray'
-                                    onChange={handleSearchChange}
+                                    onChange={handleTempSearchChange}
                                   />
                                 </PopoverBody>
                                 <Box display='flex'
@@ -831,9 +905,9 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                                   width='90%'
                                   ml='8px'
                                   mb='10px'
-
                                 >
                                   <Button
+                                    onClick={handleApplyFilter}
                                     bg='mainBlue'
                                     width="58px"
                                     color="white"
@@ -868,6 +942,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                             style={getColumnStyle(column)}>
                             <Text
                               fontSize="13px"
+                              justifyItems='center'
                               whiteSpace="nowrap"
                               width={
                                 column === "description"
@@ -878,7 +953,8 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                               }
                               overflow="hidden"
                               textOverflow="ellipsis">
-                              {item[column]}
+                              {/* {item[column]} */}
+                              {item[column] !== undefined ? item[column] : "-"}
                             </Text>
                           </Td>
                         ))}
@@ -922,7 +998,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
               </Checkbox>
             </Box>
             <Box
-              // height="60vh"
+              height="60vh"
               overflowY="scroll"
               overflowX="hidden"
               display="flex"
@@ -933,7 +1009,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                   bg: "borderGrayLight",
                 },
               }}>
-              {getColumns(data).map((column) => {
+              {/* {getColumns(data).map((column) => {
                 const formattedHeader = formatHeader(column.field);
 
                 return (
@@ -963,7 +1039,50 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                     </Checkbox>
                   </Box>
                 );
-              })}
+              })} */}
+
+              {(getColumns(data) || [])
+                .concat(
+                  columnData
+                    ? Object.keys(columnData?.content[0] || {}).map((key) => ({
+                      field: key,
+                      header: key,
+                    }))
+                    : []
+                )
+                .map((column, index) => {
+                  const formattedHeader = formatHeader(column.field || column.header);
+                  return (
+                    <Box
+                      key={`${column.field || column.header}-${index}`}
+                      className="columnCheckBox"
+                      padding="5px"
+                      bg="rgba(231,231,231,1)"
+                      borderRadius="5px"
+                      width="48%"
+                    >
+                      <Checkbox
+                        size="lg"
+                        display="flex"
+                        padding="5px"
+                        borderColor="mainBluemedium"
+                        defaultChecked={selectedColumns.includes(column.field)}
+                        isChecked={selectedColumns.includes(column.field)}
+                        onChange={() => toggleColumn(column.field)}
+                      >
+                        <Text
+                          fontWeight="500"
+                          ml="10px"
+                          fontSize="12px"
+                          color="textBlackDeep"
+                        >
+                          {formattedHeader}
+                        </Text>
+                      </Checkbox>
+                    </Box>
+                  );
+                })}
+
             </Box>
           </ModalBody>
           <ModalFooter>

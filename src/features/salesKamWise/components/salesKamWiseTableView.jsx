@@ -4,6 +4,52 @@ import { Box, Spinner, Image } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useKamWiseSalesQuery } from "../slice/salesKamWiseApi";
+let filters = {
+  data: [
+    "kam.kamCode",
+    "kam.kamName",
+    "kam.email",
+    "kam.emp_code",
+    "kam.designation",
+    "kam.contact",
+    "invoice_no",
+    "invoice_date",
+    "SUM(due_amount)",
+    "SUM(salesPgi.salesDelivery.totalAmount)",
+    "SUM(salesPgi.totalAmount)",
+    "SUM(quotation.totalAmount)",
+    "SUM(salesOrder.totalAmount)",
+    "SUM(items.qty)",
+    "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
+    "SUM(all_total_amt)",
+    "SUM(items.totalTax)",
+  ],
+  groupBy: ["kam.kamName", "kam.kamCode"],
+  filter: [
+    {
+      column: "company_id",
+      operator: "equal",
+      type: "Integer",
+      value: 1,
+    },
+    {
+      column: "location_id",
+      operator: "equal",
+      type: "Integer",
+      value: 1,
+    },
+    {
+      column: "branch_id",
+      operator: "equal",
+      type: "Integer",
+      value: 1,
+    },
+  ],
+  page: 0,
+  size: 20,
+  "sortDir": "asc",
+  "sortBy": "kam.kamName",
+};
 
 const SalesKamWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
@@ -11,53 +57,6 @@ const SalesKamWiseTableView = () => {
   const [size, setSize] = useState(50);
   const [individualItems, setIndividualItems] = useState([]);
 
-  let filters = {
-    data: [
-      "kam.kamCode",
-      "kam.kamName",
-      "kam.email",
-      "kam.emp_code",
-      "kam.designation",
-      "kam.contact",
-      "invoice_no",
-      "invoice_date",
-      "SUM(due_amount)",
-      "SUM(salesPgi.salesDelivery.totalAmount)",
-      "SUM(salesPgi.totalAmount)",
-      "SUM(quotation.totalAmount)",
-      "SUM(salesOrder.totalAmount)",
-      "SUM(items.qty)",
-      "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
-      "SUM(all_total_amt)",
-      "SUM(items.totalTax)",
-    ],
-    groupBy: ["kam.kamName", "kam.kamCode"],
-    filter: [
-      {
-        column: "company_id",
-        operator: "equal",
-        type: "Integer",
-        value: 1,
-      },
-      {
-        column: "location_id",
-        operator: "equal",
-        type: "Integer",
-        value: 1,
-      },
-      {
-        column: "branch_id",
-        operator: "equal",
-        type: "Integer",
-        value: 1,
-      },
-    ],
-    page: 0,
-    size: 20,
-    "sortDir": "asc",
-    "sortBy": "kam.kamCode"
-  };
-  
   const {
     data: sales,
     isLoading,
@@ -158,7 +157,6 @@ const SalesKamWiseTableView = () => {
   );
   // console.log(sales, 'main data');
   // console.log(newArray, 'newArray');
-
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
       {individualItems.length > 0 && (
@@ -169,6 +167,9 @@ const SalesKamWiseTableView = () => {
           isFetching={isFetching}
           pageInfo={pageInfo}
           setSize={setSize}
+          filters={filters}
+          sortBy="kam.kamName"
+          sortDir="asc"
           alignment={{
             "SO Total Amount": "right",
             "SD Total Amount": "right",

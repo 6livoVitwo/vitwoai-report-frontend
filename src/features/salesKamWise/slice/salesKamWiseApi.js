@@ -15,7 +15,25 @@ export const salesKamWiseApi = apiSlice.injectEndpoints({
         };
       },
     }),
+    // Query to get selected columns
+    getSelectedColumnsKam: builder.query({
+      query: () => "/sales/drop-down-data/kam",
+    }),
+    // Query to get global search
+    getGlobalsearchKam: builder.query({
+      query: (body) => {
+        // console.log("imran body", body);
+        // console.log("json body");
+        // console.log(JSON.stringify(body));
+        return {
+          url: "/sales/global-search/kam",
+          method: "POST",
+          body: JSON.stringify(body),
+        };
+      },
+    }),
   }),
 });
 
-export const { useKamWiseSalesQuery } = salesKamWiseApi;
+export const { useKamWiseSalesQuery, useGetSelectedColumnsKamQuery, useGetGlobalsearchKamQuery } =
+  salesKamWiseApi;

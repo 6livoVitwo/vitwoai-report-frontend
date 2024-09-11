@@ -1,26 +1,3 @@
-// import { apiSlice } from "../../apis/apiSlice";
-
-// export const purchaseVendorWiseApi = apiSlice.injectEndpoints({
-//   endpoints: (builder) => ({
-//     vendorWisePurchase: builder.query({
-//       query: ({ page, filters }) => {
-//         return {
-//           url: `purchase/purchase-groupby-data?pageNumber=${page}&pageSize=10`,
-//           method: "POST",
-//           body: JSON.stringify(filters),
-//           headers: {
-//             "Content-Type": "application/json",
-//           },
-//         };
-//       },
-//     }),
-//   }),
-// });
-
-// export const { useVendorWisePurchaseQuery } = purchaseVendorWiseApi;
-
-
-
 import { apiSlice } from "../../apis/apiSlice";
 
 export const purchaseVendorWiseApi = apiSlice.injectEndpoints({
@@ -38,7 +15,16 @@ export const purchaseVendorWiseApi = apiSlice.injectEndpoints({
         };
       },
     }),
+
+    // Query to fetch data with sorting /purchase/purchase-groupby-data
+    fetchData: builder.query({
+      query: (columns) => ({
+        url: 'purchase/purchase-groupby-data',  //  actual endpoint
+        method: "POST",
+        body: columns,
+      }),
+    }),
   }),
 });
 
-export const { useVendorWisePurchaseQuery } = purchaseVendorWiseApi;
+export const { useVendorWisePurchaseQuery, useFetchDataQuery } = purchaseVendorWiseApi;

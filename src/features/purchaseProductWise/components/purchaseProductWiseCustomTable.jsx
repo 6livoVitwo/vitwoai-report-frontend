@@ -55,16 +55,16 @@ import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
 import { Calendar } from 'primereact/calendar';
-import { useGetSelectedColumnsQuery } from "../../apis/apiSlice"; // Adjust import as needed
+import { useGetSelectedColumnsQuery } from "../slice/purchaseProductWiseApi"; // Adjust import as needed
 
 
-const CustomTable = ({ setPage, newArray, alignment, sortColumn, sortOrder, setSortColumn, setSortOrder, filters,sortdata }) => {
+const CustomTable = ({ setPage, newArray, alignment, sortColumn, sortOrder, setSortColumn, setSortOrder, filters,refetch }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
   const [selectedColumns, setSelectedColumns] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(" ");
+  const [searchQuery, setSearchQuery] = useState('');
   const { isOpen, onOpen, onClose, onApplyChanges } = useDisclosure();
   const [columnFilters, setColumnFilters] = useState({});
   const [lastPage, setLastPage] = useState(false);
@@ -79,14 +79,12 @@ const CustomTable = ({ setPage, newArray, alignment, sortColumn, sortOrder, setS
   const [tempFilterValue, setTempFilterValue] = useState('');
   const [tempSearchQuery, setTempSearchQuery] = useState('');
   const [columns, setColumns] = useState([]);
+  const [originalData, setOriginalData] = useState([]);
 
-  const {data:columnData} = useGetSelectedColumnsQuery();
 
-   // Ensure columns is always an array
-  //  const columns = Array.isArray(data) ? data : [];
-  console.log("columns01010101",columnData);
-  
-
+  // const { data: columnData } = useGetSelectedColumnsQuery();
+  const { data: columnData } = useGetSelectedColumnsQuery();
+  // console.log("01010101", columnData);
 
   const toast = useToast();
 
@@ -153,45 +151,41 @@ const CustomTable = ({ setPage, newArray, alignment, sortColumn, sortOrder, setS
   const handleTempFilterValueChange = (e) => {
     setTempFilterValue(e.target.value);
   };
+  const handleApplyFilter = () => {
+    console.log(tempFilterValue);
+    console.log(tempFilterCondition);
 
-  const handleTempSearchChange = (e) => {
-    setTempSearchQuery(e.target.value);
-  };
-
-  const handleApplyFilter = (e) => {
-    setFilterCondition(tempFilterCondition);
-    setFilterValue(tempFilterValue);
-    setSearchQuery(tempSearchQuery);
-
-    setApplyFilter(true); // Trigger filtering when the "Apply" button is clicked
+    if (tempFilterCondition && tempFilterValue) {
+      setColumnFilters((prevFilters) => {
+        return {
+          ...prevFilters,
+          searchColumn: { condition: tempFilterCondition, value: tempFilterValue }
+        }
+      })
+    }
   }
 
   //sort asc desc
-  // const handleSort = (column) => {
-  //   if (sortColumn === column) {
-  //     // Toggle sort order
-  //     setSortOrder((prevOrder) => (prevOrder === 'asc' ? 'desc' : 'asc'));
-  //   } else {
-  //     // Set new column and default to ascending
-  //     setSortColumn(column);
-  //     setSortOrder('asc');
-  //   }
-  // };
-
   const handleSort = (column) => {
-   
-    const newSortOrder = (sortColumn === column && sortOrder === 'asc') ? 'desc' : 'asc';
-
+    const newSortOrder = sortColumn === column && sortOrder === 'asc' ? 'desc' : 'asc';
     setSortColumn(column);
     setSortOrder(newSortOrder);
-
-    filters((prevFilters) => ({
-      ...prevFilters,
-      sortBy: column,
-      sortDir: newSortOrder,
-    }));
   };
-  console.log('Current Filters...............', sortdata); // Debugging line
+  // Trigger a refetch manually if needed
+  const fetchDataWithNewFilters = () => {
+    refetch();
+  };
+  // Update filters state whenever sortColumn or sortOrder changes
+  useEffect(() => {
+    filters = {
+      ...filters,
+      sortBy: sortColumn,
+      sortDir: sortOrder,
+    };
+    // Fetch new data with updated filters
+    fetchDataWithNewFilters();
+  }, [sortColumn, sortOrder]);
+
 
 
 
@@ -243,23 +237,14 @@ const CustomTable = ({ setPage, newArray, alignment, sortColumn, sortOrder, setS
     setSelectedColumns(newColumnsOrder);
   };
 
-  // const toggleColumn = (columnName) => {
-  //   setSelectedColumns((prevSelectedColumns) =>
-  //     prevSelectedColumns.includes(columnName)
-  //       ? prevSelectedColumns.filter((col) => col !== columnName)
-  //       : [...prevSelectedColumns, columnName]
-  //   );
-  // };
-  const toggleColumn = (field) => {
-    setSelectedColumns(prevSelected =>
-      prevSelected.includes(field)
-        ? prevSelected.filter(col => col !== field)
-        : [...prevSelected, field]
+  // Handle column selection
+  const toggleColumn = (columnName) => {
+    setSelectedColumns((prevSelectedColumns) =>
+      prevSelectedColumns.includes(columnName)
+        ? prevSelectedColumns.filter((col) => col !== columnName)
+        : [...prevSelectedColumns, columnName]
     );
   };
-
-
-
 
   // const handleSelectAllToggle = () => {
   //   const allColumnFields = getColumns(data).map((column) => column.field);
@@ -270,12 +255,25 @@ const CustomTable = ({ setPage, newArray, alignment, sortColumn, sortOrder, setS
   //   }
   //   setSelectAll((prevSelectAll) => !prevSelectAll);
   // };
+  // Handle toggle of "Select All" checkbox
   const handleSelectAllToggle = () => {
-    if (selectedColumns.length === columns.length) {
-      setSelectedColumns([]);
+    if (selectAll) {
+      setSelectedColumns([]);     // Deselect all columns
     } else {
-      setSelectedColumns(columns.map(col => col.field));
+      const allColumns = getColumns(data)     // Select all columns
+        .concat(
+          columnData
+            ? Object.keys(columnData?.content[0] || {}).map((key) => ({
+              field: key,
+              header: key,
+            }))
+            : []
+        )
+        .map((column) => column.field);
+
+      setSelectedColumns(allColumns);
     }
+    setSelectAll(!selectAll);
   };
 
 
@@ -285,7 +283,6 @@ const CustomTable = ({ setPage, newArray, alignment, sortColumn, sortOrder, setS
   };
 
   const handleApplyChanges = () => {
-    onApplyChanges(selectedColumns);
     onClose();
     toast({
       title: "Column Added Successfully",
@@ -295,9 +292,7 @@ const CustomTable = ({ setPage, newArray, alignment, sortColumn, sortOrder, setS
   };
 
 
-
-
-  const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
+  const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery), []);
 
   useEffect(() => {
     return () => {
@@ -307,7 +302,6 @@ const CustomTable = ({ setPage, newArray, alignment, sortColumn, sortOrder, setS
 
   const handleSearchChange = (e) => {
     debouncedSearchQuery(e.target.value);
-    setSearchQuery(e.target.value);
   };
 
 
@@ -319,16 +313,94 @@ const CustomTable = ({ setPage, newArray, alignment, sortColumn, sortOrder, setS
 
   };
 
+  // const filteredItems = useMemo(() => {
+  //   let filteredData = [...newArray]; // Copy the original data
+  //   // Apply column filters+
+  //   Object.keys(columnFilters).forEach((field) => {
+  //     const filter = columnFilters[field];
+  //     if (filterCondition && filterValue) {
+  //       filteredData = filteredData.filter((item) => {
+  //         const value = item[field];
+
+  //         switch (filterCondition) {
+  //           case "equal":
+  //             return String(value).toLowerCase() === String(filter.value).toLowerCase();
+  //           case "notEqual":
+  //             return String(value).toLowerCase() !== String(filter.value).toLowerCase();
+  //           case "like":
+  //             return String(value).toLowerCase().includes(String(filter.value).toLowerCase());
+  //           case "notLike":
+  //             return !String(value).toLowerCase().includes(String(filter.value).toLowerCase());
+  //           case "greaterThan":
+  //             return Number(value) > Number(filter.value);
+  //           case "greaterThanOrEqual":
+  //             return Number(value) >= Number(filter.value);
+  //           case "lessThan":
+  //             return Number(value) < Number(filter.value);
+  //           case "lessThanOrEqual":
+  //             return Number(value) <= Number(filter.value);
+  //           case "between":
+  //             if (Array.isArray(filter.value) && filter.value.length === 2) {
+  //               return Number(value) >= Number(filter.value[0]) &&
+  //                 Number(value) <= Number(filter.value[1]);
+  //             }
+  //             return false;
+  //           default:
+  //             return true;
+  //         }
+  //       });
+  //     }
+  //   });
+
+  //   // Apply search query
+  //   if (searchQuery) {
+  //     filteredData = filteredData.filter((item) => {
+  //       const values = Object.values(item);
+  //       return values.some((value) =>
+  //         String(value).toLowerCase().includes(searchQuery.toLowerCase())
+  //       );
+  //     });
+  //   }
+
+  //   // // Apply sorting
+  //   if (sortColumn) {
+  //     filteredData.sort((a, b) => {
+  //       if (a[sortColumn] < b[sortColumn]) return sortOrder === 'asc' ? -1 : 1;
+  //       if (a[sortColumn] > b[sortColumn]) return sortOrder === 'asc' ? 1 : -1;
+  //       return 0;
+  //     });
+  //   }
+  //   // Filter data to only include selected columns
+  //   if (selectedColumns.length > 0) {
+  //     filteredData = filteredData.map((item) => {
+  //       const filteredItem = {};
+  //       selectedColumns.forEach((column) => {
+  //         filteredItem[column] = item[column];
+  //       });
+  //       return filteredItem;
+  //     });
+  //   }
+
+  //   return filteredData;
+  // }, [originalData, newArray, searchQuery, columnFilters, sortColumn, sortOrder, filterCondition, filterValue, selectedColumns]);
+
+
+  // Reset 'applyFilter' after filtering is applied
+
   const filteredItems = useMemo(() => {
-    let filteredData = [...newArray]; // Copy the original data
+   // Combine newArray and columnData.content
+    let combinedData = [...newArray];
+    if (columnData && columnData.content.length > 0) {
+      combinedData = combinedData.concat(columnData.content);
+    }
+    let filteredData = [...combinedData]; // Copy the combined data
     // Apply column filters
     Object.keys(columnFilters).forEach((field) => {
       const filter = columnFilters[field];
-      if (filterCondition && filterValue) {
+      if (filter.condition && filter.value) {
         filteredData = filteredData.filter((item) => {
           const value = item[field];
-
-          switch (filterCondition) {
+          switch (filter.condition) {
             case "equal":
               return String(value).toLowerCase() === String(filter.value).toLowerCase();
             case "notEqual":
@@ -368,24 +440,35 @@ const CustomTable = ({ setPage, newArray, alignment, sortColumn, sortOrder, setS
       });
     }
 
-    // // Apply sorting
-    // if (sortColumn) {
-    //   filteredData.sort((a, b) => {
-    //     if (a[sortColumn] < b[sortColumn]) return sortOrder === 'asc' ? -1 : 1;
-    //     if (a[sortColumn] > b[sortColumn]) return sortOrder === 'asc' ? 1 : -1;
-    //     return 0;
-    //   });
-    // }
+    // Apply sorting
+    if (sortColumn) {
+      filteredData.sort((a, b) => {
+        if (a[sortColumn] < b[sortColumn]) return sortOrder === 'asc' ? -1 : 1;
+        if (a[sortColumn] > b[sortColumn]) return sortOrder === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    // Filter data to only include selected columns
+    if (selectedColumns.length > 0) {
+      filteredData = filteredData.map((item) => {
+        const filteredItem = {};
+        selectedColumns.forEach((column) => {
+          filteredItem[column] = item[column];
+        });
+        return filteredItem;
+      });
+    }
 
     return filteredData;
-  }, [newArray, searchQuery, columnFilters, sortColumn, sortOrder, filterCondition, filterValue]);
+  }, [data,newArray, columnData, searchQuery, columnFilters, sortColumn, sortOrder, filterCondition, filterValue, selectedColumns]);
 
-  // Reset 'applyFilter' after filtering is applied
-  useEffect(() => {
-    if (applyFilter) {
-      setApplyFilter(false);
-    }
-  }, [applyFilter]);
+
+  // useEffect(() => {
+  //   if (applyFilter) {
+  //     setApplyFilter(false);
+  //   }
+  // }, [applyFilter]);
 
 
 
@@ -410,7 +493,7 @@ const CustomTable = ({ setPage, newArray, alignment, sortColumn, sortOrder, setS
   const handleScroll = () => {
     const { scrollTop, scrollHeight, clientHeight } = tableContainerRef.current;
 
-    if (scrollTop + clientHeight >= scrollHeight - 5) {
+    if (scrollTop + clientHeight >= scrollHeight - 1) {
       loadMoreData();
     }
   };
@@ -483,7 +566,7 @@ const CustomTable = ({ setPage, newArray, alignment, sortColumn, sortOrder, setS
   console.log(data, 'data');
   // console.log(newArray, "newArray");
   // console.log(selectedColumns, "selectedColumns");
-  // console.log(filteredItems, "filteredItems");
+  // console.log("filteredItems010101",filteredItems);
 
   return (
     <Box bg="white" padding="0px 10px" borderRadius="5px">
@@ -502,6 +585,7 @@ const CustomTable = ({ setPage, newArray, alignment, sortColumn, sortOrder, setS
         }}>
         <Input
           onChange={handleSearchChange}
+          value={searchQuery}
           width="20%"
           height='36px'
           padding="15px"
@@ -814,6 +898,7 @@ const CustomTable = ({ setPage, newArray, alignment, sortColumn, sortOrder, setS
                             value={columnFilters[column.field]?.condition || ""}
                             onChange={(e) =>
                               handleColumnFilterConditionChange(
+
                                 column.field,
                                 e.target.value
                               )
@@ -876,7 +961,6 @@ const CustomTable = ({ setPage, newArray, alignment, sortColumn, sortOrder, setS
               </ModalFooter>
             </ModalContent> */}
           </Modal>
-
         </Box>
       </Box>
       <TableContainer
@@ -916,23 +1000,21 @@ const CustomTable = ({ setPage, newArray, alignment, sortColumn, sortOrder, setS
                           >
                             {formatHeader(column)}
 
+                            {/* A-Z Filter  */}
                             <Button
                               className="A_to_Z"
                               bg="none"
-                              _hover={{
-                                bg: 'none',
-                              }}
+                              _hover={{ bg: 'none' }}
                               onClick={() => handleSort('items.goodName')}
                             >
-                              {filters && filters.sortBy === column && filters.sortDir === 'asc' ? (
+                              {filters && filters.sortBy === 'items.goodName' && filters.sortDir === 'asc' ? (
                                 <FontAwesomeIcon icon={faArrowDownShortWide} />
-                              ) : filters && filters.sortBy === column && filters.sortDir === 'desc' ? (
+                              ) : filters && filters.sortBy === 'items.goodName' && filters.sortDir === 'desc' ? (
                                 <FontAwesomeIcon icon={faArrowUpWideShort} />
                               ) : (
                                 <FontAwesomeIcon icon={faArrowRightArrowLeft} rotation={90} fontSize="13px" />
                               )}
                             </Button>
-
 
                             <Popover >
                               <PopoverTrigger>
@@ -973,7 +1055,7 @@ const CustomTable = ({ setPage, newArray, alignment, sortColumn, sortOrder, setS
                                     w='174px'
                                     h='39px'
                                     border='1px solid gray'
-                                    onChange={handleTempSearchChange}
+                                    onChange={handleTempFilterValueChange}
                                   />
                                 </PopoverBody>
 
@@ -1030,7 +1112,13 @@ const CustomTable = ({ setPage, newArray, alignment, sortColumn, sortOrder, setS
                               }
                               overflow="hidden"
                               textOverflow="ellipsis">
-                              {item[column]}
+                              {/* {item[column]} */}
+                              {/* {item[column] !== undefined ? item[column] : "-"} */}
+                              {typeof item[column] === 'object' && item[column] !== null
+                                ? item[column].listName || item[column].index // or JSON.stringify(item[column]) if simple
+                                : item[column] !== undefined
+                                  ? item[column]
+                                  : "-"}
                             </Text>
                           </Td>
                         ))}
@@ -1065,16 +1153,17 @@ const CustomTable = ({ setPage, newArray, alignment, sortColumn, sortOrder, setS
           <ModalBody pt="10px">
             <Box padding="0px 10px" borderRadius="5px">
               <Checkbox
-                // isChecked={selectAll}
-                isChecked={selectedColumns.length === columns.length}
+                isChecked={selectAll}
                 onChange={handleSelectAllToggle}
                 mb={4}
                 size="lg"
-                fontWeight="600">
+                fontWeight="600"
+              >
                 Select All
               </Checkbox>
             </Box>
             <Box
+              height='60vh'
               overflowY="scroll"
               overflowX="hidden"
               display="flex"
@@ -1085,11 +1174,51 @@ const CustomTable = ({ setPage, newArray, alignment, sortColumn, sortOrder, setS
                   bg: "borderGrayLight",
                 },
               }}>
-              {/* {getColumns(data).map((column) => {
-                const formattedHeader = formatHeader(column.field); */}
-              {columns.map((column) => {
-                const formattedHeader = formatHeader(column.field);
+              {(getColumns(data) || [])
+                .concat(
+                  columnData
+                    ? Object.keys(columnData?.content[0] || {}).map((key) => ({
+                      field: key,
+                      header: key,
+                    }))
+                    : []
+                )
+                .map((column, index) => {
+                  const formattedHeader = formatHeader(column.field || column.header);
+                  return (
+                    <Box
+                      key={column.field || index}
+                      className="columnCheckBox"
+                      padding="5px"
+                      bg="rgba(231,231,231,1)"
+                      borderRadius="5px"
+                      width="48%"
+                    >
+                      <Checkbox
+                        size="lg"
+                        display="flex"
+                        padding="5px"
+                        borderColor="mainBluemedium"
+                        defaultChecked={selectedColumns.includes(column.field)}
+                        isChecked={selectedColumns.includes(column.field)}
+                        onChange={() => toggleColumn(column.field)}
+                      >
+                        <Text
+                          fontWeight="500"
+                          ml="10px"
+                          fontSize="12px"
+                          color="textBlackDeep"
+                        >
+                          {formattedHeader}
+                        </Text>
+                      </Checkbox>
+                    </Box>
+                  );
+                })}
 
+
+              {/* {getColumns(data).map((column) => {
+                const formattedHeader = formatHeader(column.field);
                 return (
                   <Box
                     key={column.field}
@@ -1105,10 +1234,9 @@ const CustomTable = ({ setPage, newArray, alignment, sortColumn, sortOrder, setS
                       borderColor="mainBluemedium"
                       key={column.field}
                       defaultChecked={selectedColumns.includes(column.field)}
-                      // isChecked={selectedColumns.includes(column.field)}
-                      // onChange={() => toggleColumn(column.field)}>
                       isChecked={selectedColumns.includes(column.field)}
-                      onChange={() => toggleColumn(column.field)}>
+                      onChange={() => toggleColumn(column.field)}
+                    >
                       <Text
                         fontWeight="500"
                         ml="10px"
@@ -1119,7 +1247,38 @@ const CustomTable = ({ setPage, newArray, alignment, sortColumn, sortOrder, setS
                     </Checkbox>
                   </Box>
                 );
-              })}
+              })} */}
+              {/* imran59059 */}
+              {/* { columnData &&
+                Object.keys(columnData?.content[0]).map((key, indx) => {
+                  return <Box
+                    key={indx}
+                    className="columnCheckBox"
+                    padding="5px"
+                    bg="rgba(231,231,231,1)"
+                    borderRadius="5px"
+                    width="48%">
+                    <Checkbox
+                      size="lg"
+                      display="flex"
+                      padding="5px"
+                      borderColor="mainBluemedium"
+                      key={key}
+                      defaultChecked={key}
+                      isChecked={key}
+                      onChange={() => toggleColumn(key)}
+                    >
+                      <Text
+                        fontWeight="500"
+                        ml="10px"
+                        fontSize="12px"
+                        color="textBlackDeep">
+                        {key}
+                      </Text>
+                    </Checkbox>
+                  </Box>
+                })
+              } */}
             </Box>
           </ModalBody>
           <ModalFooter>
