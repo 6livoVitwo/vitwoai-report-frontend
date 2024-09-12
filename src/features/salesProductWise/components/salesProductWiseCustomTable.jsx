@@ -1091,7 +1091,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
         size="xl">
         <DrawerOverlay />
         <DrawerContent
-          maxW="91vw"
+          maxW="85vw"
           sx={{
             "& .stickyTop": {
               position: "sticky",
@@ -1303,7 +1303,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
           isOpen={isOpenGraphSettingsModal}
           onClose={onCloseGraphSettingsModal}>
           <DrawerOverlay />
-          <DrawerContent maxW="91vw">
+          <DrawerContent maxW="82vw">
             <DrawerCloseButton color="white" size="lg" mt="8px" />
             <DrawerHeader
               color="white"
