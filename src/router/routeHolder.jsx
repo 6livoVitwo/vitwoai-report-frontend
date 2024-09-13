@@ -95,6 +95,7 @@ import SalesKamWiseTableView from "../features/salesKamWise/components/salesKamW
 import SalesKamWiseGraphView from "../features/salesKamWise/components/salesKamWiseGraphView";
 import PurchaseDetails from "../features/purchaseDetailsReport/components";
 import GraphCharts from "../features/graphCharts";
+import LineGraph from "../features/graphCharts/lineGraph";
 const Dashboard = lazy(() => import("../features/dashboard/components"));
 
 const AllRoutes = () => {
@@ -193,6 +194,16 @@ const AllRoutes = () => {
                 globalLayout={globalStaticFragmennt}
                 portalId={commonPortalRef}>
                 <GraphCharts globalLayout={setGlobalStaticFragmennt} />
+              </PortalForLayout>
+            }
+          />
+          <Route
+            path="/line-graph"
+            element={
+              <PortalForLayout
+                globalLayout={globalStaticFragmennt}
+                portalId={commonPortalRef}>
+                <LineGraph globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
             }
           />

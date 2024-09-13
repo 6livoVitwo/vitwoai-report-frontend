@@ -54,6 +54,7 @@ const ChartConfiguration = ({ configureChart }) => {
         },
       },
     ],
+    
   });
 
   const chartConfig = chartApiConfig[type];

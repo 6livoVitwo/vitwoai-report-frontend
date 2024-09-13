@@ -8,8 +8,7 @@ import TreeChart from './nivoGraph/treeChart';
 import CirclePacking from './nivoGraph/circlePacking';
 import StreamGraph from "./nivoGraph/streamGraph";
 import HeatMap from "./nivoGraph/heatMap";
-
-
+import ScatterPlot from "./nivoGraph/scatterPlot";
 
 
 const MyCharts = ({ chart }) => {
@@ -35,6 +34,8 @@ const MyCharts = ({ chart }) => {
         chartData = <StreamGraph data={data} />;
     } else if (type === "heatmap") {
         chartData = <HeatMap data={data} />;
+    } else if (type === "scatterPlot") {
+        chartData = <ScatterPlot data={data} />;
     } return <>{chartData}</>;
 }
 
