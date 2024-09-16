@@ -54,6 +54,8 @@ const PurchaseProductWiseTableView = () => {
     ],
     page: 0,
     size: 20,
+    sortDir: "asc",
+    sortBy: "grnInvoice.grnPoNumber",
   };
   const {
     data: sales,
@@ -173,6 +175,7 @@ const PurchaseProductWiseTableView = () => {
           isFetching={isFetching}
           pageInfo={pageInfo}
           setSize={setSize}
+          filters={filters}
           alignment={{
             "Total Quantity": "right",
             "Received Quantity": "right",

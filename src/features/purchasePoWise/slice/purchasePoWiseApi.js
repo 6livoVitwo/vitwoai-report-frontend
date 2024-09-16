@@ -15,8 +15,17 @@ export const purchasePoWiseApi = apiSlice.injectEndpoints({
         };
       },
     }),
+    // Query to get global search
+    getGlobalsearchPo: builder.query({
+      query: (body) => {
+        return {
+          url: "/purchase/global-search/po",
+          method: "POST",
+          body: JSON.stringify(body),
+        };
+      },
+    }),
   }),
 });
 
-export const { usePoWisePurchaseQuery } = purchasePoWiseApi;
-
+export const { usePoWisePurchaseQuery, useGetGlobalsearchPoQuery } = purchasePoWiseApi;

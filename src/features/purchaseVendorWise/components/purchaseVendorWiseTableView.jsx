@@ -49,12 +49,7 @@ const PurchaseVendorWiseTableView = () => {
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(50);
   const [individualItems, setIndividualItems] = useState([]);
-  const [sortColumn, setSortColumn] = useState(filters.sortBy);
-  const [sortOrder, setSortOrder] = useState(filters.sortDir); // 'asc' or 'desc'
   const toast = useToast();
-
-    // Fetch data from the API with sorting parameters
-    const { data: sortdata, refetch } = useFetchDataQuery(filters);
 
   const {
     data: sales,
@@ -176,12 +171,7 @@ const PurchaseVendorWiseTableView = () => {
           isFetching={isFetching}
           pageInfo={pageInfo}
           setSize={setSize}
-          sortColumn={sortColumn}
-          sortOrder={sortOrder}
-          setSortColumn={setSortColumn}
-          setSortOrder={setSortOrder}
-          refetch={refetch}
-          sortdata={sortdata}
+          filters={filters}
           alignment={{
             "Sub Total": "right",
             "Total CGSt": "right",

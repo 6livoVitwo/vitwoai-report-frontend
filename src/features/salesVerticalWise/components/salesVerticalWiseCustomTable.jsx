@@ -62,6 +62,7 @@ import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
 import { useGetSelectedColumnsVerticalQuery } from "../slice/salesVerticalWiseApi";
 import { useGetGlobalsearchVerticalQuery } from "../slice/salesVerticalWiseApi";
+import {useVerticalWiseSalesQuery} from "../slice/salesVerticalWiseApi";
 
 const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   const [data, setData] = useState([...newArray]);
@@ -81,12 +82,26 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [sortColumn, setSortColumn] = useState();
   const [sortOrder, setSortOrder] = useState();
+  const [currentPage, setCurrentPage] = useState(0); // Default page is 0
+
 
   const { data: selectedColumnsData } = useGetSelectedColumnsVerticalQuery();
   // console.log("Piyas00010001",selectedColumnsData);
 
   //.........Api call to get global search.......
-  const { data: searchData } = useGetGlobalsearchVerticalQuery(filters,{skip: !searchQuery});
+  const { data: searchData } = useGetGlobalsearchVerticalQuery(filters, {
+    skip: !searchQuery,
+  });
+
+  //API Calling sorting
+  const { data: vertical, refetch: refetchVertical } = useVerticalWiseSalesQuery({
+    filters: {
+      ...filters,
+      // sortBy: sortColumn,
+      // sortDir: sortOrder,
+    },
+    page: currentPage,
+  });
 
   const toast = useToast();
   const tableContainerRef = useRef(null);
@@ -248,19 +263,27 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
 
   //sort asc desc
   const handleSort = (column) => {
-    if (sortColumn === column) {
-      // Toggle the sort order if the same column is clicked
-      setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
-    } else {
-      // Set the column to sort and default to ascending order
-      setSortColumn(column);
-      setSortOrder("asc");
-    }
+    const newSortOrder =
+      sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
+    // Update sort state
+    setSortColumn(column);
+    setSortOrder(newSortOrder);
   };
+  // Trigger the API call when sortColumn or sortOrder changes
+  useEffect(() => {
+    refetchVertical({
+      filters: {
+        ...filters,
+        sortBy: sortColumn,
+        sortDir: sortOrder,
+      },
+      page: currentPage,
+    });
+  }, [sortColumn, sortOrder, refetchVertical]); // Ensure dependencies are correct
 
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray];
-  
+
     Object.keys(columnFilters).forEach((field) => {
       const filter = columnFilters[field];
       if (filter.condition && filter.value) {
@@ -323,8 +346,15 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
         return 0;
       });
     }
-
-    return filteredData;
+    // Return only selected columns
+    return filteredData.map((item) => {
+      const filteredItem = {};
+      selectedColumns.forEach((col) => {
+        filteredItem[col] = item[col];
+      });
+      return filteredItem;
+    });
+    // return filteredData;
   }, [
     data,
     searchData,

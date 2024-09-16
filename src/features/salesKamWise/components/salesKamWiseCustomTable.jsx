@@ -89,24 +89,30 @@ const CustomTable = ({
   const [sortOrder, setSortOrder] = useState();
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
-  const [currentPage, setCurrentPage] = useState(0); // Default page is 0
-  // const [tempSearchQuery, setTempSearchQuery] = useState('');
-  // const [filterCondition, setFilterCondition] = useState('');
-  // const [filterValue, setFilterValue] = useState('');
+  const [activeFilterColumn, setActiveFilterColumn] = useState(null);
+  const [appliedFilters, setAppliedFilters] = useState({});
 
-  //API Calling
+  const [currentPage, setCurrentPage] = useState(0); // Default page is 0
+
+  //......Advance Filter Api Calling.........
+  const{data:kamDataFilter}=useKamWiseSalesQuery({filters})
+  console.log("kamDataFilter1212121",kamDataFilter);
+  
+
+  //API Calling sorting
   const { data: kamData, refetch: refetchKamWiseSales } = useKamWiseSalesQuery({
     filters: {
       ...filters,
-      sortBy: sortColumn,
-      sortDir: sortOrder,
+      // sortBy: sortColumn,
+      // sortDir: sortOrder,
     },
     page: currentPage,
   });
 
   const { data: columnDatakam } = useGetSelectedColumnsKamQuery();
-  // console.log("piyas10101",columnDatakam);
+  //console.log("piyas10101",columnDatakam);
 
+  //..........Api calling for search............
   const { data: searchData } = useGetGlobalsearchKamQuery(filters, {
     skip: !searchQuery,
   });
@@ -249,6 +255,12 @@ const CustomTable = ({
     onClose();
   };
 
+  // Function to handle setting the active column when the popover is clicked
+  const handlePopoverClick = (column) => {
+    // setActiveFilterColumn((prev) => (prev === column ? null : column)); // Toggle column
+    setActiveFilterColumn(column);
+  };
+
   const handleApplyChanges = () => {
     onClose();
     toast({
@@ -276,35 +288,10 @@ const CustomTable = ({
   const clearAllFilters = () => {
     setColumnFilters({}); //clear filters
     setSearchQuery("");
+    setInputValue("");
   };
 
   //sort asc desc
-  // const handleSort = (column) => {
-  //   if (sortColumn === column) {
-  //     // Toggle the sort order if the same column is clicked
-  //     setSortOrder((prevOrder) => (prevOrder === 'asc' ? 'desc' : 'asc'));
-  //   } else {
-  //     // Set the column to sort and default to ascending order
-  //     setSortColumn(column);
-  //     setSortOrder('asc');
-  //   }
-  // };
-
-  // const handleSort = (column) => {
-  //   const newSortOrder = sortColumn === column && sortOrder === 'asc' ? 'desc' : 'asc';
-  //   // Update sort state
-  //   setSortColumn(column);
-  //   setSortOrder(newSortOrder);
-  //   // Trigger the API call with updated sortBy and sortDir
-  //   refetchKamWiseSales({
-  //     filters: {
-  //       ...filters,
-  //       sortBy: column,
-  //       sortDir: newSortOrder
-  //     },
-  //     page:currentPage,// or current page if you're paginating
-  //   });
-  // };
   const handleSort = (column) => {
     const newSortOrder =
       sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
@@ -411,7 +398,7 @@ const CustomTable = ({
   ]);
 
   console.log("Temp Condition:", tempFilterCondition);
-  console.log("Temp Value:", tempFilterValue);
+  // console.log("Temp Value:", tempFilterValue);
   console.log("Updated Filters:", columnFilters);
 
   const formatHeader = (header) => {
@@ -455,58 +442,41 @@ const CustomTable = ({
 
   //function for filter
   const handleTempFilterConditionChange = (e) => {
-    setTempFilterCondition(e.target.value);
+    const value = e?.target?.value; // Safely accessing e.target.value
+    if (value !== undefined) {
+      setTempFilterCondition(value);
+    } else {
+      console.error("Temp filter condition is undefined.");
+    }
   };
-  const handleTempSearchChange = (e) => {
-    setTempFilterValue(e.target.value);
+  const handleTempFilterValueChange = (e) => {
+    const value = e?.target?.value; // Safely accessing e.target.value
+    if (value !== undefined) {
+      setTempFilterValue(value);
+    } else {
+      console.error("Temp filter value is undefined.");
+    }
   };
-
-  const handleApplyFilter = () => {
+  const handleApplyFilters = () => {
+    // Check if both condition and value are provided
     if (tempFilterCondition && tempFilterValue) {
       setColumnFilters((prevFilters) => ({
         ...prevFilters,
-        searchColumn: {
-          condition: tempFilterCondition,
-          value: tempFilterValue,
+        [activeFilterColumn]: {
+          condition: tempFilterCondition, // The selected filter condition
+          value: tempFilterValue, // The input value for the filter
+          column: activeFilterColumn, // Active column being filtered
+          type: typeof tempFilterValue === "number" ? "integer" : "string", // Adjust type based on value
         },
       }));
-    }
-  };
-
-  const handleColumnFilterConditionChange = (field, condition) => {
-    condition = String(condition);
-    setColumnFilters((prevFilters) => ({
-      ...prevFilters,
-      [field]: {
-        ...prevFilters[field],
-        condition,
-      },
-    }));
-  };
-
-  const handleColumnFilterValueChange = (field, value) => {
-    let type = typeof value;
-    if (type === "object" && value instanceof Date) {
-      type = "date";
-    } else if (type === "number") {
-      type = "integer";
+      // Reset temporary filter values after applying
+      setTempFilterCondition(null);
+      setTempFilterValue("");
+      // Close the popover after applying filters
+      setActiveFilterColumn(null);
     } else {
-      type = "string";
+      console.error("Filter condition or value missing");
     }
-
-    if (type === "string" || type === "integer") {
-      value = value.trim();
-    }
-
-    setColumnFilters((prevFilters) => ({
-      ...prevFilters,
-      [field]: {
-        ...prevFilters[field],
-        value,
-        column: field,
-        type,
-      },
-    }));
   };
 
   const exportToExcel = () => {
@@ -550,7 +520,7 @@ const CustomTable = ({
           },
         }}
       >
-       <Box display="flex" alignItems="center" w="20%" position="relative">
+        <Box display="flex" alignItems="center" w="20%" position="relative">
           <Input
             onChange={handleSearchChange}
             value={inputValue}
@@ -560,8 +530,8 @@ const CustomTable = ({
             h="36px"
             borderRadius="5px"
             placeholder="Search Global Data"
-            pr="40px" 
-            zIndex='1'
+            pr="40px"
+            zIndex="1"
           />
           <button
             onClick={handleSearchClick}
@@ -577,7 +547,10 @@ const CustomTable = ({
               zIndex: "2",
             }}
           >
-            <i className="pi pi-search" style={{ fontSize: '2rem', opacity:'0.8' }}></i>
+            <i
+              className="pi pi-search"
+              style={{ fontSize: "2rem", opacity: "0.8" }}
+            ></i>
           </button>
         </Box>
         <Box
@@ -807,114 +780,6 @@ const CustomTable = ({
               </Modal>
             </MenuList>
           </Menu>
-
-          <Modal
-            isOpen={isOpenFilterModal}
-            onClose={onCloseFilterModal}
-            size="xl"
-            isCentered
-          >
-            <ModalOverlay />
-            <ModalContent minW="40%">
-              <ModalHeader
-                fontWeight="600"
-                bg="mainBlue"
-                color="white"
-                fontSize="16px"
-                padding="12px"
-              >
-                Filter Table Report by Column
-              </ModalHeader>
-              <ModalCloseButton mt="5px" color="white" size="lg" />
-              <ModalBody>
-                <Box height="60vh" overflowY="scroll" overflowX="hidden">
-                  {getColumns(data).map((column) => {
-                    const formattedHeader = formatHeader(column.header);
-                    return (
-                      <Box key={column.field}>
-                        <Text
-                          color="var(--chakra-colors-textBlack)"
-                          fontWeight="600"
-                          fontSize="14px"
-                          mt="10px"
-                          mb="3px"
-                        >
-                          {formattedHeader}
-                        </Text>
-                        <Box display="flex" gap="15px" mr="10px">
-                          <Select
-                            placeholder="Select option"
-                            size="lg"
-                            fontSize="12px"
-                            h="35px"
-                            value={columnFilters[column.field]?.condition || ""}
-                            onChange={(e) =>
-                              handleColumnFilterConditionChange(
-                                column.field,
-                                e.target.value
-                              )
-                            }
-                          >
-                            <option value="like">Contain</option>
-                            <option value="notLike">Not Contain</option>
-                            <option value="greaterThan">Greater Than</option>
-                            <option value="greaterThanOrEqual">
-                              Greater Than or Equal
-                            </option>
-                            <option value="lessThan">Less Than</option>
-                            <option value="lessThanOrEqual">
-                              Less Than or Equal
-                            </option>
-                            <option value="between">Between</option>
-                          </Select>
-                          <Input
-                            h="35px"
-                            fontSize="12px"
-                            padding="10px 10px"
-                            value={columnFilters[column.field]?.value || ""}
-                            onChange={(e) =>
-                              handleColumnFilterValueChange(
-                                column.field,
-                                e.target.value
-                              )
-                            }
-                            placeholder={`Filter ${column.header}`}
-                          />
-                        </Box>
-                      </Box>
-                    );
-                  })}
-                </Box>
-              </ModalBody>
-
-              <ModalFooter>
-                <Button
-                  mr={3}
-                  padding="15px"
-                  fontSize="13px"
-                  bg="var(--chakra-colors-mainBlue)"
-                  _hover={{
-                    bg: "var(--chakra-colors-mainBlue)",
-                  }}
-                  color="white"
-                  onClick={onCloseFilterModal}
-                >
-                  Reset
-                </Button>
-                <Button
-                  padding="15px"
-                  fontSize="13px"
-                  bg="var(--chakra-colors-mainBlue)"
-                  _hover={{
-                    bg: "var(--chakra-colors-mainBlue)",
-                  }}
-                  color="white"
-                >
-                  Filter
-                </Button>
-              </ModalFooter>
-            </ModalContent>
-          </Modal>
         </Box>
       </Box>
       <TableContainer
@@ -977,9 +842,15 @@ const CustomTable = ({
                               )}
                             </Button>
 
-                            <Popover>
+                            <Popover
+                             isOpen={activeFilterColumn === column}
+                             onClose={() => setActiveFilterColumn(null)}
+                            >
                               <PopoverTrigger>
-                                <Button bg="transparent">
+                                <Button
+                                  bg="transparent"
+                                  onClick={() => handlePopoverClick(column)} // Set the clicked column as active
+                                >
                                   <i
                                     className=" pi pi-filter"
                                     style={{
@@ -989,69 +860,113 @@ const CustomTable = ({
                                   ></i>
                                 </Button>
                               </PopoverTrigger>
-                              <PopoverContent>
-                                <PopoverArrow />
-                                <PopoverCloseButton />
-                                {/* <PopoverHeader>Confirmation!</PopoverHeader> */}
-                                <PopoverBody h="150px">
-                                  <Select
-                                    placeholder=" Filter With "
-                                    mt="25px"
-                                    p="5px"
-                                    h="39px"
-                                    border="1px solid gray"
-                                    onChange={handleTempFilterConditionChange}
+                              {activeFilterColumn === column && ( 
+                                // .........Only show popover for the active column..........
+                                <PopoverContent w="120%">
+                                  <PopoverArrow />
+                                  <PopoverCloseButton size="lg" />
+                                  <PopoverBody h="auto" maxH="300px">
+                                    <Box>
+                                      <Box key={column} mb="12px">
+                                        <Text
+                                          color="var(--chakra-colors-textBlack)"
+                                          fontWeight="500"
+                                          fontSize="14px"
+                                          mt="10px"
+                                          mb="5px"
+                                        >
+                                          {formatHeader(column)}
+                                        </Text>
+                                        <Box
+                                          display="flex"
+                                          flexDirection="column"
+                                          gap="10px"
+                                        >
+                                          <Select
+                                            placeholder="Select condition"
+                                            size="sm"
+                                            fontSize="12px"
+                                            h="35px"
+                                            // value={
+                                            //   columnFilters[column]
+                                            //     ?.condition || ""
+                                            // }
+                                            // onChange={(e) =>
+                                            //   handleTempFilterConditionChange(
+                                            //     column,
+                                            //     e.target.value
+                                            //   )
+                                            // }
+                                            onChange={handleTempFilterConditionChange}
+                                          >
+                                            <option value="equal">Equal</option>
+                                            <option value="notEqual">
+                                              Not Equal
+                                            </option>
+                                            <option value="like">Like</option>
+                                            <option value="notLike">
+                                              Not Like
+                                            </option>
+                                            <option value="greaterThan">
+                                              Greater Than
+                                            </option>
+                                            <option value="greaterThanOrEqual">
+                                              Greater Than or Equal
+                                            </option>
+                                            <option value="lessThan">
+                                              Less Than
+                                            </option>
+                                            <option value="lessThanOrEqual">
+                                              Less Than or Equal
+                                            </option>
+                                            <option value="between">
+                                              Between
+                                            </option>
+                                          </Select>
+                                          <Input
+                                            h="35px"
+                                            fontSize="12px"
+                                            padding="6px"
+                                            // value={
+                                            //   columnFilters[column]?.value || ""
+                                            // }
+                                            // onChange={(e) =>
+                                            //   handleTempFilterValueChange(
+                                            //     column,
+                                            //     e.target.value
+                                            //   )
+                                            // }
+                                            onChange={handleTempFilterValueChange}
+                                            placeholder={`Filter ${column}`}
+                                          />
+                                        </Box>
+                                      </Box>
+                                    </Box>
+                                  </PopoverBody>
+                                  <Box
+                                    display="flex"
+                                    justifyContent="flex-end"
+                                    width="90%"
+                                    ml="8px"
+                                    mb="10px"
                                   >
-                                    <option value="equal">Equal</option>
-                                    <option value="notEqual">NotEqual</option>
-                                    <option value="like">Like</option>
-                                    <option value="notLike">NotLike</option>
-                                    <option value="greaterThan">
-                                      GreaterThan
-                                    </option>
-                                    <option value="greaterThanOrEqual">
-                                      GreaterThanOrEqual
-                                    </option>
-                                    <option value="lessThan">LessThan</option>
-                                    <option value="lessThanOrEqual">
-                                      LessThanOrEqual
-                                    </option>
-                                    <option value="between">Between</option>
-                                  </Select>
-                                  <Input
-                                    placeholder="Search By Name"
-                                    mt="8px"
-                                    p="6px"
-                                    ml="5px"
-                                    w="174px"
-                                    h="39px"
-                                    border="1px solid gray"
-                                    onChange={handleTempSearchChange}
-                                  />
-                                </PopoverBody>
-                                <Box
-                                  display="flex"
-                                  justifyContent="flex-end"
-                                  width="90%"
-                                  ml="8px"
-                                  mb="10px"
-                                >
-                                  <Button
-                                    bg="mainBlue"
-                                    width="58px"
-                                    color="white"
-                                    mb="5px"
-                                    outline="none"
-                                    _hover={{
-                                      color: "white",
-                                      bg: "mainBlue",
-                                    }}
-                                    onClick={handleApplyFilter}
-                                  >
-                                    Apply
-                                  </Button>
-                                </Box>
-                              </PopoverContent>
+                                    <Button
+                                      bg="mainBlue"
+                                      width="58px"
+                                      color="white"
+                                      mb="5px"
+                                      outline="none"
+                                      _hover={{
+                                        color: "white",
+                                        bg: "mainBlue",
+                                      }}
+                                      onClick={handleApplyFilters}
+                                    >
+                                      Apply
+                                    </Button>
+                                  </Box>
+                                </PopoverContent>
+                              )}
                             </Popover>
                           </Th>
                         )}

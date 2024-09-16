@@ -60,24 +60,16 @@ import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
-
-const CustomTable = ({
-  setPage,
-  newArray,
-  alignment,
-  sortColumn,
-  sortOrder,
-  setSortColumn,
-  setSortOrder,
-  filters,
-  refetch,
-}) => {
+import { useGetGlobalsearchVendorQuery } from "../slice/purchaseVendorWiseApi";
+import { useVendorWisePurchaseQuery } from "../slice/purchaseVendorWiseApi";
+const CustomTable = ({ setPage, newArray, alignment, filters, refetch }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
   const [selectedColumns, setSelectedColumns] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [inputValue, setInputValue] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [columnFilters, setColumnFilters] = useState({});
   const [lastPage, setLastPage] = useState(false);
@@ -86,6 +78,27 @@ const CustomTable = ({
   const [endDate, setEndDate] = useState();
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
+  const [sortColumn, setSortColumn] = useState();
+  const [sortOrder, setSortOrder] = useState();
+  const [currentPage, setCurrentPage] = useState(0); // Default page is 0
+
+  // api calling from global search
+  const { data: searchData } = useGetGlobalsearchVendorQuery(filters, {
+    skip: !searchQuery,
+  });
+  // console.log("piyas3333333", searchData);
+
+  //API Calling sorting
+  const { data: ProductData, refetch: refetchProduct } =
+    useVendorWisePurchaseQuery({
+      filters: {
+        ...filters,
+        // sortBy: sortColumn,
+        // sortDir: sortOrder,
+      },
+      page: currentPage,
+    });
+  console.log("piyas ninja", ProductData);
 
   const toast = useToast();
 
@@ -137,23 +150,21 @@ const CustomTable = ({
   const handleSort = (column) => {
     const newSortOrder =
       sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
+    // Update sort state
     setSortColumn(column);
     setSortOrder(newSortOrder);
   };
-  // Trigger a refetch manually if needed
-  const fetchDataWithNewFilters = () => {
-    refetch();
-  };
-  // Update filters state whenever sortColumn or sortOrder changes
+  // Trigger the API call when sortColumn or sortOrder changes
   useEffect(() => {
-    filters = {
-      ...filters,
-      sortBy: sortColumn,
-      sortDir: sortOrder,
-    };
-    // Fetch new data with updated filters
-    fetchDataWithNewFilters();
-  }, [sortColumn, sortOrder]);
+    refetchProduct({
+      filters: {
+        ...filters,
+        sortBy: sortColumn,
+        sortDir: sortOrder,
+      },
+      page: currentPage,
+    });
+  }, [sortColumn, sortOrder, refetchProduct]); // Ensure dependencies are correct
 
   const loadMoreData = async () => {
     if (!loading) {
@@ -240,18 +251,23 @@ const CustomTable = ({
   }, [debouncedSearchQuery]);
 
   const handleSearchChange = (e) => {
-    debouncedSearchQuery(e.target.value);
+    setInputValue(e.target.value);
   };
-  const handleClearChanges = () => {
-    setSearchQuery(" "); // Clear the search input
-    debouncedSearchQuery(""); // Clear the debounced search query
+  const handleSearchClick = () => {
+    debouncedSearchQuery(inputValue);
+  };
+  const clearAllFilters = () => {
+    setSearchQuery("");
+    setInputValue("");
+    setColumnFilters({});
+    setSortColumn("");
+    setSortOrder("asc");
   };
 
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray];
     Object.keys(columnFilters).forEach((field) => {
       const filter = columnFilters[field];
-	  
       if (filter.condition && filter.value) {
         filteredData = filteredData.filter((item) => {
           const value = item[field];
@@ -297,16 +313,47 @@ const CustomTable = ({
       }
     });
 
+    // Apply global search filter (if searchQuery exists)
     if (searchQuery) {
       filteredData = filteredData.filter((item) => {
-        const values = Object.values(item);
-        return values.some((value) =>
+        return Object.values(item).some((value) =>
           String(value).toLowerCase().includes(searchQuery.toLowerCase())
         );
       });
     }
+
+    // Apply sorting
+    if (sortColumn) {
+      filteredData.sort((a, b) => {
+        if (a[sortColumn] < b[sortColumn]) return sortOrder === "asc" ? -1 : 1;
+        if (a[sortColumn] > b[sortColumn]) return sortOrder === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+
+    // Filter data to only include selected columns
+    if (selectedColumns.length > 0) {
+      filteredData = filteredData.map((item) => {
+        const filteredItem = {};
+        selectedColumns.forEach((column) => {
+          filteredItem[column] = item[column];
+        });
+        return filteredItem;
+      });
+    }
+
     return filteredData;
-  }, [data, searchQuery, columnFilters, selectedColumns,newArray]);
+  }, [
+    data,
+    newArray,
+    searchData,
+    searchQuery,
+    columnFilters,
+    sortColumn,
+    sortOrder,
+    selectedColumns,
+  ]);
+
 
   const formatHeader = (header) => {
     header = header.trim();
@@ -443,15 +490,39 @@ const CustomTable = ({
           },
         }}
       >
-        <Input
-          onChange={handleSearchChange}
-          width="20%"
-          height="36px"
-          bg="#dedede"
-          padding="15px"
-          borderRadius="5px"
-          placeholder="Search Global Data"
-        />
+        <Box display="flex" alignItems="center" w="20%" position="relative">
+          <Input
+            onChange={handleSearchChange}
+            value={inputValue}
+            width="100%"
+            bg="#dedede"
+            padding="15px"
+            h="36px"
+            borderRadius="5px"
+            placeholder="Search Global Data"
+            pr="40px"
+            zIndex="1"
+          />
+          <button
+            onClick={handleSearchClick}
+            style={{
+              position: "absolute",
+              right: "10px", // Adjust the position as needed
+              top: "50%",
+              transform: "translateY(-50%)",
+              border: "none",
+              background: "transparent",
+              cursor: "pointer",
+              fontSize: "20px",
+              zIndex: "2",
+            }}
+          >
+            <i
+              className="pi pi-search"
+              style={{ fontSize: "2rem", opacity: "0.8" }}
+            ></i>
+          </button>
+        </Box>
         <Box
           display="flex"
           justifyContent="space-between"
@@ -470,7 +541,7 @@ const CustomTable = ({
           <Tooltip label="Clear All" hasArrow>
             <Button
               borderRadius="5px"
-              onClick={handleClearChanges}
+              onClick={clearAllFilters}
               w="40px"
               h="40px"
               bg="#d6eaf8"
@@ -805,10 +876,12 @@ const CustomTable = ({
                 ref={provided.innerRef}
                 variant="simple"
               >
-                <Thead style={{
-					position:'sticky',
-					top:0,
-				}}>
+                <Thead
+                  style={{
+                    position: "sticky",
+                    top: 0,
+                  }}
+                >
                   <Tr bg="#cfd8e1">
                     {selectedColumns.map((column, index) => (
                       <Draggable
@@ -834,18 +907,16 @@ const CustomTable = ({
                               className="A_to_Z"
                               bg="none"
                               _hover={{ bg: "none" }}
-                              onClick={() =>
-                                handleSort("grnInvoice.vendorCode")
-                              }
+                              onClick={() => handleSort(column)}
                             >
-                              {filters &&
-                              filters.sortBy === "grnInvoice.vendorCode" &&
-                              filters.sortDir === "asc" ? (
-                                <FontAwesomeIcon icon={faArrowDownShortWide} />
-                              ) : filters &&
-                                filters.sortBy === "grnInvoice.vendorCode" &&
-                                filters.sortDir === "desc" ? (
-                                <FontAwesomeIcon icon={faArrowUpWideShort} />
+                              {sortColumn === column ? (
+                                sortOrder === "asc" ? (
+                                  <FontAwesomeIcon
+                                    icon={faArrowDownShortWide}
+                                  />
+                                ) : (
+                                  <FontAwesomeIcon icon={faArrowUpWideShort} />
+                                )
                               ) : (
                                 <FontAwesomeIcon
                                   icon={faArrowRightArrowLeft}

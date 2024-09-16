@@ -19,12 +19,11 @@ export const salesKamWiseApi = apiSlice.injectEndpoints({
     getSelectedColumnsKam: builder.query({
       query: () => "/sales/drop-down-data/kam",
     }),
+
     // Query to get global search
     getGlobalsearchKam: builder.query({
       query: (body) => {
-        // console.log("imran body", body);
-        // console.log("json body");
-        // console.log(JSON.stringify(body));
+        // console.log("body_piyas",body)
         return {
           url: "/sales/global-search/kam",
           method: "POST",
@@ -32,6 +31,7 @@ export const salesKamWiseApi = apiSlice.injectEndpoints({
         };
       },
     }),
+
   }),
 });
 

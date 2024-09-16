@@ -24,7 +24,19 @@ export const purchaseVendorWiseApi = apiSlice.injectEndpoints({
         body: columns,
       }),
     }),
+        // Query to get global search
+        getGlobalsearchVendor:builder.query({
+          query:(body) => {
+            return {
+              url: "/purchase/global-search/vendor",
+              method: "POST",
+              body: JSON.stringify(body),
+            };
+          },
+       }),
+
+
   }),
 });
 
-export const { useVendorWisePurchaseQuery, useFetchDataQuery } = purchaseVendorWiseApi;
+export const { useVendorWisePurchaseQuery, useFetchDataQuery, useGetGlobalsearchVendorQuery} = purchaseVendorWiseApi;

@@ -4,8 +4,8 @@ import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
-import { jwtDecode } from "jwt-decode";
-import { useFetchDataQuery } from "../slice/purchaseProductWiseApi";
+// import { jwtDecode } from "jwt-decode";
+
 
 let filters = {
   "data": [
@@ -49,11 +49,6 @@ const PurchaseProductWiseTableView = () => {
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(50);
   const toast = useToast();
-  const [sortColumn, setSortColumn] = useState(filters.sortBy);
-  const [sortOrder, setSortOrder] = useState(filters.sortDir); // 'asc' or 'desc'
-
-  // Fetch data from the API with sorting parameters
-  const { data: sortdata, refetch } = useFetchDataQuery(filters);
 
   // console.log('Fetching data with filters:', filters);
   //  console.log('piyas');
@@ -168,10 +163,6 @@ const PurchaseProductWiseTableView = () => {
 
   const mainData = sales?.content
 
-  // console.log(mainData, 'main data');
-  // console.log(newArray, 'newArray');
-
-
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
 
@@ -182,12 +173,7 @@ const PurchaseProductWiseTableView = () => {
         isFetching={isFetching}
         pageInfo={pageInfo}
         setSize={setSize}
-        sortColumn={sortColumn}
-        sortOrder={sortOrder}
-        setSortColumn={setSortColumn}
-        setSortOrder={setSortOrder}
-        sortdata={sortdata}
-        refetch={refetch}
+        filters={filters}
         alignment={{
           "Total Quantity": "right",
           "Received Quantity": "right",
