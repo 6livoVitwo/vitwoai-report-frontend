@@ -87,79 +87,88 @@
 
 // export default GraphCharts;
 
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { chartsData } from "./data/fakeData";
 import { Box, Text } from "@chakra-ui/react";
 import MyChart from "./MyChart";
-import { Calendar } from "primereact/calendar";
-import { format, parse, isWithinInterval, isValid } from "date-fns";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css"; // Import DatePicker styles
+
+const formatDate = (date) => {
+  if (!date || isNaN(date.getTime())) return null;
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are 0-based
+  const day = date.getDate().toString().padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 const GraphCharts = () => {
-  const [filteredCharts, setFilteredCharts] = useState({
-    title: "",
-    charts: [],
-  });
-  const [dates, setDates] = useState([]); // Initialize as empty array
+  const [allCharts, setAllCharts] = useState({ charts: [] });
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [filteredCharts, setFilteredCharts] = useState([]);
 
   useEffect(() => {
-    if (dates.length === 2) {
-      const [startDate, endDate] = dates;
+    // Initialize with chartsData
+    setAllCharts(chartsData);
+    setFilteredCharts(chartsData.charts || []);
+  }, []);
 
-      if (isValid(startDate) && isValid(endDate)) {
-        const startFormatted = format(startDate, "yyyy-MM-dd");
-        const endFormatted = format(endDate, "yyyy-MM-dd");
+  useEffect(() => {
+    // Convert dates to comparable formats if valid
+    const start = startDate ? formatDate(startDate) : null;
+    const end = endDate ? formatDate(endDate) : null;
 
-        console.log(
-          "Filtering charts from",
-          startFormatted,
-          "to",
-          endFormatted
-        );
+    console.log("Filtering dates:", { start, end });
 
-        const filtered = chartsData.charts.filter((chart) => {
-          return chart.data.some((dataPoint) => {
-            const dataDate = parse(dataPoint.x, "yyyy-MM-dd", new Date());
-            return isWithinInterval(dataDate, {
-              start: startDate,
-              end: endDate,
-            });
-          });
-        });
+    // Filter charts based on dates
+    const filtered = allCharts.charts.filter(chart => {
+      const chartDate = chart.date ? formatDate(new Date(chart.date)) : null;
+      console.log("Chart date:", chartDate);
+      return (
+        (!start || (chartDate && chartDate >= start)) &&
+        (!end || (chartDate && chartDate <= end))
+      );
+    });
 
-        setFilteredCharts({
-          title: chartsData.title,
-          charts: filtered,
-        });
-
-        console.log("Filtered charts:", filtered);
-      } else {
-        console.log("Invalid date range selected.");
-        setFilteredCharts({
-          title: chartsData.title,
-          charts: [],
-        });
-      }
-    } else {
-      setFilteredCharts(chartsData);
-      console.log("No date range selected, showing all charts");
-    }
-  }, [dates]);
-
-  console.log("Filtered charts state:", filteredCharts);
+    setFilteredCharts(filtered);
+  }, [startDate, endDate, allCharts]);
 
   return (
     <Box>
-      <Text fontWeight={"600"}>{filteredCharts.title}</Text>
+      <Text fontWeight={"600"}>{allCharts.title}</Text>
 
-      <Box mb={4}>
-        <Calendar
-          value={dates.length > 0 ? dates : null}
-          onChange={(e) => setDates(e.value || [])}
-          selectionMode="range"
-          readOnlyInput
-          style={{ border: "1px solid #dee2e6" }}
-          dateFormat="yy-mm-dd" // Ensure the date format is specified
-        />
+      <Box>
+        <Box mb={4}>
+          <Text>Start Date</Text>
+          <DatePicker
+            selected={startDate}
+            onChange={(date) => setStartDate(date)}
+            dateFormat="yyyy-MM-dd"
+            placeholderText="Select start date"
+            style={{ border: "1px solid #dee2e6" }}
+            selectsStart
+            startDate={startDate}
+            endDate={endDate}
+          />
+        </Box>
+        <Box mb={4}>
+          <Text>End Date</Text>
+          <DatePicker
+            selected={endDate}
+            onChange={(date) => setEndDate(date)}
+            dateFormat="yyyy-MM-dd"
+            placeholderText="Select end date"
+            style={{ border: "1px solid #dee2e6" }}
+            selectsEnd
+            startDate={startDate}
+            endDate={endDate}
+          />
+        </Box>
+        <button
+          onClick={() => { /* Apply filter logic here if needed */ }}>
+          Apply Filter
+        </button>
       </Box>
 
       <Box
@@ -167,10 +176,15 @@ const GraphCharts = () => {
         flexWrap="wrap"
         justifyContent="space-between"
         mt={10}>
-        {Array.isArray(filteredCharts.charts) &&
-        filteredCharts.charts.length > 0 ? (
-          filteredCharts.charts.map((chart, index) => (
-            <Box key={index} width={{ base: "100%", lg: "65%" }} mb={6}>
+        {filteredCharts.length > 0 ? (
+          filteredCharts.map((chart, index) => (
+            <Box
+              key={index}
+              width={{
+                base: "100%",
+                lg: "65%",
+              }}
+              mb={6}>
               <Box
                 sx={{
                   backgroundColor: "white",
@@ -196,13 +210,6 @@ const GraphCharts = () => {
                       color: "black",
                     }}>
                     {chart.title}
-                    <Text
-                      sx={{
-                        color: "#718296",
-                        fontSize: "10px",
-                      }}>
-                      {chart.description}
-                    </Text>
                   </Box>
                 </Box>
                 <Box sx={{ height: "300px" }}>
