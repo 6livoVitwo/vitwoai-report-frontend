@@ -1,19 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDynamicNewQuery } from "../slice/graphApi";
-import {
-  Alert,
-  AlertIcon,
-  Box,
-  Button,
-  Divider,
-  Grid,
-  Heading,
-  Select,
-  Spinner,
-  Stack,
-  useToast,
-  Text,
-} from "@chakra-ui/react";
+import { Alert, AlertIcon, Box, Button, Divider, Grid, Heading, Select, Spinner, Stack, useToast, Text } from "@chakra-ui/react";
 import { capitalizeWord, lastDateOfMonth } from "../../../utils/common";
 import { MdRemoveRedEye, MdSave } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,6 +8,7 @@ import { addWidget, updateWidget } from "../slice/graphSlice";
 import { Accordion, AccordionTab } from "primereact/accordion";
 import AreaBump from "../../dashboardNew/nivo/AreaBump";
 import TypingMaster from "../../dashboardNew/components/TypingMaster";
+import { split } from "lodash";
 
 const chartComponents = {
   areaBump: AreaBump,
@@ -38,23 +26,140 @@ const ChartConfiguration = ({ configureChart }) => {
   const [formDate, setFormDate] = useState(lastDateOfMonth(currentDate));
   const [toDate, setToDate] = useState(today);
   const [wise, setWise] = useState("sales");
+  const [priceOrQty, setPriceOrQty] = useState("qty");
   const [previewLoading, setPreviewLoading] = useState(false);
   const dispatch = useDispatch();
   const currentWidgets = useSelector((state) => state.salescustomer.widgets);
+  const [inputType, setInputType] = useState("month");
+
+  const [dynamicWidth, setDynamicWidth] = useState(1200);
+  const [startDate, setStartDate] = useState(inputType === 'month' ? '2024-01' : '2024-01-01');
+  const [endDate, setEndDate] = useState(inputType === 'month' ? '2024-12' : '2024-01-20');
+
+  const startYear = (split(startDate, '-')[0] || '2024');
+  const startMonth = (split(startDate, '-')[1] || '01');
+  const endYear = (split(endDate, '-')[0] || '2024');
+  const endMonth = (split(endDate, '-')[1] || '12');
+
+  const [bodyWise, setBodyWise] = useState({
+    priceOrQty: `${priceOrQty}`,
+    "yearFrom": split(startDate, '-')[0],
+    "yearTo": split(endDate, '-')[0],
+    "monthFrom": split(startDate, '-')[1],
+    "monthTo": split(endDate, '-')[1],
+  });
 
   const [chartApiConfig, setChartApiConfig] = useState({
     areaBump: [
       {
         wise: "sales",
         endpoint: "/sales/graph/product-wise-area-bump",
-        body: {
-          priceOrQty: "qty",
-          dateString: "2024-01-01 to 2024-01-10",
-          // year: 2023,
-        },
+        body: bodyWise
       },
     ],
   });
+
+  const getDateDifference = (start, end) => {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    // Difference in milliseconds
+    const differenceInTime = endDate - startDate;
+    // Convert milliseconds to days (1 day = 24 * 60 * 60 * 1000 milliseconds)
+    const differenceInDays = differenceInTime / (1000 * 60 * 60 * 24);
+    return differenceInDays;
+  };
+
+  const getMonthDifference = (start, end) => {
+    const [startYear, startMonth] = start.split('-').map(Number);
+    const [endYear, endMonth] = end.split('-').map(Number);
+
+    const yearDifference = endYear - startYear;
+    const monthDifference = endMonth - startMonth;
+
+    // Total month difference
+    return yearDifference * 12 + monthDifference;
+  };
+
+  const handleFromDate = (data) => {
+    setStartDate(data);
+  }
+
+  const handleInputType = (data) => {
+    let newStartDate, newEndDate, newBodyWise;
+
+    setInputType(data);
+    if (data === 'month') {
+      newStartDate = '2024-01';
+      newEndDate = '2024-12';
+
+      newBodyWise = {
+        priceOrQty: `${priceOrQty}`,
+        "yearFrom": split(newStartDate, '-')[0],
+        "yearTo": split(newEndDate, '-')[0],
+        "monthFrom": split(newStartDate, '-')[1],
+        "monthTo": split(newEndDate, '-')[1],
+      };
+    } else {
+      newStartDate = '2024-01-01';
+      newEndDate = '2024-01-20';
+
+      newBodyWise = {
+        priceOrQty: `${priceOrQty}`,
+        dateString: `${newStartDate} to ${newEndDate}`,
+      };
+    }
+
+    setStartDate(newStartDate);
+    setEndDate(newEndDate);
+    setBodyWise(newBodyWise);
+    setChartApiConfig({
+      areaBump: [
+        {
+          wise: "sales",
+          endpoint: "/sales/graph/product-wise-area-bump",
+          body: newBodyWise
+        },
+      ],
+    })
+  }
+
+  const handleToDate = (data) => {
+    let newBodyWise;
+  
+    if (inputType === 'month') {
+      newBodyWise = {
+        ...bodyWise,
+        "yearTo": split(data, '-')[0],
+        "monthTo": split(data, '-')[1],
+      };
+    } else {
+      newBodyWise = {
+        ...bodyWise,
+        dateString: `${startDate} to ${data}`,
+      };
+    }
+  
+    setEndDate(data);
+    setBodyWise(newBodyWise);
+    const count = inputType === 'month' ? getMonthDifference(startDate, data) : getDateDifference(startDate, data);
+    setDynamicWidth(200 * count);
+  
+    // Trigger API call by updating chartApiConfig
+    updateChartApiConfig(newBodyWise);
+  };
+
+  const updateChartApiConfig = (newBodyWise) => {
+    setChartApiConfig((prevConfig) => ({
+      ...prevConfig,
+      areaBump: [
+        {
+          wise: "sales",
+          endpoint: "/sales/graph/product-wise-area-bump",
+          body: newBodyWise, // Updated body based on the selected input type
+        },
+      ],
+    }));
+  };
 
   const chartConfig = chartApiConfig[type];
   const { endpoint, body } = chartConfig
@@ -68,21 +173,49 @@ const ChartConfiguration = ({ configureChart }) => {
     isLoading,
     isError,
     error,
+    refetch
   } = useDynamicNewQuery(
     endpoint
       ? {
-          endpoint,
-          body,
-        }
-      : null
+        endpoint,
+        body
+      }
+      : null,
+    { skip: !endpoint }
   );
 
+  // Use effect to trigger API call when endDate changes
   useEffect(() => {
-    console.log("Graph Data:", graphData);
-    if (graphData) {
-      setChartDataApi(graphData?.data || []);
+    if (endpoint && body) {
+      refetch();
     }
-  }, [graphData]);
+  }, [endDate, startDate, priceOrQty]); // Listen for changes to endDate or startDate
+
+  useEffect(() => {
+    let isMounted = false;
+    if (graphData) {
+      const processedData = graphData?.data.map((item) => {
+        return {
+          ...item,
+          data: item?.data?.map((entry) => {
+            return {
+              ...entry,
+              y: parseFloat(entry?.y),
+            };
+          }),
+        };
+      });
+
+      if (!isMounted) {
+        setChartDataApi(processedData || []);
+      }
+    }
+
+    // clean up function to prevent memory leak
+    return () => {
+      isMounted = true;
+    }
+  }, [graphData, endDate]);
 
   const ChartComponent = chartComponents[type];
   if (isLoading) return <Spinner />;
@@ -147,7 +280,8 @@ const ChartConfiguration = ({ configureChart }) => {
         display="flex"
         flexWrap="wrap"
         justifyContent="space-between"
-        marginTop="10px">
+        marginTop="10px"
+      >
         {/* show graph view */}
         <Box
           width={{
@@ -179,8 +313,14 @@ const ChartConfiguration = ({ configureChart }) => {
                 </Heading>
               </Box>
             </Box>
-            <Box sx={{ height: "300px" }}>
-              <ChartComponent liveData={chartDataApi} />
+            <Box sx={{ height: "300px", width: "100%", overflowX: "auto" }}>
+              <ChartComponent
+                liveData={chartDataApi}
+                startDate={startDate}
+                endDate={endDate}
+                dynamicWidth={dynamicWidth}
+                inputType={inputType}
+              />
             </Box>
           </Box>
         </Box>
@@ -230,15 +370,43 @@ const ChartConfiguration = ({ configureChart }) => {
                 border: "1px solid #ecebeb",
               }}>
               <Box>
-                <Grid templateColumns="repeat(2, 1fr)" gap={6}>
+                <Grid templateColumns="repeat(1, 1fr)" gap={6}>
+                  <Stack spacing={3}>
+                    <Text fontSize="sm" fontWeight="500">
+                      Period ({inputType} wise)
+                    </Text>
+                    <Select size="lg" value={inputType} onChange={(e) => handleInputType(e.target.value)}>
+                      <option value="date">Day</option>
+                      <option value="month">Month</option>
+                    </Select>
+                  </Stack>
+                </Grid>
+                <Grid templateColumns="repeat(1, 1fr)" gap={6}>
                   <Stack spacing={3}>
                     <Text fontSize="sm" fontWeight="500">
                       Quantity
                     </Text>
-                    <Select size="lg">
-                      <option value="count">Qty</option>
-                      <option value="sum">Price</option>
+                    <Select size="lg" value={priceOrQty} onChange={(e) => setPriceOrQty(e.target.value)}>
+                      <option value="qty">Qty</option>
+                      <option value="price">Price</option>
                     </Select>
+                  </Stack>
+                </Grid>
+                <Grid templateColumns="repeat(1, 1fr)" gap={6}>
+                  <Stack spacing={3} width={'90%'}>
+                    <Text fontSize="sm" fontWeight="500">
+                      Date Filter ({inputType} wise)
+                    </Text>
+                    <Box sx={{ display: 'flex' }}>
+                      <Stack spacing={4} width={320} bg={'yellow.300'} p={4}>
+                        <Text>From Date</Text>
+                        <input type={inputType} value={startDate} onChange={(e) => handleFromDate(e.target.value)} />
+                      </Stack>
+                      <Stack spacing={4} width={320} bg={'yellow.300'} p={4}>
+                        <Text>To Date</Text>
+                        <input type={inputType} value={endDate} onChange={(e) => handleToDate(e.target.value)} />
+                      </Stack>
+                    </Box>
                   </Stack>
                 </Grid>
               </Box>

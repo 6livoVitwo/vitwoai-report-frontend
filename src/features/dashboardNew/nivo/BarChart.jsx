@@ -2,7 +2,7 @@ import { ResponsiveBar } from '@nivo/bar';
 import React from 'react';
 import { barChartData } from '../data/chartData';
 
-const BarChart = ({ data = barChartData, liveData = [], variant = 'stacked-vertical' }) => {
+const BarChart = ({ data = barChartData, liveData = [], variant = 'grouped-vertical' }) => {
 
 	const dataKeys = Object.keys(liveData[0] || {});
 	const keysCommaSeparated = dataKeys.join(',');
@@ -36,7 +36,7 @@ const BarChart = ({ data = barChartData, liveData = [], variant = 'stacked-verti
           groupMode={groupMode}
           layout={layout}
           indexScale={{ type: "band", round: true }}
-          colors={{ scheme: "blues" }}
+          colors={{ scheme: "nivo" }}
           borderColor={{
             from: "color",
             modifiers: [["darker", 1.6]],
