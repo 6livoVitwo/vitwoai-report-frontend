@@ -91,13 +91,18 @@ const CustomTable = ({
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
   const [appliedFilters, setAppliedFilters] = useState({});
+  const [filtersApplied, setFiltersApplied] = useState(false);
+  const [localFilters, setLocalFilters] = useState({ ...filters });
+
 
   const [currentPage, setCurrentPage] = useState(0); // Default page is 0
 
   //......Advance Filter Api Calling.........
-  const{data:kamDataFilter}=useKamWiseSalesQuery({filters})
-  console.log("kamDataFilter1212121",kamDataFilter);
-  
+  const { data: kamDataFilter } = useKamWiseSalesQuery(
+    { filters },
+    { skip: !filtersApplied }
+  );
+  //  console.log("kamDataFilter1212121",kamDataFilter);
 
   //API Calling sorting
   const { data: kamData, refetch: refetchKamWiseSales } = useKamWiseSalesQuery({
@@ -442,7 +447,7 @@ const CustomTable = ({
 
   //function for filter
   const handleTempFilterConditionChange = (e) => {
-    const value = e?.target?.value; // Safely accessing e.target.value
+    const value = e?.target?.value;
     if (value !== undefined) {
       setTempFilterCondition(value);
     } else {
@@ -450,34 +455,80 @@ const CustomTable = ({
     }
   };
   const handleTempFilterValueChange = (e) => {
-    const value = e?.target?.value; // Safely accessing e.target.value
+    const value = e?.target?.value;
     if (value !== undefined) {
       setTempFilterValue(value);
     } else {
       console.error("Temp filter value is undefined.");
     }
   };
-  const handleApplyFilters = () => {
-    // Check if both condition and value are provided
+  const handleApplyFiltersSUM = () => {
     if (tempFilterCondition && tempFilterValue) {
       setColumnFilters((prevFilters) => ({
         ...prevFilters,
         [activeFilterColumn]: {
-          condition: tempFilterCondition, // The selected filter condition
-          value: tempFilterValue, // The input value for the filter
-          column: activeFilterColumn, // Active column being filtered
-          type: typeof tempFilterValue === "number" ? "integer" : "string", // Adjust type based on value
+          condition: tempFilterCondition,
+          value: tempFilterValue,
+          column: activeFilterColumn,
+          type: typeof tempFilterValue === "number" ? "integer" : "string",
         },
       }));
-      // Reset temporary filter values after applying
+
       setTempFilterCondition(null);
       setTempFilterValue("");
-      // Close the popover after applying filters
       setActiveFilterColumn(null);
+
+      // This will trigger the query
+      setFiltersApplied(true);
     } else {
       console.error("Filter condition or value missing");
     }
   };
+  const handleApplyFilters = () => {
+    if (tempFilterCondition && tempFilterValue && activeFilterColumn) {
+      // Create a new filter object
+      const newFilter = {
+        column: activeFilterColumn,
+        operator: tempFilterCondition,
+        type: typeof tempFilterValue === "number" ? "integer" : "string",
+        value: tempFilterValue,
+      };
+      // Update localFilters state
+      const updatedFilters = {
+        ...localFilters,
+        filter: [...localFilters.filter, newFilter],
+      };
+      setColumnFilters((prevFilters) => ({
+        ...prevFilters,
+        [activeFilterColumn]: {
+          condition: tempFilterCondition,
+          value: tempFilterValue,
+          column: activeFilterColumn,
+          type: typeof tempFilterValue === "number" ? "integer" : "string",
+        },
+      }));
+      console.log("Updated Filters:", updatedFilters); // Debugging line
+      // Update local filters state
+      setLocalFilters(updatedFilters);
+      setFiltersApplied(true);
+      // Clear temporary values
+      setTempFilterCondition(null);
+      setTempFilterValue("");
+      setActiveFilterColumn(null);
+    } else {
+      console.error("Filter condition, value, or column is missing");
+    }
+  };
+  
+  const handleClick = () => {
+    if (activeFilterColumn) {
+      const columnType = activeFilterColumn; 
+      columnType.includes("SUM(")
+        ? handleApplyFilters()
+        : handleApplyFiltersSUM();
+    }
+  };
+
 
   const exportToExcel = () => {
     import("xlsx").then((xlsx) => {
@@ -843,24 +894,34 @@ const CustomTable = ({
                             </Button>
 
                             <Popover
-                             isOpen={activeFilterColumn === column}
-                             onClose={() => setActiveFilterColumn(null)}
+                              isOpen={activeFilterColumn === column}
+                              onClose={() => setActiveFilterColumn(null)}
                             >
                               <PopoverTrigger>
-                                <Button
+                              <Button
                                   bg="transparent"
                                   onClick={() => handlePopoverClick(column)} // Set the clicked column as active
                                 >
-                                  <i
-                                    className=" pi pi-filter"
-                                    style={{
-                                      color: "slateblue",
-                                      fontSize: "1.3rem",
-                                    }}
-                                  ></i>
+                                  {columnFilters[column] ? (
+                                    <i
+                                      className="pi pi-filter-slash"
+                                      style={{
+                                        color: "slateblue",
+                                        fontSize: "1.4rem",
+                                      }}
+                                    ></i>
+                                  ) : (
+                                    <i
+                                      className="pi pi-filter"
+                                      style={{
+                                        color: "slateblue",
+                                        fontSize: "1.4rem",
+                                      }}
+                                    ></i>
+                                  )}
                                 </Button>
                               </PopoverTrigger>
-                              {activeFilterColumn === column && ( 
+                              {activeFilterColumn === column && (
                                 // .........Only show popover for the active column..........
                                 <PopoverContent w="120%">
                                   <PopoverArrow />
@@ -897,7 +958,9 @@ const CustomTable = ({
                                             //     e.target.value
                                             //   )
                                             // }
-                                            onChange={handleTempFilterConditionChange}
+                                            onChange={
+                                              handleTempFilterConditionChange
+                                            }
                                           >
                                             <option value="equal">Equal</option>
                                             <option value="notEqual">
@@ -936,7 +999,9 @@ const CustomTable = ({
                                             //     e.target.value
                                             //   )
                                             // }
-                                            onChange={handleTempFilterValueChange}
+                                            onChange={
+                                              handleTempFilterValueChange
+                                            }
                                             placeholder={`Filter ${column}`}
                                           />
                                         </Box>
@@ -960,7 +1025,7 @@ const CustomTable = ({
                                         color: "white",
                                         bg: "mainBlue",
                                       }}
-                                      onClick={handleApplyFilters}
+                                      onClick={handleClick} 
                                     >
                                       Apply
                                     </Button>

@@ -84,10 +84,21 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   const [inputValue, setInputValue] = useState("");
   const [currentPage, setCurrentPage] = useState(0); // Default page is 0
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
+  const [filtersApplied, setFiltersApplied] = useState(false);
+  const [localFilters, setLocalFilters] = useState({ ...filters });
+
 
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
   };
+
+  //Advance data filtering
+  const { data: SoWiseFilter } = useSoWiseSalesQuery(
+    { filters },
+    {
+      skip: !filtersApplied,
+    }
+  );
 
   //.......Api call to get selected columns......
   const { data: ColumnsData } = useGetSelectedColumnsSoQuery();
@@ -400,9 +411,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     }
   }, [loading, lastPage]);
 
-
-
-  //function for filter
+  //.....function for filter.....
   const handleTempFilterConditionChange = (e) => {
     const value = e?.target?.value; // Safely accessing e.target.value
     if (value !== undefined) {
@@ -419,29 +428,72 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
       console.error("Temp filter value is undefined.");
     }
   };
-  const handleApplyFilters = () => {
-    // Check if both condition and value are provided
+  const handleApplyFiltersSUM = () => {
     if (tempFilterCondition && tempFilterValue) {
       setColumnFilters((prevFilters) => ({
         ...prevFilters,
         [activeFilterColumn]: {
-          condition: tempFilterCondition, // The selected filter condition
-          value: tempFilterValue, // The input value for the filter
-          column: activeFilterColumn, // Active column being filtered
-          type: typeof tempFilterValue === "number" ? "integer" : "string", // Adjust type based on value
+          condition: tempFilterCondition,
+          value: tempFilterValue,
+          column: activeFilterColumn,
+          type: typeof tempFilterValue === "number" ? "integer" : "string",
         },
       }));
-      setTempFilterCondition(null); // Reset temporary filter values after applying
+
+      setTempFilterCondition(null);
       setTempFilterValue("");
-      // Optionally, trigger the API call or any logic to filter the data here
-      // fetchDataWithFilters();
-      setActiveFilterColumn(null); // Close the popover after applying filters
+      setActiveFilterColumn(null);
+
+      // This will trigger the query
+      setFiltersApplied(true);
     } else {
       console.error("Filter condition or value missing");
     }
   };
-
+  const handleApplyFilters = () => {
+    if (tempFilterCondition && tempFilterValue && activeFilterColumn) {
+      // Create a new filter object
+      const newFilter = {
+        column: activeFilterColumn,
+        operator: tempFilterCondition,
+        type: typeof tempFilterValue === "number" ? "integer" : "string",
+        value: tempFilterValue,
+      };
+      // Update localFilters state
+      const updatedFilters = {
+        ...localFilters,
+        filter: [...localFilters.filter, newFilter],
+      };
+      setColumnFilters((prevFilters) => ({
+        ...prevFilters,
+        [activeFilterColumn]: {
+          condition: tempFilterCondition,
+          value: tempFilterValue,
+          column: activeFilterColumn,
+          type: typeof tempFilterValue === "number" ? "integer" : "string",
+        },
+      }));
+      console.log("Updated Filters:", updatedFilters); // Debugging line
+      // Update local filters state
+      setLocalFilters(updatedFilters);
+      setFiltersApplied(true);
+      // Clear temporary values
+      setTempFilterCondition(null);
+      setTempFilterValue("");
+      setActiveFilterColumn(null);
+    } else {
+      console.error("Filter condition, value, or column is missing");
+    }
+  };
   
+  const handleClick = () => {
+    if (activeFilterColumn) {
+      const columnType = activeFilterColumn; 
+      columnType.includes("SUM(")
+        ? handleApplyFiltersSUM()
+        : handleApplyFilters();
+    }
+  };
 
   //function for export
   const exportToExcel = () => {
@@ -811,17 +863,27 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                               onClose={() => setActiveFilterColumn(null)}
                             >
                               <PopoverTrigger>
-                                <Button
+                              <Button
                                   bg="transparent"
                                   onClick={() => handlePopoverClick(column)} // Set the clicked column as active
                                 >
-                                  <i
-                                    className=" pi pi-filter"
-                                    style={{
-                                      color: "slateblue",
-                                      fontSize: "1.3rem",
-                                    }}
-                                  ></i>
+                                  {columnFilters[column] ? (
+                                    <i
+                                      className="pi pi-filter-slash"
+                                      style={{
+                                        color: "slateblue",
+                                        fontSize: "1.4rem",
+                                      }}
+                                    ></i>
+                                  ) : (
+                                    <i
+                                      className="pi pi-filter"
+                                      style={{
+                                        color: "slateblue",
+                                        fontSize: "1.4rem",
+                                      }}
+                                    ></i>
+                                  )}
                                 </Button>
                               </PopoverTrigger>
                               {activeFilterColumn === column && (
@@ -851,16 +913,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                                             size="sm"
                                             fontSize="12px"
                                             h="35px"
-                                            // value={
-                                            //   columnFilters[column]
-                                            //     ?.condition || ""
-                                            // }
-                                            // onChange={(e) =>
-                                            //   handleTempFilterConditionChange(
-                                            //     column,
-                                            //     e.target.value
-                                            //   )
-                                            // }
                                             onChange={
                                               handleTempFilterConditionChange
                                             }
@@ -893,15 +945,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                                             h="35px"
                                             fontSize="12px"
                                             padding="6px"
-                                            // value={
-                                            //   columnFilters[column]?.value || ""
-                                            // }
-                                            // onChange={(e) =>
-                                            //   handleTempFilterValueChange(
-                                            //     column,
-                                            //     e.target.value
-                                            //   )
-                                            // }
                                             onChange={
                                               handleTempFilterValueChange
                                             }
@@ -928,7 +971,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                                         color: "white",
                                         bg: "mainBlue",
                                       }}
-                                      onClick={handleApplyFilters}
+                                      onClick={handleClick}
                                     >
                                       Apply
                                     </Button>
@@ -987,7 +1030,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
 
       <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered>
         <ModalOverlay />
-        <ModalContent minW="30%">
+        <ModalContent minW="40%">
           <ModalHeader
             fontWeight="600"
             bg="mainBlue"

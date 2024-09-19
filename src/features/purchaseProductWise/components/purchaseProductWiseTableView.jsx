@@ -19,24 +19,7 @@ let filters = {
     "items.goodName"
   ],
   "filter": [
-    {
-      "column": "companyId",
-      "operator": "equal",
-      "type": "integer",
-      "value": 1,
-    },
-    {
-      "column": "branchId",
-      "operator": "equal",
-      "type": "integer",
-      "value": 1,
-    },
-    {
-      "column": "locationId",
-      "operator": "equal",
-      "type": "integer",
-      "value": 1,
-    }
+
   ],
   "page": 0,
   "size": 50,
