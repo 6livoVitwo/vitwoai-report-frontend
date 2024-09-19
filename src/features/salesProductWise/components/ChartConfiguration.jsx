@@ -9,46 +9,36 @@ import { Accordion, AccordionTab } from "primereact/accordion";
 import AreaBump from "../../dashboardNew/nivo/AreaBump";
 import TypingMaster from "../../dashboardNew/components/TypingMaster";
 import { split } from "lodash";
-
+import { calculateCount, createBodyWise, getDateDifference, getMonthDifference, setDateRange, updateBodyWise, updateCountAndWidth } from "../../../utils/graphs-utilitis";
+import { Calendar } from 'primereact/calendar';
+import { format } from "date-fns";
+// all chart components here
 const chartComponents = {
   areaBump: AreaBump,
 };
 
 const ChartConfiguration = ({ configureChart }) => {
-  console.log("Props:", configureChart);
-
-  const today = new Date().toISOString().slice(0, 10);
-  const currentDate = new Date();
   const { type } = configureChart;
-
   const toast = useToast();
+  const dispatch = useDispatch();
+
+  // these all are state variables
   const [chartDataApi, setChartDataApi] = useState([]);
-  const [formDate, setFormDate] = useState(lastDateOfMonth(currentDate));
-  const [toDate, setToDate] = useState(today);
   const [wise, setWise] = useState("sales");
   const [priceOrQty, setPriceOrQty] = useState("qty");
   const [previewLoading, setPreviewLoading] = useState(false);
-  const dispatch = useDispatch();
   const currentWidgets = useSelector((state) => state.salescustomer.widgets);
   const [inputType, setInputType] = useState("month");
-
   const [dynamicWidth, setDynamicWidth] = useState(1200);
-  const [startDate, setStartDate] = useState(inputType === 'month' ? '2024-01' : '2024-01-01');
-  const [endDate, setEndDate] = useState(inputType === 'month' ? '2024-12' : '2024-01-20');
-
-  const startYear = (split(startDate, '-')[0] || '2024');
-  const startMonth = (split(startDate, '-')[1] || '01');
-  const endYear = (split(endDate, '-')[0] || '2024');
-  const endMonth = (split(endDate, '-')[1] || '12');
-
+  const [startDate, setStartDate] = useState(inputType === 'month' ? '2024-01' : inputType === 'year' ? '2021' : '2024-01-01');
+  const [endDate, setEndDate] = useState(inputType === 'month' ? '2024-12' : inputType === 'year' ? '2024' : '2024-01-20');
   const [bodyWise, setBodyWise] = useState({
-    priceOrQty: `${priceOrQty}`,
+    "priceOrQty": `${priceOrQty}`,
     "yearFrom": split(startDate, '-')[0],
     "yearTo": split(endDate, '-')[0],
     "monthFrom": split(startDate, '-')[1],
     "monthTo": split(endDate, '-')[1],
   });
-
   const [chartApiConfig, setChartApiConfig] = useState({
     areaBump: [
       {
@@ -59,93 +49,55 @@ const ChartConfiguration = ({ configureChart }) => {
     ],
   });
 
-  const getDateDifference = (start, end) => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    // Difference in milliseconds
-    const differenceInTime = endDate - startDate;
-    // Convert milliseconds to days (1 day = 24 * 60 * 60 * 1000 milliseconds)
-    const differenceInDays = differenceInTime / (1000 * 60 * 60 * 24);
-    return differenceInDays;
-  };
-
-  const getMonthDifference = (start, end) => {
-    const [startYear, startMonth] = start.split('-').map(Number);
-    const [endYear, endMonth] = end.split('-').map(Number);
-
-    const yearDifference = endYear - startYear;
-    const monthDifference = endMonth - startMonth;
-
-    // Total month difference
-    return yearDifference * 12 + monthDifference;
-  };
-
-  const handleFromDate = (data) => {
-    setStartDate(data);
-  }
-
   const handleInputType = (data) => {
-    let newStartDate, newEndDate, newBodyWise;
+    let { startDate: newStartDate, endDate: newEndDate } = setDateRange(data);
+    let newBodyWise = createBodyWise(data, newStartDate, newEndDate, priceOrQty);
+    let count = calculateCount(data, newStartDate, newEndDate);
 
     setInputType(data);
-    if (data === 'month') {
-      newStartDate = '2024-01';
-      newEndDate = '2024-12';
-
-      newBodyWise = {
-        priceOrQty: `${priceOrQty}`,
-        "yearFrom": split(newStartDate, '-')[0],
-        "yearTo": split(newEndDate, '-')[0],
-        "monthFrom": split(newStartDate, '-')[1],
-        "monthTo": split(newEndDate, '-')[1],
-      };
-    } else {
-      newStartDate = '2024-01-01';
-      newEndDate = '2024-01-20';
-
-      newBodyWise = {
-        priceOrQty: `${priceOrQty}`,
-        dateString: `${newStartDate} to ${newEndDate}`,
-      };
-    }
-
+    setDynamicWidth(200 * count);
     setStartDate(newStartDate);
     setEndDate(newEndDate);
     setBodyWise(newBodyWise);
-    setChartApiConfig({
-      areaBump: [
-        {
-          wise: "sales",
-          endpoint: "/sales/graph/product-wise-area-bump",
-          body: newBodyWise
-        },
-      ],
-    })
+    updateChartApiConfig(newBodyWise);
+  }
+
+  const handlePriceOrQty = (data) => {
+    setPriceOrQty(data);
+    let newBodyWise = createBodyWise(inputType, startDate, endDate, data);
+    setBodyWise(newBodyWise);
+    updateChartApiConfig(newBodyWise);
+  }
+
+  const handleDateUpdate = (type, data) => {
+    let newStartDate = type === 'from' ? data : startDate;
+    let newEndDate = type === 'to' ? data : endDate;
+
+    // Update BodyWise
+    const newBodyWise = updateBodyWise(inputType, newStartDate, newEndDate, bodyWise);
+
+    // Set state updates
+    if (type === 'from') {
+      setStartDate(data);
+    } else {
+      setEndDate(data);
+    }
+
+    // Update count and width
+    updateCountAndWidth(inputType, newStartDate, newEndDate, setDynamicWidth);
+    console.log("updateCountAndWidth")
+    console.log(dynamicWidth)
+    // Update the bodyWise and trigger the API
+    setBodyWise(newBodyWise);
+    updateChartApiConfig(newBodyWise);
+  };
+
+  const handleFromDate = (data) => {
+    handleDateUpdate('from', data);
   }
 
   const handleToDate = (data) => {
-    let newBodyWise;
-  
-    if (inputType === 'month') {
-      newBodyWise = {
-        ...bodyWise,
-        "yearTo": split(data, '-')[0],
-        "monthTo": split(data, '-')[1],
-      };
-    } else {
-      newBodyWise = {
-        ...bodyWise,
-        dateString: `${startDate} to ${data}`,
-      };
-    }
-  
-    setEndDate(data);
-    setBodyWise(newBodyWise);
-    const count = inputType === 'month' ? getMonthDifference(startDate, data) : getDateDifference(startDate, data);
-    setDynamicWidth(200 * count);
-  
-    // Trigger API call by updating chartApiConfig
-    updateChartApiConfig(newBodyWise);
+    handleDateUpdate('to', data);
   };
 
   const updateChartApiConfig = (newBodyWise) => {
@@ -155,44 +107,19 @@ const ChartConfiguration = ({ configureChart }) => {
         {
           wise: "sales",
           endpoint: "/sales/graph/product-wise-area-bump",
-          body: newBodyWise, // Updated body based on the selected input type
+          body: newBodyWise
         },
       ],
     }));
   };
 
   const chartConfig = chartApiConfig[type];
-  const { endpoint, body } = chartConfig
-    ? chartConfig.find((config) => config.wise === wise)
-    : {};
-
-  console.log("chartConfig:", chartConfig);
-
-  const {
-    data: graphData,
-    isLoading,
-    isError,
-    error,
-    refetch
-  } = useDynamicNewQuery(
-    endpoint
-      ? {
-        endpoint,
-        body
-      }
-      : null,
-    { skip: !endpoint }
-  );
-
-  // Use effect to trigger API call when endDate changes
-  useEffect(() => {
-    if (endpoint && body) {
-      refetch();
-    }
-  }, [endDate, startDate, priceOrQty]); // Listen for changes to endDate or startDate
+  const { endpoint, body } = chartConfig ? chartConfig.find((config) => config.wise === wise) : {};
+  const { data: graphData, isLoading, isError, error } = useDynamicNewQuery(endpoint ? { endpoint, body } : null, { skip: !endpoint });
 
   useEffect(() => {
     let isMounted = false;
+
     if (graphData) {
       const processedData = graphData?.data.map((item) => {
         return {
@@ -219,6 +146,7 @@ const ChartConfiguration = ({ configureChart }) => {
 
   const ChartComponent = chartComponents[type];
   if (isLoading) return <Spinner />;
+
   if (isError) {
     return (
       <>
@@ -231,9 +159,10 @@ const ChartConfiguration = ({ configureChart }) => {
   }
 
   if (!ChartComponent) {
-    return <div>No valid chart type provided</div>;
+    return <Alert status="error">No valid chart type provided</Alert>;
   }
 
+  // handle preview button
   const handlePreviewBtn = () => {
     setPreviewLoading(true);
     setTimeout(() => {
@@ -241,6 +170,7 @@ const ChartConfiguration = ({ configureChart }) => {
     }, 500);
   };
 
+  // handle save button
   const handleSaveBtn = () => {
     const widgetIndex = currentWidgets.findIndex(
       (widget) => widget.type === type
@@ -282,7 +212,7 @@ const ChartConfiguration = ({ configureChart }) => {
         justifyContent="space-between"
         marginTop="10px"
       >
-        {/* show graph view */}
+        {/* graph view section */}
         <Box
           width={{
             base: "100%",
@@ -313,7 +243,7 @@ const ChartConfiguration = ({ configureChart }) => {
                 </Heading>
               </Box>
             </Box>
-            <Box sx={{ height: "300px", width: "100%", overflowX: "auto" }}>
+            <Box sx={{ height: "350px", width: "100%", overflowX: "auto" }}>
               <ChartComponent
                 liveData={chartDataApi}
                 startDate={startDate}
@@ -325,7 +255,7 @@ const ChartConfiguration = ({ configureChart }) => {
           </Box>
         </Box>
 
-        {/* show accordion */}
+        {/* accordion section */}
         <Box
           width={{
             base: "100%",
@@ -373,11 +303,12 @@ const ChartConfiguration = ({ configureChart }) => {
                 <Grid templateColumns="repeat(1, 1fr)" gap={6}>
                   <Stack spacing={3}>
                     <Text fontSize="sm" fontWeight="500">
-                      Period ({inputType} wise)
+                      Period (<span style={{ textTransform: "capitalize", fontWeight: "bold", color: "green" }}>{inputType}</span> Wise)
                     </Text>
                     <Select size="lg" value={inputType} onChange={(e) => handleInputType(e.target.value)}>
                       <option value="date">Day</option>
                       <option value="month">Month</option>
+                      <option value="year">Year</option>
                     </Select>
                   </Stack>
                 </Grid>
@@ -386,35 +317,49 @@ const ChartConfiguration = ({ configureChart }) => {
                     <Text fontSize="sm" fontWeight="500">
                       Quantity
                     </Text>
-                    <Select size="lg" value={priceOrQty} onChange={(e) => setPriceOrQty(e.target.value)}>
+                    <Select size="lg" value={priceOrQty} onChange={(e) => handlePriceOrQty(e.target.value)}>
                       <option value="qty">Qty</option>
                       <option value="price">Price</option>
                     </Select>
                   </Stack>
                 </Grid>
-                <Grid templateColumns="repeat(1, 1fr)" gap={6}>
-                  <Stack spacing={3} width={'90%'}>
-                    <Text fontSize="sm" fontWeight="500">
-                      Date Filter ({inputType} wise)
-                    </Text>
-                    <Box sx={{ display: 'flex' }}>
-                      <Stack spacing={4} width={320} bg={'yellow.300'} p={4}>
-                        <Text>From Date</Text>
-                        <input type={inputType} value={startDate} onChange={(e) => handleFromDate(e.target.value)} />
-                      </Stack>
-                      <Stack spacing={4} width={320} bg={'yellow.300'} p={4}>
-                        <Text>To Date</Text>
-                        <input type={inputType} value={endDate} onChange={(e) => handleToDate(e.target.value)} />
-                      </Stack>
-                    </Box>
-                  </Stack>
-                </Grid>
+                <Stack spacing={0} sx={{
+                  borderRadius: "6px",
+                  shadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+                  border: "1px solid rgba(0, 0, 0, 0.10)",
+                  mt: 4,
+                  p: 4
+                }}>
+                  <Text fontSize="sm" fontWeight="500">
+                    Date Filter (<span style={{ textTransform: "capitalize", fontWeight: "bold", color: "green" }}>{inputType}</span> Wise)
+                  </Text>
+                  <Grid templateColumns="repeat(2, 1fr)" gap={6}>
+                    <Stack spacing={0}>
+                      <Text fontSize="sm" fontWeight="500" >From Date</Text>
+                      <input style={{ border: "1px solid rgba(0, 0, 0, 0.10)", borderRadius: "6px", paddingLeft: 4, paddingRight: 4 }} type={inputType} value={startDate} onChange={(e) => handleFromDate(e.target.value)} />
+                    </Stack>
+                    <Stack spacing={0}>
+                      <Text fontSize="sm" fontWeight="500">To Date</Text>
+                      <input style={{ border: "1px solid rgba(0, 0, 0, 0.10)", borderRadius: "6px", paddingLeft: 4, paddingRight: 4 }} type={inputType} value={endDate} onChange={(e) => handleToDate(e.target.value)} />
+                    </Stack>
+                  </Grid>
+                  {/* <Grid templateColumns="repeat(2, 1fr)" gap={6}>
+                    <Stack spacing={0}>
+                      <Text fontSize="sm" fontWeight="500" >From Year</Text>
+                      <Calendar value={startDate} onChange={(e) => handleFromYear(e.target.value)} view="year" dateFormat="yy" />
+                    </Stack>
+                    <Stack spacing={0}>
+                      <Text fontSize="sm" fontWeight="500">To Year</Text>
+                      <Calendar value={endDate} onChange={(e) => handleToYear(e.target.value)} view="year" dateFormat="yy" />
+                    </Stack>
+                  </Grid> */}
+                </Stack>
               </Box>
             </AccordionTab>
           </Accordion>
         </Box>
       </Box>
-
+      {/* footer area */}
       <Divider my={6} />
       <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
         <Button

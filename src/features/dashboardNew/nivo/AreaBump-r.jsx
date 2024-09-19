@@ -1,20 +1,43 @@
 import React, { useEffect, useState } from "react";
 import { ResponsiveAreaBump } from "@nivo/bump";
 import { areaBumpData } from "../data/chartData";
-import { format, parse } from 'date-fns';
-import { getAllDates } from "../../../utils/graphs-utilitis";
+import { format, eachDayOfInterval, parseISO, eachMonthOfInterval, parse, startOfMonth, endOfMonth } from 'date-fns';
+import { split } from "lodash";
 
 const AreaBump = ({ liveData = [], startDate = "", endDate = "", dynamicWidth = 1200, inputType = "" }) => {
   const [data, setData] = useState([]);
+  // for day wise<<<<<<<<<<<<<<<<<<
+  const generateDateRange = (start, end) => {
+    const parsedStart = parseISO(start);
+    const parsedEnd = parseISO(end);
+    const dates = eachDayOfInterval({ start: parsedStart, end: parsedEnd });
+    return dates.map(date => format(date, 'yyyy-MM-dd'));
+  };
+  // >>>>>>>>>>>>>>>>>>>>>>>>>>
 
-  const allDates = getAllDates(inputType, startDate, endDate);
+  // for month wise<<<<<<<<<<<<<<<<<<<<
+  const startYear = (split(startDate, '-')[0] || '2024');
+  const startMonth = (split(startDate, '-')[1] || '01');
+  const endYear = (split(endDate, '-')[0] || '2024');
+  const endMonth = (split(endDate, '-')[1] || '12');
+
+  const allDates = inputType === "month" ? eachMonthOfInterval({
+    start: new Date(startYear, startMonth - 1),
+    end: new Date(endYear, endMonth - 1)
+  }) : generateDateRange(startDate, endDate);
+  // >>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
   useEffect(() => {
+    // Generate all dates within the given range    
     let maxCount = 0;
     const updatedData = liveData?.map((d, i) => {
-      const currentDates = d.data.map(item => item.x);
+      const currentDates = d.data.map(item => item.x); // Extract the current dates in the dataset
+      console.log({ currentDates })
+      // Find the maximum count of dates in the current data
       maxCount = Math.max(maxCount, currentDates.length);
+      console.log({ maxCount })
 
+      // Create placeholders for missing dates
       const monthPlaceholders = allDates
         .filter(date => !currentDates.includes(format(date, 'MM-yyyy')))
         .map(missingDate => ({
@@ -22,18 +45,11 @@ const AreaBump = ({ liveData = [], startDate = "", endDate = "", dynamicWidth = 
           y: 0
         }));
 
-      const yearPlaceholders = allDates
-        .filter(date => !currentDates.includes(format(date, 'yyyy')))
-        .map(missingDate => ({
-          x: format(missingDate, 'yyyy'),
-          y: 0
-        }));
-
       const dayPlaceholders = allDates
-        .filter(date => !currentDates.includes(date))
+        .filter(date => !currentDates.includes(date)) // Find dates not in the current data
         .map(missingDate => ({
           x: missingDate,
-          y: 0
+          y: 0 // Default y value for the missing dates
         }));
 
       // Combine the original data with the placeholders
@@ -43,8 +59,7 @@ const AreaBump = ({ liveData = [], startDate = "", endDate = "", dynamicWidth = 
           const dateA = parse(a.x, 'MM-yyyy', new Date());
           const dateB = parse(b.x, 'MM-yyyy', new Date());
           return dateA - dateB
-        }) : inputType === "year"
-          ? [...d.data, ...yearPlaceholders].sort((a, b) => parseInt(a.x) - parseInt(b.x)) : [...d.data, ...dayPlaceholders].sort((a, b) => new Date(a.x) - new Date(b.x))
+        }) : [...d.data, ...dayPlaceholders].sort((a, b) => new Date(a.x) - new Date(b.x))
       };
     });
 
@@ -55,8 +70,10 @@ const AreaBump = ({ liveData = [], startDate = "", endDate = "", dynamicWidth = 
     console.log('Updated Data in the useeffect 🍃:', updatedData);
     console.log('liveData in the useeffect 🍃:', liveData);
 
-  }, [startDate, endDate, dynamicWidth, liveData, inputType]);
+  }, [startDate, endDate, dynamicWidth, liveData]);
 
+  console.log('🫓', { liveData })
+  console.log('🫓', { data })
   return (
     <>
       {liveData.length > 0 ? (
