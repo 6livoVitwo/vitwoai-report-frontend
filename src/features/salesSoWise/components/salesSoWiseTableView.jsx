@@ -13,49 +13,80 @@ const SalesSoWiseTableView = () => {
   const toast = useToast();
 
   let filters = {
-    data: [
-      "customer.trade_name",
-      "customer.customer_code",
-      "salesOrder.so_number",
-      "invoice_no",
-      "invoice_date",
-      "SUM(due_amount)",
-      "SUM(salesPgi.salesDelivery.totalAmount)",
-      "SUM(salesPgi.totalAmount)",
-      "SUM(quotation.totalAmount)",
-      "SUM(salesOrder.totalAmount)",
-      "SUM(items.qty)",
-      "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
-      "SUM(all_total_amt)",
-      "SUM(items.totalTax)",
+    "data": [
+        "customer.trade_name",
+        "customer.customer_code",
+        "salesOrder.so_number",
+        "invoice_no",
+        "invoice_date",
+        "SUM(due_amount)",
+        "SUM(salesPgi.salesDelivery.totalAmount)",
+        "SUM(salesPgi.totalAmount)",
+        "SUM(quotation.totalAmount)",
+        "SUM(salesOrder.totalAmount)",
+        "SUM(items.qty)",
+        "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
+        "SUM(all_total_amt)",
+        "SUM(items.totalTax)"
     ],
-    groupBy: ["salesOrder.so_id"],
-    filter: [
-      {
-        column: "company_id",
-        operator: "equal",
-        type: "Integer",
-        value: 1,
-      },
-      {
-        column: "location_id",
-        operator: "equal",
-        type: "Integer",
-        value: 1,
-      },
-      {
-        column: "branch_id",
-        operator: "equal",
-        type: "Integer",
-        value: 1,
-      },
+    "groupBy": [
+        "salesOrder.so_id"
     ],
-    page: 0,
-    size: 20,
+    "filter": [
+        {
+            "column": "company_id",
+            "operator": "equal",
+            "type": "Integer",
+            "value": 1
+        },
+        {
+            "column": "location_id",
+            "operator": "equal",
+            "type": "Integer",
+            "value": 1
+        },
+        {
+            "column": "branch_id",
+            "operator": "equal",
+            "type": "Integer",
+            "value": 1
+        }
+      //   {
+      //     "column": "customer.trade_name",
+      //     "operator": "like",
+      //     "type": "string",
+      //     "value": "1"
+      // },
+      // {
+      //     "column": "customer.customer_code",
+      //     "operator": "like",
+      //     "type": "string",
+      //     "value": "1"
+      // },
+      //  {
+      //     "column": "salesOrder.so_number",
+      //     "operator": "like",
+      //     "type": "string",
+      //     "value": "1"
+      // },
+      //  {
+      //     "column": "invoice_no",
+      //     "operator": "like",
+      //     "type": "string",
+      //     "value": "1"
+      // },
+      //  {
+      //     "column": "invoice_date",
+      //     "operator": "like",
+      //     "type": "string",
+      //     "value": "1"
+      // }
+    ],
+    "page": 0,
+    "size": 20,
     "sortDir": "asc",
     "sortBy": "customer.trade_name"
-
-  };
+};
 
   const {
     data: sales,
@@ -102,7 +133,7 @@ const SalesSoWiseTableView = () => {
     "SD Total Amount": data["SUM(salesPgi.salesDelivery.totalAmount)"],
     "Base Price":
       data[
-      "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)"
+        "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)"
       ],
     "Invoice No": data["invoice_no"],
     "SO No": data["salesOrder.so_number"],
@@ -121,9 +152,9 @@ const SalesSoWiseTableView = () => {
         const flattenedInvoice = flattenObject(invoice);
         return invoice.items?.length
           ? invoice.items.map((item) => {
-            const flattenedItem = flattenObject(item, "item.");
-            return { ...flattenedInvoice, ...flattenedItem };
-          })
+              const flattenedItem = flattenObject(item, "item.");
+              return { ...flattenedInvoice, ...flattenedItem };
+            })
           : [flattenedInvoice];
       });
       setIndividualItems((prevItems) => [...prevItems, ...newItems]);
@@ -137,7 +168,8 @@ const SalesSoWiseTableView = () => {
         width="100%"
         display="flex"
         alignItems="center"
-        justifyContent="center">
+        justifyContent="center"
+      >
         <Spinner
           thickness="4px"
           speed="0.65s"
@@ -156,20 +188,20 @@ const SalesSoWiseTableView = () => {
         height="calc(100vh - 103px)"
         display="flex"
         alignItems="center"
-        justifyContent="center">
+        justifyContent="center"
+      >
         <Image src={NoDataFound} alt="No Data Available" />
       </Box>
     );
   }
-  if (sales?.
-    totalPages < page) {
+  if (sales?.totalPages < page) {
     toast({
-      title: 'No More Data',
-      description: 'You have reached the end of the list.',
-      status: 'warning',
+      title: "No More Data",
+      description: "You have reached the end of the list.",
+      status: "warning",
       isClosable: true,
       duration: 800, //(5000 ms = 5 seconds)
-    })
+    });
   }
   const newArray = individualItems.map((data, index) =>
     extractFields(data, index)
@@ -187,6 +219,7 @@ const SalesSoWiseTableView = () => {
           isFetching={isFetching}
           pageInfo={pageInfo}
           setSize={setSize}
+          filters={filters}
           alignment={{
             "SO Total Amount": "right",
             "SD Total Amount": "right",

@@ -37,51 +37,92 @@ import {
   PopoverContent,
   PopoverHeader,
   PopoverBody,
-  PopoverFooter,
   PopoverArrow,
   PopoverCloseButton,
-  PopoverAnchor,
-  background,
   Tooltip,
 } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChartSimple, faChartLine, faArrowDownShortWide, faArrowUpWideShort, faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import {
+  faChartSimple,
+  faChartLine,
+  faArrowDownShortWide,
+  faArrowUpWideShort,
+  faArrowRightArrowLeft,
+} from "@fortawesome/free-solid-svg-icons";
 import { saveAs } from "file-saver";
 import { faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { DownloadIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
-import { Calendar } from 'primereact/calendar';
-import { useGetSelectedColumnsQuery, useSaveSelectedColumnsMutation} from "../../apis/apiSlice";
+import { Calendar } from "primereact/calendar";
+import { useGetSelectedColumnsQuery } from "../slice/purchaseProductWiseApi";
+import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
+import { useGetGlobalsearchPurchaseQuery } from "../slice/purchaseProductWiseApi";
 
-
-const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  setSortColumn,  setSortOrder, }) => {
+const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
   const [selectedColumns, setSelectedColumns] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(" ");
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [inputValue, setInputValue] = useState("");
+  const { isOpen, onOpen, onClose, onApplyChanges } = useDisclosure();
   const [columnFilters, setColumnFilters] = useState({});
   const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
-  const { data: savedColumns, isLoading, isError } = useGetSelectedColumnsQuery(); // Fetch saved columns
-  const [saveColumns, { isLoading: isSaving }] = useSaveSelectedColumnsMutation(); // Mutation to save columns
-  const [filterCondition, setFilterCondition] = useState('');
-  const [filterValue, setFilterValue] = useState('');
+  const [filterCondition, setFilterCondition] = useState("");
+  const [filterValue, setFilterValue] = useState("");
   const [applyFilter, setApplyFilter] = useState(false);
   // Temporary states to hold user inputs before applying the filter
-  const [tempFilterCondition, setTempFilterCondition] = useState('');
-  const [tempFilterValue, setTempFilterValue] = useState('');
-  const [tempSearchQuery, setTempSearchQuery] = useState('');
+  const [tempFilterCondition, setTempFilterCondition] = useState("");
+  const [tempFilterValue, setTempFilterValue] = useState("");
+  const [tempSearchQuery, setTempSearchQuery] = useState("");
+  const [columns, setColumns] = useState([]);
+  const [originalData, setOriginalData] = useState([]);
+  const [sortColumn, setSortColumn] = useState();
+  const [sortOrder, setSortOrder] = useState();
+  const [currentPage, setCurrentPage] = useState(0); // Default page is 0
+  const [activeFilterColumn, setActiveFilterColumn] = useState(null);
+  const [filtersApplied, setFiltersApplied] = useState(false);
+  const [localFilters, setLocalFilters] = useState({ ...filters });
 
+  const handlePopoverClick = (column) => {
+    setActiveFilterColumn(column);
+  };
 
+  //...Advanced Filter API CALL...
+  const { data: productDataFilter } = useProductWisePurchaseQuery(
+    { filters: localFilters },
+    { skip: !filtersApplied }
+  );
+
+  //API Calling sorting
+  const { data: ProductData, refetch: refetchProduct } =
+    useProductWisePurchaseQuery({
+      filters: {
+        ...filters,
+        //  sortBy: sortColumn,
+        // sortDir: sortOrder,
+      },
+      page: currentPage,
+    });
+  // console.log("piyas ninja", ProductData);
+
+  //Api calling for selected columns
+  const { data: columnData } = useGetSelectedColumnsQuery();
+  // console.log("01010101", columnData);
+
+  // api calling from global search
+  const { data: searchData } = useGetGlobalsearchPurchaseQuery(filters, {
+    skip: !searchQuery,
+  });
+  // console.log("piyas3333333", searchData);
 
   const toast = useToast();
 
@@ -118,54 +159,44 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
     },
   ];
 
+  // Fetching columns data from API
+  useEffect(() => {
+    if (columns.length) {
+      // Initialize selected columns based on fetched data or some default logic
+      setSelectedColumns(columns.map((col) => col.field)); // Example initialization
+    }
+  }, [columns]);
+
   useEffect(() => {
     if (selectedReport) {
       navigate(`${selectedReport}`);
     }
   }, [selectedReport, navigate]);
 
-
   const handleReportChange = (e) => {
     const selectedValue = e.value;
     setSelectedReport(selectedValue);
   };
-  
-  //function for filter 
-  const handleTempFilterConditionChange = (e) => {
-    setTempFilterCondition(e.target.value);
-  };
-  
-  const handleTempFilterValueChange = (e) => {
-    setTempFilterValue(e.target.value);
-  };
-  
-  const handleTempSearchChange = (e) => {
-    setTempSearchQuery(e.target.value);
-  };
-  
-  const handleApplyFilter = (e) => {
-    setFilterCondition(tempFilterCondition);
-    setFilterValue(tempFilterValue);
-    setSearchQuery(tempSearchQuery);
-    
-    setApplyFilter(true); // Trigger filtering when the "Apply" button is clicked
-  }
 
   //sort asc desc
   const handleSort = (column) => {
-    if (sortColumn === column) {
-      // Toggle sort order
-      setSortOrder((prevOrder) => (prevOrder === 'asc' ? 'desc' : 'asc'));
-    } else {
-      // Set new column and default to ascending
-      setSortColumn(column);
-      setSortOrder('asc');
-    }
+    const newSortOrder =
+      sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
+    // Update sort state
+    setSortColumn(column);
+    setSortOrder(newSortOrder);
   };
-
-  
-  
-
+  // Trigger the API call when sortColumn or sortOrder changes
+  useEffect(() => {
+    refetchProduct({
+      filters: {
+        ...filters,
+        sortBy: sortColumn,
+        sortDir: sortOrder,
+      },
+      page: currentPage,
+    });
+  }, [sortColumn, sortOrder, refetchProduct]); // Ensure dependencies are correct
 
   const loadMoreData = async () => {
     if (!loading) {
@@ -181,34 +212,14 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
     }
   };
 
-  // useEffect(() => {
-  //   const initialColumns = getColumns(data)
-  //     .slice(0, 8)
-  //     .map((column) => column.field);
-  //   setDefaultColumns(initialColumns);
-  //   setSelectedColumns(initialColumns);
-  // }, [data]);
 
-  // const getColumns = useCallback((data) => {
-  //   if (!data || data.length === 0) {
-  //     return [];
-  //   }
-  //   const sampleItem = data[0];
-  //   return Object.keys(sampleItem).map((key) => ({
-  //     field: key,
-  //     header: key,
-  //   }));
-  // }, []);
   useEffect(() => {
-    if (!isLoading && !isError && savedColumns) {
-      setDefaultColumns(savedColumns);
-      setSelectedColumns(savedColumns);
-    } else {
-      const initialColumns = getColumns(data).slice(0, 8).map((column) => column.field);
-      setDefaultColumns(initialColumns);
-      setSelectedColumns(initialColumns);
-    }
-  }, [data, savedColumns, isLoading, isError]);
+    const initialColumns = getColumns(data)
+      .slice(0, 8)
+      .map((column) => column.field);
+    setDefaultColumns(initialColumns);
+    setSelectedColumns(initialColumns);
+  }, [data]);
 
   const getColumns = useCallback((data) => {
     if (!data || data.length === 0) {
@@ -221,8 +232,6 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
     }));
   }, []);
 
-
-
   const handleDragEnd = (result) => {
     if (!result.destination) {
       return;
@@ -233,6 +242,7 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
     setSelectedColumns(newColumnsOrder);
   };
 
+  // Handle column selection
   const toggleColumn = (columnName) => {
     setSelectedColumns((prevSelectedColumns) =>
       prevSelectedColumns.includes(columnName)
@@ -241,17 +251,35 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
     );
   };
 
-
+  // const handleSelectAllToggle = () => {
+  //   const allColumnFields = getColumns(data).map((column) => column.field);
+  //   if (selectAll) {
+  //     setSelectedColumns([]);
+  //   } else {
+  //     setSelectedColumns(allColumnFields);
+  //   }
+  //   setSelectAll((prevSelectAll) => !prevSelectAll);
+  // };
+  // Handle toggle of "Select All" checkbox
   const handleSelectAllToggle = () => {
-    const allColumnFields = getColumns(data).map((column) => column.field);
     if (selectAll) {
-      setSelectedColumns([]);
+      setSelectedColumns([]); // Deselect all columns
     } else {
-      setSelectedColumns(allColumnFields);
-    }
-    setSelectAll((prevSelectAll) => !prevSelectAll);
-  };
+      const allColumns = getColumns(data) // Select all columns
+        .concat(
+          columnData
+            ? Object.keys(columnData?.content[0] || {}).map((key) => ({
+                field: key,
+                header: key,
+              }))
+            : []
+        )
+        .map((column) => column.field);
 
+      setSelectedColumns(allColumns);
+    }
+    setSelectAll(!selectAll);
+  };
 
   const handleModalClose = () => {
     setSelectedColumns(defaultColumns);
@@ -267,28 +295,7 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
     });
   };
 
-  // const handleApplyChanges = async () => {
-  //   try {
-  //     await saveColumns(selectedColumns).unwrap();  // Save the selected columns to the API
-  //     toast({
-  //       title: "Columns saved successfully!",
-  //       status: "success",
-  //       isClosable: true,
-  //     });
-  //     onClose();
-  //   } catch (error) {
-  //     console.error("Failed to save columns:", error);
-  //     toast({
-  //       title: "Failed to save columns",
-  //       status: "error",
-  //       isClosable: true,
-  //     });
-  //   }
-  // };
-
-
-
-  const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
+  const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery), []);
 
   useEffect(() => {
     return () => {
@@ -297,37 +304,49 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
   }, [debouncedSearchQuery]);
 
   const handleSearchChange = (e) => {
-    debouncedSearchQuery(e.target.value);
-    setSearchQuery(e.target.value);
+    setInputValue(e.target.value);
   };
-
-
+  const handleSearchClick = () => {
+    debouncedSearchQuery(inputValue);
+  };
   const clearAllFilters = () => {
-    setColumnFilters({}); // Reset all filters
-    setSearchQuery('');   // Reset search query
-    setSortColumn('');    // Reset sort column
-    setSortOrder('asc');   // Reset sort order
-
+    setSearchQuery("");
+    setInputValue("");
+    setColumnFilters({});
+    setSortColumn("");
   };
-
   const filteredItems = useMemo(() => {
-    let filteredData = [...newArray]; // Copy the original data
+    // Combine newArray and columnData.content
+    let combinedData = [...newArray];
+    if (columnData && columnData.content.length > 0) {
+      combinedData = combinedData.concat(columnData.content);
+    }
+    let filteredData = [...combinedData]; // Copy the combined data
     // Apply column filters
     Object.keys(columnFilters).forEach((field) => {
       const filter = columnFilters[field];
-      if (filterCondition && filterValue) {
+      if (filter.condition && filter.value) {
         filteredData = filteredData.filter((item) => {
           const value = item[field];
-
-          switch (filterCondition) {
+          switch (filter.condition) {
             case "equal":
-              return String(value).toLowerCase() === String(filter.value).toLowerCase();
+              return (
+                String(value).toLowerCase() ===
+                String(filter.value).toLowerCase()
+              );
             case "notEqual":
-              return String(value).toLowerCase() !== String(filter.value).toLowerCase();
+              return (
+                String(value).toLowerCase() !==
+                String(filter.value).toLowerCase()
+              );
             case "like":
-              return String(value).toLowerCase().includes(String(filter.value).toLowerCase());
+              return String(value)
+                .toLowerCase()
+                .includes(String(filter.value).toLowerCase());
             case "notLike":
-              return !String(value).toLowerCase().includes(String(filter.value).toLowerCase());
+              return !String(value)
+                .toLowerCase()
+                .includes(String(filter.value).toLowerCase());
             case "greaterThan":
               return Number(value) > Number(filter.value);
             case "greaterThanOrEqual":
@@ -338,8 +357,10 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
               return Number(value) <= Number(filter.value);
             case "between":
               if (Array.isArray(filter.value) && filter.value.length === 2) {
-                return Number(value) >= Number(filter.value[0]) &&
-                  Number(value) <= Number(filter.value[1]);
+                return (
+                  Number(value) >= Number(filter.value[0]) &&
+                  Number(value) <= Number(filter.value[1])
+                );
               }
               return false;
             default:
@@ -349,36 +370,55 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
       }
     });
 
-    // Apply search query
+    // Apply global search filter (if searchQuery exists)
     if (searchQuery) {
       filteredData = filteredData.filter((item) => {
-        const values = Object.values(item);
-        return values.some((value) =>
+        return Object.values(item).some((value) =>
           String(value).toLowerCase().includes(searchQuery.toLowerCase())
         );
       });
     }
 
-    // // Apply sorting
-    // if (sortColumn) {
-    //   filteredData.sort((a, b) => {
-    //     if (a[sortColumn] < b[sortColumn]) return sortOrder === 'asc' ? -1 : 1;
-    //     if (a[sortColumn] > b[sortColumn]) return sortOrder === 'asc' ? 1 : -1;
-    //     return 0;
-    //   });
-    // }
+    // Apply sorting
+    if (sortColumn) {
+      filteredData.sort((a, b) => {
+        if (a[sortColumn] < b[sortColumn]) return sortOrder === "asc" ? -1 : 1;
+        if (a[sortColumn] > b[sortColumn]) return sortOrder === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+
+    // Filter data to only include selected columns
+    if (selectedColumns.length > 0) {
+      filteredData = filteredData.map((item) => {
+        const filteredItem = {};
+        selectedColumns.forEach((column) => {
+          filteredItem[column] = item[column];
+        });
+        return filteredItem;
+      });
+    }
 
     return filteredData;
-  }, [newArray, searchQuery, columnFilters, sortColumn, sortOrder, filterCondition, filterValue]);
+  }, [
+    data,
+    newArray,
+    columnData,
+    searchData,
+    searchQuery,
+    columnFilters,
+    sortColumn,
+    sortOrder,
+    filterCondition,
+    filterValue,
+    selectedColumns,
+  ]);
 
-  // Reset 'applyFilter' after filtering is applied
-  useEffect(() => {
-    if (applyFilter) {
-      setApplyFilter(false);
-    }
-  }, [applyFilter]);
-
-
+  // useEffect(() => {
+  //   if (applyFilter) {
+  //     setApplyFilter(false);
+  //   }
+  // }, [applyFilter]);
 
   const formatHeader = (header) => {
     header = header.trim();
@@ -401,54 +441,102 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
   const handleScroll = () => {
     const { scrollTop, scrollHeight, clientHeight } = tableContainerRef.current;
 
-    if (scrollTop + clientHeight >= scrollHeight - 5) {
+    if (scrollTop + clientHeight >= scrollHeight - 5 && !loading && !lastPage) {
       loadMoreData();
     }
   };
-
   useEffect(() => {
     const container = tableContainerRef.current;
     if (container) {
-      container.addEventListener("scroll", handleScroll);
-      handleScroll()
-      return () => container.removeEventListener("scroll", handleScroll);
+      const debouncedHandleScroll = debounce(handleScroll, 200);
+      container.addEventListener("scroll", debouncedHandleScroll);
+      return () =>
+        container.removeEventListener("scroll", debouncedHandleScroll);
     }
-  }, [loading, lastPage]);
+  }, [loading, lastPage, selectedColumns]);
 
-  const handleColumnFilterConditionChange = (field, condition) => {
-    condition = String(condition);
-    setColumnFilters((prevFilters) => ({
-      ...prevFilters,
-      [field]: {
-        ...prevFilters[field],
-        condition,
-      },
-    }));
+  //function for filter
+  const handleTempFilterConditionChange = (e) => {
+    const value = e?.target?.value; // Safely accessing e.target.value
+    if (value !== undefined) {
+      setTempFilterCondition(value);
+    } else {
+      console.error("Temp filter condition is undefined.");
+    }
+  };
+  const handleTempFilterValueChange = (e) => {
+    const value = e?.target?.value; // Safely accessing e.target.value
+    if (value !== undefined) {
+      setTempFilterValue(value);
+    } else {
+      console.error("Temp filter value is undefined.");
+    }
+  };
+  const handleApplyFiltersSUM = () => {
+    if (tempFilterCondition && tempFilterValue) {
+      setColumnFilters((prevFilters) => ({
+        ...prevFilters,
+        [activeFilterColumn]: {
+          condition: tempFilterCondition,
+          value: tempFilterValue,
+          column: activeFilterColumn,
+          type: typeof tempFilterValue === "number" ? "integer" : "string",
+        },
+      }));
+      setTempFilterCondition(null);
+      setTempFilterValue("");
+      setActiveFilterColumn(null);
+
+      // This will trigger the query
+      setFiltersApplied(true);
+    } else {
+      console.error("Filter condition or value missing");
+    }
   };
 
-  const handleColumnFilterValueChange = (field, value) => {
-    let type = typeof value;
-    if (type === "object" && value instanceof Date) {
-      type = "date";
-    } else if (type === "number") {
-      type = "integer";
+  const handleApplyFilters = () => {
+    if (tempFilterCondition && tempFilterValue && activeFilterColumn) {
+      // Create a new filter object
+      const newFilter = {
+        column: activeFilterColumn,
+        operator: tempFilterCondition,
+        type: typeof tempFilterValue === "number" ? "integer" : "string",
+        value: tempFilterValue,
+      };
+      // Update localFilters state
+      const updatedFilters = {
+        ...localFilters,
+        filter: [...localFilters.filter, newFilter],
+      };
+      setColumnFilters((prevFilters) => ({
+        ...prevFilters,
+        [activeFilterColumn]: {
+          condition: tempFilterCondition,
+          value: tempFilterValue,
+          column: activeFilterColumn,
+          type: typeof tempFilterValue === "number" ? "integer" : "string",
+        },
+      }));
+      console.log("Updated Filters:", updatedFilters); // Debugging line
+      // Update local filters state
+      setLocalFilters(updatedFilters);
+      setFiltersApplied(true);
+      // Clear temporary values
+      setTempFilterCondition(null);
+      setTempFilterValue("");
+      setActiveFilterColumn(null);
     } else {
-      type = "string";
+      console.error("Filter condition, value, or column is missing");
     }
+  };
 
-    if (type === "string" || type === "integer") {
-      value = value.trim();
+  const handleClick = () => {
+    if (activeFilterColumn) {
+      const columnType = activeFilterColumn; // Assuming activeFilterColumn holds the column type
+      columnType.includes("SUM(")
+        ? handleApplyFiltersSUM()
+        : handleApplyFilters();
     }
-
-    setColumnFilters((prevFilters) => ({
-      ...prevFilters,
-      [field]: {
-        ...prevFilters[field],
-        value,
-        column: field,
-        type,
-      },
-    }));
   };
 
   const exportToExcel = () => {
@@ -471,10 +559,10 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
     });
   };
 
-  console.log(data, 'data');
+  console.log(data, "data");
   // console.log(newArray, "newArray");
   // console.log(selectedColumns, "selectedColumns");
-  // console.log(filteredItems, "filteredItems");
+  // console.log("filteredItems010101",filteredItems);
 
   return (
     <Box bg="white" padding="0px 10px" borderRadius="5px">
@@ -490,19 +578,41 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
           "& input:placeholder": {
             color: "white",
           },
-        }}>
-        <Input
-          onChange={handleSearchChange}
-          width="20%"
-          height='36px'
-          padding="15px"
-          borderRadius="5px"
-          border='1px solid #d7dbdd '
-          placeholder="Search Global Data"
-          _hover={{
-            // border:'none'
-          }}
-        />
+        }}
+      >
+        <Box display="flex" alignItems="center" w="20%" position="relative">
+          <Input
+            onChange={handleSearchChange}
+            value={inputValue}
+            width="100%"
+            bg="#dedede"
+            padding="15px"
+            h="36px"
+            borderRadius="5px"
+            placeholder="Search Global Data"
+            pr="40px"
+            zIndex="1"
+          />
+          <button
+            onClick={handleSearchClick}
+            style={{
+              position: "absolute",
+              right: "10px", // Adjust the position as needed
+              top: "50%",
+              transform: "translateY(-50%)",
+              border: "none",
+              background: "transparent",
+              cursor: "pointer",
+              fontSize: "20px",
+              zIndex: "2",
+            }}
+          >
+            <i
+              className="pi pi-search"
+              style={{ fontSize: "2rem", opacity: "0.8" }}
+            ></i>
+          </button>
+        </Box>
         <Box
           display="flex"
           justifyContent="space-between"
@@ -516,22 +626,24 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
               borderRadius: "5px",
               outline: "none",
             },
-          }}>
-          <Tooltip label='Clear All'
-            hasArrow
-          >
+          }}
+        >
+          <Tooltip label="Clear All" hasArrow>
             <Button
               onClick={clearAllFilters}
-              borderRadius='5px'
-              w='40px'
-              h='40px'
-              bg='#d6eaf8'
+              borderRadius="5px"
+              w="40px"
+              h="40px"
+              bg="#d6eaf8"
               _hover={{
                 bg: "mainBlue",
                 color: "white",
               }}
             >
-              <i className="pi pi-filter-slash" style={{ fontSize: '1.5rem' }}></i>
+              <i
+                className="pi pi-filter-slash"
+                style={{ fontSize: "1.5rem" }}
+              ></i>
             </Button>
           </Tooltip>
 
@@ -544,18 +656,19 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
             optionLabel="label"
             placeholder="Select Sales Type"
             style={{
-              width: '200px',
+              width: "200px",
               // background: '#dedede',
-              border: '1px solid gray '
+              border: "1px solid gray ",
             }}
           />
           <Popover>
             <PopoverTrigger>
-              <Button rounded='full'
-                w='40px'
-                h='40px'
-                bg='none'
-                border='1px solid #1b4f72 '
+              <Button
+                rounded="full"
+                w="40px"
+                h="40px"
+                bg="none"
+                border="1px solid #1b4f72 "
                 _hover={{
                   bg: "mainBlue",
                   color: "white",
@@ -567,18 +680,33 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
             <PopoverContent>
               {/* <PopoverArrow /> */}
               <PopoverCloseButton />
-              <PopoverHeader display='flex' justifyContent='center' >
+              <PopoverHeader display="flex" justifyContent="center">
                 Select Groups
               </PopoverHeader>
               <PopoverBody>
-                <Box display='flex'
-                  flexDirection='column'
-                  justifyContent='space-around'
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  justifyContent="space-around"
                 >
-                  <Button rounded='9px' border='1px solid gray' w='100%' p='' m='2px' h='40px' >
+                  <Button
+                    rounded="9px"
+                    border="1px solid gray"
+                    w="100%"
+                    p=""
+                    m="2px"
+                    h="40px"
+                  >
                     Good Groups
                   </Button>
-                  <Button rounded='9px' border='1px solid gray' w='100%' p='' m='2px' h='40px' >
+                  <Button
+                    rounded="9px"
+                    border="1px solid gray"
+                    w="100%"
+                    p=""
+                    m="2px"
+                    h="40px"
+                  >
                     Good Items
                   </Button>
                 </Box>
@@ -586,14 +714,14 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
             </PopoverContent>
           </Popover>
           {/* Graph view  */}
-          <Tooltip label='Graph View' hasArrow>
+          <Tooltip label="Graph View" hasArrow>
             <Button
               aria-label="Graph View"
               borderRadius="30px"
               width="40px"
               height="40px"
-              bg='transparent'
-              border='1px solid gray'
+              bg="transparent"
+              border="1px solid gray"
               _hover={{
                 bg: "mainBlue",
                 color: "white",
@@ -603,41 +731,40 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
               }}
               _focus={{
                 boxShadow: "outline",
-              }}>
-              <FontAwesomeIcon icon={faChartLine} fontSize='20px' />
+              }}
+            >
+              <FontAwesomeIcon icon={faChartLine} fontSize="20px" />
             </Button>
           </Tooltip>
 
-          <Tooltip label='Select Columns to Show' hasArrow>
+          <Tooltip label="Select Columns to Show" hasArrow>
             <Button
               onClick={onOpen}
               padding="15px"
-              height='40px'
+              height="40px"
               color="mainBlue"
-              width='40px'
+              width="40px"
               borderRadius="30px"
               bg="transparent"
               border="1px solid gray"
               _hover={{
                 bg: "mainBlue",
-                color: "white"
-              }}>
-              <FontAwesomeIcon icon={faChartSimple}
-                fontSize='20px'
-              />
+                color: "white",
+              }}
+            >
+              <FontAwesomeIcon icon={faChartSimple} fontSize="20px" />
             </Button>
           </Tooltip>
 
           <Menu>
-            <Tooltip label='Export' hasArrow>
-
+            <Tooltip label="Export" hasArrow>
               <MenuButton
                 color="mainBlue"
-                height='40px'
-                width='40px'
+                height="40px"
+                width="40px"
                 padding="5px"
                 borderRadius="30px"
-                border='1px solid gray'
+                border="1px solid gray"
                 _hover={{
                   color: "white",
                   bg: "mainBlue",
@@ -648,8 +775,9 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
                     alignItems: "center",
                     justifyContent: "center",
                   },
-                }}>
-                <DownloadIcon fontSize='20px' />
+                }}
+              >
+                <DownloadIcon fontSize="20px" />
               </MenuButton>
             </Tooltip>
             <MenuList>
@@ -657,7 +785,8 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
                 onClick={exportToExcel}
                 fontSize="13px"
                 fontWeight="600"
-                height="35px">
+                height="35px"
+              >
                 <Box minW="25px">
                   <FontAwesomeIcon icon={faFileExcel} />
                 </Box>
@@ -667,7 +796,8 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
                 fontSize="13px"
                 fontWeight="600"
                 height="35px"
-                onClick={onOpenDownloadReportModal}>
+                onClick={onOpenDownloadReportModal}
+              >
                 <Box minW="25px">
                   <FontAwesomeIcon icon={faFileExcel} />
                 </Box>
@@ -677,7 +807,8 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
                 isCentered
                 size="xl"
                 isOpen={isOpenDownloadReportModal}
-                onClose={onCloseDownloadReportModal}>
+                onClose={onCloseDownloadReportModal}
+              >
                 <ModalOverlay />
                 <ModalContent>
                   <ModalHeader
@@ -685,7 +816,8 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
                     bg="mainBlue"
                     color="white"
                     fontSize="16px"
-                    padding="12px">
+                    padding="12px"
+                  >
                     Select Date Range
                   </ModalHeader>
                   <ModalCloseButton mt="5px" color="white" size="lg" />
@@ -703,32 +835,34 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
                           mr: "0px",
                           bg: "#dedede",
                         },
-                      }}>
+                      }}
+                    >
                       <Text fontWeight="600" mb="5px" fontSize="14px">
                         Select Your Date - Range
                       </Text>
-                      <Box display='flex'
-                        justifyContent='space-between'
-                        padding='5px'
-                        alignItems='center'
+                      <Box
+                        display="flex"
+                        justifyContent="space-between"
+                        padding="5px"
+                        alignItems="center"
                       >
                         <Calendar
                           value={startDate}
                           onChange={(e) => setStartDate(e.value)}
-                          placeholder='Start Date'
+                          placeholder="Start Date"
                           style={{
-                            width: '150px',
-                            padding: '5px',
+                            width: "150px",
+                            padding: "5px",
                           }}
                         />
                         <Text>to</Text>
                         <Calendar
                           value={endDate}
                           onChange={(e) => setEndDate(e.value)}
-                          placeholder='End Date'
+                          placeholder="End Date"
                           style={{
-                            width: '150px',
-                            padding: '5px',
+                            width: "150px",
+                            padding: "5px",
                           }}
                         />
                       </Box>
@@ -745,7 +879,8 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
                         bg: "var(--chakra-colors-mainBlue)",
                       }}
                       color="white"
-                      onClick={onCloseDownloadReportModal}>
+                      onClick={onCloseDownloadReportModal}
+                    >
                       Close
                     </Button>
                     <Button
@@ -765,14 +900,14 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
             </MenuList>
           </Menu>
 
-
           <Modal
             isOpen={isOpenFilterModal}
             onClose={onCloseFilterModal}
             size="xl"
-            isCentered>
+            isCentered
+          >
             <ModalOverlay />
-            <ModalContent minW="40%">
+            {/* <ModalContent minW="40%">
               <ModalHeader
                 fontWeight="600"
                 bg="mainBlue"
@@ -805,6 +940,7 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
                             value={columnFilters[column.field]?.condition || ""}
                             onChange={(e) =>
                               handleColumnFilterConditionChange(
+
                                 column.field,
                                 e.target.value
                               )
@@ -865,7 +1001,7 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
                   Filter
                 </Button>
               </ModalFooter>
-            </ModalContent>
+            </ModalContent> */}
           </Modal>
         </Box>
       </Box>
@@ -874,24 +1010,29 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
         className="table-tableContainerRef"
         overflowY="auto"
         height="calc(100vh - 195px)"
-        width="calc(100vw - 115px)">
+        width="calc(100vw - 115px)"
+      >
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="droppable" direction="horizontal">
             {(provided) => (
               <Table
                 {...provided.droppableProps}
                 ref={provided.innerRef}
-                variant="simple">
-                <Thead style={{
-                  position: 'sticky',
-                  top: 0,
-                }}>
+                variant="simple"
+              >
+                <Thead
+                  style={{
+                    position: "sticky",
+                    top: 0,
+                  }}
+                >
                   <Tr bg="#ffffff">
                     {selectedColumns.map((column, index) => (
                       <Draggable
                         key={column}
                         draggableId={column}
-                        index={index}>
+                        index={index}
+                      >
                         {(provided) => (
                           <Th
                             ref={provided.innerRef}
@@ -906,92 +1047,172 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
                           >
                             {formatHeader(column)}
 
+                            {/* A-Z Filter  */}
                             <Button
                               className="A_to_Z"
-                              bg='none'
-                              _hover={{
-                                bg: 'none'
-                              }}
+                              bg="none"
+                              _hover={{ bg: "none" }}
                               onClick={() => handleSort(column)}
                             >
-                              {sortColumn === column && sortOrder === 'asc' ? (
-                                <FontAwesomeIcon icon={faArrowDownShortWide} />
-                              ) : sortColumn === column && sortOrder === 'desc' ? (
-                                <FontAwesomeIcon icon={faArrowUpWideShort} />
+                              {sortColumn === column ? (
+                                sortOrder === "asc" ? (
+                                  <FontAwesomeIcon
+                                    icon={faArrowDownShortWide}
+                                  />
+                                ) : (
+                                  <FontAwesomeIcon icon={faArrowUpWideShort} />
+                                )
                               ) : (
-                                <FontAwesomeIcon icon={faArrowRightArrowLeft} rotation={90} fontSize='13px' />
+                                <FontAwesomeIcon
+                                  icon={faArrowRightArrowLeft}
+                                  rotation={90}
+                                  fontSize="13px"
+                                />
                               )}
                             </Button>
-
-                            <Popover >
+                            <Popover
+                              isOpen={activeFilterColumn === column}
+                              onClose={() => setActiveFilterColumn(null)}
+                            >
                               <PopoverTrigger>
                                 <Button
-                                  bg='transparent'
-                                  _hover={{
-                                    bg: 'none'
-                                  }}
+                                  bg="transparent"
+                                  onClick={() => handlePopoverClick(column)} // Set the clicked column as active
                                 >
-                                  <i className=" pi pi-filter" style={{ color: 'slateblue', fontSize: '1.3rem' }}></i>
+                                  {columnFilters[column] ? (
+                                    <i
+                                      className="pi pi-filter-slash"
+                                      style={{
+                                        color: "slateblue",
+                                        fontSize: "1.4rem",
+                                      }}
+                                    ></i>
+                                  ) : (
+                                    <i
+                                      className="pi pi-filter"
+                                      style={{
+                                        color: "slateblue",
+                                        fontSize: "1.4rem",
+                                      }}
+                                    ></i>
+                                  )}
                                 </Button>
                               </PopoverTrigger>
-                              <PopoverContent>
-                                <PopoverArrow />
-                                <PopoverCloseButton  fontSize='10px' />
-                                {/* <PopoverHeader>Confirmation!</PopoverHeader> */}
-                                <PopoverBody h='150px' >
-                                  <Select placeholder=' Filter With '
-                                    mt='25px' p='5px'
-                                    h='39px'
-                                    border='1px solid gray'
-                                    onChange={handleTempFilterConditionChange}
+                              {activeFilterColumn === column && (
+                                // .........Only show popover for the active column..........
+                                <PopoverContent w="120%">
+                                  <PopoverArrow />
+                                  <PopoverCloseButton size="lg" />
+                                  <PopoverBody h="auto" maxH="300px">
+                                    <Box>
+                                      <Box key={column} mb="12px">
+                                        <Text
+                                          color="var(--chakra-colors-textBlack)"
+                                          fontWeight="500"
+                                          fontSize="14px"
+                                          mt="10px"
+                                          mb="5px"
+                                        >
+                                          {formatHeader(column)}
+                                        </Text>
+                                        <Box
+                                          display="flex"
+                                          flexDirection="column"
+                                          gap="10px"
+                                        >
+                                          <Select
+                                            placeholder="Select condition"
+                                            size="sm"
+                                            fontSize="12px"
+                                            h="35px"
+                                            onChange={
+                                              handleTempFilterConditionChange
+                                            }
+                                          >
+                                            <option value="equal">Equal</option>
+                                            <option value="notEqual">
+                                              Not Equal
+                                            </option>
+                                            <option value="like">Like</option>
+                                            <option value="notLike">
+                                              Not Like
+                                            </option>
+                                            <option value="greaterThan">
+                                              Greater Than
+                                            </option>
+                                            <option value="greaterThanOrEqual">
+                                              Greater Than or Equal
+                                            </option>
+                                            <option value="lessThan">
+                                              Less Than
+                                            </option>
+                                            <option value="lessThanOrEqual">
+                                              Less Than or Equal
+                                            </option>
+                                            <option value="between">
+                                              Between
+                                            </option>
+                                          </Select>
+                                          <Input
+                                            h="35px"
+                                            fontSize="12px"
+                                            padding="6px"
+                                            onChange={
+                                              handleTempFilterValueChange
+                                            }
+                                            placeholder={`Filter ${column}`}
+                                            value={tempFilterValue}
+                                            type={
+                                              tempFilterCondition === "between"
+                                                ? "string"
+                                                : "integer"
+                                            }
+                                          />
+                                          {tempFilterCondition ===
+                                            "between" && (
+                                            <>
+                                              <Input
+                                                className="Between"
+                                                h="35px"
+                                                fontSize="12px"
+                                                padding="6px"
+                                                onChange={
+                                                  handleTempFilterValueChange
+                                                }
+                                                placeholder={`Filter ${column}`}
+                                              />
+                                            </>
+                                          )}
+                                        </Box>
+                                      </Box>
+                                    </Box>
+                                  </PopoverBody>
+                                  <Box
+                                    display="flex"
+                                    justifyContent="flex-end"
+                                    width="90%"
+                                    ml="8px"
+                                    mb="10px"
                                   >
-                                    <option value='equal'>Equal</option>
-                                    <option value='notEqual'>NotEqual</option>
-                                    <option value='like'>Like</option>
-                                    <option value='notLike'>NotLike</option>
-                                    <option value='greaterThan'>GraterThan</option>
-                                    <option value='greaterThanOrEqual'>GraterThanOrEqual</option>
-                                    <option value='lessThan'>LessThan</option>
-                                    <option value='lessThanOrEqual'>LessThanOrEqual</option>
-                                    <option value='between'>Between</option>
-                                  </Select>
-                                  <Input placeholder='Search By Name'
-                                    mt='8px'
-                                    p='6px'
-                                    ml='5px'
-                                    w='174px'
-                                    h='39px'
-                                    border='1px solid gray'
-                                    onChange={handleTempSearchChange}
-                                  />
-                                </PopoverBody>
-                                
-                                <Box display='flex'
-                                  justifyContent='flex-end'
-                                  width='90%'
-                                  ml='8px'
-                                  mb='10px'
-
-                                >
-                                  <Button
-                                    onClick={handleApplyFilter}
-                                    bg='mainBlue'
-                                    width="58px"
-                                    color="white"
-                                    mb="5px"
-                                    outline='none'
-                                    _hover={{
-                                      color: "white",
-                                      bg: "mainBlue",
-                                    }}
-                                  >
-                                    Apply
-                                  </Button>
-
-                                </Box>
-                              </PopoverContent>
+                                    <Button
+                                      bg="mainBlue"
+                                      width="58px"
+                                      color="white"
+                                      mb="5px"
+                                      outline="none"
+                                      _hover={{
+                                        color: "white",
+                                        bg: "mainBlue",
+                                      }}
+                                      // onClick={handleApplyFilters}
+                                      onClick={handleClick}
+                                    >
+                                      Apply
+                                    </Button>
+                                  </Box>
+                                </PopoverContent>
+                              )}
                             </Popover>
-
                           </Th>
                         )}
                       </Draggable>
@@ -1006,7 +1227,8 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
                           <Td
                             key={colIndex}
                             padding="10px"
-                            style={getColumnStyle(column)}>
+                            style={getColumnStyle(column)}
+                          >
                             <Text
                               fontSize="13px"
                               whiteSpace="nowrap"
@@ -1014,12 +1236,19 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
                                 column === "description"
                                   ? "300px"
                                   : column === "name"
-                                    ? "200px"
-                                    : "100px"
+                                  ? "200px"
+                                  : "100px"
                               }
                               overflow="hidden"
-                              textOverflow="ellipsis">
-                              {item[column]}
+                              textOverflow="ellipsis"
+                            >
+                              {/* {item[column]} */}
+                              {typeof item[column] === "object" &&
+                              item[column] !== null
+                                ? item[column].listName || item[column].index // or JSON.stringify(item[column]) if simple
+                                : item[column] !== undefined
+                                ? item[column]
+                                : "-"}
                             </Text>
                           </Td>
                         ))}
@@ -1041,13 +1270,14 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
 
       <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered>
         <ModalOverlay />
-        <ModalContent minW="30%">
+        <ModalContent minW="40%">
           <ModalHeader
             fontWeight="600"
             bg="mainBlue"
             color="white"
             fontSize="16px"
-            padding="12px">
+            padding="12px"
+          >
             Select Columns to Show
           </ModalHeader>
           <ModalCloseButton mt="5px" color="white" size="lg" />
@@ -1058,12 +1288,13 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
                 onChange={handleSelectAllToggle}
                 mb={4}
                 size="lg"
-                fontWeight="600">
+                fontWeight="600"
+              >
                 Select All
               </Checkbox>
             </Box>
             <Box
-              // height="60vh"
+              height="60vh"
               overflowY="scroll"
               overflowX="hidden"
               display="flex"
@@ -1073,10 +1304,54 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
                 "& .columnCheckBox:nth-of-type(odd)": {
                   bg: "borderGrayLight",
                 },
-              }}>
-              {getColumns(data).map((column) => {
-                const formattedHeader = formatHeader(column.field);
+              }}
+            >
+              {(getColumns(data) || [])
+                .concat(
+                  columnData
+                    ? Object.keys(columnData?.content[0] || {}).map((key) => ({
+                        field: key,
+                        header: key,
+                      }))
+                    : []
+                )
+                .map((column, index) => {
+                  const formattedHeader = formatHeader(
+                    column.field || column.header
+                  );
+                  return (
+                    <Box
+                      key={column.field || index}
+                      className="columnCheckBox"
+                      padding="5px"
+                      bg="rgba(231,231,231,1)"
+                      borderRadius="5px"
+                      width="48%"
+                    >
+                      <Checkbox
+                        size="lg"
+                        display="flex"
+                        padding="5px"
+                        borderColor="mainBluemedium"
+                        defaultChecked={selectedColumns.includes(column.field)}
+                        isChecked={selectedColumns.includes(column.field)}
+                        onChange={() => toggleColumn(column.field)}
+                      >
+                        <Text
+                          fontWeight="500"
+                          ml="10px"
+                          fontSize="12px"
+                          color="textBlackDeep"
+                        >
+                          {formattedHeader}
+                        </Text>
+                      </Checkbox>
+                    </Box>
+                  );
+                })}
 
+              {/* {getColumns(data).map((column) => {
+                const formattedHeader = formatHeader(column.field);
                 return (
                   <Box
                     key={column.field}
@@ -1093,7 +1368,8 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
                       key={column.field}
                       defaultChecked={selectedColumns.includes(column.field)}
                       isChecked={selectedColumns.includes(column.field)}
-                      onChange={() => toggleColumn(column.field)}>
+                      onChange={() => toggleColumn(column.field)}
+                    >
                       <Text
                         fontWeight="500"
                         ml="10px"
@@ -1104,7 +1380,38 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
                     </Checkbox>
                   </Box>
                 );
-              })}
+              })} */}
+              {/* imran59059 */}
+              {/* { columnData &&
+                Object.keys(columnData?.content[0]).map((key, indx) => {
+                  return <Box
+                    key={indx}
+                    className="columnCheckBox"
+                    padding="5px"
+                    bg="rgba(231,231,231,1)"
+                    borderRadius="5px"
+                    width="48%">
+                    <Checkbox
+                      size="lg"
+                      display="flex"
+                      padding="5px"
+                      borderColor="mainBluemedium"
+                      key={key}
+                      defaultChecked={key}
+                      isChecked={key}
+                      onChange={() => toggleColumn(key)}
+                    >
+                      <Text
+                        fontWeight="500"
+                        ml="10px"
+                        fontSize="12px"
+                        color="textBlackDeep">
+                        {key}
+                      </Text>
+                    </Checkbox>
+                  </Box>
+                })
+              } */}
             </Box>
           </ModalBody>
           <ModalFooter>
@@ -1117,7 +1424,8 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
               _hover={{
                 bg: "var(--chakra-colors-mainBlue)",
               }}
-              onClick={handleModalClose}>
+              onClick={handleModalClose}
+            >
               Cancel
             </Button>
             <Button
@@ -1128,7 +1436,8 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
                 bg: "var(--chakra-colors-mainBlue)",
               }}
               color="white"
-              onClick={handleApplyChanges}>
+              onClick={handleApplyChanges}
+            >
               Apply Changes
             </Button>
           </ModalFooter>

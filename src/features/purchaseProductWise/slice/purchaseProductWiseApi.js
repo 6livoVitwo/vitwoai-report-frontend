@@ -15,7 +15,27 @@ export const purchaseProductWiseApi = apiSlice.injectEndpoints({
         };
       },
     }),
+    // Query to get selected columns
+    getSelectedColumns: builder.query({
+      query: () => "/purchase/drop-down-data/product",
+    }),
+
+    // Query to get global search
+    getGlobalsearchPurchase:builder.query({
+      query:(body) => {
+        return {
+          url: "/purchase/global-search/product",
+          method: "POST",
+          body: JSON.stringify(body),
+        };
+      },
+    }),
+    
   }),
 });
 
-export const { useProductWisePurchaseQuery } = purchaseProductWiseApi;
+export const {
+  useProductWisePurchaseQuery,
+  useGetSelectedColumnsQuery,
+  useGetGlobalsearchPurchaseQuery
+} = purchaseProductWiseApi;

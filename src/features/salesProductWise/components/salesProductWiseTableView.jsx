@@ -3,7 +3,45 @@ import CustomTable from "./salesProductWiseCustomTable";
 import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
-import { useProductWiseSalesQuery } from "../slice/salesProductWiseApi";
+import { useProductWiseSalesQuery} from "../slice/salesProductWiseApi";
+let filters = {
+  data: [
+    "items.itemName",
+    "SUM(salesPgi.salesDelivery.totalAmount)",
+    "SUM(salesPgi.totalAmount)",
+    "SUM(quotation.totalAmount)",
+    "SUM(salesOrder.totalAmount)",
+    "SUM(items.qty)",
+    "SUM(items.basePrice - items.totalDiscountAmt)",
+    "SUM(all_total_amt)",
+    "invoice_date",
+  ],
+  groupBy: ["items.itemName"],
+  filter: [
+    // {
+    //   column: "company_id",
+    //   operator: "equal",
+    //   type: "integer",
+    //   value: 1,
+    // },
+    // {
+    //   column: "branch_id",
+    //   operator: "equal",
+    //   type: "integer",
+    //   value: 1,
+    // },
+    // {
+    //   column: "location_id",
+    //   operator: "equal",
+    //   type: "integer",
+    //   value: 1,
+    // },
+  ],
+  page: 0,
+  size: 20,
+  "sortDir": "asc",
+  "sortBy": "items.itemName"
+};
 
 const SalesProductWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
@@ -12,62 +50,6 @@ const SalesProductWiseTableView = () => {
   const [individualItems, setIndividualItems] = useState([]);
   const toast = useToast();
 
-  let filters = {
-    data: [
-      "items.itemName",
-      "SUM(salesPgi.salesDelivery.totalAmount)",
-      "SUM(salesPgi.totalAmount)",
-      "SUM(quotation.totalAmount)",
-      "SUM(salesOrder.totalAmount)",
-      "SUM(items.qty)",
-      "SUM(items.basePrice - items.totalDiscountAmt)",
-      "SUM(all_total_amt)",
-      "invoice_date",
-    ],
-    groupBy: ["items.itemName"],
-    filter: [
-      {
-        column: "company_id",
-        operator: "equal",
-        type: "integer",
-        value: 1,
-      },
-      {
-        column: "branch_id",
-        operator: "equal",
-        type: "integer",
-        value: 1,
-      },
-      {
-        column: "location_id",
-        operator: "equal",
-        type: "integer",
-        value: 1,
-      },
-      {
-        column: "invoice_date",
-        operator: "between",
-        type: "date",
-        value: ["2023-10-15", "2023-10-16"],
-      },
-      {
-        column: "invoice_no",
-        operator: "like",
-        type: "string",
-        value: "INV-0000000010",
-      },
-      {
-        column: "customer.trade_name",
-        operator: "like",
-        type: "string",
-        value: "Mindtree",
-      },
-    ],
-    page: 0,
-    size: 20,
-    "sortDir": "asc",
-    "sortBy": "salesPgi.totalAmount"
-  };
   const {
     data: sales,
     isLoading,
@@ -197,6 +179,7 @@ const SalesProductWiseTableView = () => {
           isFetching={isFetching}
           pageInfo={pageInfo}
           setSize={setSize}
+          filters={filters}
           alignment={{
             "Sales Delivery Total Amount": "right",
             "Sales Pgi Total Amount": "right",

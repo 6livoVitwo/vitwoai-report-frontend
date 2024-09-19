@@ -39,24 +39,24 @@ const SalesVerticalWiseTableView = () => {
     ],
     groupBy: ["companyFunction.functionalities_name"],
     filter: [
-      {
-        column: "company_id",
-        operator: "equal",
-        type: "Integer",
-        value: 1,
-      },
-      {
-        column: "location_id",
-        operator: "equal",
-        type: "Integer",
-        value: 1,
-      },
-      {
-        column: "branch_id",
-        operator: "equal",
-        type: "Integer",
-        value: 1,
-      },
+      // {
+      //   column: "company_id",
+      //   operator: "equal",
+      //   type: "Integer",
+      //   value: 1,
+      // },
+      // {
+      //   column: "location_id",
+      //   operator: "equal",
+      //   type: "Integer",
+      //   value: 1,
+      // },
+      // {
+      //   column: "branch_id",
+      //   operator: "equal",
+      //   type: "Integer",
+      //   value: 1,
+      // },
     ],
     page: 0,
     size: 20,
@@ -177,6 +177,7 @@ const SalesVerticalWiseTableView = () => {
           isFetching={isFetching}
           pageInfo={pageInfo}
           setSize={setSize}
+          filters={filters}
           alignment={{
             "Sales Delivery Total Amount": "right",
             "Sales Pgi Total Amount": "right",

@@ -8,14 +8,33 @@ export const salesSoWiseApi = apiSlice.injectEndpoints({
         return {
           url: `sales/sales-groupby-data`,
           method: "POST",
-          body,
-          headers: {
-            "Content-Type": "application/json",
-          },
+          body
+        };
+      },
+    }),
+    // Query to get selected columns
+    getSelectedColumnsSo: builder.query({
+      query: () => "/sales/drop-down-data/so",
+    }),
+
+    // Query to get global search
+    getGlobalsearch: builder.query({
+      query: (body) => {
+        // console.log("imran body", body);
+        // console.log("json body");
+        // console.log(JSON.stringify(body));
+        return {
+          url: "/sales/global-search/so",
+          method: "POST",
+          body: JSON.stringify(body)
         };
       },
     }),
   }),
 });
 
-export const { useSoWiseSalesQuery } = salesSoWiseApi;
+export const {
+  useSoWiseSalesQuery,
+  useGetSelectedColumnsSoQuery,
+  useGetGlobalsearchQuery,
+} = salesSoWiseApi;

@@ -33,27 +33,29 @@ const PurchaseProductWiseTableView = () => {
     ],
     groupBy: ["grnInvoice.grnPoNumber"],
     filter: [
-      {
-        column: "companyId",
-        operator: "equal",
-        type: "integer",
-        value: 1,
-      },
-      {
-        column: "branchId",
-        operator: "equal",
-        type: "integer",
-        value: 1,
-      },
-      {
-        column: "locationId",
-        operator: "equal",
-        type: "integer",
-        value: 1,
-      },
+      // {
+      //   column: "companyId",
+      //   operator: "equal",
+      //   type: "integer",
+      //   value: 1,
+      // },
+      // {
+      //   column: "branchId",
+      //   operator: "equal",
+      //   type: "integer",
+      //   value: 1,
+      // },
+      // {
+      //   column: "locationId",
+      //   operator: "equal",
+      //   type: "integer",
+      //   value: 1,
+      // },
     ],
     page: 0,
     size: 20,
+    sortDir: "asc",
+    sortBy: "grnInvoice.grnPoNumber",
   };
   const {
     data: sales,
@@ -173,6 +175,7 @@ const PurchaseProductWiseTableView = () => {
           isFetching={isFetching}
           pageInfo={pageInfo}
           setSize={setSize}
+          filters={filters}
           alignment={{
             "Total Quantity": "right",
             "Received Quantity": "right",

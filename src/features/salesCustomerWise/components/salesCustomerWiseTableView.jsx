@@ -188,6 +188,7 @@ const SalesCustomerWiseTableView = () => {
 					isFetching={isFetching}
 					pageInfo={pageInfo}
 					setSize={setSize}
+					filters={filters}
 					alignment={{
 						IGST: 'right',
 						SGST: 'right',
