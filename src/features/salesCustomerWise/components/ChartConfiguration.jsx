@@ -33,6 +33,12 @@ const chartComponents = {
   line: LineChart,
 };
 
+const graphDescriptions = {
+  bar: "The bar chart can display multiple data series, either stacked or side by side.It supports both vertical and horizontal layouts, allowing negative values to descend below the x-axis (or y-axis for horizontal layouts). The bar item component is customizable, capable of rendering any valid SVG element. It receives the current bar style, data, and event handlers. For responsive designs use the ResponsiveBar component. This feature is part of the @nivo/api, so you can explore samples or try it with the API client. Remember, when setting up legends, each configuration requires an additional property: dataFrom, which defines how to compute legend data.",
+  pie: "The Pie Graph component generates a pie chart from an array of data, where each datum must include both an id and a value property. Keep in mind that the margin object does not account for radial labels, so it’s important to adjust the margins to provide sufficient space for them. For responsive designs, you can use the ResponsivePie alternative.",
+  line: "This line chart supports stacking capabilities. It takes an array of data series, each with an id and a nested array of points (containing x and y properties), to compute the line for each series. Any datum with a null x or y value will be treated as a gap, resulting in skipped segments of the corresponding line.",
+};
+
 const ChartConfiguration = ({ configureChart }) => {
   console.log("Props:", configureChart);
 
@@ -47,6 +53,9 @@ const ChartConfiguration = ({ configureChart }) => {
   const [wise, setwise] = useState("sales");
   const [valuetype, setValuetype] = useState("count");
   const [previewLoading, setPreviewLoading] = useState(false);
+  const [currentDescription, setCurrentDescription] = useState(
+    graphDescriptions[type]
+  );
   const dispatch = useDispatch();
   const currentWidgets = useSelector((state) => state.salescustomer.widgets);
 
@@ -207,10 +216,28 @@ const ChartConfiguration = ({ configureChart }) => {
       : null
   );
 
+//  useEffect(() => {
+//    if (graphData && graphData.length > 0) {
+//      setCurrentDescription(
+//        graphData[0].description || graphDescriptions[type] 
+//      );
+//    }
+//  }, [graphData]);
+
+//  const handleGraphPointClick = (index) => {
+//    if (graphData && graphData[index]) {
+//      console.log("Clicked Data Point:", graphData[index]);
+//      setCurrentDescription(
+//        graphData[index].description || "No description available"
+//      );
+//    }
+//  };
+
   useEffect(() => {
     console.log("Selected Config:", selectedConfig);
     if (graphData) {
       console.log("Graph Data:", graphData);
+      console.log("Current Description:", currentDescription);
       setChartDataApi(graphData?.content);
     }
   }, [graphData]);
@@ -294,7 +321,6 @@ const ChartConfiguration = ({ configureChart }) => {
       })),
     }));
   };
-
 
   const handlePreviewBtn = (form, to) => {
     setPreviewLoading(true);
@@ -409,7 +435,10 @@ const ChartConfiguration = ({ configureChart }) => {
               </Box>
             </Box>
             <Box sx={{ height: "300px" }}>
-              <ChartComponent liveData={chartDataApi} />
+              <ChartComponent
+                liveData={chartDataApi}
+                // onPointClick={handleGraphPointClick}
+              />
             </Box>
           </Box>
         </Box>
@@ -440,7 +469,7 @@ const ChartConfiguration = ({ configureChart }) => {
                   <Heading mt={4} mb={4}>
                     Graph Info
                   </Heading>
-                  <TypingMaster />
+                  <TypingMaster text={currentDescription} />
                 </Box>
               </Box>
             </AccordionTab>

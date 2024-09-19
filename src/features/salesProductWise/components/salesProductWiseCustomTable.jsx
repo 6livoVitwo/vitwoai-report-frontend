@@ -1070,7 +1070,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                   );
                 })}
             </Box>
-            {/* //sales-customer-wise graph settings */}
+            {/* //sales-product-wise graph settings */}
             <Drawer
               isOpen={isOpenGraphSettingDrawer}
               placement="right"
