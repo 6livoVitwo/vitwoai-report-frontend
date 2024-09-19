@@ -1,9 +1,10 @@
-import { Box, Button, Divider, Image, Text } from "@chakra-ui/react";
+import { Box, Text } from "@chakra-ui/react";
 import React from "react";
 import { Link } from "react-router-dom";
 // import { AiOutlineHeart } from "react-icons/ai";
 // import { FaArrowRightLong } from "react-icons/fa6";
 import { FaRegBookmark } from "react-icons/fa";
+import Lottie from "lottie-react";
 
 const ReportsCards = ({ cards, setFavoriteCard }) => {
   const handleLike = (cardName) => {
@@ -11,9 +12,14 @@ const ReportsCards = ({ cards, setFavoriteCard }) => {
     setFavoriteCard(cardName);
   };
 
+
+
   return (
     <>
       {cards.map((card) => {
+        const isLottieAnimation =
+          typeof card.imgsrc === "object" && card.imgsrc !== null;
+
         return (
           <Box
             key={card.id}
@@ -66,12 +72,19 @@ const ReportsCards = ({ cards, setFavoriteCard }) => {
                   justifyContent="center"
                   alignContent="center"
                   display="flex">
-                  <Image
-                    src="https://i.pinimg.com/originals/65/c4/f4/65c4f452571be1261e9c623f7da488ac.gif"
-                    width="45%"
-                    marginTop="10px"
-                    marginBottom="10px"
-                  />
+                  {isLottieAnimation ? (
+                    <Lottie
+                      animationData={card.imgsrc}
+                      loop
+                      style={{
+                        width: "45%",
+                        marginTop: "10px",
+                        marginBottom: "10px",
+                      }}
+                    />
+                  ) : (
+                    <Text>No animation available</Text>
+                  )}
                 </Box>
 
                 <Text

@@ -1,30 +1,12 @@
 import React, { useState } from 'react';
 import { Box, Heading, Flex, Button } from '@chakra-ui/react';
 import ReportsCards from '../dashboard/components/ReportsCards';
-import TransactionalDayBookImage from '../../asset/images/Transactional-Day-Book.png';
-import BalanceSheet from '../../asset/images/google-sheets.png';
-import ProfitLoss from '../../asset/images/profit&loss.png';
-import TrialBalance from '../../asset/images/trial-balance.png';
-import Receivable from '../../asset/images/receivable.png';
-import Payable from '../../asset/images/payable.png';
-import InventoryAgeingIssue from '../../asset/images/Inventory-Ageing(IssueDate).png';
-import InventoryAgeingReceived from '../../asset/images/Inventory-Ageing (ReceivedDate).png';
 import ProductWise from '../../asset/images/products-wise.png';
 import VendorWise from '../../asset/images/vendor-wise.png';
 import PoWise from '../../asset/images/po-wise.png';
-import ProductionOrder from '../../asset/images/product-order.png';
-import ProductionOrderTracking from '../../asset/images/product-order-tracking.png';
-import TdsSectionWise from '../../asset/images/section-wise.png';
-import TdsVendorWise from '../../asset/images/tds-vendor-wise.png';
-import TdsReturn from '../../asset/images/tds-return.png';
-import ExceptionReport from '../../asset/images/exception-reports.png';
-import InventorystockReport from '../../asset/images/stock-report.png';
-import InventoryStocklog from '../../asset/images/stock-log.png';
-import SpentAnalysis from '../../asset/images/spent-analysis.png';
-import SalesproductWise from '../../asset/images/sales-product-wise.png';
-import SalesCustomerWise from '../../asset/images/sales-customer-wise.png';
 import SalesVerticalWise from '../../asset/images/sales-vertical-wise.png';
 import SalesSoWise from '../../asset/images/sales-so-wise.png';
+import loadingImg from '../../asset/imgs/Loading.json';
 
 const Allreports = () => {
 	const cardsData = [
@@ -58,13 +40,13 @@ const Allreports = () => {
           id: "21",
           name: "Product Wise",
           link: "/reports/sales-product-wise/table-view",
-          imgsrc: SalesproductWise,
+          imgsrc: loadingImg,
         },
         {
           id: "22",
           name: "Customer Wise",
           link: "/reports/sales-customer-wise/table-view",
-          imgsrc: SalesCustomerWise,
+          //   imgsrc: assets.todolist_img,
         },
         {
           id: "23",

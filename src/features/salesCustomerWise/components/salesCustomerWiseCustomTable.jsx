@@ -145,7 +145,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     onClose: onCloseGraphDetailsView,
   } = useDisclosure();
 
-  const btnRef = React.useRef();
+      const btnRef = React.useRef();
+
 
   const getColumnStyle = (header) => ({
     textAlign: alignment[header] || "left",
@@ -1075,17 +1076,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
         </DragDropContext>
       </TableContainer>
 
-      {/* //main Drawer */}
+      {/* Main body drawer */}
       <Drawer
         isOpen={isOpenGraphAddDrawer}
         placement="right"
         onClose={onCloseGraphAddDrawer}
-        finalFocusRef={btnRef}
-      >
+        finalFocusRef={btnRef}>
         <DrawerOverlay />
-        <DrawerContent
-          maxW="88vw"
-        >
+        <DrawerContent maxW="88vw">
           <DrawerCloseButton style={{ color: "white" }} />
           <DrawerHeader
             style={{
@@ -1117,6 +1115,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
             >
               <Text fontWeight="bold">Sales Wise Graph View</Text>
               <Button
+                ref={btnRef}
                 type="button"
                 variant="outlined"
                 onClick={onOpenGraphSettingDrawer}
@@ -1242,30 +1241,25 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                   );
                 })}
             </Box>
-
             {/* //sales-customer-wise graph settings */}
             <Drawer
               isOpen={isOpenGraphSettingDrawer}
               placement="right"
               onClose={onCloseGraphSettingDrawer}
-              finalFocusRef={btnRef}
-            >
+              finalFocusRef={btnRef}>
               <DrawerOverlay />
               <DrawerContent
-                maxW="85vw"
-              >
+                maxW="85vw">
                 <DrawerCloseButton style={{ color: "white" }} />
                 <DrawerHeader
                   style={{
                     backgroundColor: "#003060",
                     color: "white",
-                  }}
-                >
+                  }}>
                   Choose Data Wise Graph
                 </DrawerHeader>
                 <DrawerBody>
                   <Box
-                    className="stickyTop"
                     sx={{
                       display: "flex",
                       justifyContent: "space-between",
@@ -1274,15 +1268,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                       p: 2,
                       my: 2,
                       flexGrow: 1,
-                    }}
-                  >
+                    }}>
                     Total Graph ({chartsData.charts.length})
                   </Box>
                   <Box
                     display="flex"
                     flexWrap="wrap"
-                    justifyContent="space-between"
-                  >
+                    justifyContent="space-between">
                     {chartsData.charts.map((chart, index) => {
                       console.log("All Chart List", chart);
                       return (
@@ -1292,8 +1284,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                             base: "100%",
                             lg: "49.4%",
                           }}
-                          mb={6}
-                        >
+                          mb={6}>
                           <Box
                             sx={{
                               backgroundColor: "white",
@@ -1302,8 +1293,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                               borderRadius: "8px",
                               border: "1px solid #c4c4c4",
                             }}
-                            mb={3}
-                          >
+                            mb={3}>
                             <Box
                               sx={{
                                 display: "flex",
@@ -1322,8 +1312,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                                   color: "white",
                                 },
                               }}
-                              mb={6}
-                            >
+                              mb={6}>
                               <Button
                                 type="button"
                                 variant="outlined"
@@ -1335,8 +1324,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                                     color: "white",
                                   },
                                 }}
-                                onClick={() => handleConfigure(chart)}
-                              >
+                                onClick={() => handleConfigure(chart)}>
                                 <FiSettings
                                   sx={{
                                     mr: "6px",
@@ -1352,16 +1340,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                               sx={{
                                 width: "100%",
                                 height: "200px",
-                              }}
-                            >
+                              }}>
                               <DynamicChart chart={chart} />
                             </Box>
                             <Badge
                               colorScheme="blue"
                               py={0}
                               px={3}
-                              fontSize={9}
-                            >
+                              fontSize={9}>
                               {chart.title}
                             </Badge>
                             <Text fontSize={8}>{chart.chartName}</Text>
@@ -1375,9 +1361,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                     isCentered
                     size="md"
                     isOpen={isOpenGraphSettingsModal}
-                    onClose={onCloseGraphSettingsModal}
-                    
-                  >
+                    onClose={onCloseGraphSettingsModal}>
                     <DrawerOverlay />
                     <DrawerContent maxW="82vw">
                       <DrawerCloseButton color="white" size="lg" mt="8px" />
@@ -1387,8 +1371,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                         fontSize="17px"
                         fontWeight="500"
                         padding="15px 15px"
-                        backgroundColor="#003060"
-                      >
+                        backgroundColor="#003060">
                         Graphical View Settings
                       </DrawerHeader>
                       <Divider orientation="horizontal" mb={6} />
@@ -1530,8 +1513,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-
-      <Box></Box>
     </Box>
   );
 };

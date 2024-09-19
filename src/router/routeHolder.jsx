@@ -63,13 +63,12 @@ import SpentAnalysisTableView from "../features/spentAnalysis/components/spentAn
 import SpentAnalysisGraphView from "../features/spentAnalysis/components/spentAnalysisGraphView";
 import SalesProductWise from "../features/salesProductWise/components/index";
 import SalesProductWiseTableView from "../features/salesProductWise/components/salesProductWiseTableView";
-import SalesProductWiseGraphView from "../features/salesProductWise/components/salesProductWiseGraphView";
+// import SalesProductWiseGraphView from "../features/salesProductWise/components/salesProductWiseGraphView";
 import SalesCustomerWise from "../features/salesCustomerWise/components/index";
 import SalesCustomerWiseTableView from "../features/salesCustomerWise/components/salesCustomerWiseTableView";
 // import SalesCustomerWiseGraphView from "../features/salesCustomerWise/components/salesCustomerWiseGraphView";
 import SalesVerticalWise from "../features/salesVerticalWise/components/index";
 import SalesVerticalWiseTableView from "../features/salesVerticalWise/components/salesVerticalWiseTableView";
-import SalesVerticalWiseGraphView from "../features/salesVerticalWise/components/salesVerticalWiseGraphView";
 import PoWise from "../features/poWise/components/index";
 import PoWiseTableView from "../features/poWise/components/poWiseTableView";
 import PoWiseGraphView from "../features/poWise/components/poWiseGraphView";
@@ -95,6 +94,8 @@ import SalesKamWise from "../features/salesKamWise/components";
 import SalesKamWiseTableView from "../features/salesKamWise/components/salesKamWiseTableView";
 import SalesKamWiseGraphView from "../features/salesKamWise/components/salesKamWiseGraphView";
 import PurchaseDetails from "../features/purchaseDetailsReport/components";
+import GraphCharts from "../features/graphCharts";
+import LineGraph from "../features/graphCharts/lineGraph";
 const Dashboard = lazy(() => import("../features/dashboard/components"));
 
 const AllRoutes = () => {
@@ -187,6 +188,26 @@ const AllRoutes = () => {
             }
           />
           <Route
+            path="/graph-list"
+            element={
+              <PortalForLayout
+                globalLayout={globalStaticFragmennt}
+                portalId={commonPortalRef}>
+                <GraphCharts globalLayout={setGlobalStaticFragmennt} />
+              </PortalForLayout>
+            }
+          />
+          <Route
+            path="/line-graph"
+            element={
+              <PortalForLayout
+                globalLayout={globalStaticFragmennt}
+                portalId={commonPortalRef}>
+                <LineGraph globalLayout={setGlobalStaticFragmennt} />
+              </PortalForLayout>
+            }
+          />
+          <Route
             path="/all-reports"
             element={
               <PortalForLayout
@@ -203,27 +224,27 @@ const AllRoutes = () => {
                 portalId={commonPortalRef}>
                 <Reportdetails globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
-            }/>
-              
-           
-            <Route
-              path="/reports-details/sales-details-report"
-              element={
-                <PortalForLayout
-                  globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
-                  <SalesDetails globalLayout={setGlobalStaticFragmennt} />
-                </PortalForLayout>
-              }></Route>
-              <Route
-              path="/reports-details/purchase-details-report"
-              element={
-                <PortalForLayout
-                  globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
-                  <PurchaseDetails globalLayout={setGlobalStaticFragmennt} />
-                </PortalForLayout>
-              }></Route>
+            }
+          />
+
+          <Route
+            path="/reports-details/sales-details-report"
+            element={
+              <PortalForLayout
+                globalLayout={globalStaticFragmennt}
+                portalId={commonPortalRef}>
+                <SalesDetails globalLayout={setGlobalStaticFragmennt} />
+              </PortalForLayout>
+            }></Route>
+          <Route
+            path="/reports-details/purchase-details-report"
+            element={
+              <PortalForLayout
+                globalLayout={globalStaticFragmennt}
+                portalId={commonPortalRef}>
+                <PurchaseDetails globalLayout={setGlobalStaticFragmennt} />
+              </PortalForLayout>
+            }></Route>
           <Route
             path="/reports/transactional-day-book"
             element={
@@ -848,8 +869,6 @@ const AllRoutes = () => {
             />
           </Route>
 
-          
-
           <Route
             path="/reports/sales-product-wise"
             element={
@@ -871,7 +890,7 @@ const AllRoutes = () => {
                 </PortalForLayout>
               }
             />
-            <Route
+            {/* <Route
               path="/reports/sales-product-wise/graph-view"
               element={
                 <PortalForLayout
@@ -882,7 +901,7 @@ const AllRoutes = () => {
                   />
                 </PortalForLayout>
               }
-            />
+            /> */}
           </Route>
 
           <Route
@@ -936,18 +955,6 @@ const AllRoutes = () => {
                   globalLayout={globalStaticFragmennt}
                   portalId={commonPortalRef}>
                   <SalesVerticalWiseTableView
-                    globalLayout={setGlobalStaticFragmennt}
-                  />
-                </PortalForLayout>
-              }
-            />
-            <Route
-              path="/reports/sales-vertical-wise/graph-view"
-              element={
-                <PortalForLayout
-                  globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
-                  <SalesVerticalWiseGraphView
                     globalLayout={setGlobalStaticFragmennt}
                   />
                 </PortalForLayout>
