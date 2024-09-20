@@ -49,7 +49,7 @@ import {
   Badge,
   Divider,
   DrawerFooter,
-  Tooltip
+  Tooltip,
 } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
@@ -68,10 +68,10 @@ import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
 import DynamicChart from "../components/DynamicChart";
-import ChartConfiguration from "../components/ChartConfiguration"
+import ChartConfiguration from "../components/ChartConfiguration";
 import { useSelector } from "react-redux";
 import { chartsData } from "../data/fakeData";
-import { Calendar } from 'primereact/calendar';
+import { Calendar } from "primereact/calendar";
 import { FiPlus, FiSettings } from "react-icons/fi";
 import NewMyCharts from "../../dashboardNew/nivo/NewMyCharts";
 import ReactDatePicker from "react-datepicker";
@@ -94,11 +94,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [configureChart, setConfigureChart] = useState({});
-    const salesCustomerWise = useSelector(
-      (state) => state.salescustomer.widgets
-    );
+  const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
 
-    console.log(salesCustomerWise, "salesCustomerWise1");
+  console.log(salesCustomerWise, "salesCustomerWise1");
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [filterCondition, setFilterCondition] = useState("");
   const [filterValue, setFilterValue] = useState("");
@@ -125,19 +123,20 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   // console.log("localFilters121212",localFilters);
   // console.log("filtersApplied121212",filtersApplied);
 
+  //api call for drop-down-data columns
+  const { data: columnData } = useGetSelectedColumnsQuery();
+  console.log("columnData211212", columnData);
+
   // api call for sort A-Z
-  const { data: kamData, refetch: refetchProductWiseSales } =
+  const { data: productWise, refetch: refetchProductWiseSales } =
     useProductWiseSalesQuery({
       filters: {
         ...filters,
-        // sortBy:sortColumn,
-        // sortDir:sortOrder,
+        // sortBy: sortColumn,
+        // sortDir: sortOrder,
       },
       page: currentPage,
     });
-
-  //api call for drop-down-data columns
-  const { data: columnData } = useGetSelectedColumnsQuery();
 
   //.........Api call to get global search.......
   const { data: searchData } = useGetGlobalsearchProductQuery(filters, {
@@ -156,28 +155,28 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     onClose: onCloseDownloadReportModal,
     isOpen: isOpenDownloadReportModal,
   } = useDisclosure();
-    const {
-      onOpen: onOpenGraphAddDrawer,
-      onClose: onCloseGraphAddDrawer,
-      isOpen: isOpenGraphAddDrawer,
+  const {
+    onOpen: onOpenGraphAddDrawer,
+    onClose: onCloseGraphAddDrawer,
+    isOpen: isOpenGraphAddDrawer,
   } = useDisclosure();
-    const {
-      onOpen: onOpenGraphSettingDrawer,
-      onClose: onCloseGraphSettingDrawer,
-      isOpen: isOpenGraphSettingDrawer,
+  const {
+    onOpen: onOpenGraphSettingDrawer,
+    onClose: onCloseGraphSettingDrawer,
+    isOpen: isOpenGraphSettingDrawer,
   } = useDisclosure();
-    const {
-      isOpen: isOpenGraphSettingsModal,
-      onOpen: onOpenGraphSettingsModal,
-      onClose: onCloseGraphSettingsModal,
+  const {
+    isOpen: isOpenGraphSettingsModal,
+    onOpen: onOpenGraphSettingsModal,
+    onClose: onCloseGraphSettingsModal,
   } = useDisclosure();
-    const {
-      isOpen: isOpenGraphDetailsView,
-      onOpen: onOpenGraphDetailsView,
-      onClose: onCloseGraphDetailsView,
+  const {
+    isOpen: isOpenGraphDetailsView,
+    onOpen: onOpenGraphDetailsView,
+    onClose: onCloseGraphDetailsView,
   } = useDisclosure();
-  
-    const btnRef = React.useRef();
+
+  const btnRef = React.useRef();
 
   const getColumnStyle = (header) => ({
     textAlign: alignment[header] || "left",
@@ -340,6 +339,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     setSortColumn("");
   };
 
+  // Sorting logic
   const handleSort = (column) => {
     const newSortOrder =
       sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
@@ -347,6 +347,23 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     setSortColumn(column);
     setSortOrder(newSortOrder);
   };
+
+  // const handleSort = (column) => {
+  //   // Find the API field corresponding to the clicked column from the columnData
+  //   // const selectedColumn = Object.values(columnData).find((col) => col.name === column);
+  //   const selectedColumn = Object.values(columnData).find((col) => col.itemName === column);
+
+  //   // Only proceed if a matching column is found
+  //   if (selectedColumn) {
+  //     const newSortOrder =
+  //       sortColumn === selectedColumn.field && sortOrder === "asc" ? "desc" : "asc";
+
+  //     // Update sort state
+  //     setSortColumn(selectedColumn.field); // Use the API field for sorting
+  //     setSortOrder(newSortOrder);
+  //   }
+  // };
+
   // Trigger the API call when sortColumn or sortOrder changes
   useEffect(() => {
     refetchProductWiseSales({
@@ -358,6 +375,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
       page: currentPage,
     });
   }, [sortColumn, sortOrder, refetchProductWiseSales]);
+  
 
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray]; // Copy the original data
@@ -463,14 +481,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   };
 
   const handleScroll = () => {
-    const { scrollTop, scrollHeight, clientHeight, scrollleft } =
-      tableContainerRef.current;
+    const { scrollTop, scrollHeight, clientHeight } = tableContainerRef.current;
 
-    if (
-      scrollleft === 0 &&
-      scrollTop + clientHeight >= scrollHeight - 5 &&
-      !loading
-    ) {
+    if (scrollTop + clientHeight >= scrollHeight - 5 && !loading) {
       loadMoreData();
     }
   };
@@ -585,7 +598,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     });
   };
 
-    const removeProperty = (object) => {
+  const removeProperty = (object) => {
     if (!object) {
       return {};
     }
@@ -593,28 +606,27 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     return rest;
   };
 
+  const handleConfigure = (chart) => {
+    if (!chart) {
+      return;
+    }
+    onOpenGraphSettingsModal();
+    const filterData = removeProperty(chart);
+    setConfigureChart(filterData);
+  };
 
-    const handleConfigure = (chart) => {
-      if (!chart) {
-        return;
-      }
-      onOpenGraphSettingsModal();
-      const filterData = removeProperty(chart);
-      setConfigureChart(filterData);
-    };
+  const handleView = (chart) => {
+    if (!chart) {
+      return;
+    }
+    onOpenGraphDetailsView();
+    const filterData = removeProperty(chart);
+    setConfigureChart(filterData);
+  };
 
-    const handleView = (chart) => {
-      if (!chart) {
-        return;
-      }
-      onOpenGraphDetailsView();
-      const filterData = removeProperty(chart);
-      setConfigureChart(filterData);
-    };
-
-    console.log(newArray, "newArray");
-    console.log(selectedColumns, "selectedColumns");
-    console.log(filteredItems, "filteredItems");
+  console.log(newArray, "newArray");
+  console.log(selectedColumns, "selectedColumns");
+  console.log(filteredItems, "filteredItems");
 
   return (
     <Box bg="white" padding="0px 10px" borderRadius="5px">
@@ -729,7 +741,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
             }}
             _focus={{
               boxShadow: "outline",
-            }}>
+            }}
+          >
             <FontAwesomeIcon icon={faChartLine} fontSize="20px" />
           </Button>
 
@@ -745,7 +758,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
             _hover={{
               bg: "mainBlue",
               color: "white",
-            }}>
+            }}
+          >
             <FontAwesomeIcon icon={faChartSimple} fontSize="20px" />
           </Button>
           <Menu>
@@ -766,7 +780,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                   alignItems: "center",
                   justifyContent: "center",
                 },
-              }}>
+              }}
+            >
               <DownloadIcon fontSize="20px" />
             </MenuButton>
             <MenuList>
@@ -1214,7 +1229,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
         isOpen={isOpenGraphAddDrawer}
         placement="right"
         onClose={onCloseGraphAddDrawer}
-        finalFocusRef={btnRef}>
+        finalFocusRef={btnRef}
+      >
         <DrawerOverlay />
         <DrawerContent maxW="88vw">
           <DrawerCloseButton />
@@ -1222,7 +1238,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
             style={{
               backgroundColor: "#003060",
               color: "white",
-            }}>
+            }}
+          >
             Sales Product Wise
           </DrawerHeader>
           <DrawerBody>
@@ -1243,7 +1260,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                   borderRadius: "5px",
                 },
               }}
-              mb={6}>
+              mb={6}
+            >
               <Text fontWeight="bold">Sales Wise Graph View</Text>
               <Button
                 ref={btnRef}
@@ -1257,7 +1275,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                   _hover: {
                     color: "white",
                   },
-                }}>
+                }}
+              >
                 <FiPlus />
                 Add Graph
               </Button>
@@ -1274,7 +1293,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                     borderRadius: "5px",
                     height: "30px",
                     px: "10px",
-                  }}>
+                  }}
+                >
                   No Sales Graph are there
                 </Alert>
               )}
@@ -1287,7 +1307,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                         base: "100%",
                         lg: "49%",
                       }}
-                      mb={6}>
+                      mb={6}
+                    >
                       <Box
                         sx={{
                           backgroundColor: "white",
@@ -1300,24 +1321,28 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                             boxShadow: "0 4px 4px rgba(0, 0, 0, 0.2)",
                           },
                         }}
-                        mb={3}>
+                        mb={3}
+                      >
                         <Box
                           display="flex"
                           justifyContent="space-between"
                           alignItems="center"
-                          mb={8}>
+                          mb={8}
+                        >
                           <Box
                             style={{
                               padding: "10px",
                               fontWeight: 600,
                               color: "black",
-                            }}>
+                            }}
+                          >
                             {chart.chartName}
                             <Text
                               sx={{
                                 color: "#718296",
                                 fontSize: "10px",
-                              }}>
+                              }}
+                            >
                               {chart.description}
                             </Text>
                           </Box>
@@ -1326,7 +1351,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                               padding: "10px",
                               fontWeight: 600,
                               color: "black",
-                            }}>
+                            }}
+                          >
                             <Button
                               variant="outline"
                               style={{
@@ -1335,7 +1361,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                                 color: "#718296",
                               }}
                               mr={3}
-                              onClick={() => handleConfigure(chart)}>
+                              onClick={() => handleConfigure(chart)}
+                            >
                               <FiSettings style={{ marginRight: "6px" }} />{" "}
                               Configure
                             </Button>
@@ -1348,7 +1375,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                                 color: "#718296",
                               }}
                               mr={3}
-                              onClick={() => handleView(chart)}>
+                              onClick={() => handleView(chart)}
+                            >
                               <FiSettings style={{ marginRight: "6px" }} /> View
                               Graph
                             </Button>
@@ -1367,7 +1395,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
               isOpen={isOpenGraphSettingDrawer}
               placement="right"
               onClose={onCloseGraphSettingDrawer}
-              finalFocusRef={btnRef}>
+              finalFocusRef={btnRef}
+            >
               <DrawerOverlay />
               <DrawerContent maxW="85vw">
                 <DrawerCloseButton style={{ color: "white" }} />
@@ -1375,7 +1404,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                   style={{
                     backgroundColor: "#003060",
                     color: "white",
-                  }}>
+                  }}
+                >
                   Choose Data Wise Graph
                 </DrawerHeader>
 
@@ -1389,13 +1419,15 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                       p: 2,
                       my: 2,
                       flexGrow: 1,
-                    }}>
+                    }}
+                  >
                     Total Graph ({chartsData.charts.length})
                   </Box>
                   <Box
                     display="flex"
                     flexWrap="wrap"
-                    justifyContent="space-between">
+                    justifyContent="space-between"
+                  >
                     {chartsData.charts.map((chart, index) => {
                       console.log("All Chart List", chart);
                       return (
@@ -1405,7 +1437,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                             base: "100%",
                             lg: "49.4%",
                           }}
-                          mb={6}>
+                          mb={6}
+                        >
                           <Box
                             sx={{
                               backgroundColor: "white",
@@ -1414,7 +1447,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                               borderRadius: "8px",
                               border: "1px solid #c4c4c4",
                             }}
-                            mb={3}>
+                            mb={3}
+                          >
                             <Box
                               sx={{
                                 display: "flex",
@@ -1433,7 +1467,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                                   color: "white",
                                 },
                               }}
-                              mb={6}>
+                              mb={6}
+                            >
                               <Button
                                 type="button"
                                 variant="outlined"
@@ -1445,7 +1480,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                                     color: "white",
                                   },
                                 }}
-                                onClick={() => handleConfigure(chart)}>
+                                onClick={() => handleConfigure(chart)}
+                              >
                                 <FiSettings
                                   sx={{
                                     mr: "6px",
@@ -1458,14 +1494,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                               sx={{
                                 width: "100%",
                                 height: "200px",
-                              }}>
+                              }}
+                            >
                               <DynamicChart chart={chart} />
                             </Box>
                             <Badge
                               colorScheme="blue"
                               py={0}
                               px={3}
-                              fontSize={9}>
+                              fontSize={9}
+                            >
                               {chart.title}
                             </Badge>
                             <Text fontSize={8}>{chart.chartName}</Text>
@@ -1479,7 +1517,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                     isCentered
                     size="md"
                     isOpen={isOpenGraphSettingsModal}
-                    onClose={onCloseGraphSettingsModal}>
+                    onClose={onCloseGraphSettingsModal}
+                  >
                     <DrawerOverlay />
                     <DrawerContent maxW="82vw">
                       <DrawerCloseButton color="white" size="lg" mt="8px" />
@@ -1489,7 +1528,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                         fontSize="17px"
                         fontWeight="500"
                         padding="15px 15px"
-                        backgroundColor="#003060">
+                        backgroundColor="#003060"
+                      >
                         Graphical View Settings
                       </DrawerHeader>
                       <Divider orientation="horizontal" mb={6} />

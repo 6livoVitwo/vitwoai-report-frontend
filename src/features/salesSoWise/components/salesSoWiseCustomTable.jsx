@@ -397,7 +397,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     const { scrollTop, scrollHeight, scrollleft, clientHeight } =
       tableContainerRef.current;
 
-    if (scrollleft === 0 && scrollTop + clientHeight >= scrollHeight - 5) {
+    if ( scrollTop + clientHeight >= scrollHeight - 5) {
       loadMoreData();
     }
   };

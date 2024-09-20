@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import CustomTable from "./salesKamWiseCustomTable";
-import { Box, Spinner, Image } from "@chakra-ui/react";
+import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useKamWiseSalesQuery } from "../slice/salesKamWiseApi";
@@ -47,8 +47,8 @@ let filters = {
   ],
   page: 0,
   size: 20,
-  "sortDir": "asc",
-  "sortBy": "kam.kamName",
+  sortDir: "asc",
+  sortBy: "kam.kamName",
 };
 
 const SalesKamWiseTableView = () => {
@@ -56,6 +56,8 @@ const SalesKamWiseTableView = () => {
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(50);
   const [individualItems, setIndividualItems] = useState([]);
+  const [toastShown, setToastShown] = useState(false);
+  const toast = useToast();
 
   const {
     data: sales,
@@ -112,14 +114,38 @@ const SalesKamWiseTableView = () => {
         const flattenedInvoice = flattenObject(invoice);
         return invoice.items?.length
           ? invoice.items.map((item) => {
-            const flattenedItem = flattenObject(item, "item.");
-            return { ...flattenedInvoice, ...flattenedItem };
-          })
+              const flattenedItem = flattenObject(item, "item.");
+              return { ...flattenedInvoice, ...flattenedItem };
+            })
           : [flattenedInvoice];
       });
       setIndividualItems((prevItems) => [...prevItems, ...newItems]);
     }
   }, [sales]);
+  useEffect(() => {
+    // Show the toast only if the user has scrolled to the last page and toast hasn't been shown
+    if (sales?.totalPages < page && !toastShown) {
+      toast({
+        title: "No More Data",
+        description: "You have reached the end of the list.",
+        status: "warning",
+        isClosable: true,
+        duration: 4000,
+        render: () => (
+          <Box
+            p={3}
+            bg="orange.300"
+            borderRadius="md"
+            style={{ width: "300px", height: "70px" }} // Set custom width and height
+          >
+            <Box fontWeight="bold">No More Data</Box>
+            <Box>You have reached the end of the list.</Box>
+          </Box>
+        ),
+      });
+      setToastShown(true); // Mark the toast as shown
+    }
+  }, [sales, page, toast, toastShown]);
 
   if (isLoading) {
     return (
@@ -128,7 +154,8 @@ const SalesKamWiseTableView = () => {
         width="100%"
         display="flex"
         alignItems="center"
-        justifyContent="center">
+        justifyContent="center"
+      >
         <Spinner
           thickness="4px"
           speed="0.65s"
@@ -147,7 +174,8 @@ const SalesKamWiseTableView = () => {
         height="calc(100vh - 103px)"
         display="flex"
         alignItems="center"
-        justifyContent="center">
+        justifyContent="center"
+      >
         <Image src={NoDataFound} alt="No Data Available" />
       </Box>
     );

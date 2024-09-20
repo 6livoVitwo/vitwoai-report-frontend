@@ -10,47 +10,46 @@ const SalesSoWiseTableView = () => {
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(50);
   const [individualItems, setIndividualItems] = useState([]);
+  const [toastShown, setToastShown] = useState(false);
   const toast = useToast();
 
   let filters = {
-    "data": [
-        "customer.trade_name",
-        "customer.customer_code",
-        "salesOrder.so_number",
-        "invoice_no",
-        "invoice_date",
-        "SUM(due_amount)",
-        "SUM(salesPgi.salesDelivery.totalAmount)",
-        "SUM(salesPgi.totalAmount)",
-        "SUM(quotation.totalAmount)",
-        "SUM(salesOrder.totalAmount)",
-        "SUM(items.qty)",
-        "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
-        "SUM(all_total_amt)",
-        "SUM(items.totalTax)"
+    data: [
+      "customer.trade_name",
+      "customer.customer_code",
+      "salesOrder.so_number",
+      "invoice_no",
+      "invoice_date",
+      "SUM(due_amount)",
+      "SUM(salesPgi.salesDelivery.totalAmount)",
+      "SUM(salesPgi.totalAmount)",
+      "SUM(quotation.totalAmount)",
+      "SUM(salesOrder.totalAmount)",
+      "SUM(items.qty)",
+      "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
+      "SUM(all_total_amt)",
+      "SUM(items.totalTax)",
     ],
-    "groupBy": [
-        "salesOrder.so_id"
-    ],
-    "filter": [
-        {
-            "column": "company_id",
-            "operator": "equal",
-            "type": "Integer",
-            "value": 1
-        },
-        {
-            "column": "location_id",
-            "operator": "equal",
-            "type": "Integer",
-            "value": 1
-        },
-        {
-            "column": "branch_id",
-            "operator": "equal",
-            "type": "Integer",
-            "value": 1
-        }
+    groupBy: ["salesOrder.so_id"],
+    filter: [
+      {
+        column: "company_id",
+        operator: "equal",
+        type: "Integer",
+        value: 1,
+      },
+      {
+        column: "location_id",
+        operator: "equal",
+        type: "Integer",
+        value: 1,
+      },
+      {
+        column: "branch_id",
+        operator: "equal",
+        type: "Integer",
+        value: 1,
+      },
       //   {
       //     "column": "customer.trade_name",
       //     "operator": "like",
@@ -82,11 +81,11 @@ const SalesSoWiseTableView = () => {
       //     "value": "1"
       // }
     ],
-    "page": 0,
-    "size": 20,
-    "sortDir": "asc",
-    "sortBy": "customer.trade_name"
-};
+    page: 0,
+    size: 20,
+    sortDir: "asc",
+    sortBy: "customer.trade_name",
+  };
 
   const {
     data: sales,
@@ -160,6 +159,30 @@ const SalesSoWiseTableView = () => {
       setIndividualItems((prevItems) => [...prevItems, ...newItems]);
     }
   }, [sales]);
+  useEffect(() => {
+    // Show the toast only if the user has scrolled to the last page and toast hasn't been shown
+    if (sales?.totalPages < page && !toastShown) {
+      toast({
+        title: "No More Data",
+        description: "You have reached the end of the list.",
+        status: "warning",
+        isClosable: true,
+        duration: 4000,
+        render: () => (
+          <Box
+            p={3}
+            bg="orange.300"
+            borderRadius="md"
+            style={{ width: "300px", height: "70px" }} // Set custom width and height
+          >
+            <Box fontWeight="bold">No More Data</Box>
+            <Box>You have reached the end of the list.</Box>
+          </Box>
+        ),
+      });
+      setToastShown(true); // Mark the toast as shown
+    }
+  }, [sales, page, toast, toastShown]);
 
   if (isLoading) {
     return (
@@ -193,15 +216,6 @@ const SalesSoWiseTableView = () => {
         <Image src={NoDataFound} alt="No Data Available" />
       </Box>
     );
-  }
-  if (sales?.totalPages < page) {
-    toast({
-      title: "No More Data",
-      description: "You have reached the end of the list.",
-      status: "warning",
-      isClosable: true,
-      duration: 800, //(5000 ms = 5 seconds)
-    });
   }
   const newArray = individualItems.map((data, index) =>
     extractFields(data, index)

@@ -62,7 +62,7 @@ import { useGetSelectedColumnsQuery } from "../slice/purchaseProductWiseApi";
 import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { useGetGlobalsearchPurchaseQuery } from "../slice/purchaseProductWiseApi";
 
-const CustomTable = ({ setPage, newArray, alignment, filters }) => {
+const CustomTable = ({ setPage, newArray, alignment, filters,extractFields}) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
