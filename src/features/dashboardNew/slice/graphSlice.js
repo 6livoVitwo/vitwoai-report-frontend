@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { barChartData, boxPlotChartData, funnelChartData, lineChartData, pieChartData } from '../data/chartData';
 
 // Initial state with example widgets
 const initialState = {
@@ -25,11 +24,11 @@ const dashboardSlice = createSlice({
         },
         // Update a widget by id
         updateWidget: (state, action) => {
-            const { index, data, chartName, title, type, group, pinned, description } = action.payload;
+            const { index, data, chartName } = action.payload;
             state.widgets[index] = {
                 ...state.widgets[index],
                 id: '1',
-                chartName: `Updated Bar Chart (${chartName})` || 'updated Bar Chart',
+                chartName: `Updated Bar Chart (${chartName})` || 'Updated Bar Chart',
                 title: `Updated Bar Chart (${chartName})`,
                 type: 'bar',
                 group: 'distributionComparison',

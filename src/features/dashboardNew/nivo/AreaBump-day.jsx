@@ -1,50 +1,40 @@
 import React, { useEffect, useState } from "react";
 import { ResponsiveAreaBump } from "@nivo/bump";
 import { areaBumpData } from "../data/chartData";
-import { format, parse } from 'date-fns';
-import { getAllDates } from "../../../utils/graphs-utilitis";
+import { format, eachDayOfInterval, parseISO } from 'date-fns';
 
-const AreaBump = ({ liveData = [], startDate = "", endDate = "", dynamicWidth = 1200, inputType = "" }) => {
+const AreaBump = ({ liveData = [], startDate="2024-01-01", endDate="2024-01-31", dynamicWidth=1200 }) => {  
   const [data, setData] = useState([]);
 
-  const allDates = getAllDates(inputType, startDate, endDate);
+  const generateDateRange = (start, end) => {
+    const parsedStart = parseISO(start);
+    const parsedEnd = parseISO(end);
+    const dates = eachDayOfInterval({ start: parsedStart, end: parsedEnd });
+    return dates.map(date => format(date, 'yyyy-MM-dd'));
+  };
 
   useEffect(() => {
-    let maxCount = 0;
+    // Generate all dates within the given range
+    const allDates = generateDateRange(startDate, endDate);
+    let maxCount = 0; 
     const updatedData = liveData?.map((d, i) => {
-      const currentDates = d.data.map(item => item.x);
+      const currentDates = d.data.map(item => item.x); // Extract the current dates in the dataset
+
+      // Find the maximum count of dates in the current data
       maxCount = Math.max(maxCount, currentDates.length);
 
-      const monthPlaceholders = allDates
-        .filter(date => !currentDates.includes(format(date, 'MM-yyyy')))
-        .map(missingDate => ({
-          x: format(missingDate, 'MM-yyyy'),
-          y: 0
-        }));
-
-      const yearPlaceholders = allDates
-        .filter(date => !currentDates.includes(format(date, 'yyyy')))
-        .map(missingDate => ({
-          x: format(missingDate, 'yyyy'),
-          y: 0
-        }));
-
-      const dayPlaceholders = allDates
-        .filter(date => !currentDates.includes(date))
+      // Create placeholders for missing dates
+      const placeholders = allDates
+        .filter(date => !currentDates.includes(date)) // Find dates not in the current data
         .map(missingDate => ({
           x: missingDate,
-          y: 0
+          y: 0 // Default y value for the missing dates
         }));
 
       // Combine the original data with the placeholders
       return {
         ...d,
-        data: inputType === "month" ? [...d.data, ...monthPlaceholders].sort((a, b) => {
-          const dateA = parse(a.x, 'MM-yyyy', new Date());
-          const dateB = parse(b.x, 'MM-yyyy', new Date());
-          return dateA - dateB
-        }) : inputType === "year"
-          ? [...d.data, ...yearPlaceholders].sort((a, b) => parseInt(a.x) - parseInt(b.x)) : [...d.data, ...dayPlaceholders].sort((a, b) => new Date(a.x) - new Date(b.x))
+        data: [...d.data, ...placeholders].sort((a, b) => new Date(a.x) - new Date(b.x)) // Sort by date
       };
     });
 
@@ -55,8 +45,8 @@ const AreaBump = ({ liveData = [], startDate = "", endDate = "", dynamicWidth = 
     console.log('Updated Data in the useeffect 🍃:', updatedData);
     console.log('liveData in the useeffect 🍃:', liveData);
 
-  }, [startDate, endDate, dynamicWidth, liveData, inputType]);
-console.log('area bump data', JSON.stringify(data))
+  }, [startDate, endDate, dynamicWidth, liveData]);
+
   return (
     <>
       {liveData.length > 0 ? (
@@ -124,6 +114,7 @@ console.log('area bump data', JSON.stringify(data))
           }}
         />
       ) : (
+        <div style={{ width: "100%", overflowX: "auto", height: "300px" }}>
           <ResponsiveAreaBump
             data={areaBumpData}
             margin={{ top: 40, right: 100, bottom: 40, left: 100 }}
@@ -185,6 +176,7 @@ console.log('area bump data', JSON.stringify(data))
               truncateTickAt: 0,
             }}
           />
+        </div>
       )}
     </>
   );
