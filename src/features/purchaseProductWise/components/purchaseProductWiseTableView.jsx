@@ -42,7 +42,8 @@ const PurchaseProductWiseTableView = () => {
     size,
     authDetails: authData.authDetails,
   });
-
+ 
+  
   const pageInfo = sales?.lastPage;
 
   const tableContainerRef = useRef(null);
@@ -152,7 +153,7 @@ const PurchaseProductWiseTableView = () => {
 
   const mainData = sales?.content;
 
-  const newArray = individualItems.map((data, index) =>
+  const newArray = individualItems.map((data, index) => 
     extractFields(data, index)
   );
 
@@ -164,6 +165,7 @@ const PurchaseProductWiseTableView = () => {
           page={page}
           setPage={setPage}
           isFetching={isFetching}
+          sales={sales}
           pageInfo={pageInfo}
           setSize={setSize}
           filters={filters}

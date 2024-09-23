@@ -108,11 +108,14 @@ const CustomTable = ({
   const { data: kamData, refetch: refetchKamWiseSales } = useKamWiseSalesQuery({
     filters: {
       ...filters,
-      // sortBy: sortColumn,
-      // sortDir: sortOrder,
+        sortBy: sortColumn,
+        sortDir: sortOrder,
     },
     page: currentPage,
   });
+  console.log("kamData_piyas121", kamData);
+  
+
 
   const { data: columnDatakam } = useGetSelectedColumnsKamQuery();
   //console.log("piyas10101",columnDatakam);

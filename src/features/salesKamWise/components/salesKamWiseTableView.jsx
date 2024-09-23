@@ -26,24 +26,24 @@ let filters = {
   ],
   groupBy: ["kam.kamName", "kam.kamCode"],
   filter: [
-    {
-      column: "company_id",
-      operator: "equal",
-      type: "Integer",
-      value: 1,
-    },
-    {
-      column: "location_id",
-      operator: "equal",
-      type: "Integer",
-      value: 1,
-    },
-    {
-      column: "branch_id",
-      operator: "equal",
-      type: "Integer",
-      value: 1,
-    },
+    // {
+    //   column: "company_id",
+    //   operator: "equal",
+    //   type: "Integer",
+    //   value: 1,
+    // },
+    // {
+    //   column: "location_id",
+    //   operator: "equal",
+    //   type: "Integer",
+    //   value: 1,
+    // },
+    // {
+    //   column: "branch_id",
+    //   operator: "equal",
+    //   type: "Integer",
+    //   value: 1,
+    // },
   ],
   page: 0,
   size: 20,

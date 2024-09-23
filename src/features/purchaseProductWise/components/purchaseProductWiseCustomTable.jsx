@@ -62,7 +62,7 @@ import { useGetSelectedColumnsQuery } from "../slice/purchaseProductWiseApi";
 import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { useGetGlobalsearchPurchaseQuery } from "../slice/purchaseProductWiseApi";
 
-const CustomTable = ({ setPage, newArray, alignment, filters,extractFields}) => {
+const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
@@ -96,11 +96,19 @@ const CustomTable = ({ setPage, newArray, alignment, filters,extractFields}) => 
     setActiveFilterColumn(column);
   };
 
+  // const {data: sales} = useProductWisePurchaseQuery({filters});
+  // console.log("sales_piyas1221", sales);
+  
+
   //...Advanced Filter API CALL...
   const { data: productDataFilter } = useProductWisePurchaseQuery(
     { filters: localFilters },
-    { skip: !filtersApplied }
+    // { skip: !filtersApplied }
   );
+  console.log("productDataFilterPiyas", productDataFilter);
+  
+  
+
 
   //API Calling sorting
   const { data: ProductData, refetch: refetchProduct } =
@@ -212,7 +220,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters,extractFields}) => 
     }
   };
 
-
   useEffect(() => {
     const initialColumns = getColumns(data)
       .slice(0, 8)
@@ -251,16 +258,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,extractFields}) => 
     );
   };
 
-  // const handleSelectAllToggle = () => {
-  //   const allColumnFields = getColumns(data).map((column) => column.field);
-  //   if (selectAll) {
-  //     setSelectedColumns([]);
-  //   } else {
-  //     setSelectedColumns(allColumnFields);
-  //   }
-  //   setSelectAll((prevSelectAll) => !prevSelectAll);
-  // };
-  // Handle toggle of "Select All" checkbox
+  // Handle select all toggle
   const handleSelectAllToggle = () => {
     if (selectAll) {
       setSelectedColumns([]); // Deselect all columns
@@ -315,6 +313,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters,extractFields}) => 
     setColumnFilters({});
     setSortColumn("");
   };
+
+ 
+  
+  // const filteredItems = productDataFilter?.content || [];
+
   const filteredItems = useMemo(() => {
     // Combine newArray and columnData.content
     let combinedData = [...newArray];
@@ -493,7 +496,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,extractFields}) => 
       console.error("Filter condition or value missing");
     }
   };
-
+  
   const handleApplyFilters = () => {
     if (tempFilterCondition && tempFilterValue && activeFilterColumn) {
       // Create a new filter object
@@ -1242,10 +1245,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters,extractFields}) => 
                               overflow="hidden"
                               textOverflow="ellipsis"
                             >
-                              {/* {item[column]} */}
+                              {/* Check if column exists in the productDataFilter */}
                               {typeof item[column] === "object" &&
                               item[column] !== null
-                                ? item[column].listName || item[column].index // or JSON.stringify(item[column]) if simple
+                                ? item[column].listName || item[column].index
                                 : item[column] !== undefined
                                 ? item[column]
                                 : "-"}
@@ -1349,69 +1352,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters,extractFields}) => 
                     </Box>
                   );
                 })}
-
-              {/* {getColumns(data).map((column) => {
-                const formattedHeader = formatHeader(column.field);
-                return (
-                  <Box
-                    key={column.field}
-                    className="columnCheckBox"
-                    padding="5px"
-                    bg="rgba(231,231,231,1)"
-                    borderRadius="5px"
-                    width="48%">
-                    <Checkbox
-                      size="lg"
-                      display="flex"
-                      padding="5px"
-                      borderColor="mainBluemedium"
-                      key={column.field}
-                      defaultChecked={selectedColumns.includes(column.field)}
-                      isChecked={selectedColumns.includes(column.field)}
-                      onChange={() => toggleColumn(column.field)}
-                    >
-                      <Text
-                        fontWeight="500"
-                        ml="10px"
-                        fontSize="12px"
-                        color="textBlackDeep">
-                        {formattedHeader}
-                      </Text>
-                    </Checkbox>
-                  </Box>
-                );
-              })} */}
-              {/* imran59059 */}
-              {/* { columnData &&
-                Object.keys(columnData?.content[0]).map((key, indx) => {
-                  return <Box
-                    key={indx}
-                    className="columnCheckBox"
-                    padding="5px"
-                    bg="rgba(231,231,231,1)"
-                    borderRadius="5px"
-                    width="48%">
-                    <Checkbox
-                      size="lg"
-                      display="flex"
-                      padding="5px"
-                      borderColor="mainBluemedium"
-                      key={key}
-                      defaultChecked={key}
-                      isChecked={key}
-                      onChange={() => toggleColumn(key)}
-                    >
-                      <Text
-                        fontWeight="500"
-                        ml="10px"
-                        fontSize="12px"
-                        color="textBlackDeep">
-                        {key}
-                      </Text>
-                    </Checkbox>
-                  </Box>
-                })
-              } */}
             </Box>
           </ModalBody>
           <ModalFooter>

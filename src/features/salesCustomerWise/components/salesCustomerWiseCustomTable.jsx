@@ -73,6 +73,7 @@ import { useSelector } from "react-redux";
 import NewMyCharts from "../../dashboardNew/nivo/NewMyCharts";
 import { useGetGlobalsearchCustomerQuery } from "../slice/customerWiseSalesApi";
 import { useCustomerWiseSalesQuery } from "../slice/customerWiseSalesApi";
+import {useGetSelectedColumnscustomerQuery} from "../slice/customerWiseSalesApi";
 
 const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   const [data, setData] = useState([...newArray]);
@@ -107,8 +108,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
       },
       page: currentPage,
     });
-
   console.log(salesCustomerWise, "salesCustomerWise1");
+
+  const { data: columnDatacustomer } = useGetSelectedColumnscustomerQuery();
+
 
   const toast = useToast();
   const tableContainerRef = useRef(null);
@@ -246,13 +249,23 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   };
 
   const handleSelectAllToggle = () => {
-    const allColumnFields = getColumns(data).map((column) => column.field);
     if (selectAll) {
-      setSelectedColumns([]);
+      setSelectedColumns([]); // Deselect all columns
     } else {
-      setSelectedColumns(allColumnFields);
+      const allColumns = getColumns(data) // Select all columns
+        .concat(
+          columnDatacustomer
+            ? Object.keys(columnDatacustomer?.content[0] || {}).map((key) => ({
+                field: key,
+                header: key,
+              }))
+            : []
+        )
+        .map((column) => column.field);
+
+      setSelectedColumns(allColumns);
     }
-    setSelectAll((prevSelectAll) => !prevSelectAll);
+    setSelectAll(!selectAll);
   };
 
   const handleModalClose = () => {
@@ -1412,7 +1425,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
 
       <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered>
         <ModalOverlay />
-        <ModalContent minW="30%">
+        <ModalContent minW="40%">
           <ModalHeader
             fontWeight="600"
             bg="mainBlue"
@@ -1448,8 +1461,21 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                 },
               }}
             >
-              {getColumns(data).map((column) => {
-                const formattedHeader = formatHeader(column.field);
+                {(getColumns(data) || [])
+                .concat(
+                  columnDatacustomer
+                    ? Object.keys(columnDatacustomer?.content[0] || {}).map(
+                        (key) => ({
+                          field: key,
+                          header: key,
+                        })
+                      )
+                    : []
+                )
+                .map((column, index) => {
+                  const formattedHeader = formatHeader(
+                    column.field || column.header
+                  );
 
                 return (
                   <Box
