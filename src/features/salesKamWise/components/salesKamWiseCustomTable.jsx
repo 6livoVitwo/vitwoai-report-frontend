@@ -93,9 +93,45 @@ const CustomTable = ({
   const [appliedFilters, setAppliedFilters] = useState({});
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
-
-
   const [currentPage, setCurrentPage] = useState(0); // Default page is 0
+
+  const generateColumnMappings = (filtersData) => {
+    const mappings = [];
+    filtersData.forEach((field) => {
+      // Extract a human-readable key from the field name
+      // e.g., "kam.kamName" -> "kamName"
+      const humanReadableName = field.split(".").pop(); // Use your own logic for mapping
+      mappings[humanReadableName] = field;
+    });
+    return mappings;
+  };
+  // Dynamically generate column mappings from filters.data
+  const columnMappings = generateColumnMappings(filters.data);
+  console.log("columnMappings", columnMappings);
+  console.log(columnMappings["kamCode"]);
+
+  // Function to map filters dynamically
+  const mapFilters = (filters) => {
+    return filters.map((filter) => ({
+      ...filter,
+      // If filter.column is a string, directly use columnMappings; otherwise, check for filter.column.key
+      sortBy: filter.column,
+    }));
+  };
+  
+  //API Calling sorting
+  const { data: kamData, refetch: refetchKamWiseSales } = useKamWiseSalesQuery({
+    filters: {
+      ...filters,
+      filter: mapFilters(filters.filter), // Map filters dynamically
+      // sortBy: columnMappings["Email"] || sortColumn, // Map sortBy dynamically
+      sortBy: columnMappings[sortColumn],
+      sortDir: sortOrder,
+    },
+    page: currentPage,
+  });
+  console.log("kamData_piyas121", kamData);
+ 
 
   //......Advance Filter Api Calling.........
   const { data: kamDataFilter } = useKamWiseSalesQuery(
@@ -103,18 +139,6 @@ const CustomTable = ({
     { skip: !filtersApplied }
   );
   //  console.log("kamDataFilter1212121",kamDataFilter);
-
-  //API Calling sorting
-  const { data: kamData, refetch: refetchKamWiseSales } = useKamWiseSalesQuery({
-    filters: {
-      ...filters,
-        sortBy: sortColumn,
-        sortDir: sortOrder,
-    },
-    page: currentPage,
-  });
-  console.log("kamData_piyas121", kamData);
-  
 
 
   const { data: columnDatakam } = useGetSelectedColumnsKamQuery();
@@ -229,33 +253,14 @@ const CustomTable = ({
     );
   };
 
-  // const handleSelectAllToggle = () => {
-  //   const allColumnFields = getColumns(data).map((column) => column.field);
-  //   if (selectAll) {
-  //     setSelectedColumns([]);
-  //   } else {
-  //     setSelectedColumns(allColumnFields);
-  //   }
-  //   setSelectAll((prevSelectAll) => !prevSelectAll);
-  // };
   const handleSelectAllToggle = () => {
+    const allColumnFields = getColumns(data).map(({ field }) => field);
     if (selectAll) {
-      setSelectedColumns([]); // Deselect all columns
+      setSelectedColumns([]);
     } else {
-      const allColumns = getColumns(data) // Select all columns
-        .concat(
-          columnDatakam
-            ? Object.keys(columnDatakam?.content[0] || {}).map((key) => ({
-                field: key,
-                header: key,
-              }))
-            : []
-        )
-        .map((column) => column.field);
-
-      setSelectedColumns(allColumns);
+      setSelectedColumns(allColumnFields);
     }
-    setSelectAll(!selectAll);
+    setSelectAll((prevSelectAll) => !prevSelectAll);
   };
 
   const handleModalClose = () => {
@@ -300,24 +305,48 @@ const CustomTable = ({
   };
 
   //sort asc desc
+  // const handleSort = (column) => {
+  //   const newSortOrder =
+  //     sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
+  //   // Update sort state
+  //   setSortColumn(column);
+  //   setSortOrder(newSortOrder);
+  // };
+  // // Trigger the API call when sortColumn or sortOrder changes
+  // useEffect(() => {
+  //   refetchKamWiseSales({
+  //     filters: {
+  //       ...filters,
+  //       sortBy: sortColumn,
+  //       sortDir: sortOrder,
+  //     },
+  //     page: currentPage,
+  //   });
+  // }, [sortColumn, sortOrder, refetchKamWiseSales]); // Ensure dependencies are correct
+
   const handleSort = (column) => {
     const newSortOrder =
       sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
-    // Update sort state
+
+    // Update sort state with the column
+    console.log("Columnnnnnnnnnnnnnnnnnnn", column);
+    
     setSortColumn(column);
     setSortOrder(newSortOrder);
   };
-  // Trigger the API call when sortColumn or sortOrder changes
+
+  // Trigger the API call when sortColumn, sortOrder, or filters change
   useEffect(() => {
     refetchKamWiseSales({
       filters: {
         ...filters,
-        sortBy: sortColumn,
+        filter: mapFilters(filters.filter), // Ensure filters are mapped dynamically
+        sortBy: columnMappings[sortColumn] || sortColumn, // Map sortBy dynamically
         sortDir: sortOrder,
       },
       page: currentPage,
     });
-  }, [sortColumn, sortOrder, refetchKamWiseSales]); // Ensure dependencies are correct
+  }, [sortColumn, sortOrder, filters.filter, refetchKamWiseSales]);
 
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray]; // Copy the original data
@@ -522,16 +551,15 @@ const CustomTable = ({
       console.error("Filter condition, value, or column is missing");
     }
   };
-  
+
   const handleClick = () => {
     if (activeFilterColumn) {
-      const columnType = activeFilterColumn; 
+      const columnType = activeFilterColumn;
       columnType.includes("SUM(")
         ? handleApplyFilters()
         : handleApplyFiltersSUM();
     }
   };
-
 
   const exportToExcel = () => {
     import("xlsx").then((xlsx) => {
@@ -901,7 +929,7 @@ const CustomTable = ({
                               onClose={() => setActiveFilterColumn(null)}
                             >
                               <PopoverTrigger>
-                              <Button
+                                <Button
                                   bg="transparent"
                                   onClick={() => handlePopoverClick(column)} // Set the clicked column as active
                                 >
@@ -1028,7 +1056,7 @@ const CustomTable = ({
                                         color: "white",
                                         bg: "mainBlue",
                                       }}
-                                      onClick={handleClick} 
+                                      onClick={handleClick}
                                     >
                                       Apply
                                     </Button>

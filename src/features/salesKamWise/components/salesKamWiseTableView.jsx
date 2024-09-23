@@ -98,14 +98,14 @@ const SalesKamWiseTableView = () => {
 
   const extractFields = (data, index) => ({
     "SL No": index + 1,
-    "Kam Name": data["kam.kamName"],
-    Email: data["kam.email"],
-    "Emp Code": data["kam.emp_code"],
-    Designation: data["kam.designation"],
-    Contact: data["kam.contact"],
-    "Invoice No": data["invoice_no"],
-    Invoice_date: data["invoice_date"],
-    "Due Amount": data["SUM(due_amount)"],
+    "kamName": data["kam.kamName"],
+    "email": data["kam.email"],
+    "emp_code": data["kam.emp_code"],
+    "designation": data["kam.designation"],
+    "contact": data["kam.contact"],
+    "invoice_no": data["invoice_no"],
+    "invoice_date": data["invoice_date"],
+    "due_amount": data["SUM(due_amount)"],
   });
 
   useEffect(() => {
