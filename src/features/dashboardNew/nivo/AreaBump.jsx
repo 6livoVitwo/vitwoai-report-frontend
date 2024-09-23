@@ -56,7 +56,7 @@ const AreaBump = ({ liveData = [], startDate = "", endDate = "", dynamicWidth = 
     console.log('liveData in the useeffect 🍃:', liveData);
 
   }, [startDate, endDate, dynamicWidth, liveData, inputType]);
-
+console.log('area bump data', JSON.stringify(data))
   return (
     <>
       {liveData.length > 0 ? (
@@ -124,7 +124,6 @@ const AreaBump = ({ liveData = [], startDate = "", endDate = "", dynamicWidth = 
           }}
         />
       ) : (
-        <div style={{ width: "100%", overflowX: "auto", height: "300px" }}>
           <ResponsiveAreaBump
             data={areaBumpData}
             margin={{ top: 40, right: 100, bottom: 40, left: 100 }}
@@ -186,7 +185,6 @@ const AreaBump = ({ liveData = [], startDate = "", endDate = "", dynamicWidth = 
               truncateTickAt: 0,
             }}
           />
-        </div>
       )}
     </>
   );

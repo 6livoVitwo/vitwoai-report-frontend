@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDynamicNewQuery } from "../slice/graphApi";
-import { Alert, AlertIcon, Box, Button, Divider, Grid, Heading, Select, Spinner, Stack, useToast, Text } from "@chakra-ui/react";
-import { capitalizeWord, lastDateOfMonth } from "../../../utils/common";
+import { Alert, AlertIcon, Box, Button, Divider, Grid, Heading, Select, Spinner, Stack, useToast, Text, Badge, Card, CardFooter, CardBody, CardHeader } from "@chakra-ui/react";
+import { capitalizeWord } from "../../../utils/common";
 import { MdRemoveRedEye, MdSave } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { addWidget, updateWidget } from "../slice/graphSlice";
@@ -9,15 +9,18 @@ import { Accordion, AccordionTab } from "primereact/accordion";
 import AreaBump from "../../dashboardNew/nivo/AreaBump";
 import TypingMaster from "../../dashboardNew/components/TypingMaster";
 import { split } from "lodash";
-import { calculateCount, createBodyWise, getDateDifference, getMonthDifference, setDateRange, updateBodyWise, updateCountAndWidth } from "../../../utils/graphs-utilitis";
-import { Calendar } from 'primereact/calendar';
-import { format } from "date-fns";
+import { calculateCount, createBodyWise, setDateRange, updateBodyWise, updateCountAndWidth } from "../../../utils/graphs-utilitis";
+import Bump from "../../dashboardNew/nivo/Bump";
+import LineChart from "../../dashboardNew/nivo/LineChart";
 // all chart components here
 const chartComponents = {
   areaBump: AreaBump,
+  bump: Bump,
+  line: LineChart
 };
 
 const ChartConfiguration = ({ configureChart }) => {
+  console.log('01', { configureChart })
   const { type } = configureChart;
   const toast = useToast();
   const dispatch = useDispatch();
@@ -47,6 +50,20 @@ const ChartConfiguration = ({ configureChart }) => {
         body: bodyWise
       },
     ],
+    bump: [
+      {
+        wise: "sales",
+        endpoint: "/sales/graph/product-wise-area-bump",
+        body: bodyWise
+      }
+    ],
+    line: [
+      {
+        wise: "sales",
+        endpoint: "/sales/graph/product-wise-area-bump",
+        body: bodyWise
+      }
+    ]
   });
 
   const handleInputType = (data) => {
@@ -110,10 +127,25 @@ const ChartConfiguration = ({ configureChart }) => {
           body: newBodyWise
         },
       ],
+      bump: [
+        {
+          wise: "sales",
+          endpoint: "/sales/graph/product-wise-area-bump",
+          body: newBodyWise
+        }
+      ],
+      line: [
+        {
+          wise: "sales",
+          endpoint: "/sales/graph/product-wise-area-bump",
+          body: newBodyWise
+        }
+      ]
     }));
   };
 
   const chartConfig = chartApiConfig[type];
+
   const { endpoint, body } = chartConfig ? chartConfig.find((config) => config.wise === wise) : {};
   const { data: graphData, isLoading, isError, error } = useDynamicNewQuery(endpoint ? { endpoint, body } : null, { skip: !endpoint });
 
@@ -205,145 +237,140 @@ const ChartConfiguration = ({ configureChart }) => {
   };
 
   return (
-    <>
-      <Box
-        display="flex"
-        flexWrap="wrap"
-        justifyContent="space-between"
-        marginTop="10px"
-      >
-        {/* graph view section */}
+    <Card variant={'unstyled'}>
+      <CardBody sx={{ minHeight: "77vh" }}>
         <Box
-          width={{
-            base: "100%",
-            lg: "59%",
-          }}
-          mb={6}>
+          display="flex"
+          flexWrap="wrap"
+          justifyContent="space-between"
+          marginTop="10px"
+        >
+          {/* graph view section */}
           <Box
-            sx={{
-              backgroundColor: "white",
-              padding: "15px",
-              borderRadius: "8px",
-              border: "1px solid #c4c4c4",
+            width={{
+              base: "100%",
+              lg: "59%",
             }}
-            mb={3}>
+            mb={6}>
             <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-              mb={8}>
+              sx={{
+                backgroundColor: "white",
+                padding: "15px",
+                borderRadius: "8px",
+                border: "1px solid #c4c4c4",
+              }}
+              mb={3}>
               <Box
-                style={{
-                  padding: "10px",
-                  fontWeight: 600,
-                  color: "black",
-                }}>
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                mb={8}>
                 <Heading mt={4} mb={4}>
-                  {wise !== "" ? capitalizeWord(wise) : capitalizeWord(type)}
+                  {wise !== "" ? capitalizeWord(wise) : capitalizeWord(type)} Product Wise
                 </Heading>
+                <Badge colorScheme="green" px={4}>{type}</Badge>
               </Box>
-            </Box>
-            <Box sx={{ height: "350px", width: "100%", overflowX: "auto" }}>
-              <ChartComponent
-                liveData={chartDataApi}
-                startDate={startDate}
-                endDate={endDate}
-                dynamicWidth={dynamicWidth}
-                inputType={inputType}
-              />
+              <Box sx={{ height: "350px", width: "100%", overflowX: "auto" }}>
+                <ChartComponent
+                  liveData={chartDataApi}
+                  startDate={startDate}
+                  endDate={endDate}
+                  dynamicWidth={dynamicWidth}
+                  inputType={inputType}
+                />
+              </Box>
             </Box>
           </Box>
-        </Box>
 
-        {/* accordion section */}
-        <Box
-          width={{
-            base: "100%",
-            lg: "39%",
-          }}>
-          <Accordion activeIndex={0}>
-            <AccordionTab
-              header="Basic Info"
-              headerStyle={{
-                backgroundColor: "#f0f0f0",
-                color: "#333",
-                padding: "7px",
-                fontSize: "14px",
-                fontWeight: "bold",
-                borderTopLeftRadius: "6px",
-                borderTopRightRadius: "6px",
-              }}
-              contentStyle={{
-                border: "1px solid #ecebeb",
-              }}>
-              <Box mb={3}>
-                <Box style={{ lineHeight: "1.5", fontSize: "14px" }}>
-                  <Heading mt={4} mb={4}>
-                    Graph Info
-                  </Heading>
-                  <TypingMaster />
-                </Box>
-              </Box>
-            </AccordionTab>
-            <AccordionTab
-              header="Customized Graph"
-              headerStyle={{
-                backgroundColor: "#f0f0f0",
-                color: "#333",
-                padding: "7px",
-                fontSize: "14px",
-                fontWeight: "bold",
-                borderTopLeftRadius: "6px",
-                borderTopRightRadius: "6px",
-              }}
-              contentStyle={{
-                border: "1px solid #ecebeb",
-              }}>
-              <Box>
-                <Grid templateColumns="repeat(1, 1fr)" gap={6}>
-                  <Stack spacing={3}>
-                    <Text fontSize="sm" fontWeight="500">
-                      Period (<span style={{ textTransform: "capitalize", fontWeight: "bold", color: "green" }}>{inputType}</span> Wise)
-                    </Text>
-                    <Select size="lg" value={inputType} onChange={(e) => handleInputType(e.target.value)}>
-                      <option value="date">Day</option>
-                      <option value="month">Month</option>
-                      <option value="year">Year</option>
-                    </Select>
-                  </Stack>
-                </Grid>
-                <Grid templateColumns="repeat(1, 1fr)" gap={6}>
-                  <Stack spacing={3}>
-                    <Text fontSize="sm" fontWeight="500">
-                      Quantity
-                    </Text>
-                    <Select size="lg" value={priceOrQty} onChange={(e) => handlePriceOrQty(e.target.value)}>
-                      <option value="qty">Qty</option>
-                      <option value="price">Price</option>
-                    </Select>
-                  </Stack>
-                </Grid>
-                <Stack spacing={0} sx={{
-                  borderRadius: "6px",
-                  shadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
-                  border: "1px solid rgba(0, 0, 0, 0.10)",
-                  mt: 4,
-                  p: 4
+          {/* accordion section */}
+          <Box
+            width={{
+              base: "100%",
+              lg: "39%",
+            }}>
+            <Accordion activeIndex={0}>
+              <AccordionTab
+                header="Basic Info"
+                headerStyle={{
+                  backgroundColor: "#f0f0f0",
+                  color: "#333",
+                  padding: "7px",
+                  fontSize: "14px",
+                  fontWeight: "bold",
+                  borderTopLeftRadius: "6px",
+                  borderTopRightRadius: "6px",
+                }}
+                contentStyle={{
+                  border: "1px solid #ecebeb",
                 }}>
-                  <Text fontSize="sm" fontWeight="500">
-                    Date Filter (<span style={{ textTransform: "capitalize", fontWeight: "bold", color: "green" }}>{inputType}</span> Wise)
-                  </Text>
-                  <Grid templateColumns="repeat(2, 1fr)" gap={6}>
-                    <Stack spacing={0}>
-                      <Text fontSize="sm" fontWeight="500" >From Date</Text>
-                      <input style={{ border: "1px solid rgba(0, 0, 0, 0.10)", borderRadius: "6px", paddingLeft: 4, paddingRight: 4 }} type={inputType} value={startDate} onChange={(e) => handleFromDate(e.target.value)} />
-                    </Stack>
-                    <Stack spacing={0}>
-                      <Text fontSize="sm" fontWeight="500">To Date</Text>
-                      <input style={{ border: "1px solid rgba(0, 0, 0, 0.10)", borderRadius: "6px", paddingLeft: 4, paddingRight: 4 }} type={inputType} value={endDate} onChange={(e) => handleToDate(e.target.value)} />
+                <Box mb={3}>
+                  <Box style={{ lineHeight: "1.5", fontSize: "14px" }}>
+                    <Heading mt={4} mb={4}>
+                      Graph Info
+                    </Heading>
+                    <TypingMaster />
+                  </Box>
+                </Box>
+              </AccordionTab>
+              <AccordionTab
+                header="Customized Graph"
+                headerStyle={{
+                  backgroundColor: "#f0f0f0",
+                  color: "#333",
+                  padding: "7px",
+                  fontSize: "14px",
+                  fontWeight: "bold",
+                  borderTopLeftRadius: "6px",
+                  borderTopRightRadius: "6px",
+                }}
+                contentStyle={{
+                  border: "1px solid #ecebeb",
+                }}>
+                <Box>
+                  <Grid templateColumns="repeat(1, 1fr)" gap={6}>
+                    <Stack spacing={3}>
+                      <Text fontSize="sm" fontWeight="500">
+                        Period (<span style={{ textTransform: "capitalize", fontWeight: "bold", color: "green" }}>{inputType}</span> Wise)
+                      </Text>
+                      <Select size="lg" value={inputType} onChange={(e) => handleInputType(e.target.value)}>
+                        <option value="date">Day</option>
+                        <option value="month">Month</option>
+                        <option value="year">Year</option>
+                      </Select>
                     </Stack>
                   </Grid>
-                  {/* <Grid templateColumns="repeat(2, 1fr)" gap={6}>
+                  <Grid templateColumns="repeat(1, 1fr)" gap={6}>
+                    <Stack spacing={3}>
+                      <Text fontSize="sm" fontWeight="500">
+                        Quantity
+                      </Text>
+                      <Select size="lg" value={priceOrQty} onChange={(e) => handlePriceOrQty(e.target.value)}>
+                        <option value="qty">Qty</option>
+                        <option value="price">Price</option>
+                      </Select>
+                    </Stack>
+                  </Grid>
+                  <Stack spacing={0} sx={{
+                    borderRadius: "6px",
+                    shadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+                    border: "1px solid rgba(0, 0, 0, 0.10)",
+                    mt: 4,
+                    p: 4
+                  }}>
+                    <Text fontSize="sm" fontWeight="500">
+                      Date Filter (<span style={{ textTransform: "capitalize", fontWeight: "bold", color: "green" }}>{inputType}</span> Wise)
+                    </Text>
+                    <Grid templateColumns="repeat(2, 1fr)" gap={6}>
+                      <Stack spacing={0}>
+                        <Text fontSize="sm" fontWeight="500" >From Date</Text>
+                        <input style={{ border: "1px solid rgba(0, 0, 0, 0.10)", borderRadius: "6px", paddingLeft: 4, paddingRight: 4 }} type={inputType} value={startDate} onChange={(e) => handleFromDate(e.target.value)} />
+                      </Stack>
+                      <Stack spacing={0}>
+                        <Text fontSize="sm" fontWeight="500">To Date</Text>
+                        <input style={{ border: "1px solid rgba(0, 0, 0, 0.10)", borderRadius: "6px", paddingLeft: 4, paddingRight: 4 }} type={inputType} value={endDate} onChange={(e) => handleToDate(e.target.value)} />
+                      </Stack>
+                    </Grid>
+                    {/* <Grid templateColumns="repeat(2, 1fr)" gap={6}>
                     <Stack spacing={0}>
                       <Text fontSize="sm" fontWeight="500" >From Year</Text>
                       <Calendar value={startDate} onChange={(e) => handleFromYear(e.target.value)} view="year" dateFormat="yy" />
@@ -353,41 +380,44 @@ const ChartConfiguration = ({ configureChart }) => {
                       <Calendar value={endDate} onChange={(e) => handleToYear(e.target.value)} view="year" dateFormat="yy" />
                     </Stack>
                   </Grid> */}
-                </Stack>
-              </Box>
-            </AccordionTab>
-          </Accordion>
+                  </Stack>
+                </Box>
+              </AccordionTab>
+            </Accordion>
+          </Box>
         </Box>
-      </Box>
+      </CardBody>
       {/* footer area */}
-      <Divider my={6} />
-      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-        <Button
-          variant="outline"
-          colorScheme="pink"
-          leftIcon={previewLoading ? <Spinner /> : <MdRemoveRedEye />}
-          sx={{
-            p: "20px 20px",
-            fontSize: "14px",
-          }}
-          mr={3}
-          onClick={handlePreviewBtn}>
-          Preview
-        </Button>
-        <Button
-          variant="solid"
-          colorScheme="teal"
-          leftIcon={<MdSave />}
-          sx={{
-            p: "20px 20px",
-            fontSize: "14px",
-          }}
-          mr={3}
-          onClick={handleSaveBtn}>
-          Save
-        </Button>
-      </Box>
-    </>
+      <Divider my={6} sx={{border : "1px solid #e4e4e4"}} />
+      <CardFooter sx={{ display: "flex", justifyContent: "flex-end" }}>
+        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+          <Button
+            variant="outline"
+            colorScheme="pink"
+            leftIcon={previewLoading ? <Spinner /> : <MdRemoveRedEye />}
+            sx={{
+              p: "20px 20px",
+              fontSize: "14px",
+            }}
+            mr={3}
+            onClick={handlePreviewBtn}>
+            Preview
+          </Button>
+          <Button
+            variant="solid"
+            colorScheme="teal"
+            leftIcon={<MdSave />}
+            sx={{
+              p: "20px 20px",
+              fontSize: "14px",
+            }}
+            mr={3}
+            onClick={handleSaveBtn}>
+            Save
+          </Button>
+        </Box>
+      </CardFooter>
+    </Card>
   );
 };
 
