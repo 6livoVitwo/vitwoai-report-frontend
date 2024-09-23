@@ -36,5 +36,8 @@ export const salesProductWiseApi = apiSlice.injectEndpoints({
   }),
 });
 
-export const { useProductWiseSalesQuery, useGetSelectedColumnsQuery, useGetGlobalsearchProductQuery } =
-  salesProductWiseApi;
+export const {
+  useProductWiseSalesQuery,
+  useGetSelectedColumnsQuery,
+  useGetGlobalsearchProductQuery,
+} = salesProductWiseApi;

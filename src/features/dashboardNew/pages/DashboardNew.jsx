@@ -2,13 +2,12 @@ import { Alert, Badge, Box, Button, Divider, Drawer, DrawerBody, DrawerCloseButt
 import React, { useState } from 'react'
 import { FiPlus, FiSettings } from 'react-icons/fi'
 import { IoMdAdd } from 'react-icons/io';
-import BarChart from '../nivo/BarChart';
 import { chartsData } from '../data/fakeData';
 import ChartConfiguration from '../components/ChartConfiguration';
 import { useSelector } from 'react-redux';
-import MyCharts from '../../dashboard/nivoCharts/MyCharts';
 import DynamicChart from '../components/DynamicChart';
 import NewMyCharts from '../nivo/NewMyCharts';
+import TestComp from '../components/TestComp';
 
 const DashboardNew = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -40,11 +39,15 @@ const DashboardNew = () => {
 
     return (
         <>
+        <Box>
+            <TestComp />
+        </Box>
             <Box
                 sx={{
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
+                    mt: 60,
                     '& button': {
                         color: '#718296',
                         padding: '20px 20px',
@@ -110,7 +113,7 @@ const DashboardNew = () => {
                                     boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 4px',
                                     p: 2,
                                     my: 2,
-                                    flexGrow: 1,
+                                    flexGrow: 1
                                 }}
                             >
                                 This a Navbar ({chartsData.charts.length})
@@ -325,30 +328,6 @@ const DashboardNew = () => {
                         <DrawerBody>
                             <ChartConfiguration configureChart={configureChart} />
                         </DrawerBody>
-                        {/* <Divider orientation='horizontal' mt={2} mb={2} /> */}
-                        {/* <DrawerFooter>
-                            <Button
-                                variant='outline'
-                                style={{
-                                    padding: '20px 20px',
-                                    fontSize: '14px',
-                                    color: 'white',
-                                    backgroundColor: '#003060',
-                                }}
-                                mr={3}>
-                                Save
-                            </Button>
-                            <Button
-                                variant='outline'
-                                style={{
-                                    padding: '20px 20px',
-                                    fontSize: '14px',
-                                    color: '#718296',
-                                }}
-                                mr={3}>
-                                Cancel
-                            </Button>
-                        </DrawerFooter> */}
                     </DrawerContent>
                 </Drawer>
             </Box>
