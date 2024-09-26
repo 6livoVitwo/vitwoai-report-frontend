@@ -56,7 +56,7 @@ const AreaBump = ({ liveData = [], startDate = "", endDate = "", dynamicWidth = 
     console.log('liveData in the useeffect 🍃:', liveData);
 
   }, [startDate, endDate, dynamicWidth, liveData, inputType]);
-console.log('area bump data', JSON.stringify(data))
+  
   return (
     <>
       {liveData.length > 0 ? (

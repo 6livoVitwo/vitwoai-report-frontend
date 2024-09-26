@@ -74,7 +74,7 @@ import PoWiseTableView from "../features/poWise/components/poWiseTableView";
 import PoWiseGraphView from "../features/poWise/components/poWiseGraphView";
 import SalesSoWise from "../features/salesSoWise/components/index";
 import SalesSoWiseTableView from "../features/salesSoWise/components/salesSoWiseTableView";
-import SalesSoWiseGraphView from "../features/salesSoWise/components/salesSoWiseGraphView";
+// import SalesSoWiseGraphView from "../features/salesSoWise/components/salesSoWiseGraphView";
 import GlobalCss from "../features/global/css";
 import { setAuthDetails } from "./slice";
 import Allreports from "../features/allreports";
@@ -963,7 +963,7 @@ const AllRoutes = () => {
                 </PortalForLayout>
               }
             />
-            <Route
+            {/* <Route
               path="/reports/sales-so-wise/graph-view"
               element={
                 <PortalForLayout
@@ -974,7 +974,7 @@ const AllRoutes = () => {
                   />
                 </PortalForLayout>
               }
-            />
+            /> */}
           </Route>
 
           <Route

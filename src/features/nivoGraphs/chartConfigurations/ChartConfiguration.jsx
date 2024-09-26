@@ -6,13 +6,16 @@ import { MdRemoveRedEye, MdSave } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { addWidget, updateWidget } from "../slice/graphSlice";
 import { Accordion, AccordionTab } from "primereact/accordion";
-import TypingMaster from "../../dashboardNew/components/TypingMaster";
+
 import { split } from "lodash";
+
+import AreaBumpChart from "../chartSettings/AreaBumpChart";
+import BumpChart from "../chartSettings/BumpChart";
+import LineChart from "../chartSettings/LineChart";
+import FunnelChart from "../chartSettings/FunnelChart";
 import { calculateCount, createBodyWise, setDateRange, updateBodyWise, updateCountAndWidth } from "../../../utils/graphs-utilitis";
-import AreaBumpChart from "../../nivoGraphs/chartSettings/AreaBumpChart";
-import BumpChart from "../../nivoGraphs/chartSettings/BumpChart";
-import LineChart from "../../nivoGraphs/chartSettings/LineChart";
-import FunnelChart from "../../nivoGraphs/chartSettings/FunnelChart";
+import TypingMaster from "../../dashboardNew/components/TypingMaster";
+
 // all chart components here
 const chartComponents = {
   areaBump: AreaBumpChart,

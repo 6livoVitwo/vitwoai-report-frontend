@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useDynamicNewQuery } from "../slice/graphApi";
+
 import { Alert, AlertIcon, Box, Button, Divider, Grid, Heading, Select, Spinner, Stack, useToast, Text, Badge, Card, CardFooter, CardBody } from "@chakra-ui/react";
 import { capitalizeWord } from "../../../utils/common";
 import { MdRemoveRedEye, MdSave } from "react-icons/md";
@@ -9,21 +9,18 @@ import { Accordion, AccordionTab } from "primereact/accordion";
 import TypingMaster from "../../dashboardNew/components/TypingMaster";
 import { split } from "lodash";
 import { calculateCount, createBodyWise, setDateRange, updateBodyWise, updateCountAndWidth } from "../../../utils/graphs-utilitis";
-import AreaBumpChart from "../../nivoGraphs/chartSettings/AreaBumpChart";
-import BumpChart from "../../nivoGraphs/chartSettings/BumpChart";
-import LineChart from "../../nivoGraphs/chartSettings/LineChart";
 import FunnelChart from "../../nivoGraphs/chartSettings/FunnelChart";
+import { useDynamicNewForSoQuery } from "../slice/graphApi";
+
 // all chart components here
 const chartComponents = {
-  areaBump: AreaBumpChart,
-  bump: BumpChart,
-  line: LineChart,
   funnel: FunnelChart
 };
 
 const ChartConfiguration = ({ configureChart }) => {
   console.log('01', { configureChart })
   const { type } = configureChart;
+  console.log({ type })
   const toast = useToast();
   const dispatch = useDispatch();
 
@@ -37,6 +34,7 @@ const ChartConfiguration = ({ configureChart }) => {
   const [dynamicWidth, setDynamicWidth] = useState(1200);
   const [startDate, setStartDate] = useState(inputType === 'month' ? '2024-01' : inputType === 'year' ? '2021' : '2024-01-01');
   const [endDate, setEndDate] = useState(inputType === 'month' ? '2024-12' : inputType === 'year' ? '2024' : '2024-01-20');
+  const [processFlow, setProcessFlow] = useState("/sales/graph/so-wise-flow-process");
   const [bodyWise, setBodyWise] = useState({
     "priceOrQty": `${priceOrQty}`,
     "yearFrom": split(startDate, '-')[0],
@@ -66,6 +64,14 @@ const ChartConfiguration = ({ configureChart }) => {
         wise: "sales",
         method: "POST",
         endpoint: "/sales/graph/product-wise-time-series-seq",
+        body: bodyWise
+      }
+    ],
+    funnel: [
+      {
+        wise: "sales",
+        method: "GET",
+        endpoint: processFlow,
         body: bodyWise
       }
     ]
@@ -129,7 +135,7 @@ const ChartConfiguration = ({ configureChart }) => {
         {
           wise: "sales",
           method: "POST",
-          endpoint: "/sales/graph/product-wise-time-series-seq",
+          endpoint: "/sales/graph/product-wise-area-bump",
           body: newBodyWise
         },
       ],
@@ -137,7 +143,7 @@ const ChartConfiguration = ({ configureChart }) => {
         {
           wise: "sales",
           method: "POST",
-          endpoint: "/sales/graph/product-wise-time-series-seq",
+          endpoint: "/sales/graph/product-wise-area-bump",
           body: newBodyWise
         }
       ],
@@ -145,7 +151,15 @@ const ChartConfiguration = ({ configureChart }) => {
         {
           wise: "sales",
           method: "POST",
-          endpoint: "/sales/graph/product-wise-time-series-seq",
+          endpoint: "/sales/graph/product-wise-area-bump",
+          body: newBodyWise
+        }
+      ],
+      funnel: [
+        {
+          wise: "sales",
+          method: "GET",
+          endpoint: processFlow,
           body: newBodyWise
         }
       ]
@@ -153,15 +167,30 @@ const ChartConfiguration = ({ configureChart }) => {
   };
 
   const chartConfig = chartApiConfig[type];
+  console.log('🔵hello',{processFlow}) 
+  console.log('🔵hello',{chartConfig})
 
   const { endpoint, body, method } = chartConfig ? chartConfig.find((config) => config.wise === wise) : {};
-  const { data: graphData, isLoading, isError, error } = useDynamicNewQuery(endpoint ? { endpoint, body, method } : null, { skip: !endpoint });
+  const { data: graphData, isLoading, isError, error, refetch } = useDynamicNewForSoQuery(endpoint ? { endpoint:processFlow, body, method } : null, { skip: !endpoint });
+  console.log('🧨🟢', { graphData })
+
+  console.log(`🟢This is - `, { type })
+  let finalData = graphData?.data;
+  if (type === 'funnel') {
+    finalData = graphData?.steps;
+  }
+  console.log(`🔴THis is final data`)
+  console.log({ finalData })
+
+  useEffect(() => {
+    refetch();
+  }, [processFlow])
 
   useEffect(() => {
     let isMounted = false;
 
-    if (graphData) {
-      const processedData = graphData?.data.map((item) => {
+    if (finalData) {
+      const processedData = finalData.map((item) => {
         return {
           ...item,
           data: item?.data?.map((entry) => {
@@ -182,7 +211,9 @@ const ChartConfiguration = ({ configureChart }) => {
     return () => {
       isMounted = true;
     }
-  }, [graphData, endDate]);
+  }, [finalData, endDate]);
+
+  console.log('🟢 hey - ', { chartDataApi })
 
   const ChartComponent = chartComponents[type];
   if (isLoading) return <Spinner />;
@@ -209,6 +240,11 @@ const ChartConfiguration = ({ configureChart }) => {
       setPreviewLoading(false);
     }, 500);
   };
+
+  const handleProcessFlow = (value) => {
+    console.log({value})
+    setProcessFlow(value);
+  }
 
   // handle save button
   const handleSaveBtn = () => {
@@ -338,57 +374,17 @@ const ChartConfiguration = ({ configureChart }) => {
                   <Grid templateColumns="repeat(1, 1fr)" gap={6}>
                     <Stack spacing={3}>
                       <Text fontSize="sm" fontWeight="500">
-                        Period (<span style={{ textTransform: "capitalize", fontWeight: "bold", color: "green" }}>{inputType}</span> Wise)
+                        Process Flow
                       </Text>
-                      <Select size="lg" value={inputType} onChange={(e) => handleInputType(e.target.value)}>
-                        <option value="date">Day</option>
-                        <option value="month">Month</option>
-                        <option value="year">Year</option>
+                      <Select size="lg" value={processFlow} onChange={(e) => handleProcessFlow(e.target.value)}>
+                        <option value="/sales/graph/so-wise-flow-process">SO</option>
+                        <option value="/sales/graph/request-wise-flow-process">Request</option>
+                        <option value="/sales/graph/quotation-so-wise-flow-process">Quotation SO</option>
+                        <option value="/sales/graph/quotation-invoice-wise-flow-process">Quotation Invoice</option>
+                        <option value="/sales/graph/invoice-wise-flow-process">Invoice</option>
                       </Select>
                     </Stack>
                   </Grid>
-                  <Grid templateColumns="repeat(1, 1fr)" gap={6}>
-                    <Stack spacing={3}>
-                      <Text fontSize="sm" fontWeight="500">
-                        Quantity
-                      </Text>
-                      <Select size="lg" value={priceOrQty} onChange={(e) => handlePriceOrQty(e.target.value)}>
-                        <option value="qty">Qty</option>
-                        <option value="price">Price</option>
-                      </Select>
-                    </Stack>
-                  </Grid>
-                  <Stack spacing={0} sx={{
-                    borderRadius: "6px",
-                    shadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
-                    border: "1px solid rgba(0, 0, 0, 0.10)",
-                    mt: 4,
-                    p: 4
-                  }}>
-                    <Text fontSize="sm" fontWeight="500">
-                      Date Filter (<span style={{ textTransform: "capitalize", fontWeight: "bold", color: "green" }}>{inputType}</span> Wise)
-                    </Text>
-                    <Grid templateColumns="repeat(2, 1fr)" gap={6}>
-                      <Stack spacing={0}>
-                        <Text fontSize="sm" fontWeight="500" >From Date</Text>
-                        <input style={{ border: "1px solid rgba(0, 0, 0, 0.10)", borderRadius: "6px", paddingLeft: 4, paddingRight: 4 }} type={inputType} value={startDate} onChange={(e) => handleFromDate(e.target.value)} />
-                      </Stack>
-                      <Stack spacing={0}>
-                        <Text fontSize="sm" fontWeight="500">To Date</Text>
-                        <input style={{ border: "1px solid rgba(0, 0, 0, 0.10)", borderRadius: "6px", paddingLeft: 4, paddingRight: 4 }} type={inputType} value={endDate} onChange={(e) => handleToDate(e.target.value)} />
-                      </Stack>
-                    </Grid>
-                    {/* <Grid templateColumns="repeat(2, 1fr)" gap={6}>
-                    <Stack spacing={0}>
-                      <Text fontSize="sm" fontWeight="500" >From Year</Text>
-                      <Calendar value={startDate} onChange={(e) => handleFromYear(e.target.value)} view="year" dateFormat="yy" />
-                    </Stack>
-                    <Stack spacing={0}>
-                      <Text fontSize="sm" fontWeight="500">To Year</Text>
-                      <Calendar value={endDate} onChange={(e) => handleToYear(e.target.value)} view="year" dateFormat="yy" />
-                    </Stack>
-                  </Grid> */}
-                  </Stack>
                 </Box>
               </AccordionTab>
             </Accordion>
@@ -396,7 +392,7 @@ const ChartConfiguration = ({ configureChart }) => {
         </Box>
       </CardBody>
       {/* footer area */}
-      <Divider my={6} sx={{border : "1px solid #e4e4e4"}} />
+      <Divider my={6} sx={{ border: "1px solid #e4e4e4" }} />
       <CardFooter sx={{ display: "flex", justifyContent: "flex-end" }}>
         <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
           <Button
