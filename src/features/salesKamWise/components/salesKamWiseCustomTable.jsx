@@ -69,8 +69,6 @@ const CustomTable = ({
   newArray,
   alignment,
   filters,
-  sortBy,
-  sortDir,
 }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
@@ -98,8 +96,7 @@ const CustomTable = ({
   const generateColumnMappings = (filtersData) => {
     const mappings = [];
     filtersData.forEach((field) => {
-      // Extract a human-readable key from the field name
-      // e.g., "kam.kamName" -> "kamName"
+
       const humanReadableName = field.split(".").pop(); // Use your own logic for mapping
       mappings[humanReadableName] = field;
     });
@@ -107,11 +104,12 @@ const CustomTable = ({
   };
   // Dynamically generate column mappings from filters.data
   const columnMappings = generateColumnMappings(filters.data);
-  console.log("columnMappings", columnMappings);
+  console.log("🤣columnMappings", columnMappings);
   console.log(columnMappings["kamCode"]);
 
   // Function to map filters dynamically
   const mapFilters = (filters) => {
+    console.log('🙂',{ filters });
     return filters.map((filter) => ({
       ...filter,
       // If filter.column is a string, directly use columnMappings; otherwise, check for filter.column.key
@@ -119,14 +117,13 @@ const CustomTable = ({
     }));
   };
   
+  
   //API Calling sorting
-  const { data: kamData, refetch: refetchKamWiseSales } = useKamWiseSalesQuery({
+  const { data:kamData, refetch: refetchKamWiseSales } = useKamWiseSalesQuery({
     filters: {
       ...filters,
       filter: mapFilters(filters.filter), // Map filters dynamically
-      // sortBy: columnMappings["Email"] || sortColumn, // Map sortBy dynamically
-      sortBy: columnMappings[sortColumn],
-      sortDir: sortOrder,
+      
     },
     page: currentPage,
   });
@@ -302,51 +299,52 @@ const CustomTable = ({
     setColumnFilters({}); //clear filters
     setSearchQuery("");
     setInputValue("");
+    setSortColumn("");
+    setSortOrder("asc");
   };
 
-  //sort asc desc
-  // const handleSort = (column) => {
-  //   const newSortOrder =
-  //     sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
-  //   // Update sort state
-  //   setSortColumn(column);
-  //   setSortOrder(newSortOrder);
-  // };
-  // // Trigger the API call when sortColumn or sortOrder changes
-  // useEffect(() => {
-  //   refetchKamWiseSales({
-  //     filters: {
-  //       ...filters,
-  //       sortBy: sortColumn,
-  //       sortDir: sortOrder,
-  //     },
-  //     page: currentPage,
-  //   });
-  // }, [sortColumn, sortOrder, refetchKamWiseSales]); // Ensure dependencies are correct
-
+  // sort asc desc
   const handleSort = (column) => {
     const newSortOrder =
       sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
-
-    // Update sort state with the column
-    console.log("Columnnnnnnnnnnnnnnnnnnn", column);
-    
+    // Update sort state
     setSortColumn(column);
     setSortOrder(newSortOrder);
   };
-
-  // Trigger the API call when sortColumn, sortOrder, or filters change
+  // // Trigger the API call when sortColumn or sortOrder changes
   useEffect(() => {
     refetchKamWiseSales({
       filters: {
         ...filters,
-        filter: mapFilters(filters.filter), // Ensure filters are mapped dynamically
-        sortBy: columnMappings[sortColumn] || sortColumn, // Map sortBy dynamically
+        sortBy: sortColumn,
         sortDir: sortOrder,
       },
       page: currentPage,
     });
-  }, [sortColumn, sortOrder, filters.filter, refetchKamWiseSales]);
+  }, [sortColumn, sortOrder, refetchKamWiseSales]); // Ensure dependencies are correct
+
+  // const handleSort = (column) => {
+  //   const newSortOrder =
+  //     sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
+  //   // Update sort state with the column
+  //   console.log("Column", column);
+  //   setSortColumn(column);
+  //   setSortOrder(newSortOrder);
+  // };
+
+  // Trigger the API call when sortColumn, sortOrder, or filters change
+  // useEffect(() => {
+  //   refetchKamWiseSales({
+  //     filters: {
+  //       ...filters,
+  //       filter: mapFilters(filters.filter), // Ensure filters are mapped dynamically
+  //       sortBy: columnMappings[sortColumn] || sortColumn, // Map sortBy dynamically
+  //       sortDir: sortOrder,
+  //     },
+  //     page: currentPage,
+  //   });
+  // }, [sortColumn, sortOrder, filters.filter, refetchKamWiseSales]);
+
 
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray]; // Copy the original data
@@ -556,8 +554,8 @@ const CustomTable = ({
     if (activeFilterColumn) {
       const columnType = activeFilterColumn;
       columnType.includes("SUM(")
-        ? handleApplyFilters()
-        : handleApplyFiltersSUM();
+        ? handleApplyFiltersSUM()
+        : handleApplyFilters();
     }
   };
 

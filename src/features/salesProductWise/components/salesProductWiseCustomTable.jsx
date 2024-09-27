@@ -717,7 +717,60 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
               background: "#dedede",
             }}
           />
+           <Popover>
+            <PopoverTrigger>
+              <Button
+                rounded="full"
+                w="40px"
+                h="40px"
+                bg="none"
+                border="1px solid #1b4f72 "
+                _hover={{
+                  bg: "mainBlue",
+                  color: "white",
+                }}
+              >
+                Goods
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent>
+              {/* <PopoverArrow /> */}
+              <PopoverCloseButton />
+              <PopoverHeader display="flex" justifyContent="center">
+                Select Groups
+              </PopoverHeader>
+              <PopoverBody>
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  justifyContent="space-around"
+                >
+                  <Button
+                    rounded="9px"
+                    border="1px solid gray"
+                    w="100%"
+                    p=""
+                    m="2px"
+                    h="40px"
+                  >
+                    Good Groups
+                  </Button>
+                  <Button
+                    rounded="9px"
+                    border="1px solid gray"
+                    w="100%"
+                    p=""
+                    m="2px"
+                    h="40px"
+                  >
+                    Good Items
+                  </Button>
+                </Box>
+              </PopoverBody>
+            </PopoverContent>
+          </Popover>
           {/* Graph view  */}
+          <Tooltip label="Graph View" hasArrow>
           <Button
             aria-label="Graph View"
             onClick={onOpenGraphAddDrawer}
@@ -739,7 +792,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
           >
             <FontAwesomeIcon icon={faChartLine} fontSize="20px" />
           </Button>
+          </Tooltip>
+          
 
+          <Tooltip label="Select Columns to Show" hasArrow>
           <Button
             onClick={onOpen}
             padding="15px"
@@ -756,7 +812,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
           >
             <FontAwesomeIcon icon={faChartSimple} fontSize="20px" />
           </Button>
+          </Tooltip>
           <Menu>
+          <Tooltip label="Export" hasArrow>
             <MenuButton
               color="mainBlue"
               border="1px solid gray"
@@ -778,6 +836,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
             >
               <DownloadIcon fontSize="20px" />
             </MenuButton>
+            </Tooltip>
             <MenuList>
               <MenuItem
                 onClick={exportToExcel}

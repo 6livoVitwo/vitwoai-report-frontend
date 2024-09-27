@@ -39,31 +39,13 @@ const SalesVerticalWiseTableView = () => {
       "SUM(all_total_amt)",
     ],
     groupBy: ["companyFunction.functionalities_name"],
-    filter: [
-      // {
-      //   column: "company_id",
-      //   operator: "equal",
-      //   type: "Integer",
-      //   value: 1,
-      // },
-      // {
-      //   column: "location_id",
-      //   operator: "equal",
-      //   type: "Integer",
-      //   value: 1,
-      // },
-      // {
-      //   column: "branch_id",
-      //   operator: "equal",
-      //   type: "Integer",
-      //   value: 1,
-      // },
-    ],
+    filter: [],
     page: 0,
     size: 20,
     sortDir: "asc",
     sortBy: "companyFunction.functionalities_name",
   };
+
   const {
     data: sales,
     isLoading,
@@ -75,7 +57,7 @@ const SalesVerticalWiseTableView = () => {
     size,
     authDetails: authData.authDetails,
   });
-
+  // console.log('Piyas_sales',{sales})
   const pageInfo = sales?.lastPage;
 
   const tableContainerRef = useRef(null);
@@ -103,7 +85,8 @@ const SalesVerticalWiseTableView = () => {
 
   const extractFields = (data, index) => ({
     "SL No": index + 1,
-    "Functional Area": data["companyFunction.functionalities_name"],
+    "companyFunction.functionalities_name":
+      data["companyFunction.functionalities_name"],
     "Sales Delivery Total Amount":
       data["SUM(salesPgi.salesDelivery.totalAmount)"],
     "Sales Pgi Total Amount": data["SUM(salesPgi.totalAmount)"],
@@ -113,7 +96,7 @@ const SalesVerticalWiseTableView = () => {
     "Sub Total": data["SUM(items.basePrice - items.totalDiscountAmt)"],
     "Total Amount": data["SUM(all_total_amt)"],
     "Due Amount": data["SUM(due_amount)"],
-    "Invoice date": formatDate(data["invoice_date"]),
+    invoice_date: formatDate(data["invoice_date"]),
   });
 
   useEffect(() => {
@@ -193,6 +176,7 @@ const SalesVerticalWiseTableView = () => {
   );
   // console.log(sales, 'main data');
   // console.log(newArray, 'newArray');
+  const mainData = sales?.content;
 
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">

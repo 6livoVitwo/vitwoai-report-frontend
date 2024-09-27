@@ -66,6 +66,12 @@ const Allreports = () => {
           link: "/reports/sales-kam-wise/table-view",
           imgsrc: SalesSoWise,
         },
+		{
+			id: "26",
+			name: "Region Wise",
+			link: "/reports/sales-region-wise/table-view",
+			imgsrc: SalesSoWise,
+		  },
       ],
     },
   ];

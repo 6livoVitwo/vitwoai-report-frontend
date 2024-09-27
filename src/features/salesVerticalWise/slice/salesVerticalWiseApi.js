@@ -8,10 +8,7 @@ export const salesVerticalWiseApi = apiSlice.injectEndpoints({
         return {
           url: `sales/sales-groupby-data`,
           method: "POST",
-          body,
-          headers: {
-            "Content-Type": "application/json",
-          },
+          body
         };
       },
     }),

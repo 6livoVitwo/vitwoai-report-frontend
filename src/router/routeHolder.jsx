@@ -90,9 +90,15 @@ import PurchasePoWiseTableView from "../features/purchasePoWise/components/purch
 import PurchasePoWiseGraphView from "../features/purchasePoWise/components/purchasePoWiseGraphView";
 import Reportdetails from "../features/reportdetails";
 import DashboardNew from "../features/dashboardNew/pages/DashboardNew";
+
 import SalesKamWise from "../features/salesKamWise/components";
 import SalesKamWiseTableView from "../features/salesKamWise/components/salesKamWiseTableView";
 import SalesKamWiseGraphView from "../features/salesKamWise/components/salesKamWiseGraphView";
+
+import SalesRegionWise from "../features/salesRegionWise/components";
+import SalesRegionWiseTableView from "../features/salesRegionWise/components/salesRegionWiseTableView";
+import SalesRegionStateWiseTableView from "../features/salesRegionWise/components/salesRegionStateWise";
+
 import PurchaseDetails from "../features/purchaseDetailsReport/components";
 import GraphCharts from "../features/graphCharts";
 import LineGraph from "../features/graphCharts/lineGraph";
@@ -155,14 +161,16 @@ const AllRoutes = () => {
           <Center h="100vh">
             <HashLoader color="#105380" size={20} speedMultiplier={1} />
           </Center>
-        }>
+        }
+      >
         <Routes location={locate} key={locate.key}>
           <Route
             path="/"
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <Dashboard globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
             }
@@ -172,7 +180,8 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <DashboardNew globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
             }
@@ -182,7 +191,8 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <AllCharts globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
             }
@@ -192,7 +202,8 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <GraphCharts globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
             }
@@ -202,7 +213,8 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <LineGraph globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
             }
@@ -212,16 +224,19 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <Allreports globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
-            }></Route>
+            }
+          ></Route>
           <Route
             path="/report-details"
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <Reportdetails globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
             }
@@ -232,34 +247,41 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <SalesDetails globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
-            }></Route>
+            }
+          ></Route>
           <Route
             path="/reports-details/purchase-details-report"
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <PurchaseDetails globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
-            }></Route>
+            }
+          ></Route>
           <Route
             path="/reports/transactional-day-book"
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <TransactionalDayBook globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
-            }>
+            }
+          >
             <Route
               path="/reports/transactional-day-book/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <TransactionalDayBookTableView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -271,7 +293,8 @@ const AllRoutes = () => {
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <TransactionalDayBookGraphView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -285,16 +308,19 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <BalanceSheet globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
-            }>
+            }
+          >
             <Route
               path="/reports/balance-sheet/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <BalanceSheetTableView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -306,7 +332,8 @@ const AllRoutes = () => {
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <BalanceSheetGraphView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -320,16 +347,19 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <ProfitAndLoss globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
-            }>
+            }
+          >
             <Route
               path="/reports/profit-and-loss/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <ProfitAndLossTableView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -341,7 +371,8 @@ const AllRoutes = () => {
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <ProfitAndLossGraphView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -355,16 +386,19 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <TrialBalance globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
-            }>
+            }
+          >
             <Route
               path="/reports/trial-balance/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <TrialBalanceTableView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -376,7 +410,8 @@ const AllRoutes = () => {
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <TrialBalanceGraphView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -390,16 +425,19 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <Receivable globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
-            }>
+            }
+          >
             <Route
               path="/reports/receivable/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <ReceivableTableView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -411,7 +449,8 @@ const AllRoutes = () => {
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <ReceivableGraphView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -425,16 +464,19 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <Payable globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
-            }>
+            }
+          >
             <Route
               path="/reports/payable/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <PayableTableView globalLayout={setGlobalStaticFragmennt} />
                 </PortalForLayout>
               }
@@ -444,7 +486,8 @@ const AllRoutes = () => {
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <PayableGraphView globalLayout={setGlobalStaticFragmennt} />
                 </PortalForLayout>
               }
@@ -456,16 +499,19 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <SpentAnalysis globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
-            }>
+            }
+          >
             <Route
               path="/reports/spent-analysis/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <SpentAnalysisTableView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -477,7 +523,8 @@ const AllRoutes = () => {
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <SpentAnalysisGraphView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -491,18 +538,21 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <InventoryAgeingIssueDate
                   globalLayout={setGlobalStaticFragmennt}
                 />
               </PortalForLayout>
-            }>
+            }
+          >
             <Route
               path="/reports/inventory-ageing-issue-date/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <InventoryAgeingIssueDateTableView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -514,7 +564,8 @@ const AllRoutes = () => {
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <InventoryAgeingIssueDateGraphView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -528,16 +579,19 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <StockReport globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
-            }>
+            }
+          >
             <Route
               path="/reports/stock-report/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <StockReportTableView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -549,7 +603,8 @@ const AllRoutes = () => {
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <StockReportGraphView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -563,16 +618,19 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <StockLog globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
-            }>
+            }
+          >
             <Route
               path="/reports/stock-log/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <StockLogTableView globalLayout={setGlobalStaticFragmennt} />
                 </PortalForLayout>
               }
@@ -582,7 +640,8 @@ const AllRoutes = () => {
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <StockLogGraphView globalLayout={setGlobalStaticFragmennt} />
                 </PortalForLayout>
               }
@@ -594,18 +653,21 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <InventoryAgeingReceivedDate
                   globalLayout={setGlobalStaticFragmennt}
                 />
               </PortalForLayout>
-            }>
+            }
+          >
             <Route
               path="/reports/inventory-ageing-received-date/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <InventoryAgeingReceivedDateTableView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -617,7 +679,8 @@ const AllRoutes = () => {
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <InventoryAgeingReceivedDateGraphView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -631,16 +694,19 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <PurchaseProductWise globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
-            }>
+            }
+          >
             <Route
               path="/reports/product-wise/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <PurchaseProductWiseTableView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -652,7 +718,8 @@ const AllRoutes = () => {
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <PurchaseProductWiseGraphView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -666,16 +733,19 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <ProductionOrder globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
-            }>
+            }
+          >
             <Route
               path="/reports/production-order/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <ProductionOrderTableView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -687,7 +757,8 @@ const AllRoutes = () => {
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <ProductionOrderGraphView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -701,16 +772,19 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <SectionWise globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
-            }>
+            }
+          >
             <Route
               path="/reports/section-wise/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <SectionWiseTableView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -722,7 +796,8 @@ const AllRoutes = () => {
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <SectionWiseGraphView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -736,16 +811,19 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <PurchaseVendorWise globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
-            }>
+            }
+          >
             <Route
               path="/reports/vendor-wise/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <PurchaseVendorWiseTableView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -757,7 +835,8 @@ const AllRoutes = () => {
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <PurchaseVendorWiseGraphView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -771,16 +850,19 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <TdsReturn globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
-            }>
+            }
+          >
             <Route
               path="/reports/tds-return/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <TdsReturnTableView globalLayout={setGlobalStaticFragmennt} />
                 </PortalForLayout>
               }
@@ -790,7 +872,8 @@ const AllRoutes = () => {
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <TdsReturnGraphView globalLayout={setGlobalStaticFragmennt} />
                 </PortalForLayout>
               }
@@ -802,16 +885,19 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <ExceptionReport globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
-            }>
+            }
+          >
             <Route
               path="/reports/exception-report/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <ExceptionReportTableView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -823,7 +909,8 @@ const AllRoutes = () => {
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <ExceptionReportGraphView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -837,18 +924,21 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <ProductionOrderTracking
                   globalLayout={setGlobalStaticFragmennt}
                 />
               </PortalForLayout>
-            }>
+            }
+          >
             <Route
               path="/reports/production-order-tracking/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <ProductionOrderTrackingTableView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -860,7 +950,8 @@ const AllRoutes = () => {
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <ProductionOrderTrackingGraphView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -874,16 +965,19 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <SalesProductWise globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
-            }>
+            }
+          >
             <Route
               path="/reports/sales-product-wise/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <SalesProductWiseTableView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -909,16 +1003,19 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <SalesCustomerWise globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
-            }>
+            }
+          >
             <Route
               path="/reports/sales-customer-wise/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <SalesCustomerWiseTableView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -944,16 +1041,19 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <SalesVerticalWise globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
-            }>
+            }
+          >
             <Route
               path="/reports/sales-vertical-wise/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <SalesVerticalWiseTableView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -967,16 +1067,19 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <SalesSoWise globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
-            }>
+            }
+          >
             <Route
               path="/reports/sales-so-wise/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <SalesSoWiseTableView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -988,7 +1091,8 @@ const AllRoutes = () => {
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <SalesSoWiseGraphView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -1002,16 +1106,19 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <SalesKamWise globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
-            }>
+            }
+          >
             <Route
               path="/reports/sales-kam-wise/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <SalesKamWiseTableView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -1023,8 +1130,48 @@ const AllRoutes = () => {
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <SalesKamWiseGraphView
+                    globalLayout={setGlobalStaticFragmennt}
+                  />
+                </PortalForLayout>
+              }
+            />
+          </Route>
+
+          <Route
+            path="/reports/sales-region-wise/"
+            element={
+              <PortalForLayout
+                globalLayout={globalStaticFragmennt}
+                portalId={commonPortalRef}
+              >
+                <SalesRegionWise globalLayout={setGlobalStaticFragmennt} />
+              </PortalForLayout>
+            }
+          >
+            <Route
+              path="/reports/sales-region-wise/table-view"
+              element={
+                <PortalForLayout
+                  globalLayout={globalStaticFragmennt}
+                  portalId={commonPortalRef}
+                >
+                  <SalesRegionWiseTableView
+                    globalLayout={setGlobalStaticFragmennt}
+                  />
+                </PortalForLayout>
+              }
+            />
+            <Route
+              path="/reports/sales-region-wise/state-view"
+              element={
+                <PortalForLayout
+                  globalLayout={globalStaticFragmennt}
+                  portalId={commonPortalRef}
+                >
+                  <SalesRegionStateWiseTableView
                     globalLayout={setGlobalStaticFragmennt}
                   />
                 </PortalForLayout>
@@ -1037,16 +1184,19 @@ const AllRoutes = () => {
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
-                portalId={commonPortalRef}>
+                portalId={commonPortalRef}
+              >
                 <PoWise globalLayout={setGlobalStaticFragmennt} />
               </PortalForLayout>
-            }>
+            }
+          >
             <Route
               path="/reports/po-wise/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <PurchasePoWiseTableView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -1058,7 +1208,8 @@ const AllRoutes = () => {
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
+                  portalId={commonPortalRef}
+                >
                   <PurchasePoWiseGraphView
                     globalLayout={setGlobalStaticFragmennt}
                   />
@@ -1084,7 +1235,8 @@ const RouteHolder = () => {
         p={0}
         maxW="100vw"
         minH="100vh"
-        color="grey.100">
+        color="grey.100"
+      >
         <DetectOffline showOverlay={false} showToast />
         <Router>
           <AllRoutes />

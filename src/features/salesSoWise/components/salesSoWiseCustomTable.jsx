@@ -88,6 +88,38 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   const [localFilters, setLocalFilters] = useState({ ...filters });
 
 
+  const generateColumnMappings = (filtersData) => {
+    const mappings = [];
+    filtersData.forEach((field) => {
+      const humanReadableName = field.split(".").pop(); // Use your own logic for mapping
+      mappings[humanReadableName] = field;
+    });
+    return mappings;
+  };
+  // Dynamically generate column mappings from filters.data
+  const columnMappings = generateColumnMappings(filters.data);
+  console.log("filter_1212", filters.data);
+  console.log("columnMappings_piyas", columnMappings);
+  console.log(columnMappings["trade_name"]);
+
+  // Function to map filters dynamically
+  const mapFilters = (filters) => {
+    return filters.map((filter) => ({
+      ...filter,
+      column: columnMappings[filter.column] || filter.column,
+    }));
+  };
+  //API Calling sorting
+  const { data: SoWise, refetch: refetchSoWise } = useSoWiseSalesQuery({
+    filters: {
+      ...filters,
+      filter: mapFilters(filters.filter), // Map filters dynamically
+      sortBy: columnMappings[sortColumn] || sortColumn,
+      sortDir: sortOrder,
+    },
+    page: currentPage,
+  });
+
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
   };
@@ -103,15 +135,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   //.......Api call to get selected columns......
   const { data: ColumnsData } = useGetSelectedColumnsSoQuery();
 
-  //API Calling sorting
-  const { data: SoWise, refetch: refetchSoWise } = useSoWiseSalesQuery({
-    filters: {
-      ...filters,
-      // sortBy: sortColumn, // Use the dynamic mapping
-      //sortDir: sortOrder,
-    },
-    page: currentPage,
-  });
+
 
   //.........Api call to get global search.......
   const { data: searchData } = useGetGlobalsearchQuery(filters, {
@@ -275,12 +299,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     setSearchQuery("");
     setInputValue("");
     setColumnFilters({});
-    setSortColumn("");
+    setSortColumn('');
+    setSortOrder("asc");
   };
+
   //sort asc desc
   const handleSort = (column) => {
-    const newSortOrder =
-      sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
+    const newSortOrder = sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
     // Update sort state
     setSortColumn(column);
     setSortOrder(newSortOrder);
@@ -296,6 +321,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
       page: currentPage,
     });
   }, [sortColumn, sortOrder, refetchSoWise]); // Ensure dependencies are correct
+
+
 
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray];
@@ -397,7 +424,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     const { scrollTop, scrollHeight, scrollleft, clientHeight } =
       tableContainerRef.current;
 
-    if ( scrollTop + clientHeight >= scrollHeight - 5) {
+    if (scrollTop + clientHeight >= scrollHeight - 5) {
       loadMoreData();
     }
   };
@@ -485,10 +512,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
       console.error("Filter condition, value, or column is missing");
     }
   };
-  
   const handleClick = () => {
     if (activeFilterColumn) {
-      const columnType = activeFilterColumn; 
+      const columnType = activeFilterColumn;
       columnType.includes("SUM(")
         ? handleApplyFiltersSUM()
         : handleApplyFilters();
@@ -863,7 +889,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                               onClose={() => setActiveFilterColumn(null)}
                             >
                               <PopoverTrigger>
-                              <Button
+                                <Button
                                   bg="transparent"
                                   onClick={() => handlePopoverClick(column)} // Set the clicked column as active
                                 >

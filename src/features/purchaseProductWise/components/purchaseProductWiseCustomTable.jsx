@@ -92,23 +92,41 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
 
+  const generateColumnMappings = (filtersData) => {
+    const mappings = [];
+    filtersData.forEach((field) => {
+      const humanReadableName = field.split(".").pop(); // Use your own logic for mapping
+      mappings[humanReadableName] = field;
+    });
+    return mappings;
+  };
+  // Dynamically generate column mappings from filters.data
+  const columnMappings = generateColumnMappings(filters.data);
+  console.log("🤣columnMappings", columnMappings);
+  // console.log(columnMappings["goodName"]);
+
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
+  };
+  // Function to map filters dynamically
+  const mapFilters = (filters) => {
+    return filters.map((filter) => ({
+      ...filter,
+      // If filter.column is a string, directly use columnMappings; otherwise, check for filter.column.key
+      column: columnMappings[filter.column],
+      // sortBy:filter.column,
+    }));
   };
 
   // const {data: sales} = useProductWisePurchaseQuery({filters});
   // console.log("sales_piyas1221", sales);
-  
 
   //...Advanced Filter API CALL...
   const { data: productDataFilter } = useProductWisePurchaseQuery(
-    { filters: localFilters },
+    { filters: localFilters }
     // { skip: !filtersApplied }
   );
-  console.log("productDataFilterPiyas", productDataFilter);
-  
-  
-
+  // console.log("productDataFilterPiyas", productDataFilter);
 
   //API Calling sorting
   const { data: ProductData, refetch: refetchProduct } =
@@ -314,8 +332,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     setSortColumn("");
   };
 
- 
-  
   // const filteredItems = productDataFilter?.content || [];
 
   const filteredItems = useMemo(() => {
@@ -496,7 +512,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
       console.error("Filter condition or value missing");
     }
   };
-  
+
   const handleApplyFilters = () => {
     if (tempFilterCondition && tempFilterValue && activeFilterColumn) {
       // Create a new filter object

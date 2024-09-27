@@ -25,26 +25,7 @@ let filters = {
     "SUM(items.totalTax)",
   ],
   groupBy: ["kam.kamName", "kam.kamCode"],
-  filter: [
-    // {
-    //   column: "company_id",
-    //   operator: "equal",
-    //   type: "Integer",
-    //   value: 1,
-    // },
-    // {
-    //   column: "location_id",
-    //   operator: "equal",
-    //   type: "Integer",
-    //   value: 1,
-    // },
-    // {
-    //   column: "branch_id",
-    //   operator: "equal",
-    //   type: "Integer",
-    //   value: 1,
-    // },
-  ],
+  filter: [],
   page: 0,
   size: 20,
   sortDir: "asc",
@@ -98,14 +79,14 @@ const SalesKamWiseTableView = () => {
 
   const extractFields = (data, index) => ({
     "SL No": index + 1,
-    "kamName": data["kam.kamName"],
-    "email": data["kam.email"],
-    "emp_code": data["kam.emp_code"],
-    "designation": data["kam.designation"],
-    "contact": data["kam.contact"],
-    "invoice_no": data["invoice_no"],
-    "invoice_date": data["invoice_date"],
-    "due_amount": data["SUM(due_amount)"],
+    kamName: data["kam.kamName"],
+    email: data["kam.email"],
+    emp_code: data["kam.emp_code"],
+    designation: data["kam.designation"],
+    contact: data["kam.contact"],
+    invoice_no: data["invoice_no"],
+    invoice_date: data["invoice_date"],
+    due_amount: data["SUM(due_amount)"],
   });
 
   useEffect(() => {

@@ -1,34 +1,38 @@
 import React, { useState, useEffect, useRef } from "react";
-import CustomTable from "./purchaseProductWiseCustomTable";
+import CustomTable from "./salesRegionWiseCustomTable";
 import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
-import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
-// import { jwtDecode } from "jwt-decode";
-
+import { useGetSelectedStateWiseQuery } from "../slice/salesRegionWiseApi";
 let filters = {
   data: [
-    "items.goodName",
-    "items.goodCode",
-    "SUM(items.goodQty)",
-    "SUM(items.receivedQty)",
-    "SUM(items.totalAmount)",
+    "customer.customerAddress.customer_address_state",
+    "SUM(igst)",
+    "SUM(sgst)",
+    "SUM(cgst)",
+    "SUM(due_amount)",
+    "SUM(salesPgi.salesDelivery.totalAmount)",
+    "SUM(salesPgi.totalAmount)",
+    "SUM(quotation.totalAmount)",
+    "SUM(salesOrder.totalAmount)",
+    "SUM(items.qty)",
+    "SUM(items.basePrice - items.totalDiscountAmt)",
+    "SUM(all_total_amt)",
   ],
-  groupBy: ["items.goodName"],
+  groupBy: ["customer.customerAddress.customer_address_state"],
   filter: [],
   page: 0,
   size: 50,
+  sortBy: "customer.customerAddress.customer_address_state",
   sortDir: "asc",
-  sortBy: "items.goodName",
 };
 
-const PurchaseProductWiseTableView = () => {
+const SalesRegionStateWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(50);
-  const [toastShown, setToastShown] = useState(false);
   const [individualItems, setIndividualItems] = useState([]);
-
+  const [toastShown, setToastShown] = useState(false);
   const toast = useToast();
 
   const {
@@ -36,14 +40,21 @@ const PurchaseProductWiseTableView = () => {
     isLoading,
     isFetching,
     error,
-  } = useProductWisePurchaseQuery({
+  } = useGetSelectedStateWiseQuery({
     filters,
     page,
     size,
     authDetails: authData.authDetails,
   });
- 
+  console.log("sales_121212p", sales);
+  console.log(sales?.content[0]);
+
+//   const joinedKeys = Object.keys(sales?.content[0] || {}).join(", ");
+//   console.log("🔴", joinedKeys);
   
+//   const convertToArray = Array(joinedKeys);
+//   console.log("🔴🟢", convertToArray);
+
   const pageInfo = sales?.lastPage;
 
   const tableContainerRef = useRef(null);
@@ -69,13 +80,28 @@ const PurchaseProductWiseTableView = () => {
     return result;
   };
 
+  // Function to convert API data (sales) keys into an array of objects with 'listName' and 'index'
+  const convertSalesDataToArray = (salesData) => {
+    if (!salesData) return [];
+
+    // Use Object.entries to get both keys and values
+    return Object.entries(salesData).map(([key, value], index) => ({
+      listName: key,
+      index: index + 1, // or any index logic you want
+      value: value,
+    }));
+  };
+
   const extractFields = (data, index) => ({
     "SL No": index + 1,
-    "items.goodName": data["items.goodName"],
-    "items.goodCode": data["items.goodCode"],
-    "Total Quantity": data["SUM(items.goodQty)"],
-    "Received Quantity": data["SUM(items.receivedQty)"],
-    "Total Amount": data["SUM(items.totalAmount)"],
+    "Quotation Total Amount": data["SUM(quotation.totalAmount)"],
+    // email: data["kam.email"],
+    // emp_code: data["kam.emp_code"],
+    // designation: data["kam.designation"],
+    // contact: data["kam.contact"],
+    // invoice_no: data["invoice_no"],
+    // invoice_date: data["invoice_date"],
+    // due_amount: data["SUM(due_amount)"],
   });
 
   useEffect(() => {
@@ -84,7 +110,7 @@ const PurchaseProductWiseTableView = () => {
         const flattenedInvoice = flattenObject(invoice);
         return invoice.items?.length
           ? invoice.items.map((item) => {
-              const flattenedItem = flattenObject(item, "item.");
+              const flattenedItem = flattenObject(item, "items.");
               return { ...flattenedInvoice, ...flattenedItem };
             })
           : [flattenedInvoice];
@@ -92,8 +118,8 @@ const PurchaseProductWiseTableView = () => {
       setIndividualItems((prevItems) => [...prevItems, ...newItems]);
     }
   }, [sales]);
-
   useEffect(() => {
+    // Show the toast only if the user has scrolled to the last page and toast hasn't been shown
     if (sales?.totalPages < page && !toastShown) {
       toast({
         title: "No More Data",
@@ -150,12 +176,11 @@ const PurchaseProductWiseTableView = () => {
       </Box>
     );
   }
-
-  const mainData = sales?.content;
-
-  const newArray = individualItems.map((data, index) => 
+  const newArray = individualItems.map((data, index) =>
     extractFields(data, index)
   );
+  const mainData = sales?.content;
+  const salesArray = convertSalesDataToArray(mainData);
 
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
@@ -165,15 +190,15 @@ const PurchaseProductWiseTableView = () => {
           page={page}
           setPage={setPage}
           isFetching={isFetching}
-          sales={sales}
           pageInfo={pageInfo}
           setSize={setSize}
           filters={filters}
-          extractFields={extractFields}
+          sortBy="kam.kamName"
+          sortDir="asc"
           alignment={{
-            "Total Quantity": "right",
-            "Received Quantity": "right",
-            "Total Amount": "right",
+            "SO Total Amount": "right",
+            "SD Total Amount": "right",
+            "Base Price": "right",
           }}
         />
       )}
@@ -181,4 +206,4 @@ const PurchaseProductWiseTableView = () => {
   );
 };
 
-export default PurchaseProductWiseTableView;
+export default SalesRegionStateWiseTableView;

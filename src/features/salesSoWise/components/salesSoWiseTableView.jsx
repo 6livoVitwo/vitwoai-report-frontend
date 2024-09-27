@@ -32,59 +32,29 @@ const SalesSoWiseTableView = () => {
     ],
     groupBy: ["salesOrder.so_id"],
     filter: [
-      {
-        column: "company_id",
-        operator: "equal",
-        type: "Integer",
-        value: 1,
-      },
-      {
-        column: "location_id",
-        operator: "equal",
-        type: "Integer",
-        value: 1,
-      },
-      {
-        column: "branch_id",
-        operator: "equal",
-        type: "Integer",
-        value: 1,
-      },
-      //   {
-      //     "column": "customer.trade_name",
-      //     "operator": "like",
-      //     "type": "string",
-      //     "value": "1"
+      // {
+      //   column: "company_id",
+      //   operator: "equal",
+      //   type: "Integer",
+      //   value: 1,
       // },
       // {
-      //     "column": "customer.customer_code",
-      //     "operator": "like",
-      //     "type": "string",
-      //     "value": "1"
+      //   column: "location_id",
+      //   operator: "equal",
+      //   type: "Integer",
+      //   value: 1,
       // },
-      //  {
-      //     "column": "salesOrder.so_number",
-      //     "operator": "like",
-      //     "type": "string",
-      //     "value": "1"
+      // {
+      //   column: "branch_id",
+      //   operator: "equal",
+      //   type: "Integer",
+      //   value: 1,
       // },
-      //  {
-      //     "column": "invoice_no",
-      //     "operator": "like",
-      //     "type": "string",
-      //     "value": "1"
-      // },
-      //  {
-      //     "column": "invoice_date",
-      //     "operator": "like",
-      //     "type": "string",
-      //     "value": "1"
-      // }
     ],
     page: 0,
     size: 20,
-    sortDir: "asc",
-    sortBy: "customer.trade_name",
+    sortDir:"asc",
+    sortBy:"customer.trade_name",
   };
 
   const {
@@ -126,23 +96,23 @@ const SalesSoWiseTableView = () => {
 
   const extractFields = (data, index) => ({
     "SL No": index + 1,
-    "Trade Name": data["customer.trade_name"],
-    "Custom Code": data["customer.customer_code"],
+    "trade_name": data["customer.trade_name"],
+    "customer_code": data["customer.customer_code"],
     "SO Total Amount": data["SUM(salesOrder.totalAmount)"],
     "SD Total Amount": data["SUM(salesPgi.salesDelivery.totalAmount)"],
     "Base Price":
       data[
         "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)"
       ],
-    "Invoice No": data["invoice_no"],
-    "SO No": data["salesOrder.so_number"],
-    Invoice_date: data["invoice_date"],
+    "invoice_no": data["invoice_no"],
+    "so_number": data["salesOrder.so_number"],
+    "invoice_date": data["invoice_date"],
     "Item Quantity": data["SUM(items.qty)"],
-    "Total Amount": data["SUM(all_total_amt)"],
+    "totalAmount": data["SUM(all_total_amt)"],
     "Sales PGI Total Amount": data["SUM(salesPgi.totalAmount)"],
     "Sales Quotation Amount": data["SUM(quotation.totalAmount)"],
-    "Due Amount": data["SUM(due_amount)"],
-    "Total Tax": data["SUM(items.totalTax)"],
+    "due_amount": data["SUM(due_amount)"],
+    "totalTax": data["SUM(items.totalTax)"],
   });
 
   useEffect(() => {
