@@ -17,10 +17,10 @@ export const salesRegionWiseApi = apiSlice.injectEndpoints({
     }),
 
      // Query to get selected columns
-     getSelectedStateWise: builder.query({
+     getselectedDistWise: builder.query({
       query: () => {
         return {
-          url: "/sales/drop-down-data/state-wise",
+          url: "/sales/drop-down-data/dist-wise",
           method: "GET",
         }
       },
@@ -29,4 +29,4 @@ export const salesRegionWiseApi = apiSlice.injectEndpoints({
 
 });
 
-export const { useRegionWiseSalesQuery,useGetSelectedStateWiseQuery } = salesRegionWiseApi;
+export const { useRegionWiseSalesQuery, useGetselectedDistWiseQuery} = salesRegionWiseApi;

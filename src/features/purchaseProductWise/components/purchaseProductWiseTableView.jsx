@@ -71,7 +71,7 @@ const PurchaseProductWiseTableView = () => {
 
   const extractFields = (data, index) => ({
     "SL No": index + 1,
-    "items.goodName": data["items.goodName"],
+    "Good Name": data["items.goodName"],
     "items.goodCode": data["items.goodCode"],
     "Total Quantity": data["SUM(items.goodQty)"],
     "Received Quantity": data["SUM(items.receivedQty)"],
@@ -161,7 +161,7 @@ const PurchaseProductWiseTableView = () => {
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
       {individualItems.length > 0 && (
         <CustomTable
-          newArray={newArray}
+          newArray={mainData}
           page={page}
           setPage={setPage}
           isFetching={isFetching}

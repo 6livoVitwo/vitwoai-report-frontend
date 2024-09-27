@@ -188,6 +188,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
       label: "Kam wise",
       value: "/reports/sales-kam-Wise/table-view",
     },
+    {
+      label: "Region Wise",
+      value: "/reports/sales-region-wise/table-view",
+    }
   ];
 
   useEffect(() => {

@@ -3,10 +3,19 @@ import CustomTable from "./salesRegionWiseCustomTable";
 import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
-import {useRegionWiseSalesQuery} from "../slice/salesRegionWiseApi";
-let filters = {
-  "data": [
-      "customer.customerAddress.customer_address_pin_code",
+import { useRegionWiseSalesQuery } from "../slice/salesRegionWiseApi";
+// let filters = ;
+
+const SalesRegionWiseTableView = () => {
+  const authData = useSelector((state) => state.auth);
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(50);
+  const [individualItems, setIndividualItems] = useState([]);
+  const [toastShown, setToastShown] = useState(false);
+  const toast = useToast();
+  const [filters, setFilters] = useState({
+    data: [
+      "customer.customerAddress.customer_address_state",
       "SUM(igst)",
       "SUM(sgst)",
       "SUM(cgst)",
@@ -17,26 +26,15 @@ let filters = {
       "SUM(salesOrder.totalAmount)",
       "SUM(items.qty)",
       "SUM(items.basePrice - items.totalDiscountAmt)",
-      "SUM(all_total_amt)"
-  ],
-  "groupBy": [
-      "customer.customerAddress.customer_address_pin_code"
-  ],
-  "filter": [
-  ],
-  "page":0,
-  "size":50,
-  "sortBy": "customer.customerAddress.customer_address_pin_code",
-  "sortDir": "asc"
-};
-
-const SalesRegionWiseTableView = () => {
-  const authData = useSelector((state) => state.auth);
-  const [page, setPage] = useState(0);
-  const [size, setSize] = useState(50);
-  const [individualItems, setIndividualItems] = useState([]);
-  const [toastShown, setToastShown] = useState(false);
-  const toast = useToast();
+      "SUM(all_total_amt)",
+    ],
+    groupBy: ["customer.customerAddress.customer_address_state"],
+    filter: [],
+    page: 0,
+    size: 50,
+    sortBy: "customer.customerAddress.customer_address_state",
+    sortDir: "asc",
+  });
 
   const {
     data: sales,
@@ -49,7 +47,8 @@ const SalesRegionWiseTableView = () => {
     size,
     authDetails: authData.authDetails,
   });
-  console.log("sales_Piyas", sales);
+  // console.log("sales_Piyas", sales);
+  console.log("filters🔵🔵🔵🔵", filters);
 
   const pageInfo = sales?.lastPage;
 
@@ -78,7 +77,7 @@ const SalesRegionWiseTableView = () => {
 
   const extractFields = (data, index) => ({
     "SL No": index + 1,
-    // kamName: data["kam.kamName"],
+    // "IGST": data["SUM(igst)"],
     // email: data["kam.email"],
     // emp_code: data["kam.emp_code"],
     // designation: data["kam.designation"],
@@ -163,7 +162,7 @@ const SalesRegionWiseTableView = () => {
   const newArray = individualItems.map((data, index) =>
     extractFields(data, index)
   );
-  const mainData = sales?.content;  
+  const mainData = sales?.content;
   // console.log(sales, 'main data');
   // console.log(newArray, 'newArray');
   return (
@@ -177,6 +176,7 @@ const SalesRegionWiseTableView = () => {
           pageInfo={pageInfo}
           setSize={setSize}
           filters={filters}
+          setFilters={setFilters}
           sortBy="kam.kamName"
           sortDir="asc"
           alignment={{
@@ -191,4 +191,3 @@ const SalesRegionWiseTableView = () => {
 };
 
 export default SalesRegionWiseTableView;
-

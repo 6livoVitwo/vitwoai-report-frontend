@@ -3,7 +3,7 @@ import CustomTable from "./salesRegionWiseCustomTable";
 import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
-import { useGetSelectedStateWiseQuery } from "../slice/salesRegionWiseApi";
+import { useGetselectedDistWiseQuery } from "../slice/salesRegionWiseApi";
 let filters = {
   data: [
     "customer.customerAddress.customer_address_state",
@@ -40,7 +40,7 @@ const SalesRegionStateWiseTableView = () => {
     isLoading,
     isFetching,
     error,
-  } = useGetSelectedStateWiseQuery({
+  } = useGetselectedDistWiseQuery({
     filters,
     page,
     size,

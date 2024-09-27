@@ -441,6 +441,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
 
   const formatHeader = (header) => {
     header = header.trim();
+    header = header.trim();
+    header = header.replace(/^[A-Z]+\(|\)$/g, ""); 
+    header = header.replace(/_/g, " ");//remove underscore from header and replace with space
     const parts = header.split(".");
     const lastPart = parts.pop();
     const words = lastPart.split("_").join("");

@@ -184,6 +184,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
       label: "Kam wise",
       value: "/reports/sales-kam-Wise/table-view",
     },
+    {
+      label: "Region Wise",
+      value: "/reports/sales-region-wise/table-view",
+    }
   ];
 
   useEffect(() => {
@@ -840,7 +844,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                 ref={provided.innerRef}
                 variant="simple"
               >
-                <Thead>
+                <Thead style={{position: "sticky",top:0}}>
                   <Tr bg="#cfd8e1">
                     {selectedColumns.map((column, index) => (
                       <Draggable
