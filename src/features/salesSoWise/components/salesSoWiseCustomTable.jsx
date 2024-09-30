@@ -1,59 +1,9 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-  useRef,
-} from "react";
-import {
-  Box,
-  Button,
-  useDisclosure,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  TableContainer,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  Checkbox,
-  Input,
-  Text,
-  Select,
-  useToast,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverHeader,
-  PopoverBody,
-  PopoverFooter,
-  PopoverArrow,
-  PopoverCloseButton,
-  PopoverAnchor,
-  Badge,
-  Drawer,
-  DrawerCloseButton,
-  DrawerHeader,
-  DrawerOverlay,
-  DrawerContent,
-  DrawerBody,
-  Alert,
-  Divider,} from "@chakra-ui/react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { Box, Button, useDisclosure, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Checkbox, Input, Text, Select, useToast, Menu, MenuButton, MenuList, MenuItem, Popover, PopoverTrigger, PopoverContent, PopoverBody, PopoverArrow, PopoverCloseButton, Badge, Drawer, DrawerCloseButton, DrawerHeader, DrawerOverlay, DrawerContent, DrawerBody, Alert, Divider, } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChartSimple,faChartLine} from "@fortawesome/free-solid-svg-icons";
+import { faChartSimple, faChartLine } from "@fortawesome/free-solid-svg-icons";
 import { saveAs } from "file-saver";
 import { faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { DownloadIcon } from "@chakra-ui/icons";
@@ -66,10 +16,12 @@ import DynamicChart from "./DynamicChart";
 import { useSelector } from "react-redux";
 import NewMyCharts from "../../dashboardNew/nivo/NewMyCharts";
 import { chartsData } from "../data/fakeData";
-import ChartConfiguration from "./ChartConfiguration";
-
+import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
+import { useDispatch } from "react-redux";
+import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfiguration";
 
 const CustomTable = ({ setPage, newArray, alignment }) => {
+  const dispatch = useDispatch();
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
@@ -415,6 +367,10 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     setConfigureChart(filterData);
   };
 
+  const handleGraphAddDrawer = () => {
+    onOpenGraphSettingDrawer();
+    dispatch(handleGraphWise("sales-so-wise"));
+  }
 
   // console.log(data, 'data');
   console.log(newArray, "newArray");
@@ -942,7 +898,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
               <Button
                 type="button"
                 variant="outlined"
-                onClick={onOpenGraphSettingDrawer}
+                onClick={handleGraphAddDrawer}
                 sx={{
                   display: "flex",
                   alignItems: "center",

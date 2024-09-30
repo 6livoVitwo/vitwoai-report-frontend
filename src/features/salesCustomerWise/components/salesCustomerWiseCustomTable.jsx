@@ -1,53 +1,5 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-  useRef,
-} from "react";
-import {
-  Box,
-  Button,
-  useDisclosure,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  TableContainer,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  Checkbox,
-  Input,
-  Text,
-  Select,
-  useToast,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  Drawer,
-  DrawerCloseButton,
-  DrawerHeader,
-  DrawerOverlay,
-  DrawerContent,
-  DrawerBody,
-  Badge,
-  Divider,
-  Alert,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverBody,
-  PopoverArrow,
-  PopoverCloseButton,
-} from "@chakra-ui/react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { Box, Button, useDisclosure, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Checkbox, Input, Text, Select, useToast, Menu, MenuButton, MenuList, MenuItem, Drawer, DrawerCloseButton, DrawerHeader, DrawerOverlay, DrawerContent, DrawerBody, Badge, Divider, Alert, Popover, PopoverTrigger, PopoverContent, PopoverBody, PopoverArrow, PopoverCloseButton } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -59,13 +11,14 @@ import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
 import { FiPlus, FiSettings } from "react-icons/fi";
-import { chartsData } from "../data/fakeData";
-import DynamicChart from "../components/DynamicChart";
-import ChartConfiguration from "../components/ChartConfiguration";
-import ViewChart from "./ViewChart";
-import { IoMdAdd } from "react-icons/io";
+
 import { useSelector } from "react-redux";
 import NewMyCharts from "../../dashboardNew/nivo/NewMyCharts";
+import {chartsData} from "../../nivoGraphs/data/fakeData"
+import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfiguration";
+import DynamicChart from "../../nivoGraphs/chartConfigurations/DynamicChart";
+import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
+import { useDispatch } from "react-redux";
 
 const CustomTable = ({ setPage, newArray, alignment }) => {
   const [data, setData] = useState([...newArray]);
@@ -80,8 +33,8 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
   const [selectedReport, setSelectedReport] = useState(null);
   const [configureChart, setConfigureChart] = useState({});
   const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
-
-  console.log(salesCustomerWise, "salesCustomerWise1");
+  const {selectedWise} = useSelector((state) => state.graphSlice);
+  const dispatch = useDispatch();
 
   const toast = useToast();
   const tableContainerRef = useRef(null);
@@ -415,9 +368,11 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     setConfigureChart(filterData);
   };
 
-  console.log(newArray, "newArray");
-  console.log(selectedColumns, "selectedColumns");
-  console.log(filteredItems, "filteredItems");
+  const handleGraphAddDrawer = () => {
+    onOpenGraphSettingDrawer();
+    dispatch(handleGraphWise("sales-customer-wise"));
+  }
+  console.log('🟢🔴🔵', { selectedWise })
 
   return (
     <Box bg="white" padding="0px 10px" borderRadius="5px">
@@ -805,7 +760,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                                     mt="8px"
                                     p="6px"
                                     ml="5px"
-                                     width="97%"
+                                    width="97%"
                                     h="39px"
                                     border="1px solid #e2e8f0"
                                     onChange={handleSearchChange}
@@ -876,8 +831,8 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                                 column === "description"
                                   ? "300px"
                                   : column === "name"
-                                  ? "200px"
-                                  : "100px"
+                                    ? "200px"
+                                    : "100px"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis">
@@ -947,7 +902,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
               <Button
                 type="button"
                 variant="outlined"
-                onClick={onOpenGraphSettingDrawer}
+                onClick={handleGraphAddDrawer}
                 sx={{
                   display: "flex",
                   alignItems: "center",
@@ -1080,7 +1035,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
           </ModalHeader>
           <ModalCloseButton style={{ color: "white" }} />
           <ModalBody>
-            <ViewChart configureChart={configureChart} />
+            <ChartConfiguration configureChart={configureChart} />
           </ModalBody>
         </ModalContent>
       </Modal>
@@ -1196,7 +1151,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                       <Badge colorScheme="blue" py={0} px={3} fontSize={9}>
                         {chart.title}
                       </Badge>
-                      <Text fontSize={8}>{chart.chartName}</Text>
                     </Box>
                   </Box>
                 );

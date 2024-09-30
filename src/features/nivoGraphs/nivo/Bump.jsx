@@ -2,14 +2,14 @@ import { ResponsiveBump } from '@nivo/bump'
 import React from 'react'
 import { bumpChartData } from '../data/chartData'
 
-const Bump = ({ data = bumpChartData, dynamicWidth = 1200 }) => {
+const Bump = ({ data = bumpChartData, dynamicWidth }) => {
 
   return (
     <>
       <ResponsiveBump
         data={data}
         xPadding={0.55}
-        width={dynamicWidth}
+        {...(dynamicWidth > 0 && { width: dynamicWidth })}
         xOuterPadding={0.4}
         yOuterPadding={0.3}
         colors={{ scheme: 'nivo' }}

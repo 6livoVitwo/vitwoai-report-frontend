@@ -59,7 +59,7 @@ const AreaBumpChart = ({ liveData = [], startDate = "", endDate = "", dynamicWid
       {liveData.length > 0 ? (
         <AreaBump data={data} dynamicWidth={dynamicWidth} />
       ) : (
-        <AreaBump dynamicWidth={dynamicWidth} />
+        <AreaBump />
       )}
     </>
   );

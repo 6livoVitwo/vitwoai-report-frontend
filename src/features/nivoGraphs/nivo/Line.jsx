@@ -2,13 +2,13 @@ import { ResponsiveLine } from "@nivo/line";
 import React from "react";
 import { lineChartData } from "../data/chartData";
 
-const Line = ({ data = lineChartData, dynamicWidth = 1200 }) => {
+const Line = ({ data = lineChartData, dynamicWidth }) => {
 
   return (
     <>
       <ResponsiveLine
         data={data}
-        width={dynamicWidth}
+        {...(dynamicWidth > 0 && { width: dynamicWidth })}
         margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
         xScale={{ type: "point" }}
         colors={{ scheme: "nivo" }}

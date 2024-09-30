@@ -2,7 +2,7 @@ import React from "react";
 import { ResponsiveAreaBump } from "@nivo/bump";
 import { areaBumpData } from "../data/chartData";
 
-const AreaBump = ({ data = areaBumpData, dynamicWidth = 1200 }) => {
+const AreaBump = ({ data = areaBumpData, dynamicWidth }) => {
 
   return (
     <>
@@ -10,8 +10,7 @@ const AreaBump = ({ data = areaBumpData, dynamicWidth = 1200 }) => {
         data={data}
         margin={{ top: 40, right: 100, bottom: 40, left: 100 }}
         spacing={20}
-        width={dynamicWidth}
-        height={300}
+        {...(dynamicWidth > 0 && { width: dynamicWidth })}
         colors={{ scheme: 'nivo' }}
         blendMode="multiply"
         defs={[

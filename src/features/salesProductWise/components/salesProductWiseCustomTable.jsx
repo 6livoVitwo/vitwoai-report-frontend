@@ -1,54 +1,5 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-  useRef,
-} from "react";
-import {
-  Box,
-  Button,
-  useDisclosure,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  TableContainer,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  Checkbox,
-  Input,
-  Text,
-  Select,
-  useToast,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverHeader,
-  PopoverBody,
-  PopoverCloseButton,
-  PopoverArrow,
-  Drawer,
-  DrawerOverlay,
-  DrawerContent,
-  DrawerCloseButton,
-  DrawerHeader,
-  DrawerBody,
-  Alert,
-  Badge,
-  Divider,
-} from "@chakra-ui/react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { Box, Button, useDisclosure, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Checkbox, Input, Text, Select, useToast, Menu, MenuButton, MenuList, MenuItem, Popover, PopoverTrigger, PopoverContent, PopoverBody, PopoverCloseButton, PopoverArrow, Drawer, DrawerOverlay, DrawerContent, DrawerCloseButton, DrawerHeader, DrawerBody, Alert, Badge, Divider } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -59,14 +10,15 @@ import { DownloadIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
-import DynamicChart from "../components/DynamicChart";
-import ChartConfiguration from "../components/ChartConfiguration"
-import ReactDatePicker from "react-datepicker";
+import DynamicChart from "../../nivoGraphs/chartConfigurations/DynamicChart";
 import { useSelector } from "react-redux";
-import { chartsData } from "../data/fakeData";
 import { Calendar } from 'primereact/calendar';
 import { FiPlus, FiSettings } from "react-icons/fi";
 import NewMyCharts from "../../dashboardNew/nivo/NewMyCharts";
+import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfiguration";
+import { chartsData } from "../../nivoGraphs/data/fakeData";
+import { useDispatch } from "react-redux";
+import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 
 
 const CustomTable = ({ setPage, newArray, alignment }) => {
@@ -83,11 +35,12 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [configureChart, setConfigureChart] = useState({});
+  const dispatch = useDispatch();
+  const { selectedWise } = useSelector((state) => state.graphSlice);
+
   const salesCustomerWise = useSelector(
     (state) => state.salescustomer.widgets
   );
-
-  console.log(salesCustomerWise, "salesCustomerWise1");
 
   const toast = useToast();
   const tableContainerRef = useRef(null);
@@ -441,10 +394,11 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     setConfigureChart(filterData);
   };
 
-  console.log(newArray, "newArray");
-  console.log(selectedColumns, "selectedColumns");
-  console.log(filteredItems, "filteredItems");
-
+  const handleGraphAddDrawer = () => {
+    onOpenGraphSettingDrawer();
+    dispatch(handleGraphWise("sales-product-wise"));
+  }
+  console.log('🟢🔴🔵', { selectedWise })
   return (
     <Box bg="white" padding="0px 10px" borderRadius="5px">
       <Box
@@ -961,7 +915,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
               <Button
                 type="button"
                 variant="outlined"
-                onClick={onOpenGraphSettingDrawer}
+                onClick={handleGraphAddDrawer}
                 sx={{
                   display: "flex",
                   alignItems: "center",
@@ -1174,7 +1128,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                             <Badge colorScheme="blue" py={0} px={3} fontSize={9}>
                               {chart.title}
                             </Badge>
-                            <Text fontSize={8}>{chart.chartName}</Text>
                           </Box>
                         </Box>
                       );

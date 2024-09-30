@@ -4,11 +4,18 @@ export const graphApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     dynamicNew: builder.query({
       query: ({ endpoint, body, method }) => {
-        console.log('🟢in the query 10');
-        console.log({endpoint, body, method });
+        if (method === "GET") {
+          return ({
+            url: endpoint,
+            method: method,
+            headers: {
+              "Content-Type": "application/json",
+            },
+          })
+        }
         return ({
           url: endpoint,
-          method: "GET",
+          method: method,
           body: JSON.stringify(body),
           headers: {
             "Content-Type": "application/json",
