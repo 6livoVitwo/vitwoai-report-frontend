@@ -113,7 +113,7 @@ const ChartConfiguration = ({ configureChart }) => {
         method: "POST",
         endpoint: newEndpoint(selectedWise, type),
         body: {
-          "priceOrQty": "price"
+          "priceOrQty": `${priceOrQty}`,
         }
       }
     ]
@@ -133,8 +133,9 @@ const ChartConfiguration = ({ configureChart }) => {
   }
 
   const handlePriceOrQty = (data) => {
+    let newBodyWise = createBodyWise(inputType, startDate, endDate, data, type); 
+    console.log({newBodyWise})    
     setPriceOrQty(data);
-    let newBodyWise = createBodyWise(inputType, startDate, endDate, data);
     setBodyWise(newBodyWise);
     updateChartApiConfig(newBodyWise);
   }
@@ -144,7 +145,7 @@ const ChartConfiguration = ({ configureChart }) => {
     let newEndDate = type === 'to' ? data : endDate;
 
     // Update BodyWise
-    const newBodyWise = updateBodyWise(inputType, newStartDate, newEndDate, bodyWise);
+    const updatedBodyWise = updateBodyWise(inputType, newStartDate, newEndDate, bodyWise);
 
     // Set state updates
     if (type === 'from') {
@@ -157,8 +158,8 @@ const ChartConfiguration = ({ configureChart }) => {
     updateCountAndWidth(inputType, newStartDate, newEndDate, setDynamicWidth);
 
     // Update the bodyWise and trigger the API
-    setBodyWise(newBodyWise);
-    updateChartApiConfig(newBodyWise);
+    setBodyWise(updatedBodyWise);
+    updateChartApiConfig(updatedBodyWise);
   };
 
   const handleFromDate = (data) => {
@@ -208,7 +209,7 @@ const ChartConfiguration = ({ configureChart }) => {
         {
           wise: "sales",
           method: "POST",
-          endpoint: newEndpoint(selectedWise),
+          endpoint: newEndpoint(selectedWise, type),
           body: newBodyWise
         }
       ]
@@ -223,13 +224,22 @@ const ChartConfiguration = ({ configureChart }) => {
   if (type === 'funnel') {
     finalData = graphData?.steps;
   }
+
   useEffect(() => {
-    if (finalData) {
-      setDynamicHeight(finalData?.length * 30);
+    if(type === 'heatmap') {
+      setInputType("");
+      setEndDate("");
+      setStartDate("");
     }
-  }, [finalData, dynamicHeight])
-  console.log('hello');
-  console.log('🟢👀',{dynamicHeight});
+  }, [ type ]);
+
+  useEffect(() => {
+    if (finalData && finalData.length > 0) {
+      const newHeight = finalData.length * 30;
+      setDynamicHeight(newHeight);
+    }
+  }, [finalData])
+
   useEffect(() => {
     let isMounted = false;
     if (finalData) {
@@ -429,7 +439,7 @@ const ChartConfiguration = ({ configureChart }) => {
                   </Grid>
                 </Box> :
                   <Box>
-                    <Grid templateColumns="repeat(1, 1fr)" gap={6}>
+                    {type !== "heatmap" && <Grid templateColumns="repeat(1, 1fr)" gap={6}>
                       <Stack spacing={3}>
                         <Text fontSize="sm" fontWeight="500">
                           Period (<span style={{ textTransform: "capitalize", fontWeight: "bold", color: "green" }}>{inputType}</span> Wise)
@@ -440,7 +450,7 @@ const ChartConfiguration = ({ configureChart }) => {
                           <option value="year">Year</option>
                         </Select>
                       </Stack>
-                    </Grid>
+                    </Grid>}
                     {selectedWise !== "sales-customer-wise" && <Grid templateColumns="repeat(1, 1fr)" gap={6}>
                       <Stack spacing={3}>
                         <Text fontSize="sm" fontWeight="500">
@@ -452,7 +462,7 @@ const ChartConfiguration = ({ configureChart }) => {
                         </Select>
                       </Stack>
                     </Grid>}
-                    <Stack spacing={0} sx={{
+                    {type !== "heatmap" && <Stack spacing={0} sx={{
                       borderRadius: "6px",
                       shadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
                       border: "1px solid rgba(0, 0, 0, 0.10)",
@@ -472,7 +482,7 @@ const ChartConfiguration = ({ configureChart }) => {
                           <input style={{ border: "1px solid rgba(0, 0, 0, 0.10)", borderRadius: "6px", paddingLeft: 4, paddingRight: 4 }} type={inputType} value={endDate} onChange={(e) => handleToDate(e.target.value)} />
                         </Stack>
                       </Grid>
-                    </Stack>
+                    </Stack>}
                   </Box>
                 }
               </AccordionTab>

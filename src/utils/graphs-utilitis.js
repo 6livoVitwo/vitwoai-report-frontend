@@ -47,7 +47,8 @@ export const setDateRange = (data) => {
     }
 }
 
-export const createBodyWise = (data, startDate, endDate, priceOrQty) => {
+export const createBodyWise = (data, startDate, endDate, priceOrQty, type = "") => {
+    console.log('🔴🔴', { data, startDate, endDate, priceOrQty, type })
     if (data === 'month') {
         return {
             "priceOrQty": `${priceOrQty}`,
@@ -63,6 +64,11 @@ export const createBodyWise = (data, startDate, endDate, priceOrQty) => {
             "yearTo": endDate,
         }
     } else {
+        if (type === "heatmap") {
+            return {
+                "priceOrQty": `${priceOrQty}`,
+            }
+        }
         return {
             "priceOrQty": `${priceOrQty}`,
             "dateString": `${startDate} to ${endDate}`,

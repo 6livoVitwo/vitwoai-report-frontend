@@ -10,7 +10,6 @@ import Line from "../nivo/Line";
 const DynamicChart = ({ chart = {} }) => {
   const { type, data } = chart;
   let chartData = null;
-  console.log('🔵 chart data -> ', {chart})
 
   if (type === "bar") {
     chartData = <BarChart data={data} />;

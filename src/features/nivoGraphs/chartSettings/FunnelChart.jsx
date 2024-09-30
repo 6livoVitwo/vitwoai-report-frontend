@@ -1,10 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { format, parse } from 'date-fns';
-import { getAllDates } from "../../../utils/graphs-utilitis";
+import React from "react";
 import Funnel from "../nivo/Funnel";
 
-const FunnelChart = ({ liveData = [], startDate = "", endDate = "", dynamicWidth = 1200, inputType = "" }) => {
- console.log('🟢🔴🔵🧨',{liveData})
+const FunnelChart = ({ liveData = [], dynamicWidth = 1200 }) => {
   return (
     <>
       {liveData.length > 0 ? (
