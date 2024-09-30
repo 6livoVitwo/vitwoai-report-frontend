@@ -62,6 +62,9 @@ import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
 import { useRegionWiseSalesQuery } from "../slice/salesRegionWiseApi";
 import { useGetselectedDistWiseQuery } from "../slice/salesRegionWiseApi";
+import { useGetselectedCityWiseQuery } from "../slice/salesRegionWiseApi";
+import { useGetselectedCountryWiseQuery } from "../slice/salesRegionWiseApi";
+import { set } from "lodash";
 
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [data, setData] = useState([...newArray]);
@@ -86,9 +89,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const [currentPage, setCurrentPage] = useState(0); // Default page is 0
-  const [selectedRegion, setSelectedRegion] = useState(null); // Track selected region
+  const [selectedRegion, setSelectedRegion] = useState(""); // Track selected region
+  const [placeholder, setPlaceholder] = useState("State"); // Default placeholder
   const [columns, setColumns] = useState([]);
   const [tableData, setTableData] = useState([]); // Store the fetched table data
+  const [isUpdated, setIsUpdated] = useState(false); // Force re-render when needed
 
   const generateColumnMappings = (filtersData) => {
     const mappings = [];
@@ -131,9 +136,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   // );
   //  console.log("kamDataFilter1212121",kamDataFilter);
 
-  //......Column drop down Api Calling...........
-  // const { data: columnDatakam } = useGetSelectedColumnsKamQuery();
-  // console.log("piyas10101",columnDatakam);
+  // ......Column drop down Api Calling...........
+  const { data: columnDatakam } = useGetselectedCityWiseQuery();
+  console.log("piyas10101", columnDatakam);
 
   //..........Api calling for search............
   // const { data: searchData } = useGetGlobalsearchKamQuery(filters, {
@@ -197,22 +202,34 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSelectedReport(selectedValue);
   };
 
-  //..........Api calling for dropdown ............
-  const { data: DistrictWiseData, refetch } =
+  //..........Api calling for dropdown for district-wise ............
+  const { data: DistrictWiseData, refetch: refetchDistrict } =
     useGetselectedDistWiseQuery(filters);
-  console.log("DistrictWiseData_🟠", DistrictWiseData);
+  // console.log("DistrictWiseData_🟠", DistrictWiseData);
+
+  //..........Api calling for dropdown for city-wise ............
+  const { data: CityWiseData, refetch: refetchcity } =
+    useGetselectedCityWiseQuery(filters);
+  // console.log("CityWiseData_🟢", CityWiseData);
+
+  //..........Api calling for dropdown for pincode-wise ............
+  const { data: CountryWiseData, refetch: refetchcountry } =
+    useGetselectedCountryWiseQuery(filters);
+  // console.log("CountryWiseData_🟣", CountryWiseData);
 
   const RerionType = [
-    { label: "State-Wise", value: "state" },
-    { label: "District-Wise", value: "district" },
-    { label: "City-Wise", value: "city" },
-    { label: "Country-Wise", value: "country" },
-    { label: "Pincode-Wise", value: "pincode" },
+    { label: "State", value: "state" },
+    { label: "District", value: "district" },
+    { label: "City", value: "city" },
+    { label: "Country", value: "country" },
+    { label: "Pincode", value: "pincode" },
   ];
-  // Handle dropdown change
+  //...Handle dropdown region-type change....
   const handleRegionChange = (e) => {
     const selectedValue = e.value; // Get the selected value from the dropdown
-
+    const selectedLable = e.originalEvent.target.innerText;
+    setPlaceholder(selectedLable);
+    
     // Update the filters object based on the selected region type
     const updatedFilters = {
       ...filters,
@@ -231,14 +248,21 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       }),
       sortBy: `customer.customerAddress.customer_address_${selectedValue}`, // Update sortBy field
     };
-
-    // Update the state with the new filters
+    //....Update the filters state....
     setFilters(updatedFilters);
-    refetch(); // Trigger the API call with the new filters
+    setSelectedRegion(selectedValue);
+    // refetchDistrict();
+    // refetchcity();
+    setIsUpdated(true);
   };
+
   useEffect(() => {
-    console.log("Fetched Data: ", DistrictWiseData); // Log the fetched data
-  }, [DistrictWiseData]); // Log whenever the data changes
+    refetchcity();
+    refetchDistrict();
+    refetchcountry();
+    setIsUpdated(false);
+  }, [filters, refetchcity, refetchDistrict, refetchcountry]);
+
 
   const loadMoreData = async () => {
     if (!loading) {
@@ -727,11 +751,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           <Dropdown
             options={RerionType}
             optionLabel="label"
-            placeholder="Region"
+            placeholder={placeholder}
             value={selectedRegion}
             onChange={handleRegionChange}
             style={{
-              width: "80px",
+              width: "90px",
               background: "#dedede",
             }}
           />

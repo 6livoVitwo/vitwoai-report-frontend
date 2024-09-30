@@ -13,6 +13,7 @@ const SalesDetailedTableView = () => {
 		{ column: 'branch_id', operator: 'equal', type: 'integer', value: 1 },
 		{ column: 'location_id', operator: 'equal', type: 'integer', value: 1 },
 	]);
+	
 	const [dateRange, setDateRange] = useState();
 	const [individualItems, setIndividualItems] = useState([]);
 	const {
