@@ -243,7 +243,17 @@ export const chartsData = {
       pinned: true,
       description: 'This is Bump Chart',
       data: bumpChartData,
-    }
+    },
+    {
+			id: '9',
+			chartName: 'Heat Map',
+			title: 'Heat Map',
+			type: 'heatmap',
+			group: 'heatDensity',
+			pinned: true,
+			description: 'This is Heat Map',
+			data: heatmapChartData,
+		}
   ],
 };
 

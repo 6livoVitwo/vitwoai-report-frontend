@@ -15,19 +15,23 @@ import { calculateCount, createBodyWise, setDateRange, updateBodyWise, updateCou
 import TypingMaster from "../../dashboardNew/components/TypingMaster";
 import { useDynamicNewQuery } from "./graphApi";
 import { addWidget, updateWidget } from "./graphSlice";
+import HeatMapChart from "../chartSettings/HeatMapChart";
 
 // all chart components here
 const chartComponents = {
   areaBump: AreaBumpChart,
   bump: BumpChart,
   line: LineChart,
-  funnel: FunnelChart
+  funnel: FunnelChart,
+  heatmap: HeatMapChart
 };
 
 const newEndpoint = (data = "", type = "", processFlow = "") => {
   if (data === "sales-product-wise") {
     if (type === "bump" || type === "areaBump" || type === "line") {
       return "/sales/graph/product-wise-time-series-seq"
+    } else if (type === "heatmap") {
+      return "/sales/graph/kam-wise-heat-density"
     }
     return "/sales/graph/product-wise-time-series-seq"
 
@@ -61,6 +65,7 @@ const ChartConfiguration = ({ configureChart }) => {
   const [endDate, setEndDate] = useState(inputType === 'month' ? '2024-12' : inputType === 'year' ? '2024' : '2024-01-20');
   const { selectedWise } = useSelector((state) => state.graphSlice);
   const [processFlow, setProcessFlow] = useState("/sales/graph/so-wise-flow-process");
+  const [dynamicHeight, setDynamicHeight] = useState(0);
 
   const [bodyWise, setBodyWise] = useState({
     "priceOrQty": `${priceOrQty}`,
@@ -100,6 +105,16 @@ const ChartConfiguration = ({ configureChart }) => {
         method: "GET",
         endpoint: newEndpoint(selectedWise, type, processFlow),
         body: bodyWise
+      }
+    ],
+    heatmap: [
+      {
+        wise: "sales",
+        method: "POST",
+        endpoint: newEndpoint(selectedWise, type),
+        body: {
+          "priceOrQty": "price"
+        }
       }
     ]
   });
@@ -188,6 +203,14 @@ const ChartConfiguration = ({ configureChart }) => {
           endpoint: newEndpoint(selectedWise, type, processFlow),
           body: bodyWise
         }
+      ],
+      heatmap: [
+        {
+          wise: "sales",
+          method: "POST",
+          endpoint: newEndpoint(selectedWise),
+          body: newBodyWise
+        }
       ]
     }));
   };
@@ -200,7 +223,13 @@ const ChartConfiguration = ({ configureChart }) => {
   if (type === 'funnel') {
     finalData = graphData?.steps;
   }
-
+  useEffect(() => {
+    if (finalData) {
+      setDynamicHeight(finalData?.length * 30);
+    }
+  }, [finalData, dynamicHeight])
+  console.log('hello');
+  console.log('🟢👀',{dynamicHeight});
   useEffect(() => {
     let isMounted = false;
     if (finalData) {
@@ -220,7 +249,6 @@ const ChartConfiguration = ({ configureChart }) => {
         setChartDataApi(processedData || []);
       }
     }
-
     // clean up function to prevent memory leak
     return () => {
       isMounted = true;
@@ -333,6 +361,7 @@ const ChartConfiguration = ({ configureChart }) => {
                   startDate={startDate}
                   endDate={endDate}
                   dynamicWidth={dynamicWidth}
+                  dynamicHeight={dynamicHeight}
                   inputType={inputType}
                 />
               </Box>
@@ -412,7 +441,7 @@ const ChartConfiguration = ({ configureChart }) => {
                         </Select>
                       </Stack>
                     </Grid>
-                    <Grid templateColumns="repeat(1, 1fr)" gap={6}>
+                    {selectedWise !== "sales-customer-wise" && <Grid templateColumns="repeat(1, 1fr)" gap={6}>
                       <Stack spacing={3}>
                         <Text fontSize="sm" fontWeight="500">
                           Quantity
@@ -422,7 +451,7 @@ const ChartConfiguration = ({ configureChart }) => {
                           <option value="price">Price</option>
                         </Select>
                       </Stack>
-                    </Grid>
+                    </Grid>}
                     <Stack spacing={0} sx={{
                       borderRadius: "6px",
                       shadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",

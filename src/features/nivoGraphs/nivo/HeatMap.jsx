@@ -1,52 +1,14 @@
 import { ResponsiveHeatMap } from '@nivo/heatmap'
 import React from "react";
+import { heatmapChartData } from '../data/chartData';
 
-const transformLiveData = (data) => {
-  const seriesMap = {};
-
-  data.forEach((item) => {
-    const { xaxis, all_total_amt } = item;
-
-    if (!seriesMap[xaxis]) {
-      seriesMap[xaxis] = {
-        id: xaxis,
-        color: "hsl(" + Math.floor(Math.random() * 360) + ", 70%, 50%)",
-        data: [],
-      };
-    }
-
-    seriesMap[xaxis].data.push({
-      x: xaxis,
-      y: all_total_amt || 0,
-    });
-  });
-
-  return Object.values(seriesMap);
-};
-
-const HeatMap = ({ data = [], liveData = [] }) => {
-  const transformedLiveData = transformLiveData(liveData);
-
-  console.log("Raw liveData", liveData);
-  console.log("Transformed liveData", transformedLiveData);
-
-  const chartData = (liveData.length > 0 ? transformedLiveData : data).filter(
-    (item) => item.data.every((d) => d.x != null && d.y != null)
-  );
-
-  console.log("Filtered chartData", chartData);
-  console.log(
-    "Data source used:",
-    liveData.length > 0 ? "liveData" : "static data"
-  );
-
-  if (chartData.length === 0) {
-    return <div>No data available to display.</div>;
-  }
-
+const HeatMap = ({ data = heatmapChartData, dynamicWidth, dynamicHeight=500 }) => {
+  console.log('dynamicHeight in the HeatMap -> ', {dynamicHeight})  
+  
   return (
     <ResponsiveHeatMap
-          data={chartData}
+          data={data}
+          height={dynamicHeight}
           margin={{ top: 60, right: 90, bottom: 60, left: 90 }}
           valueFormat=">-.2s"
           axisTop={{
