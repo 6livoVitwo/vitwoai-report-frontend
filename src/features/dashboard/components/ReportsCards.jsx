@@ -8,7 +8,6 @@ import Lottie from "lottie-react";
 
 const ReportsCards = ({ cards, setFavoriteCard }) => {
   const handleLike = (cardName) => {
-    console.log(`Liked card: ${cardName}`);
     setFavoriteCard(cardName);
   };
 

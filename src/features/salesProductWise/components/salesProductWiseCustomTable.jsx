@@ -258,10 +258,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
       filteredData = filteredData.filter((item) => {
         const rawDate = item["Invoice Date"];
         const date = parseDate(rawDate);
-        console.log("Start Date:", startDate);
-        console.log("End Date:", endDate);
-        console.log("Raw Item Date:", rawDate);
-        console.log("Item Date:", date);
         return date >= startDate && date <= endDate;
       });
     }
@@ -319,7 +315,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     setPage(1);
     setData([]);
     loadMoreData();
-    console.log("Working");
   };
 
   const handleColumnFilterValueChange = (field, value) => {
@@ -398,7 +393,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     onOpenGraphSettingDrawer();
     dispatch(handleGraphWise("sales-product-wise"));
   }
-  console.log('🟢🔴🔵', { selectedWise })
   return (
     <Box bg="white" padding="0px 10px" borderRadius="5px">
       <Box
@@ -1057,11 +1051,11 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                       my: 2,
                       flexGrow: 1,
                     }}>
-                    Total Graph ({chartsData.charts.length})
+                    Total Graph ({chartsData.charts.filter((chart) => chart.type !== "funnel").length})
                   </Box>
                   <Box display="flex" flexWrap="wrap" justifyContent="space-between">
                     {chartsData.charts.map((chart, index) => {
-                      console.log("All Chart List", chart);
+                      if(chart.type === "funnel") return null;
                       return (
                         <Box
                           key={index}

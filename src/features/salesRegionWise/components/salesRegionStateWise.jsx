@@ -1,68 +1,46 @@
 import React, { useState, useEffect, useRef } from "react";
-import CustomTable from "./salesSoWiseCustomTable";
+import CustomTable from "./salesRegionWiseCustomTable";
 import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
-import { useSoWiseSalesQuery } from "../slice/salesSoWiseApi";
+import { useGetSelectedStateWiseQuery } from "../slice/salesRegionWiseApi";
+let filters = {
+  data: [
+    "customer.customerAddress.customer_address_state",
+    "SUM(igst)",
+    "SUM(sgst)",
+    "SUM(cgst)",
+    "SUM(due_amount)",
+    "SUM(salesPgi.salesDelivery.totalAmount)",
+    "SUM(salesPgi.totalAmount)",
+    "SUM(quotation.totalAmount)",
+    "SUM(salesOrder.totalAmount)",
+    "SUM(items.qty)",
+    "SUM(items.basePrice - items.totalDiscountAmt)",
+    "SUM(all_total_amt)",
+  ],
+  groupBy: ["customer.customerAddress.customer_address_state"],
+  filter: [],
+  page: 0,
+  size: 50,
+  sortBy: "customer.customerAddress.customer_address_state",
+  sortDir: "asc",
+};
 
-const SalesSoWiseTableView = () => {
+const SalesRegionStateWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(50);
   const [individualItems, setIndividualItems] = useState([]);
+  const [toastShown, setToastShown] = useState(false);
   const toast = useToast();
-
-  let filters = {
-    data: [
-      "customer.trade_name",
-      "customer.customer_code",
-      "salesOrder.so_number",
-      "invoice_no",
-      "invoice_date",
-      "SUM(due_amount)",
-      "SUM(salesPgi.salesDelivery.totalAmount)",
-      "SUM(salesPgi.totalAmount)",
-      "SUM(quotation.totalAmount)",
-      "SUM(salesOrder.totalAmount)",
-      "SUM(items.qty)",
-      "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
-      "SUM(all_total_amt)",
-      "SUM(items.totalTax)",
-    ],
-    groupBy: ["salesOrder.so_id"],
-    filter: [
-      {
-        column: "company_id",
-        operator: "equal",
-        type: "Integer",
-        value: 1,
-      },
-      {
-        column: "location_id",
-        operator: "equal",
-        type: "Integer",
-        value: 1,
-      },
-      {
-        column: "branch_id",
-        operator: "equal",
-        type: "Integer",
-        value: 1,
-      },
-    ],
-    page: 0,
-    size: 20,
-    "sortDir": "asc",
-    "sortBy": "customer.trade_name"
-
-  };
 
   const {
     data: sales,
     isLoading,
     isFetching,
     error,
-  } = useSoWiseSalesQuery({
+  } = useGetSelectedStateWiseQuery({
     filters,
     page,
     size,
@@ -94,25 +72,28 @@ const SalesSoWiseTableView = () => {
     return result;
   };
 
+  // Function to convert API data (sales) keys into an array of objects with 'listName' and 'index'
+  const convertSalesDataToArray = (salesData) => {
+    if (!salesData) return [];
+
+    // Use Object.entries to get both keys and values
+    return Object.entries(salesData).map(([key, value], index) => ({
+      listName: key,
+      index: index + 1, // or any index logic you want
+      value: value,
+    }));
+  };
+
   const extractFields = (data, index) => ({
     "SL No": index + 1,
-    "Trade Name": data["customer.trade_name"],
-    "Custom Code": data["customer.customer_code"],
-    "SO Total Amount": data["SUM(salesOrder.totalAmount)"],
-    "SD Total Amount": data["SUM(salesPgi.salesDelivery.totalAmount)"],
-    "Base Price":
-      data[
-      "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)"
-      ],
-    "Invoice No": data["invoice_no"],
-    "SO No": data["salesOrder.so_number"],
-    Invoice_date: data["invoice_date"],
-    "Item Quantity": data["SUM(items.qty)"],
-    "Total Amount": data["SUM(all_total_amt)"],
-    "Sales PGI Total Amount": data["SUM(salesPgi.totalAmount)"],
-    "Sales Quotation Amount": data["SUM(quotation.totalAmount)"],
-    "Due Amount": data["SUM(due_amount)"],
-    "Total Tax": data["SUM(items.totalTax)"],
+    "Quotation Total Amount": data["SUM(quotation.totalAmount)"],
+    // email: data["kam.email"],
+    // emp_code: data["kam.emp_code"],
+    // designation: data["kam.designation"],
+    // contact: data["kam.contact"],
+    // invoice_no: data["invoice_no"],
+    // invoice_date: data["invoice_date"],
+    // due_amount: data["SUM(due_amount)"],
   });
 
   useEffect(() => {
@@ -121,14 +102,38 @@ const SalesSoWiseTableView = () => {
         const flattenedInvoice = flattenObject(invoice);
         return invoice.items?.length
           ? invoice.items.map((item) => {
-            const flattenedItem = flattenObject(item, "item.");
-            return { ...flattenedInvoice, ...flattenedItem };
-          })
+              const flattenedItem = flattenObject(item, "items.");
+              return { ...flattenedInvoice, ...flattenedItem };
+            })
           : [flattenedInvoice];
       });
       setIndividualItems((prevItems) => [...prevItems, ...newItems]);
     }
   }, [sales]);
+  useEffect(() => {
+    // Show the toast only if the user has scrolled to the last page and toast hasn't been shown
+    if (sales?.totalPages < page && !toastShown) {
+      toast({
+        title: "No More Data",
+        description: "You have reached the end of the list.",
+        status: "warning",
+        isClosable: true,
+        duration: 4000,
+        render: () => (
+          <Box
+            p={3}
+            bg="orange.300"
+            borderRadius="md"
+            style={{ width: "300px", height: "70px" }} // Set custom width and height
+          >
+            <Box fontWeight="bold">No More Data</Box>
+            <Box>You have reached the end of the list.</Box>
+          </Box>
+        ),
+      });
+      setToastShown(true); // Mark the toast as shown
+    }
+  }, [sales, page, toast, toastShown]);
 
   if (isLoading) {
     return (
@@ -137,7 +142,8 @@ const SalesSoWiseTableView = () => {
         width="100%"
         display="flex"
         alignItems="center"
-        justifyContent="center">
+        justifyContent="center"
+      >
         <Spinner
           thickness="4px"
           speed="0.65s"
@@ -156,24 +162,17 @@ const SalesSoWiseTableView = () => {
         height="calc(100vh - 103px)"
         display="flex"
         alignItems="center"
-        justifyContent="center">
+        justifyContent="center"
+      >
         <Image src={NoDataFound} alt="No Data Available" />
       </Box>
     );
   }
-  if (sales?.
-    totalPages < page) {
-    toast({
-      title: 'No More Data',
-      description: 'You have reached the end of the list.',
-      status: 'warning',
-      isClosable: true,
-      duration: 800, //(5000 ms = 5 seconds)
-    })
-  }
   const newArray = individualItems.map((data, index) =>
     extractFields(data, index)
   );
+  const mainData = sales?.content;
+  const salesArray = convertSalesDataToArray(mainData);
 
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
@@ -185,6 +184,9 @@ const SalesSoWiseTableView = () => {
           isFetching={isFetching}
           pageInfo={pageInfo}
           setSize={setSize}
+          filters={filters}
+          sortBy="kam.kamName"
+          sortDir="asc"
           alignment={{
             "SO Total Amount": "right",
             "SD Total Amount": "right",
@@ -196,4 +198,4 @@ const SalesSoWiseTableView = () => {
   );
 };
 
-export default SalesSoWiseTableView;
+export default SalesRegionStateWiseTableView;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { format, parse } from 'date-fns';
-import { getAllDates } from "../../../utils/graphs-utilitis";
+import { getAllDates } from "../graphUtils/common";
 import AreaBump from "../nivo/AreaBump";
 
 const AreaBumpChart = ({ liveData = [], startDate = "", endDate = "", dynamicWidth = 1200, inputType = "" }) => {

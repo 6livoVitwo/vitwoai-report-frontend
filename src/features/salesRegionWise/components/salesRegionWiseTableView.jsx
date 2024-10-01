@@ -1,69 +1,49 @@
 import React, { useState, useEffect, useRef } from "react";
-import CustomTable from "./salesKamWiseCustomTable";
-import { Box, Spinner, Image } from "@chakra-ui/react";
+import CustomTable from "./salesRegionWiseCustomTable";
+import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
-import { useKamWiseSalesQuery } from "../slice/salesKamWiseApi";
-
-const SalesKamWiseTableView = () => {
-  const authData = useSelector((state) => state.auth);
-  const [page, setPage] = useState(0);
-  const [size, setSize] = useState(50);
-  const [individualItems, setIndividualItems] = useState([]);
-
-  let filters = {
-    data: [
-      "kam.kamCode",
-      "kam.kamName",
-      "kam.email",
-      "kam.emp_code",
-      "kam.designation",
-      "kam.contact",
-      "invoice_no",
-      "invoice_date",
+import {useRegionWiseSalesQuery} from "../slice/salesRegionWiseApi";
+let filters = {
+  "data": [
+      "customer.customerAddress.customer_address_pin_code",
+      "SUM(igst)",
+      "SUM(sgst)",
+      "SUM(cgst)",
       "SUM(due_amount)",
       "SUM(salesPgi.salesDelivery.totalAmount)",
       "SUM(salesPgi.totalAmount)",
       "SUM(quotation.totalAmount)",
       "SUM(salesOrder.totalAmount)",
       "SUM(items.qty)",
-      "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
-      "SUM(all_total_amt)",
-      "SUM(items.totalTax)",
-    ],
-    groupBy: ["kam.kamName", "kam.kamCode"],
-    filter: [
-      {
-        column: "company_id",
-        operator: "equal",
-        type: "Integer",
-        value: 1,
-      },
-      {
-        column: "location_id",
-        operator: "equal",
-        type: "Integer",
-        value: 1,
-      },
-      {
-        column: "branch_id",
-        operator: "equal",
-        type: "Integer",
-        value: 1,
-      },
-    ],
-    page: 0,
-    size: 20,
-    "sortDir": "asc",
-    "sortBy": "kam.kamCode"
-  };
-  
+      "SUM(items.basePrice - items.totalDiscountAmt)",
+      "SUM(all_total_amt)"
+  ],
+  "groupBy": [
+      "customer.customerAddress.customer_address_pin_code"
+  ],
+  "filter": [
+  ],
+  "page":0,
+  "size":50,
+  "sortBy": "customer.customerAddress.customer_address_pin_code",
+  "sortDir": "asc"
+};
+
+const SalesRegionWiseTableView = () => {
+  const authData = useSelector((state) => state.auth);
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(50);
+  const [individualItems, setIndividualItems] = useState([]);
+  const [toastShown, setToastShown] = useState(false);
+  const toast = useToast();
+
   const {
     data: sales,
     isLoading,
     isFetching,
     error,
-  } = useKamWiseSalesQuery({
+  } = useRegionWiseSalesQuery({
     filters,
     page,
     size,
@@ -97,14 +77,14 @@ const SalesKamWiseTableView = () => {
 
   const extractFields = (data, index) => ({
     "SL No": index + 1,
-    "Kam Name": data["kam.kamName"],
-    Email: data["kam.email"],
-    "Emp Code": data["kam.emp_code"],
-    Designation: data["kam.designation"],
-    Contact: data["kam.contact"],
-    "Invoice No": data["invoice_no"],
-    Invoice_date: data["invoice_date"],
-    "Due Amount": data["SUM(due_amount)"],
+    // kamName: data["kam.kamName"],
+    // email: data["kam.email"],
+    // emp_code: data["kam.emp_code"],
+    // designation: data["kam.designation"],
+    // contact: data["kam.contact"],
+    // invoice_no: data["invoice_no"],
+    // invoice_date: data["invoice_date"],
+    // due_amount: data["SUM(due_amount)"],
   });
 
   useEffect(() => {
@@ -113,14 +93,38 @@ const SalesKamWiseTableView = () => {
         const flattenedInvoice = flattenObject(invoice);
         return invoice.items?.length
           ? invoice.items.map((item) => {
-            const flattenedItem = flattenObject(item, "item.");
-            return { ...flattenedInvoice, ...flattenedItem };
-          })
+              const flattenedItem = flattenObject(item, "items.");
+              return { ...flattenedInvoice, ...flattenedItem };
+            })
           : [flattenedInvoice];
       });
       setIndividualItems((prevItems) => [...prevItems, ...newItems]);
     }
   }, [sales]);
+  useEffect(() => {
+    // Show the toast only if the user has scrolled to the last page and toast hasn't been shown
+    if (sales?.totalPages < page && !toastShown) {
+      toast({
+        title: "No More Data",
+        description: "You have reached the end of the list.",
+        status: "warning",
+        isClosable: true,
+        duration: 4000,
+        render: () => (
+          <Box
+            p={3}
+            bg="orange.300"
+            borderRadius="md"
+            style={{ width: "300px", height: "70px" }} // Set custom width and height
+          >
+            <Box fontWeight="bold">No More Data</Box>
+            <Box>You have reached the end of the list.</Box>
+          </Box>
+        ),
+      });
+      setToastShown(true); // Mark the toast as shown
+    }
+  }, [sales, page, toast, toastShown]);
 
   if (isLoading) {
     return (
@@ -129,7 +133,8 @@ const SalesKamWiseTableView = () => {
         width="100%"
         display="flex"
         alignItems="center"
-        justifyContent="center">
+        justifyContent="center"
+      >
         <Spinner
           thickness="4px"
           speed="0.65s"
@@ -148,7 +153,8 @@ const SalesKamWiseTableView = () => {
         height="calc(100vh - 103px)"
         display="flex"
         alignItems="center"
-        justifyContent="center">
+        justifyContent="center"
+      >
         <Image src={NoDataFound} alt="No Data Available" />
       </Box>
     );
@@ -156,17 +162,20 @@ const SalesKamWiseTableView = () => {
   const newArray = individualItems.map((data, index) =>
     extractFields(data, index)
   );
-
+  const mainData = sales?.content;
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
       {individualItems.length > 0 && (
         <CustomTable
-          newArray={newArray}
+          newArray={mainData}
           page={page}
           setPage={setPage}
           isFetching={isFetching}
           pageInfo={pageInfo}
           setSize={setSize}
+          filters={filters}
+          sortBy="kam.kamName"
+          sortDir="asc"
           alignment={{
             "SO Total Amount": "right",
             "SD Total Amount": "right",
@@ -178,4 +187,5 @@ const SalesKamWiseTableView = () => {
   );
 };
 
-export default SalesKamWiseTableView;
+export default SalesRegionWiseTableView;
+

@@ -134,8 +134,6 @@ const SalesDetailedTableView = () => {
 
 	const newArray = individualItems.map(extractFields);
 
-	console.log(newArray, 'newArray');
-
 	return (
 		<Box>
 			{isLoading ? (

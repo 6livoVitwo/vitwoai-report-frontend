@@ -16,13 +16,9 @@ const TypewriterHook = () => {
         onLoopDone: () => console.log("done from typewriter hook")
     });
 
-    const { isDelete, isType, isDelay, isDone } = flags;
+    const { isType, isDone } = flags;
     return (
         <Box>
-            {/* {isType && <Badge colorScheme='green'>Typing..</Badge>} */}
-            {/* {isDelay && <Badge>Waiting...⌛</Badge>}
-            {isDelete && <Badge colorScheme='red'>Deleting..❌</Badge>}
-            {isDone && <Badge colorScheme='purple'>Done!✅</Badge>} */}
             <span style={{height:'50px', width:'50px'}}>&nbsp;{isType && <Badge ml={0} colorScheme='green'>Typing..</Badge>}</span>
             <Text>
                 {text}

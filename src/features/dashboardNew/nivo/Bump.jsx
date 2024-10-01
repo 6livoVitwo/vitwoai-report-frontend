@@ -1,8 +1,8 @@
 import { ResponsiveBump } from '@nivo/bump'
 import React, { useEffect, useState } from 'react'
 import { bumpChartData } from '../data/chartData'
-import { getAllDates } from '../../../utils/graphs-utilitis';
 import { format, parse } from 'date-fns';
+import { getAllDates } from '../../nivoGraphs/graphUtils/common';
 
 const Bump = ({ liveData = [], startDate = "", endDate = "", dynamicWidth = 1200, inputType = "" }) => {
   const [data, setData] = useState([]);

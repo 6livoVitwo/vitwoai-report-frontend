@@ -11,7 +11,7 @@ import AreaBumpChart from "../chartSettings/AreaBumpChart";
 import BumpChart from "../chartSettings/BumpChart";
 import LineChart from "../chartSettings/LineChart";
 import FunnelChart from "../chartSettings/FunnelChart";
-import { calculateCount, createBodyWise, setDateRange, updateBodyWise, updateCountAndWidth } from "../../../utils/graphs-utilitis";
+import { calculateCount, createBodyWise, setDateRange, updateBodyWise, updateCountAndWidth } from "../graphUtils/common";
 import TypingMaster from "../../dashboardNew/components/TypingMaster";
 import { useDynamicNewQuery } from "./graphApi";
 import { addWidget, updateWidget } from "./graphSlice";
@@ -34,7 +34,6 @@ const newEndpoint = (data = "", type = "", processFlow = "") => {
       return "/sales/graph/kam-wise-heat-density"
     }
     return "/sales/graph/product-wise-time-series-seq"
-
   } else if (data === "sales-customer-wise") {
     if (type === "bump" || type === "areaBump" || type === "line") {
       return "/sales/graph/customer-wise-time-series-seq"
@@ -45,6 +44,44 @@ const newEndpoint = (data = "", type = "", processFlow = "") => {
       return processFlow
     }
     return "/sales/graph/so-wise-flow-process"
+  } else if (data === "sales-region-wise") {
+    if (type === "bump" || type === "areaBump" || type === "line") {
+      return "/sales/graph/region-wise-time-series-seq"
+    }else if(type === "heatmap") {
+      return "/sales/graph/region-wise-heat-density"
+    }
+  }
+}
+
+const initialBodyWise = (selectedWise = "", type = "", priceOrQty = "", startDate = "", endDate = "", regionWise="") => {
+  console.log({ selectedWise, type, priceOrQty, startDate, endDate, regionWise })
+  if (selectedWise === "sales-product-wise") {
+    if (type === "bump" || type === "areaBump" || type === "line") {
+      return {
+        "priceOrQty": `${priceOrQty}`,
+        "yearFrom": split(startDate, '-')[0],
+        "yearTo": split(endDate, '-')[0],
+        "monthFrom": split(startDate, '-')[1],
+        "monthTo": split(endDate, '-')[1],
+      }
+    } else if (type === "heatmap") {
+      return {
+        "priceOrQty": `${priceOrQty}`,
+      }
+    }
+  } else if (selectedWise === "sales-region-wise") {
+    if (type === "bump" || type === "areaBump" || type === "line") {
+      return {
+        "day": 12,
+        "month": 6,
+        "year": 2024,
+        "wise": ""
+      }
+    } else if(type === "heatmap") {
+      return {
+        "wise": `${regionWise}`,
+      }
+    }
   }
 }
 
@@ -61,25 +98,21 @@ const ChartConfiguration = ({ configureChart }) => {
   const currentWidgets = useSelector((state) => state.salescustomer.widgets);
   const [inputType, setInputType] = useState("month");
   const [dynamicWidth, setDynamicWidth] = useState(1200);
+  const [regionWise, setRegionWise] = useState("pincode");
   const [startDate, setStartDate] = useState(inputType === 'month' ? '2024-01' : inputType === 'year' ? '2021' : '2024-01-01');
   const [endDate, setEndDate] = useState(inputType === 'month' ? '2024-12' : inputType === 'year' ? '2024' : '2024-01-20');
   const { selectedWise } = useSelector((state) => state.graphSlice);
   const [processFlow, setProcessFlow] = useState("/sales/graph/so-wise-flow-process");
   const [dynamicHeight, setDynamicHeight] = useState(0);
 
-  const [bodyWise, setBodyWise] = useState({
-    "priceOrQty": `${priceOrQty}`,
-    "yearFrom": split(startDate, '-')[0],
-    "yearTo": split(endDate, '-')[0],
-    "monthFrom": split(startDate, '-')[1],
-    "monthTo": split(endDate, '-')[1],
-  });
+  const [bodyWise, setBodyWise] = useState(initialBodyWise(selectedWise, type, priceOrQty, startDate, endDate, regionWise));
+  console.log('🔵🟢🔴 =>',{ bodyWise })
   const [chartApiConfig, setChartApiConfig] = useState({
     areaBump: [
       {
         wise: "sales",
         method: "POST",
-        endpoint: newEndpoint(selectedWise),
+        endpoint: newEndpoint(selectedWise, type, processFlow),
         body: bodyWise
       },
     ],
@@ -112,9 +145,7 @@ const ChartConfiguration = ({ configureChart }) => {
         wise: "sales",
         method: "POST",
         endpoint: newEndpoint(selectedWise, type),
-        body: {
-          "priceOrQty": `${priceOrQty}`,
-        }
+        body: bodyWise
       }
     ]
   });
@@ -133,8 +164,8 @@ const ChartConfiguration = ({ configureChart }) => {
   }
 
   const handlePriceOrQty = (data) => {
-    let newBodyWise = createBodyWise(inputType, startDate, endDate, data, type); 
-    console.log({newBodyWise})    
+    let newBodyWise = createBodyWise(inputType, startDate, endDate, data, type);
+    console.log({ newBodyWise })
     setPriceOrQty(data);
     setBodyWise(newBodyWise);
     updateChartApiConfig(newBodyWise);
@@ -171,6 +202,7 @@ const ChartConfiguration = ({ configureChart }) => {
   };
 
   const updateChartApiConfig = (newBodyWise) => {
+    console.log({ newBodyWise })
     setChartApiConfig((prevConfig) => ({
       ...prevConfig,
       areaBump: [
@@ -209,7 +241,7 @@ const ChartConfiguration = ({ configureChart }) => {
         {
           wise: "sales",
           method: "POST",
-          endpoint: newEndpoint(selectedWise, type),
+          endpoint: newEndpoint(selectedWise, type, processFlow),
           body: newBodyWise
         }
       ]
@@ -226,12 +258,12 @@ const ChartConfiguration = ({ configureChart }) => {
   }
 
   useEffect(() => {
-    if(type === 'heatmap') {
+    if (type === 'heatmap') {
       setInputType("");
       setEndDate("");
       setStartDate("");
     }
-  }, [ type ]);
+  }, [type]);
 
   useEffect(() => {
     if (finalData && finalData.length > 0) {

@@ -38,11 +38,9 @@ const Dashboard = () => {
 
 	const findChartsByGroup = (group) => {
 		const filteredCharts = chartsData.charts.filter((chart) => chart.group === group);
-		console.log({ filteredCharts })
 		setAllCharts(filteredCharts || []);
 	}
 	const handleGroupButton = (group) => {
-		console.log({ group })
 		findChartsByGroup(group)
 		setGroupButton(group)
 	}
@@ -52,10 +50,7 @@ const Dashboard = () => {
 		setGroupButton('All');
 	}
 
-	console.log({ allCharts });
-
-	const handleToggleAddChart = (index, chart) => {
-		console.log({ index, chart });
+	const handleToggleAddChart = (index, chart) => {	
 		setAllCharts((prev) => {
 			const foundIndex = prev.findIndex((item) => item.id === chart.id);
 
@@ -103,7 +98,6 @@ const Dashboard = () => {
   };
 
 	const handleGraphSettings = (chart) => {
-		console.log({ chart });
 		onOpenGraphSettingsModal();
 		setSingleGraphData(chart);
 	};

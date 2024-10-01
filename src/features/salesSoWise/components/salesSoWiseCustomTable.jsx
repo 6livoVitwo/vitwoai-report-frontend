@@ -12,13 +12,13 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
 import { Calendar } from 'primereact/calendar';
 import { FiPlus, FiSettings } from "react-icons/fi";
-import DynamicChart from "./DynamicChart";
 import { useSelector } from "react-redux";
 import NewMyCharts from "../../dashboardNew/nivo/NewMyCharts";
-import { chartsData } from "../data/fakeData";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import { useDispatch } from "react-redux";
 import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfiguration";
+import DynamicChart from "../../nivoGraphs/chartConfigurations/DynamicChart";
+import { chartsData } from "../../nivoGraphs/data/fakeData";
 
 const CustomTable = ({ setPage, newArray, alignment }) => {
   const dispatch = useDispatch();
@@ -37,8 +37,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
   const [endDate, setEndDate] = useState();
 
   const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
-
-  console.log(salesCustomerWise, "salesCustomerWise1");
 
   const toast = useToast();
   const tableContainerRef = useRef(null);
@@ -371,11 +369,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     onOpenGraphSettingDrawer();
     dispatch(handleGraphWise("sales-so-wise"));
   }
-
-  // console.log(data, 'data');
-  console.log(newArray, "newArray");
-  console.log(selectedColumns, "selectedColumns");
-  console.log(filteredItems, "filteredItems");
 
   return (
     <Box bg="white" padding="0px 10px" borderRadius="5px">
@@ -1035,129 +1028,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
           </ModalBody>
         </ModalContent>
       </Modal>
-
-      {/* //sales-customer-wise graph settings */}
-      <Drawer
-        isOpen={isOpenGraphSettingDrawer}
-        placement="right"
-        onClose={onCloseGraphSettingDrawer}
-        size="xl">
-        <DrawerOverlay />
-        <DrawerContent
-          maxW="91vw"
-          sx={{
-            "& .stickyTop": {
-              position: "sticky",
-              top: 0,
-              zIndex: 1,
-              backgroundColor: "white",
-            },
-          }}>
-          <DrawerCloseButton style={{ color: "white" }} />
-          <DrawerHeader
-            style={{
-              backgroundColor: "#003060",
-              color: "white",
-            }}>
-            Choose Data Wise Graph
-          </DrawerHeader>
-          <DrawerBody>
-            <Box
-              className="stickyTop"
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 4px",
-                p: 2,
-                my: 2,
-                flexGrow: 1,
-              }}>
-              Total Graph ({chartsData.charts.length})
-            </Box>
-            <Box display="flex" flexWrap="wrap" justifyContent="space-between">
-              {chartsData.charts.map((chart, index) => {
-                console.log("All Chart List", chart);
-                return (
-                  <Box
-                    key={index}
-                    width={{
-                      base: "100%",
-                      lg: "49.4%",
-                    }}
-                    mb={6}>
-                    <Box
-                      sx={{
-                        backgroundColor: "white",
-                        padding: "15px",
-                        my: 5,
-                        borderRadius: "8px",
-                        border: "1px solid #c4c4c4",
-                      }}
-                      mb={3}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "flex-end",
-                          "& button": {
-                            color: "#718296",
-                            padding: "20px 20px",
-                            fontSize: "14px",
-                            border: "1px solid #dee2e6",
-                            backgroundColor: "white",
-                            borderRadius: "8px",
-                          },
-                          "& button:hover": {
-                            backgroundColor: "rgb(0, 48, 96)",
-                            borderRadius: "5px",
-                            color: "white",
-                          },
-                        }}
-                        mb={6}>
-                        <Button
-                          type="button"
-                          variant="outlined"
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 1,
-                            _hover: {
-                              color: "white",
-                            },
-                          }}
-                          onClick={() => handleConfigure(chart)}>
-                          <FiSettings
-                            sx={{
-                              mr: "6px",
-                            }}
-                          />
-                          Configure
-                        </Button>
-                        {/* <Button onClick={() => console.log("add+")} ml={3}>
-                          Add <IoMdAdd />
-                        </Button> */}
-                      </Box>
-                      <Box
-                        sx={{
-                          width: "100%",
-                          height: "200px",
-                        }}>
-                        <DynamicChart chart={chart} />
-                      </Box>
-                      <Badge colorScheme="blue" py={0} px={3} fontSize={9}>
-                        {chart.title}
-                      </Badge>
-                      <Text fontSize={8}>{chart.chartName}</Text>
-                    </Box>
-                  </Box>
-                );
-              })}
-            </Box>
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
-
-      {/* sales graph view details */}
       <Modal
         onClose={onCloseGraphDetailsView}
         isOpen={isOpenGraphDetailsView}
@@ -1215,11 +1085,11 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                 my: 2,
                 flexGrow: 1,
               }}>
-              Total Graph ({chartsData.charts.length})
+              Total Graph ({chartsData?.charts.filter((chart) => chart.type === "funnel").length})
             </Box>
             <Box display="flex" flexWrap="wrap" justifyContent="space-between">
               {chartsData.charts.map((chart, index) => {
-                console.log("All Chart List", chart);
+                if (chart.type !== "funnel") return null;
                 return (
                   <Box
                     key={index}
@@ -1275,9 +1145,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                           />
                           Configure
                         </Button>
-                        {/* <Button onClick={() => console.log("add+")} ml={3}>
-                          Add <IoMdAdd />
-                        </Button> */}
                       </Box>
                       <Box
                         sx={{

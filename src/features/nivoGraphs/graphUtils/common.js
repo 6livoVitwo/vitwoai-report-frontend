@@ -47,8 +47,7 @@ export const setDateRange = (data) => {
     }
 }
 
-export const createBodyWise = (data, startDate, endDate, priceOrQty, type = "") => {
-    console.log('🔴🔴', { data, startDate, endDate, priceOrQty, type })
+export const createBodyWise = (data, startDate, endDate, priceOrQty, type = "") => {    
     if (data === 'month') {
         return {
             "priceOrQty": `${priceOrQty}`,

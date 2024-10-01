@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { format, parse } from 'date-fns';
-import { getAllDates } from "../../../utils/graphs-utilitis";
+import { getAllDates } from "../graphUtils/common";
 import Bump from "../nivo/Bump";
 
 const BumpChart = ({ liveData = [], startDate = "", endDate = "", dynamicWidth = 1200, inputType = "" }) => {

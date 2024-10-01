@@ -74,6 +74,8 @@ import PoWiseTableView from "../features/poWise/components/poWiseTableView";
 import PoWiseGraphView from "../features/poWise/components/poWiseGraphView";
 import SalesSoWise from "../features/salesSoWise/components/index";
 import SalesSoWiseTableView from "../features/salesSoWise/components/salesSoWiseTableView";
+import SalesRegionWise from "../features/salesRegionWise/components/index";
+import SalesRegionWiseTableView from "../features/salesRegionWise/components/salesRegionWiseTableView";
 // import SalesSoWiseGraphView from "../features/salesSoWise/components/salesSoWiseGraphView";
 import GlobalCss from "../features/global/css";
 import { setAuthDetails } from "./slice";
@@ -1005,6 +1007,30 @@ const AllRoutes = () => {
                   globalLayout={globalStaticFragmennt}
                   portalId={commonPortalRef}>
                   <SalesKamWiseGraphView
+                    globalLayout={setGlobalStaticFragmennt}
+                  />
+                </PortalForLayout>
+              }
+            />
+          </Route>
+
+
+          <Route
+            path="/reports/sales-region-wise/"
+            element={
+              <PortalForLayout
+                globalLayout={globalStaticFragmennt}
+                portalId={commonPortalRef}>
+                <SalesRegionWise globalLayout={setGlobalStaticFragmennt} />
+              </PortalForLayout>
+            }>
+            <Route
+              path="/reports/sales-region-wise/table-view"
+              element={
+                <PortalForLayout
+                  globalLayout={globalStaticFragmennt}
+                  portalId={commonPortalRef}>
+                  <SalesRegionWiseTableView
                     globalLayout={setGlobalStaticFragmennt}
                   />
                 </PortalForLayout>

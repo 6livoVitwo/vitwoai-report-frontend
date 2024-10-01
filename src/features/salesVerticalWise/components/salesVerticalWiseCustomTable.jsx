@@ -90,8 +90,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
       (state) => state.salescustomer.widgets
     );
 
-  console.log(salesCustomerWise, "salesCustomerWise1");
-
   const toast = useToast();
   const tableContainerRef = useRef(null);
   const {
@@ -322,10 +320,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
      setConfigureChart(filterData);
    };
 
-   console.log(newArray, "newArray");
-   console.log(selectedColumns, "selectedColumns");
-   console.log(filteredItems, "filteredItems");
-
   const formatHeader = (header) => {
     header = header.trim();
     const parts = header.split(".");
@@ -416,11 +410,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
       );
     });
   };
-
-  // console.log(data, 'data');
-  console.log(newArray, "newArray");
-  console.log(selectedColumns, "selectedColumns");
-  console.log(filteredItems, "filteredItems");
 
   return (
     <Box bg="white" padding="0px 10px" borderRadius="5px">
@@ -1106,7 +1095,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
             </Box>
             <Box display="flex" flexWrap="wrap" justifyContent="space-between">
               {chartsData.charts.map((chart, index) => {
-                console.log("All Chart List", chart);
                 return (
                   <Box
                     key={index}

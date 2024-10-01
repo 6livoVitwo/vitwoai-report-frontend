@@ -253,6 +253,16 @@ export const chartsData = {
 			pinned: true,
 			description: 'This is Heat Map',
 			data: heatmapChartData,
+		},
+    {
+			id: '2',
+			chartName: 'Funnel Chart',
+			title: 'Funnel Chart',
+			type: 'funnel',
+			group: 'flowProcess',
+			pinned: false,
+			description: 'This is Funnel Chart',
+			data: funnelChartData,
 		}
   ],
 };
