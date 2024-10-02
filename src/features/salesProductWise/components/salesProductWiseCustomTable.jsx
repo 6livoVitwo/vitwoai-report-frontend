@@ -117,7 +117,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   //......Advanced Filtering....
   const { data: productDataFilter } = useProductWiseSalesQuery(
     { filters: localFilters },
-    { skip: !filtersApplied }
+    // { skip: !filtersApplied }
   );
   console.log("productDataFilter121212", productDataFilter);
   // console.log("localFilters121212",localFilters);
@@ -578,8 +578,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     if (activeFilterColumn) {
       const columnType = activeFilterColumn; // Assuming activeFilterColumn holds the column type
       columnType.includes("SUM(")
-        ? handleApplyFilters()
-        : handleApplyFiltersSUM();
+        ? handleApplyFiltersSUM()
+        : handleApplyFilters();
     }
   };
   const exportToExcel = () => {

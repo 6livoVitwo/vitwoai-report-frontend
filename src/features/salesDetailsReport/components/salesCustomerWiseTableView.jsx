@@ -9,9 +9,9 @@ const SalesDetailedTableView = () => {
 	const authData = useSelector((state) => state.auth);
 	const [page, setPage] = useState(1);
 	const [filters, setFilters] = useState([
-		{ column: 'company_id', operator: 'equal', type: 'integer', value: 1 },
-		{ column: 'branch_id', operator: 'equal', type: 'integer', value: 1 },
-		{ column: 'location_id', operator: 'equal', type: 'integer', value: 1 },
+		// { column: 'company_id', operator: 'equal', type: 'integer', value: 1 },
+		// { column: 'branch_id', operator: 'equal', type: 'integer', value: 1 },
+		// { column: 'location_id', operator: 'equal', type: 'integer', value: 1 },
 	]);
 	
 	const [dateRange, setDateRange] = useState();
@@ -158,6 +158,7 @@ const SalesDetailedTableView = () => {
 				<CustomTable
 					newArray={newArray}
 					page={page}
+					dateRange={dateRange}
 					setDateRange={setDateRange}
 					setPage={setPage}
 					isFetching={isFetching}

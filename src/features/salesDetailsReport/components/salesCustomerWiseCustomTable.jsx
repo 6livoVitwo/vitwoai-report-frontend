@@ -143,16 +143,14 @@ const SalesDetailedCustomTable = ({ setPage, newArray, setDateRange }) => {
 		});
 	};
 
-	const debouncedSearchQuery = useMemo(
-		() => debounce(setSearchQuery, 300),
-		[]
-	);
+	const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
 
+	
 	useEffect(() => {
 		return () => {
-			debouncedSearchQuery.cancel();
+		  debouncedSearchQuery.cancel();
 		};
-	}, [debouncedSearchQuery]);
+	  }, [debouncedSearchQuery]);
 
 	const handleSearchChange = (e) => {
 		debouncedSearchQuery(e.target.value);
@@ -309,12 +307,16 @@ const SalesDetailedCustomTable = ({ setPage, newArray, setDateRange }) => {
 
 	const handleStartDateChange = (date) => {
 		setStartDate(date);
-		updateArrayValue(date, endDate);
+		if (date && endDate) {
+			updateArrayValue(date, endDate);
+		}
 	};
-
+	
 	const handleEndDateChange = (date) => {
 		setEndDate(date);
-		updateArrayValue(startDate, date);
+		if (startDate && date) {
+			updateArrayValue(startDate, date);
+		}
 	};
 
 	const formatDate = (date) => {

@@ -76,8 +76,8 @@ const SalesCustomerWiseTableView = () => {
 
   const extractFields = (data, index) => ({
     "SL No": index + 1,
-    "Trade Name": data["customer.trade_name"],
-    "Customer Code": data["customer.customer_code"],
+    "customer.trade_name": data["customer.trade_name"],
+    "customer.customer_code": data["customer.customer_code"],
     "Customer GSTIN": data["customer.customer_gstin"],
     IGST: data["SUM(igst)"],
     SGST: data["SUM(sgst)"],

@@ -79,7 +79,7 @@ const SalesKamWiseTableView = () => {
 
   const extractFields = (data, index) => ({
     "SL No": index + 1,
-    kamName: data["kam.kamName"],
+   "kam.kamName": data["kam.kamName"],
     email: data["kam.email"],
     emp_code: data["kam.emp_code"],
     designation: data["kam.designation"],

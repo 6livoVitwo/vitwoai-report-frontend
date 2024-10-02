@@ -132,8 +132,8 @@ const CustomTable = ({
 
   //......Advance Filter Api Calling.........
   const { data: kamDataFilter } = useKamWiseSalesQuery(
-    { filters },
-    { skip: !filtersApplied }
+    { filters:localFilters},
+    // { skip: !filtersApplied }
   );
   //  console.log("kamDataFilter1212121",kamDataFilter);
 
