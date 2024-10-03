@@ -229,7 +229,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     const selectedValue = e.value; // Get the selected value from the dropdown
     const selectedLable = e.originalEvent.target.innerText;
     setPlaceholder(selectedLable);
-    
+
     // Update the filters object based on the selected region type
     const updatedFilters = {
       ...filters,
@@ -251,18 +251,15 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     //....Update the filters state....
     setFilters(updatedFilters);
     setSelectedRegion(selectedValue);
-    // refetchDistrict();
-    // refetchcity();
     setIsUpdated(true);
   };
-
+  // useEffect for refetching data
   useEffect(() => {
     refetchcity();
     refetchDistrict();
     refetchcountry();
     setIsUpdated(false);
   }, [filters, refetchcity, refetchDistrict, refetchcountry]);
-
 
   const loadMoreData = async () => {
     if (!loading) {
@@ -1111,7 +1108,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                             onChange={
                                               handleTempFilterValueChange
                                             }
-                                            placeholder={`Filter ${column}`}
+                                            // placeholder={`Filter ${column}`}
+                                            placeholder="Search by name"
                                           />
                                         </Box>
                                       </Box>

@@ -1,3 +1,4 @@
+import { get } from "lodash";
 import { apiSlice } from "../../apis/apiSlice";
 
 export const purchaseProductWiseApi = apiSlice.injectEndpoints({
@@ -21,8 +22,8 @@ export const purchaseProductWiseApi = apiSlice.injectEndpoints({
     }),
 
     // Query to get global search
-    getGlobalsearchPurchase:builder.query({
-      query:(body) => {
+    getGlobalsearchPurchase: builder.query({
+      query: (body) => {
         return {
           url: "/purchase/global-search/product",
           method: "POST",
@@ -30,12 +31,21 @@ export const purchaseProductWiseApi = apiSlice.injectEndpoints({
         };
       },
     }),
-    
+    //query to get drop-down data product group
+    getProductGroup: builder.query({
+      query: () => {
+        return {
+          url: "/purchase/drop-down-data/product-group",
+          method: "GET",
+        };
+      },
+    }),
   }),
 });
 
 export const {
   useProductWisePurchaseQuery,
   useGetSelectedColumnsQuery,
-  useGetGlobalsearchPurchaseQuery
+  useGetGlobalsearchPurchaseQuery,
+  useGetProductGroupQuery,
 } = purchaseProductWiseApi;

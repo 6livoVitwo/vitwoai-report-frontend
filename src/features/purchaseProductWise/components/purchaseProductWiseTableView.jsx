@@ -4,7 +4,7 @@ import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
-// import { jwtDecode } from "jwt-decode";
+// import{useGetSelectedColumnsQuery} from "../slice/purchaseProductWiseApi"
 
 let filters = {
   data: [
@@ -42,11 +42,18 @@ const PurchaseProductWiseTableView = () => {
     size,
     authDetails: authData.authDetails,
   });
- 
-  
-  const pageInfo = sales?.lastPage;
 
+  const pageInfo = sales?.lastPage;
   const tableContainerRef = useRef(null);
+
+  // Create a mapping of API fields to display names
+  const fieldMapping = {
+    "items.goodName": "Good Name",
+    "items.goodCode": "Good Code",
+    "SUM(items.goodQty)": "Total Quantity",
+    "SUM(items.receivedQty)": "Received Quantity",
+    "SUM(items.totalAmount)": "Total Amount",
+  };
 
   const flattenObject = (obj, prefix = "") => {
     let result = {};
@@ -54,10 +61,7 @@ const PurchaseProductWiseTableView = () => {
       if (typeof obj[key] === "object" && obj[key] !== null) {
         if (Array.isArray(obj[key])) {
           obj[key].forEach((item, index) => {
-            Object.assign(
-              result,
-              flattenObject(item, `${prefix}${key}[${index}].`)
-            );
+            Object.assign(result, flattenObject(item, `${prefix}${key}[${index}].`));
           });
         } else {
           Object.assign(result, flattenObject(obj[key], `${prefix}${key}.`));
@@ -69,14 +73,17 @@ const PurchaseProductWiseTableView = () => {
     return result;
   };
 
-  const extractFields = (data, index) => ({
-    "SL No": index + 1,
-    "Good Name": data["items.goodName"],
-    "items.goodCode": data["items.goodCode"],
-    "Total Quantity": data["SUM(items.goodQty)"],
-    "Received Quantity": data["SUM(items.receivedQty)"],
-    "Total Amount": data["SUM(items.totalAmount)"],
-  });
+  const extractFields = (data, index) => {
+    const extractedFields = {
+      "SL No": index + 1,
+      // Map the API fields to display names dynamically
+      ...Object.keys(fieldMapping).reduce((acc, apiField) => {
+        acc[fieldMapping[apiField]] = data[apiField];
+        return acc;
+      }, {}),
+    };
+    return extractedFields;
+  };
 
   useEffect(() => {
     if (sales?.content?.length) {
@@ -153,7 +160,7 @@ const PurchaseProductWiseTableView = () => {
 
   const mainData = sales?.content;
 
-  const newArray = individualItems.map((data, index) => 
+  const newArray = individualItems.map((data, index) =>
     extractFields(data, index)
   );
 
@@ -161,7 +168,7 @@ const PurchaseProductWiseTableView = () => {
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
       {individualItems.length > 0 && (
         <CustomTable
-          newArray={mainData}
+          newArray={newArray} // Update this to use newArray
           page={page}
           setPage={setPage}
           isFetching={isFetching}

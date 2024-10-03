@@ -61,6 +61,7 @@ import { Calendar } from "primereact/calendar";
 import { useGetSelectedColumnsQuery } from "../slice/purchaseProductWiseApi";
 import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { useGetGlobalsearchPurchaseQuery } from "../slice/purchaseProductWiseApi";
+import { useGetProductGroupQuery } from "../slice/purchaseProductWiseApi";
 
 const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   const [data, setData] = useState([...newArray]);
@@ -149,6 +150,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     skip: !searchQuery,
   });
   // console.log("piyas3333333", searchData);
+
+  // api calling for product group....
+  const { data: productGroup } = useGetProductGroupQuery();
+  console.log("productGroup⭕", productGroup);
 
   const toast = useToast();
 
@@ -442,8 +447,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   const formatHeader = (header) => {
     header = header.trim();
     header = header.trim();
-    header = header.replace(/^[A-Z]+\(|\)$/g, ""); 
-    header = header.replace(/_/g, " ");//remove underscore from header and replace with space
+    header = header.replace(/^[A-Z]+\(|\)$/g, "");
+    header = header.replace(/_/g, " "); 
     const parts = header.split(".");
     const lastPart = parts.pop();
     const words = lastPart.split("_").join("");
@@ -706,30 +711,28 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                 Select Groups
               </PopoverHeader>
               <PopoverBody>
-                <Box
-                  display="flex"
-                  flexDirection="column"
-                  justifyContent="space-around"
-                >
+                <Box display="flex" justifyContent="space-around">
                   <Button
                     rounded="9px"
                     border="1px solid gray"
-                    w="100%"
-                    p=""
+                    w="100px"
                     m="2px"
                     h="40px"
                   >
-                    Good Groups
+                    <p style={{ fontSize: "10px" }}>
+                      Good <br /> Groups
+                    </p>
                   </Button>
                   <Button
                     rounded="9px"
                     border="1px solid gray"
-                    w="100%"
-                    p=""
+                    w="100px"
                     m="2px"
                     h="40px"
                   >
-                    Good Items
+                    <p style={{ fontSize: "10px" }}>
+                      Good <br /> Items
+                    </p>
                   </Button>
                 </Box>
               </PopoverBody>
@@ -921,110 +924,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
               </Modal>
             </MenuList>
           </Menu>
-
-          <Modal
-            isOpen={isOpenFilterModal}
-            onClose={onCloseFilterModal}
-            size="xl"
-            isCentered
-          >
-            <ModalOverlay />
-            {/* <ModalContent minW="40%">
-              <ModalHeader
-                fontWeight="600"
-                bg="mainBlue"
-                color="white"
-                fontSize="16px"
-                padding="12px">
-                Filter Table Report by Column
-              </ModalHeader>
-              <ModalCloseButton mt="5px" color="white" size="lg" />
-              <ModalBody>
-                <Box height="60vh" overflowY="scroll" overflowX="hidden">
-                  {getColumns(data).map((column) => {
-                    const formattedHeader = formatHeader(column.header);
-                    return (
-                      <Box key={column.field}>
-                        <Text
-                          color="var(--chakra-colors-textBlack)"
-                          fontWeight="600"
-                          fontSize="14px"
-                          mt="10px"
-                          mb="3px">
-                          {formattedHeader}
-                        </Text>
-                        <Box display="flex" gap="15px" mr="10px">
-                          <Select
-                            placeholder="Select option"
-                            size="lg"
-                            fontSize="12px"
-                            h="35px"
-                            value={columnFilters[column.field]?.condition || ""}
-                            onChange={(e) =>
-                              handleColumnFilterConditionChange(
-
-                                column.field,
-                                e.target.value
-                              )
-                            }>
-                            <option value="like">Contain</option>
-                            <option value="notLike">Not Contain</option>
-                            <option value="greaterThan">Greater Than</option>
-                            <option value="greaterThanOrEqual">
-                              Greater Than or Equal
-                            </option>
-                            <option value="lessThan">Less Than</option>
-                            <option value="lessThanOrEqual">
-                              Less Than or Equal
-                            </option>
-                            <option value="between">Between</option>
-                          </Select>
-                          <Input
-                            h="35px"
-                            fontSize="12px"
-                            padding="10px 10px"
-                            value={columnFilters[column.field]?.value || ""}
-                            onChange={(e) =>
-                              handleColumnFilterValueChange(
-                                column.field,
-                                e.target.value
-                              )
-                            }
-                            placeholder={`Filter ${column.header}`}
-                          />
-                        </Box>
-                      </Box>
-                    );
-                  })}
-                </Box>
-              </ModalBody>
-
-              <ModalFooter>
-                <Button
-                  mr={3}
-                  padding="15px"
-                  fontSize="13px"
-                  bg="var(--chakra-colors-mainBlue)"
-                  _hover={{
-                    bg: "var(--chakra-colors-mainBlue)",
-                  }}
-                  color="white"
-                  onClick={onCloseFilterModal}>
-                  Reset
-                </Button>
-                <Button
-                  padding="15px"
-                  fontSize="13px"
-                  bg="var(--chakra-colors-mainBlue)"
-                  _hover={{
-                    bg: "var(--chakra-colors-mainBlue)",
-                  }}
-                  color="white">
-                  Filter
-                </Button>
-              </ModalFooter>
-            </ModalContent> */}
-          </Modal>
         </Box>
       </Box>
       <TableContainer
@@ -1265,7 +1164,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                               textOverflow="ellipsis"
                             >
                               {/* Check if column exists in the productDataFilter */}
-                              {typeof item[column] === "object" &&
+                              {item[column] !== undefined &&
+                              typeof item[column] === "object" &&
                               item[column] !== null
                                 ? item[column].listName || item[column].index
                                 : item[column] !== undefined
