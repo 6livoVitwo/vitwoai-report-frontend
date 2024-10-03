@@ -104,12 +104,12 @@ const CustomTable = ({
   };
   // Dynamically generate column mappings from filters.data
   const columnMappings = generateColumnMappings(filters.data);
-  console.log("🤣columnMappings", columnMappings);
+  console.log("🟢columnMappings", columnMappings);
   console.log(columnMappings["kamCode"]);
 
   // Function to map filters dynamically
   const mapFilters = (filters) => {
-    console.log('🙂',{ filters });
+    console.log('🟠',{ filters });
     return filters.map((filter) => ({
       ...filter,
       // If filter.column is a string, directly use columnMappings; otherwise, check for filter.column.key
@@ -123,6 +123,8 @@ const CustomTable = ({
     filters: {
       ...filters,
       filter: mapFilters(filters.filter), // Map filters dynamically
+      sortBy: columnMappings[sortColumn] || sortColumn,
+      sortDir: sortOrder,
       
     },
     page: currentPage,
@@ -1037,7 +1039,8 @@ const CustomTable = ({
                                             onChange={
                                               handleTempFilterValueChange
                                             }
-                                            placeholder={`Filter ${column}`}
+                                            // placeholder={`Filter ${column}`}
+                                            placeholder={"Search by name"}
                                           />
                                         </Box>
                                       </Box>

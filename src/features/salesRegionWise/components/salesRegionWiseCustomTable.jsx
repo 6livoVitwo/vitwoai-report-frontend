@@ -64,7 +64,8 @@ import { useRegionWiseSalesQuery } from "../slice/salesRegionWiseApi";
 import { useGetselectedDistWiseQuery } from "../slice/salesRegionWiseApi";
 import { useGetselectedCityWiseQuery } from "../slice/salesRegionWiseApi";
 import { useGetselectedCountryWiseQuery } from "../slice/salesRegionWiseApi";
-import {useGetselectedPincodeWiseQuery} from "../slice/salesRegionWiseApi";
+import { useGetselectedPincodeWiseQuery } from "../slice/salesRegionWiseApi";
+import { useGetselectedStateWiseQuery } from "../slice/salesRegionWiseApi";
 import { set } from "lodash";
 
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
@@ -91,7 +92,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const [currentPage, setCurrentPage] = useState(0); // Default page is 0
   const [selectedRegion, setSelectedRegion] = useState(""); // Track selected region
-  const [placeholder, setPlaceholder] = useState("State"); // Default placeholder
+  const [placeholder, setPlaceholder] = useState("District"); // Default placeholder
   const [columns, setColumns] = useState([]);
   const [tableData, setTableData] = useState([]); // Store the fetched table data
   const [isUpdated, setIsUpdated] = useState(false); // Force re-render when needed
@@ -106,12 +107,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
   // Dynamically generate column mappings from filters.data
   // const columnMappings = generateColumnMappings(filters.data);
-  // console.log("🤣columnMappings", columnMappings);
+  // console.log("🟢columnMappings", columnMappings);
   // console.log(columnMappings["kamCode"]);
 
   // Function to map filters dynamically
   const mapFilters = (filters) => {
-    console.log("🙂", { filters });
+    console.log("🔵", { filters });
     return filters.map((filter) => ({
       ...filter,
       // If filter.column is a string, directly use columnMappings; otherwise, check for filter.column.key
@@ -220,8 +221,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   //..........Api calling for dropdown for pincode-wise ............
   const { data: PincodeWiseData, refetch: refetchpincode } =
-  useGetselectedPincodeWiseQuery(filters);
+    useGetselectedPincodeWiseQuery(filters);
   // console.log("PincodeWiseData_🟤", PincodeWiseData);
+
+  //..........Api calling for dropdown for state-wise ............
+  const { data: StateWiseData, refetch: refetchstate } =
+    useGetselectedStateWiseQuery(filters);
+  // console.log("StateWiseData_🟡", StateWiseData);
 
   const RerionType = [
     { label: "State", value: "state" },
@@ -258,6 +264,18 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setFilters(updatedFilters);
     setSelectedRegion(selectedValue);
     setIsUpdated(true);
+    // Show custom toast notification
+    toast({
+      title: `Region changed to ${selectedLable}`,
+      description: "Your filter has been updated.",
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+      containerStyle: {
+        width: "400px",
+        height: "100px",
+      },
+    });
   };
   // useEffect for refetching data
   useEffect(() => {
@@ -265,8 +283,17 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     refetchDistrict();
     refetchcountry();
     refetchpincode();
+    refetchstate();
     setIsUpdated(false);
-  }, [filters, refetchcity, refetchDistrict, refetchcountry,refetchpincode]);
+  }, [
+    filters,
+    refetchcity,
+    refetchDistrict,
+    refetchcountry,
+    refetchpincode,
+    refetchstate,
+    setIsUpdated,
+  ]);
 
   const loadMoreData = async () => {
     if (!loading) {

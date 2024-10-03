@@ -15,7 +15,7 @@ const SalesRegionWiseTableView = () => {
   const toast = useToast();
   const [filters, setFilters] = useState({
     data: [
-      "customer.customerAddress.customer_address_pin_code",
+      "customer.customerAddress.customer_address_district",
       "SUM(igst)",
       "SUM(sgst)",
       "SUM(cgst)",
@@ -28,11 +28,11 @@ const SalesRegionWiseTableView = () => {
       "SUM(items.basePrice - items.totalDiscountAmt)",
       "SUM(all_total_amt)",
     ],
-    groupBy: ["customer.customerAddress.customer_address_pin_code"],
+    groupBy: ["customer.customerAddress.customer_address_district"],
     filter: [],
     page: 0,
     size: 50,
-    sortBy: "customer.customerAddress.customer_address_pin_code",
+    sortBy: "customer.customerAddress.customer_address_district",
     sortDir: "asc",
   });
 

@@ -100,7 +100,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   const columnMappings = generateColumnMappings(filters.data);
   console.log("filter_1212", filters.data);
   console.log("columnMappings_piyas", columnMappings);
-  console.log(columnMappings["trade_name"]);
+  // console.log(columnMappings["trade_name"]);
 
   // Function to map filters dynamically
   const mapFilters = (filters) => {
