@@ -62,6 +62,7 @@ import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
 import { useGetGlobalsearchVendorQuery } from "../slice/purchaseVendorWiseApi";
 import { useVendorWisePurchaseQuery } from "../slice/purchaseVendorWiseApi";
+import { useGetSelectedColumnsVendorQuery } from "../slice/purchaseVendorWiseApi";
 const CustomTable = ({ setPage, newArray, alignment, filters, refetch }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
@@ -91,8 +92,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, refetch }) => {
 
   //......Advanced Filter API Calling......
   const { data: VendorDataFilter } = useVendorWisePurchaseQuery(
-    { filters },
-    { skip: !filtersApplied }
+    { filters: localFilters }
+    // { skip: !filtersApplied }
   );
 
   // api calling from global search
@@ -100,6 +101,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, refetch }) => {
     skip: !searchQuery,
   });
   // console.log("piyas3333333", searchData);
+
+  // ....api calling from drop-down data ....
+  const { data: columnData } = useGetSelectedColumnsVendorQuery();
+  // console.log("01010101", columnData);
 
   //API Calling sorting
   const { data: ProductData, refetch: refetchProduct } =
@@ -232,13 +237,23 @@ const CustomTable = ({ setPage, newArray, alignment, filters, refetch }) => {
   };
 
   const handleSelectAllToggle = () => {
-    const allColumnFields = getColumns(data).map((column) => column.field);
     if (selectAll) {
-      setSelectedColumns([]);
+      setSelectedColumns([]); // Deselect all columns
     } else {
-      setSelectedColumns(allColumnFields);
+      const allColumns = getColumns(data) // Select all columns
+        .concat(
+          columnData
+            ? Object.keys(columnData?.content[0] || {}).map((key) => ({
+                field: key,
+                header: key,
+              }))
+            : []
+        )
+        .map((column) => column.field);
+
+      setSelectedColumns(allColumns);
     }
-    setSelectAll((prevSelectAll) => !prevSelectAll);
+    setSelectAll(!selectAll);
   };
 
   const handleModalClose = () => {
@@ -859,7 +874,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, refetch }) => {
                               onClose={() => setActiveFilterColumn(null)}
                             >
                               <PopoverTrigger>
-                              <Button
+                                <Button
                                   bg="transparent"
                                   onClick={() => handlePopoverClick(column)} // Set the clicked column as active
                                 >
@@ -944,11 +959,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, refetch }) => {
                                             onChange={
                                               handleTempFilterValueChange
                                             }
-                                            placeholder={`Filter ${column}`}
+                                            // placeholder={`Filter ${column}`}
+                                            placeholder={"Search by name"}
                                             value={tempFilterValue}
                                             type={
                                               tempFilterCondition === "between"
-                                                  ? "string"
+                                                ? "string"
                                                 : "integer"
                                             }
                                           />
@@ -1070,7 +1086,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, refetch }) => {
 			</Button> */}
       <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered>
         <ModalOverlay />
-        <ModalContent minW="30%">
+        <ModalContent minW="40%">
           <ModalHeader
             fontWeight="600"
             bg="mainBlue"
@@ -1094,7 +1110,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, refetch }) => {
               </Checkbox>
             </Box>
             <Box
-              // height="60vh"
+              height="60vh"
               overflowY="scroll"
               overflowX="hidden"
               display="flex"
@@ -1106,40 +1122,51 @@ const CustomTable = ({ setPage, newArray, alignment, filters, refetch }) => {
                 },
               }}
             >
-              {getColumns(data).map((column) => {
-                const formattedHeader = formatHeader(column.field);
+              {(getColumns(data) || [])
+                .concat(
+                  columnData
+                    ? Object.keys(columnData?.content[0] || {}).map((key) => ({
+                        field: key,
+                        header: key,
+                      }))
+                    : []
+                )
+                .map((column, index) => {
+                  const formattedHeader = formatHeader(
+                    column.field || column.header
+                  );
 
-                return (
-                  <Box
-                    key={column.field}
-                    className="columnCheckBox"
-                    padding="5px"
-                    bg="rgba(231,231,231,1)"
-                    borderRadius="5px"
-                    width="48%"
-                  >
-                    <Checkbox
-                      size="lg"
-                      display="flex"
-                      padding="5px"
-                      borderColor="mainBluemedium"
+                  return (
+                    <Box
                       key={column.field}
-                      defaultChecked={selectedColumns.includes(column.field)}
-                      isChecked={selectedColumns.includes(column.field)}
-                      onChange={() => toggleColumn(column.field)}
+                      className="columnCheckBox"
+                      padding="5px"
+                      bg="rgba(231,231,231,1)"
+                      borderRadius="5px"
+                      width="48%"
                     >
-                      <Text
-                        fontWeight="500"
-                        ml="10px"
-                        fontSize="12px"
-                        color="textBlackDeep"
+                      <Checkbox
+                        size="lg"
+                        display="flex"
+                        padding="5px"
+                        borderColor="mainBluemedium"
+                        key={column.field}
+                        defaultChecked={selectedColumns.includes(column.field)}
+                        isChecked={selectedColumns.includes(column.field)}
+                        onChange={() => toggleColumn(column.field)}
                       >
-                        {formattedHeader}
-                      </Text>
-                    </Checkbox>
-                  </Box>
-                );
-              })}
+                        <Text
+                          fontWeight="500"
+                          ml="10px"
+                          fontSize="12px"
+                          color="textBlackDeep"
+                        >
+                          {formattedHeader}
+                        </Text>
+                      </Checkbox>
+                    </Box>
+                  );
+                })}
             </Box>
           </ModalBody>
           <ModalFooter>

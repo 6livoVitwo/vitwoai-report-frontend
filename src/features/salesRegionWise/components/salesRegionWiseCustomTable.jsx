@@ -64,6 +64,7 @@ import { useRegionWiseSalesQuery } from "../slice/salesRegionWiseApi";
 import { useGetselectedDistWiseQuery } from "../slice/salesRegionWiseApi";
 import { useGetselectedCityWiseQuery } from "../slice/salesRegionWiseApi";
 import { useGetselectedCountryWiseQuery } from "../slice/salesRegionWiseApi";
+import {useGetselectedPincodeWiseQuery} from "../slice/salesRegionWiseApi";
 import { set } from "lodash";
 
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
@@ -217,12 +218,17 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     useGetselectedCountryWiseQuery(filters);
   // console.log("CountryWiseData_🟣", CountryWiseData);
 
+  //..........Api calling for dropdown for pincode-wise ............
+  const { data: PincodeWiseData, refetch: refetchpincode } =
+  useGetselectedPincodeWiseQuery(filters);
+  // console.log("PincodeWiseData_🟤", PincodeWiseData);
+
   const RerionType = [
     { label: "State", value: "state" },
     { label: "District", value: "district" },
     { label: "City", value: "city" },
     { label: "Country", value: "country" },
-    { label: "Pincode", value: "pincode" },
+    { label: "Pincode", value: "pin_code" },
   ];
   //...Handle dropdown region-type change....
   const handleRegionChange = (e) => {
@@ -258,8 +264,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     refetchcity();
     refetchDistrict();
     refetchcountry();
+    refetchpincode();
     setIsUpdated(false);
-  }, [filters, refetchcity, refetchDistrict, refetchcountry]);
+  }, [filters, refetchcity, refetchDistrict, refetchcountry,refetchpincode]);
 
   const loadMoreData = async () => {
     if (!loading) {

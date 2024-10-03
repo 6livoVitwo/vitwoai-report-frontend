@@ -126,9 +126,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
 
   //Advance data filtering
   const { data: SoWiseFilter } = useSoWiseSalesQuery(
-    { filters },
+    { filters:localFilters},
     {
-      skip: !filtersApplied,
+      // skip: !filtersApplied,
     }
   );
 

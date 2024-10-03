@@ -43,7 +43,15 @@ export const salesRegionWiseApi = apiSlice.injectEndpoints({
         };
       },
     }),
-    // Query to get selected columns Pincode wise
+    // // Query to get selected columns Pincode wise
+    // getselectedPincodeWise: builder.query({
+    //   query: () => {
+    //     return {
+    //       url: "/sales/drop-down-data/pincode-wise",
+    //       method: "GET",
+    //     };
+    //   },
+    // }),
     getselectedPincodeWise: builder.query({
       query: () => {
         return {

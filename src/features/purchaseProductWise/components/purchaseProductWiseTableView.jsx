@@ -48,8 +48,8 @@ const PurchaseProductWiseTableView = () => {
 
   // Create a mapping of API fields to display names
   const fieldMapping = {
-    "items.goodName": "Good Name",
-    "items.goodCode": "Good Code",
+    "items.goodName": "items.goodName",
+    "items.goodCode": "items.goodCode",
     "SUM(items.goodQty)": "Total Quantity",
     "SUM(items.receivedQty)": "Received Quantity",
     "SUM(items.totalAmount)": "Total Amount",

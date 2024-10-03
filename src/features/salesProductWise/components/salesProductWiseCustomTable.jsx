@@ -578,8 +578,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     if (activeFilterColumn) {
       const columnType = activeFilterColumn; // Assuming activeFilterColumn holds the column type
       columnType.includes("SUM(")
-        ? handleApplyFilters()
-        : handleApplyFiltersSUM();
+        ? handleApplyFiltersSUM()
+        : handleApplyFilters();
     }
   };
   const exportToExcel = () => {

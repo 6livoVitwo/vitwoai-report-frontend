@@ -96,7 +96,7 @@ const SalesSoWiseTableView = () => {
 
   const extractFields = (data, index) => ({
     "SL No": index + 1,
-    "trade_name": data["customer.trade_name"],
+    "customer.trade_name": data["customer.trade_name"],
     "customer_code": data["customer.customer_code"],
     "SO Total Amount": data["SUM(salesOrder.totalAmount)"],
     "SD Total Amount": data["SUM(salesPgi.salesDelivery.totalAmount)"],

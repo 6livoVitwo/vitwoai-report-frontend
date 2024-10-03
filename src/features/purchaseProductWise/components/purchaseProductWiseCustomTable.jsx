@@ -103,7 +103,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   };
   // Dynamically generate column mappings from filters.data
   const columnMappings = generateColumnMappings(filters.data);
-  console.log("🤣columnMappings", columnMappings);
+  console.log("🟢columnMappings", columnMappings);
   // console.log(columnMappings["goodName"]);
 
   const handlePopoverClick = (column) => {
@@ -468,10 +468,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   const handleScroll = () => {
     const { scrollTop, scrollHeight, clientHeight } = tableContainerRef.current;
 
-    if (scrollTop + clientHeight >= scrollHeight - 5 && !loading && !lastPage) {
+    if (scrollTop + clientHeight >= scrollHeight - 2) {
       loadMoreData();
     }
   };
+
   useEffect(() => {
     const container = tableContainerRef.current;
     if (container) {
@@ -480,7 +481,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
       return () =>
         container.removeEventListener("scroll", debouncedHandleScroll);
     }
-  }, [loading, lastPage, selectedColumns]);
+  }, [loading, lastPage]);
 
   //function for filter
   const handleTempFilterConditionChange = (e) => {
@@ -1081,7 +1082,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                                             onChange={
                                               handleTempFilterValueChange
                                             }
-                                            placeholder={`Filter ${column}`}
+                                            // placeholder={`Filter ${column}`}
+                                            placeholder={"Search by name"}
                                             value={tempFilterValue}
                                             type={
                                               tempFilterCondition === "between"
@@ -1100,7 +1102,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                                                 onChange={
                                                   handleTempFilterValueChange
                                                 }
-                                                placeholder={`Filter ${column}`}
+                                                // placeholder={`Filter ${column}`}
+                                                placeholder={"Search by name"}
+
                                               />
                                             </>
                                           )}

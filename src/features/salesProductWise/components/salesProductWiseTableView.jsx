@@ -96,7 +96,7 @@ const SalesProductWiseTableView = () => {
 
   const extractFields = (data, index) => ({
     "SL No": index + 1,
-    "Item Name": data["items.itemName"],
+    "items.itemName": data["items.itemName"],
     "Sales Delivery Total Amount":
       data["SUM(salesPgi.salesDelivery.totalAmount)"],
     "Sales Pgi Total Amount": data["SUM(salesPgi.totalAmount)"],

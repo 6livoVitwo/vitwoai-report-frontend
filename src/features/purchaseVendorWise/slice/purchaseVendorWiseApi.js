@@ -19,24 +19,35 @@ export const purchaseVendorWiseApi = apiSlice.injectEndpoints({
     // Query to fetch data with sorting /purchase/purchase-groupby-data
     fetchData: builder.query({
       query: (columns) => ({
-        url: 'purchase/purchase-groupby-data',  //  actual endpoint
+        url: "purchase/purchase-groupby-data", //  actual endpoint
         method: "POST",
         body: columns,
       }),
     }),
-        // Query to get global search
-        getGlobalsearchVendor:builder.query({
-          query:(body) => {
-            return {
-              url: "/purchase/global-search/vendor",
-              method: "POST",
-              body: JSON.stringify(body),
-            };
-          },
-       }),
-
-
+    // Query to get global search
+    getGlobalsearchVendor: builder.query({
+      query: (body) => {
+        return {
+          url: "/purchase/global-search/vendor",
+          method: "POST",
+          body: JSON.stringify(body),
+        };
+      },
+    }),
+    getSelectedColumnsVendor: builder.query({
+      query: () => {
+        return {
+          url: "/purchase/drop-down-data/vendor",
+          method: "GET",
+        };
+      },
+    }),
   }),
 });
 
-export const { useVendorWisePurchaseQuery, useFetchDataQuery, useGetGlobalsearchVendorQuery} = purchaseVendorWiseApi;
+export const {
+  useVendorWisePurchaseQuery,
+  useFetchDataQuery,
+  useGetGlobalsearchVendorQuery,
+  useGetSelectedColumnsVendorQuery,
+} = purchaseVendorWiseApi;

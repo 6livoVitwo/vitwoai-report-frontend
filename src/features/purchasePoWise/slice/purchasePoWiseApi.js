@@ -25,7 +25,19 @@ export const purchasePoWiseApi = apiSlice.injectEndpoints({
         };
       },
     }),
+    getSelectedColumnsPo: builder.query({
+      query: () => {
+        return {
+          url: "/purchase/drop-down-data/po",
+          method: "GET",
+        };
+      },
+    }),
   }),
 });
 
-export const { usePoWisePurchaseQuery, useGetGlobalsearchPoQuery } = purchasePoWiseApi;
+export const {
+  usePoWisePurchaseQuery,
+  useGetGlobalsearchPoQuery,
+  useGetSelectedColumnsPoQuery,
+} = purchasePoWiseApi;
