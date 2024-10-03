@@ -117,7 +117,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   //......Advanced Filtering....
   const { data: productDataFilter } = useProductWiseSalesQuery(
     { filters: localFilters },
-    { skip: !filtersApplied }
+    // { skip: !filtersApplied }
   );
   console.log("productDataFilter121212", productDataFilter);
   // console.log("localFilters121212",localFilters);

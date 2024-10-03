@@ -158,6 +158,7 @@ const SalesDetailedTableView = () => {
 				<CustomTable
 					newArray={newArray}
 					page={page}
+					dateRange={dateRange}
 					setDateRange={setDateRange}
 					setPage={setPage}
 					isFetching={isFetching}
