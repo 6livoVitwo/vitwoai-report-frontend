@@ -62,7 +62,6 @@ import DynamicChart from "../../nivoGraphs/chartConfigurations/DynamicChart";
 import { useSelector } from "react-redux";
 import { Calendar } from "primereact/calendar";
 import { FiPlus, FiSettings } from "react-icons/fi";
-import NewMyCharts from "../../dashboardNew/nivo/NewMyCharts";
 import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfiguration";
 import { chartsData } from "../../nivoGraphs/data/fakeData";
 import { useDispatch } from "react-redux";
@@ -84,8 +83,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
   const [endDate, setEndDate] = useState(null);
   const [configureChart, setConfigureChart] = useState({});
   const dispatch = useDispatch();
-  const { selectedWise } = useSelector((state) => state.graphSlice);
-
   const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
 
   const toast = useToast();
@@ -355,12 +352,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     }));
   };
 
-  const handleApplyFilters = () => {
-    setPage(1);
-    setData([]);
-    loadMoreData();
-  };
-
   const handleColumnFilterValueChange = (field, value) => {
     let type = typeof value;
     if (type === "object" && value instanceof Date) {
@@ -606,8 +597,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                         padding="5px"
                         alignItems="center">
                         <Calendar
-                          // value={startDate}
-                          // onChange={(e) => setStartDate(e.value)}
                           placeholder="Start Date"
                           style={{
                             width: "150px",
@@ -616,8 +605,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                         />
                         <Text>to</Text>
                         <Calendar
-                          // value={endDate}
-                          // onChange={(e) => setEndDate(e.value)}
                           placeholder="End Date"
                           style={{
                             width: "150px",
@@ -1057,7 +1044,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                           </Box>
                         </Box>
                         <Box sx={{ height: "300px" }}>
-                          {/* <NewMyCharts chart={chart} /> */}
                           <DynamicChart chart={chart} />
                         </Box>
                       </Box>
@@ -1082,7 +1068,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                   }}>
                   Choose Data Wise Graph
                 </DrawerHeader>
-                <DrawerBody blockScrollOnMount={true}>
+                <DrawerBody>
                   <Box
                     sx={{
                       display: "flex",

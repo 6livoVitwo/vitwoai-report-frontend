@@ -11,6 +11,7 @@ import AreaBumpChart from "../chartSettings/AreaBumpChart";
 import BumpChart from "../chartSettings/BumpChart";
 import LineChart from "../chartSettings/LineChart";
 import FunnelChart from "../chartSettings/FunnelChart";
+import BarChart from "../chartSettings/BarChart";
 import { calculateCount, createBodyWise, setDateRange, updateBodyWise, updateCountAndWidth } from "../graphUtils/common";
 import TypingMaster from "../../dashboardNew/components/TypingMaster";
 import { useDynamicNewQuery } from "./graphApi";
@@ -23,7 +24,8 @@ const chartComponents = {
   bump: BumpChart,
   line: LineChart,
   funnel: FunnelChart,
-  heatmap: HeatMapChart
+  heatmap: HeatMapChart,
+  bar: BarChart
 };
 
 const newEndpoint = (data = "", type = "", processFlow = "") => {
@@ -32,6 +34,8 @@ const newEndpoint = (data = "", type = "", processFlow = "") => {
       return "/sales/graph/product-wise-time-series-seq"
     } else if (type === "heatmap") {
       return "/sales/graph/kam-wise-heat-density"
+    } else if (type === "bar" || type === "pie") {
+      return "/sales/sales-graph-two";
     }
     return "/sales/graph/product-wise-time-series-seq"
   } else if (data === "sales-customer-wise") {
@@ -68,6 +72,27 @@ const initialBodyWise = (selectedWise = "", type = "", priceOrQty = "", startDat
       return {
         "priceOrQty": `${priceOrQty}`,
       }
+    }else if (type === "bar" || type === "pie") {
+      return {
+        xaxis: "items.itemName",
+        yaxis: [
+          "salesPgi.salesDelivery.totalAmount",
+          "salesPgi.totalAmount",
+          "quotation.totalAmount",
+          "salesOrder.totalAmount",
+          "all_total_amt",
+        ],
+        groupBy: ["items.itemName"],
+        valuetype: "count",
+        filter: [
+          {
+            column: "invoice_date",
+            operator: "between",
+            type: "date",
+            value: ["2023-03-29", "2024-03-29"],
+          },
+        ],
+      };
     }
   } else if (selectedWise === "sales-region-wise") {
     if (type === "bump" || type === "areaBump" || type === "line") {
@@ -121,7 +146,7 @@ const ChartConfiguration = ({ configureChart }) => {
         wise: "sales",
         method: "POST",
         endpoint: newEndpoint(selectedWise, type, processFlow),
-        body: bodyWise
+        body: bodyWise,
       },
     ],
     bump: [
@@ -129,33 +154,49 @@ const ChartConfiguration = ({ configureChart }) => {
         wise: "sales",
         method: "POST",
         endpoint: newEndpoint(selectedWise),
-        body: bodyWise
-      }
+        body: bodyWise,
+      },
     ],
     line: [
       {
         wise: "sales",
         method: "POST",
         endpoint: newEndpoint(selectedWise),
-        body: bodyWise
-      }
+        body: bodyWise,
+      },
     ],
     funnel: [
       {
         wise: "sales",
         method: "GET",
         endpoint: newEndpoint(selectedWise, type, processFlow),
-        body: bodyWise
-      }
+        body: bodyWise,
+      },
     ],
     heatmap: [
       {
         wise: "sales",
         method: "POST",
         endpoint: newEndpoint(selectedWise, type),
-        body: bodyWise
-      }
-    ]
+        body: bodyWise,
+      },
+    ],
+    bar: [
+      {
+        wise: "sales",
+        method: "POST",
+        endpoint: newEndpoint(selectedWise),
+        body: bodyWise,
+      },
+    ],
+    pie: [
+      {
+        wise: "sales",
+        method: "POST",
+        endpoint: newEndpoint(selectedWise),
+        body: bodyWise,
+      },
+    ],
   });
 
   console.time('⏲️check taken time')
@@ -221,7 +262,7 @@ const ChartConfiguration = ({ configureChart }) => {
           wise: "sales",
           method: "POST",
           endpoint: newEndpoint(selectedWise),
-          body: newBodyWise
+          body: newBodyWise,
         },
       ],
       bump: [
@@ -229,33 +270,49 @@ const ChartConfiguration = ({ configureChart }) => {
           wise: "sales",
           method: "POST",
           endpoint: newEndpoint(selectedWise),
-          body: newBodyWise
-        }
+          body: newBodyWise,
+        },
       ],
       line: [
         {
           wise: "sales",
           method: "POST",
           endpoint: newEndpoint(selectedWise),
-          body: newBodyWise
-        }
+          body: newBodyWise,
+        },
       ],
       funnel: [
         {
           wise: "sales",
           method: "GET",
           endpoint: newEndpoint(selectedWise, type, processFlow),
-          body: bodyWise
-        }
+          body: bodyWise,
+        },
       ],
       heatmap: [
         {
           wise: "sales",
           method: "POST",
           endpoint: newEndpoint(selectedWise, type, processFlow),
-          body: newBodyWise
-        }
-      ]
+          body: newBodyWise,
+        },
+      ],
+      bar: [
+        {
+          wise: "sales",
+          method: "POST",
+          endpoint: newEndpoint(selectedWise),
+          body: bodyWise,
+        },
+      ],
+      pie: [
+        {
+          wise: "sales",
+          method: "POST",
+          endpoint: newEndpoint(selectedWise),
+          body: bodyWise,
+        },
+      ],
     }));
   };
 
