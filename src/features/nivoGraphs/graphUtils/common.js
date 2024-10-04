@@ -47,10 +47,10 @@ export const setDateRange = (data) => {
     }
 }
 
-export const createBodyWise = (data, startDate, endDate, priceOrQty, type = "") => {    
+export const createBodyWise = (data, startDate, endDate, selectData, type = "") => {
     if (data === 'month') {
         return {
-            "priceOrQty": `${priceOrQty}`,
+            "priceOrQty": `${selectData}`,
             "yearFrom": split(startDate, '-')[0],
             "yearTo": split(endDate, '-')[0],
             "monthFrom": split(startDate, '-')[1],
@@ -58,19 +58,42 @@ export const createBodyWise = (data, startDate, endDate, priceOrQty, type = "") 
         }
     } else if (data === 'year') {
         return {
-            "priceOrQty": `${priceOrQty}`,
+            "priceOrQty": `${selectData}`,
             "yearFrom": startDate,
             "yearTo": endDate,
         }
-    } else {
+    } else if (data === 'date') {
         if (type === "heatmap") {
             return {
-                "priceOrQty": `${priceOrQty}`,
+                "priceOrQty": `${selectData}`,
             }
         }
         return {
-            "priceOrQty": `${priceOrQty}`,
+            "priceOrQty": `${selectData}`,
             "dateString": `${startDate} to ${endDate}`,
+        }
+    } else {
+        if (type === "bar") {
+            return {
+                xaxis: "items.itemName",
+                yaxis: [
+                    "salesPgi.salesDelivery.totalAmount",
+                    "salesPgi.totalAmount",
+                    "quotation.totalAmount",
+                    "salesOrder.totalAmount",
+                    "all_total_amt",
+                ],
+                groupBy: ["items.itemName"],
+                valuetype: `${selectData}`,
+                filter: [
+                    {
+                        column: "invoice_date",
+                        operator: "between",
+                        type: "date",
+                        value: [startDate, endDate],
+                    },
+                ],
+            }
         }
     }
 }
@@ -90,7 +113,7 @@ export const updateCountAndWidth = (inputType, startDate, endDate, setDynamicWid
     setDynamicWidth(200 * count);
 };
 
-export const updateBodyWise = (inputType, startDate, endDate, bodyWise) => {
+export const updateBodyWise = (inputType, startDate, endDate, bodyWise, type = "") => {
     if (inputType === 'month') {
         return {
             ...bodyWise,
@@ -105,11 +128,25 @@ export const updateBodyWise = (inputType, startDate, endDate, bodyWise) => {
             "yearFrom": startDate,
             "yearTo": endDate,
         };
-    } else {
+    } else if (inputType === 'date') {
         return {
             ...bodyWise,
             dateString: `${startDate} to ${endDate}`,
         };
+    } else {
+        if (type === "bar") {
+            return {
+                ...bodyWise,
+                filter: [
+                    {
+                        column: "invoice_date",
+                        operator: "between",
+                        type: "date",
+                        value: [startDate, endDate],
+                    },
+                ],
+            }
+        }
     }
 };
 
