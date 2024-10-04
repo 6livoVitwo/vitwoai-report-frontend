@@ -1,5 +1,53 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { Box, Button, useDisclosure, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Checkbox, Input, Text, Select, useToast, Menu, MenuButton, MenuList, MenuItem, Drawer, DrawerCloseButton, DrawerHeader, DrawerOverlay, DrawerContent, DrawerBody, Badge, Divider, Alert, Popover, PopoverTrigger, PopoverContent, PopoverBody, PopoverArrow, PopoverCloseButton } from "@chakra-ui/react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
+import {
+  Box,
+  Button,
+  useDisclosure,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  TableContainer,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  Checkbox,
+  Input,
+  Text,
+  Select,
+  useToast,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Drawer,
+  DrawerCloseButton,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerBody,
+  Badge,
+  Divider,
+  Alert,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverBody,
+  PopoverArrow,
+  PopoverCloseButton,
+} from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -14,7 +62,7 @@ import { FiPlus, FiSettings } from "react-icons/fi";
 
 import { useSelector } from "react-redux";
 import NewMyCharts from "../../dashboardNew/nivo/NewMyCharts";
-import { chartsData } from "../../nivoGraphs/data/fakeData"
+import { chartsData } from "../../nivoGraphs/data/fakeData";
 import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfiguration";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import { useDispatch } from "react-redux";
@@ -350,7 +398,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     return rest;
   };
 
-  const handleConfigure = (chart) => {    
+  const handleConfigure = (chart) => {
     if (!chart) {
       return;
     }
@@ -371,8 +419,8 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
   const handleGraphAddDrawer = () => {
     onOpenGraphSettingDrawer();
     dispatch(handleGraphWise("sales-customer-wise"));
-  }
-  console.log('🟢🔴🔵', { selectedWise })
+  };
+  console.log("🟢🔴🔵", { selectedWise });
 
   return (
     <Box bg="white" padding="0px 10px" borderRadius="5px">
@@ -831,8 +879,8 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                                 column === "description"
                                   ? "300px"
                                   : column === "name"
-                                    ? "200px"
-                                    : "100px"
+                                  ? "200px"
+                                  : "100px"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis">
@@ -855,6 +903,8 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
           </Droppable>
         </DragDropContext>
       </TableContainer>
+      {/* Main Drawer  */}
+
       <Drawer
         isOpen={isOpenGraphAddDrawer}
         placement="right"
@@ -1015,6 +1065,162 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                   );
                 })}
             </Box>
+
+            {/* //sales-customer-wise graph settings */}
+            <Drawer
+              isOpen={isOpenGraphSettingDrawer}
+              placement="right"
+              onClose={onCloseGraphSettingDrawer}
+              size="xl">
+              <DrawerOverlay />
+              <DrawerContent
+                maxW="87vw"
+                sx={{
+                  "& .stickyTop": {
+                    position: "sticky",
+                    top: 0,
+                    zIndex: 1,
+                    backgroundColor: "white",
+                  },
+                }}>
+                <DrawerCloseButton style={{ color: "white" }} />
+                <DrawerHeader
+                  style={{
+                    backgroundColor: "#003060",
+                    color: "white",
+                  }}>
+                  Choose Data Wise Graph
+                </DrawerHeader>
+                <DrawerBody>
+                  <Box
+                    className="stickyTop"
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 4px",
+                      p: 2,
+                      my: 2,
+                      flexGrow: 1,
+                    }}>
+                    Total Graph (
+                    {
+                      chartsData.charts.filter(
+                        (chart) =>
+                          chart.type !== "heatmap" && chart.type !== "funnel"
+                      ).length
+                    }
+                    )
+                  </Box>
+                  <Box
+                    display="flex"
+                    flexWrap="wrap"
+                    justifyContent="space-between">
+                    {chartsData.charts.map((chart, index) => {
+                      if (chart.type === "heatmap" || chart.type === "funnel")
+                        return null;
+                      return (
+                        <Box
+                          key={index}
+                          width={{
+                            base: "100%",
+                            lg: "49.4%",
+                          }}
+                          mb={6}>
+                          <Box
+                            sx={{
+                              backgroundColor: "white",
+                              padding: "15px",
+                              my: 5,
+                              borderRadius: "8px",
+                              border: "1px solid #c4c4c4",
+                            }}
+                            mb={3}>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "flex-end",
+                                "& button": {
+                                  color: "#718296",
+                                  padding: "20px 20px",
+                                  fontSize: "14px",
+                                  border: "1px solid #dee2e6",
+                                  backgroundColor: "white",
+                                  borderRadius: "8px",
+                                },
+                                "& button:hover": {
+                                  backgroundColor: "rgb(0, 48, 96)",
+                                  borderRadius: "5px",
+                                  color: "white",
+                                },
+                              }}
+                              mb={6}>
+                              <Button
+                                type="button"
+                                variant="outlined"
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 1,
+                                  _hover: {
+                                    color: "white",
+                                  },
+                                }}
+                                onClick={() => handleConfigure(chart)}>
+                                <FiSettings
+                                  sx={{
+                                    mr: "6px",
+                                  }}
+                                />
+                                Select
+                              </Button>
+                            </Box>
+                            <Box
+                              sx={{
+                                width: "100%",
+                                height: "200px",
+                              }}>
+                              <DynamicChart chart={chart} />
+                            </Box>
+                            <Badge
+                              colorScheme="blue"
+                              py={0}
+                              px={3}
+                              fontSize={9}>
+                              {chart.title}
+                            </Badge>
+                          </Box>
+                        </Box>
+                      );
+                    })}
+                  </Box>
+
+                  <Drawer
+                    isCentered
+                    size="md"
+                    isOpen={isOpenGraphSettingsModal}
+                    onClose={onCloseGraphSettingsModal}>
+                    <DrawerOverlay />
+                    <DrawerContent maxW="86vw">
+                      <DrawerCloseButton color="white" size="lg" mt="8px" />
+                      <DrawerHeader
+                        color="white"
+                        mb="4px"
+                        fontSize="17px"
+                        fontWeight="500"
+                        padding="15px 15px"
+                        backgroundColor="#003060">
+                        Graphical View Settings
+                      </DrawerHeader>
+                      <Divider orientation="horizontal" mb={6} />
+                      <DrawerBody>
+                        <ChartConfiguration configureChart={configureChart} />
+                      </DrawerBody>
+                    </DrawerContent>
+                  </Drawer>
+                </DrawerBody>
+              </DrawerContent>
+            </Drawer>
           </DrawerBody>
         </DrawerContent>
       </Drawer>
@@ -1039,123 +1245,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
           </ModalBody>
         </ModalContent>
       </Modal>
-
-      {/* //sales-customer-wise graph settings */}
-      <Drawer
-        isOpen={isOpenGraphSettingDrawer}
-        placement="right"
-        onClose={onCloseGraphSettingDrawer}
-        size="xl">
-        <DrawerOverlay />
-        <DrawerContent
-          maxW="91vw"
-          sx={{
-            "& .stickyTop": {
-              position: "sticky",
-              top: 0,
-              zIndex: 1,
-              backgroundColor: "white",
-            },
-          }}>
-          <DrawerCloseButton style={{ color: "white" }} />
-          <DrawerHeader
-            style={{
-              backgroundColor: "#003060",
-              color: "white",
-            }}>
-            Choose Data Wise Graph
-          </DrawerHeader>
-          <DrawerBody>
-            <Box
-              className="stickyTop"
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 4px",
-                p: 2,
-                my: 2,
-                flexGrow: 1,
-              }}>
-              Total Graph ({chartsData.charts.filter((chart) => chart.type !== "heatmap" && chart.type !== "funnel").length})
-            </Box>
-            <Box display="flex" flexWrap="wrap" justifyContent="space-between">
-              {chartsData.charts.map((chart, index) => {                
-                if(chart.type === "heatmap" || chart.type === "funnel") return null;
-                return (
-                  <Box
-                    key={index}
-                    width={{
-                      base: "100%",
-                      lg: "49.4%",
-                    }}
-                    mb={6}>
-                    <Box
-                      sx={{
-                        backgroundColor: "white",
-                        padding: "15px",
-                        my: 5,
-                        borderRadius: "8px",
-                        border: "1px solid #c4c4c4",
-                      }}
-                      mb={3}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "flex-end",
-                          "& button": {
-                            color: "#718296",
-                            padding: "20px 20px",
-                            fontSize: "14px",
-                            border: "1px solid #dee2e6",
-                            backgroundColor: "white",
-                            borderRadius: "8px",
-                          },
-                          "& button:hover": {
-                            backgroundColor: "rgb(0, 48, 96)",
-                            borderRadius: "5px",
-                            color: "white",
-                          },
-                        }}
-                        mb={6}>
-                        <Button
-                          type="button"
-                          variant="outlined"
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 1,
-                            _hover: {
-                              color: "white",
-                            },
-                          }}
-                          onClick={() => handleConfigure(chart)}>
-                          <FiSettings
-                            sx={{
-                              mr: "6px",
-                            }}
-                          />
-                          Configure
-                        </Button>
-                      </Box>
-                      <Box
-                        sx={{
-                          width: "100%",
-                          height: "200px",
-                        }}>
-                        <DynamicChart chart={chart} />
-                      </Box>
-                      <Badge colorScheme="blue" py={0} px={3} fontSize={9}>
-                        {chart.title}
-                      </Badge>
-                    </Box>
-                  </Box>
-                );
-              })}
-            </Box>
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
 
       <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered>
         <ModalOverlay />
@@ -1252,32 +1341,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-
-      <Box>
-        <Drawer
-          isCentered
-          size="md"
-          isOpen={isOpenGraphSettingsModal}
-          onClose={onCloseGraphSettingsModal}>
-          <DrawerOverlay />
-          <DrawerContent maxW="91vw">
-            <DrawerCloseButton color="white" size="lg" mt="8px" />
-            <DrawerHeader
-              color="white"
-              mb="4px"
-              fontSize="17px"
-              fontWeight="500"
-              padding="15px 15px"
-              backgroundColor="#003060">
-              Graphical View Settings
-            </DrawerHeader>
-            <Divider orientation="horizontal" mb={6} />
-            <DrawerBody>
-              <ChartConfiguration configureChart={configureChart} />
-            </DrawerBody>
-          </DrawerContent>
-        </Drawer>
-      </Box>
     </Box>
   );
 };

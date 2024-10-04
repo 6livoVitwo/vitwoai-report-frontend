@@ -1,5 +1,53 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { Box, Button, useDisclosure, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Checkbox, Input, Text, Select, useToast, Menu, MenuButton, MenuList, MenuItem, Popover, PopoverTrigger, PopoverContent, PopoverBody, PopoverCloseButton, PopoverArrow, Drawer, DrawerOverlay, DrawerContent, DrawerCloseButton, DrawerHeader, DrawerBody, Alert, Badge, Divider } from "@chakra-ui/react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
+import {
+  Box,
+  Button,
+  useDisclosure,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  TableContainer,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  Checkbox,
+  Input,
+  Text,
+  Select,
+  useToast,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverArrow,
+  Drawer,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  DrawerHeader,
+  DrawerBody,
+  Alert,
+  Badge,
+  Divider,
+} from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -12,7 +60,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
 import DynamicChart from "../../nivoGraphs/chartConfigurations/DynamicChart";
 import { useSelector } from "react-redux";
-import { Calendar } from 'primereact/calendar';
+import { Calendar } from "primereact/calendar";
 import { FiPlus, FiSettings } from "react-icons/fi";
 import NewMyCharts from "../../dashboardNew/nivo/NewMyCharts";
 import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfiguration";
@@ -83,24 +131,24 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 
   const reportOptions = [
     {
-      label: 'Product Wise',
-      value: '/reports/sales-product-wise/table-view',
+      label: "Product Wise",
+      value: "/reports/sales-product-wise/table-view",
     },
     {
-      label: 'Customer Wise',
-      value: '/reports/sales-customer-wise/table-view',
+      label: "Customer Wise",
+      value: "/reports/sales-customer-wise/table-view",
     },
     {
-      label: 'Vertical Wise',
-      value: '/reports/sales-vertical-wise/table-view',
+      label: "Vertical Wise",
+      value: "/reports/sales-vertical-wise/table-view",
     },
     {
-      label: 'So Wise',
-      value: '/reports/sales-so-wise/table-view'
+      label: "So Wise",
+      value: "/reports/sales-so-wise/table-view",
     },
     {
-      label: 'Kam wise',
-      value: '/reports/sales-kam-Wise/table-view'
+      label: "Kam wise",
+      value: "/reports/sales-kam-Wise/table-view",
     },
   ];
 
@@ -128,8 +176,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
       setLoading(false);
     }
   };
-
-
 
   useEffect(() => {
     const initialColumns = getColumns(data)
@@ -293,7 +339,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     const container = tableContainerRef.current;
     if (container) {
       container.addEventListener("scroll", handleScroll);
-      handleScroll()
+      handleScroll();
       return () => container.removeEventListener("scroll", handleScroll);
     }
   }, [loading, lastPage]);
@@ -368,7 +414,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     return rest;
   };
 
-
   const handleConfigure = (chart) => {
     if (!chart) {
       return;
@@ -390,7 +435,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
   const handleGraphAddDrawer = () => {
     onOpenGraphSettingDrawer();
     dispatch(handleGraphWise("sales-product-wise"));
-  }
+  };
   return (
     <Box bg="white" padding="0px 10px" borderRadius="5px">
       <Box
@@ -842,8 +887,8 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                                 column === "description"
                                   ? "300px"
                                   : column === "name"
-                                    ? "200px"
-                                    : "100px"
+                                  ? "200px"
+                                  : "100px"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis">
@@ -874,8 +919,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
         onClose={onCloseGraphAddDrawer}
         finalFocusRef={btnRef}>
         <DrawerOverlay />
-        <DrawerContent
-          maxW="88vw">
+        <DrawerContent maxW="88vw">
           <DrawerCloseButton style={{ color: "white" }} />
           <DrawerHeader
             style={{
@@ -1007,7 +1051,8 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                               }}
                               mr={3}
                               onClick={() => handleView(chart)}>
-                              <MdFullscreen style={{ marginRight: "6px" }} /> Full Screen
+                              <MdFullscreen style={{ marginRight: "6px" }} />{" "}
+                              Full Screen
                             </Button>
                           </Box>
                         </Box>
@@ -1028,8 +1073,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
               onClose={onCloseGraphSettingDrawer}
               finalFocusRef={btnRef}>
               <DrawerOverlay />
-              <DrawerContent
-                maxW="87vw">
+              <DrawerContent maxW="87vw">
                 <DrawerCloseButton style={{ color: "white" }} />
                 <DrawerHeader
                   style={{
@@ -1049,11 +1093,20 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                       my: 2,
                       flexGrow: 1,
                     }}>
-                    Total Graph ({chartsData.charts.filter((chart) => chart.type !== "funnel").length})
+                    Total Graph (
+                    {
+                      chartsData.charts.filter(
+                        (chart) => chart.type !== "funnel"
+                      ).length
+                    }
+                    )
                   </Box>
-                  <Box display="flex" flexWrap="wrap" justifyContent="space-between">
+                  <Box
+                    display="flex"
+                    flexWrap="wrap"
+                    justifyContent="space-between">
                     {chartsData.charts.map((chart, index) => {
-                      if(chart.type === "funnel") return null;
+                      if (chart.type === "funnel") return null;
                       return (
                         <Box
                           key={index}
@@ -1117,7 +1170,11 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                               }}>
                               <DynamicChart chart={chart} />
                             </Box>
-                            <Badge colorScheme="blue" py={0} px={3} fontSize={9}>
+                            <Badge
+                              colorScheme="blue"
+                              py={0}
+                              px={3}
+                              fontSize={9}>
                               {chart.title}
                             </Badge>
                           </Box>
@@ -1131,8 +1188,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                     size="md"
                     isOpen={isOpenGraphSettingsModal}
                     onClose={onCloseGraphSettingsModal}
-                    finalFocusRef={btnRef}
-                  >
+                    finalFocusRef={btnRef}>
                     <DrawerOverlay />
                     <DrawerContent maxW="86vw">
                       <DrawerCloseButton color="white" size="lg" mt="8px" />
@@ -1151,15 +1207,12 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                       </DrawerBody>
                     </DrawerContent>
                   </Drawer>
-
                 </DrawerBody>
               </DrawerContent>
             </Drawer>
-
           </DrawerBody>
         </DrawerContent>
       </Drawer>
-
 
       <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered>
         <ModalOverlay />
@@ -1257,9 +1310,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
         </ModalContent>
       </Modal>
 
-      <Box>
-
-      </Box>
+      <Box></Box>
     </Box>
   );
 };
