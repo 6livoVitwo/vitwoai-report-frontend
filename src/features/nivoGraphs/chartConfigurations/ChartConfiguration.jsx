@@ -47,13 +47,13 @@ const newEndpoint = (data = "", type = "", processFlow = "") => {
   } else if (data === "sales-region-wise") {
     if (type === "bump" || type === "areaBump" || type === "line") {
       return "/sales/graph/region-wise-time-series-seq"
-    }else if(type === "heatmap") {
+    } else if (type === "heatmap") {
       return "/sales/graph/region-wise-heat-density"
     }
   }
 }
 
-const initialBodyWise = (selectedWise = "", type = "", priceOrQty = "", startDate = "", endDate = "", regionWise="") => {
+const initialBodyWise = (selectedWise = "", type = "", priceOrQty = "", startDate = "", endDate = "", regionWise = "") => {
   console.log({ selectedWise, type, priceOrQty, startDate, endDate, regionWise })
   if (selectedWise === "sales-product-wise") {
     if (type === "bump" || type === "areaBump" || type === "line") {
@@ -64,7 +64,7 @@ const initialBodyWise = (selectedWise = "", type = "", priceOrQty = "", startDat
         "monthFrom": split(startDate, '-')[1],
         "monthTo": split(endDate, '-')[1],
       }
-    } else if (type === "heatmap") {
+    }else if (type === "heatmap") {
       return {
         "priceOrQty": `${priceOrQty}`,
       }
@@ -77,9 +77,18 @@ const initialBodyWise = (selectedWise = "", type = "", priceOrQty = "", startDat
         "year": 2024,
         "wise": ""
       }
-    } else if(type === "heatmap") {
+    } else if (type === "heatmap") {
       return {
         "wise": `${regionWise}`,
+      }
+    }
+  } else if (selectedWise === "sales-customer-wise") {
+    if (type === "bump" || type === "areaBump" || type === "line") {
+      return {
+        "monthFrom": "3",
+        "monthTo": "7",
+        "yearFrom": 2024,
+        "yearTo": 2024
       }
     }
   }
@@ -103,10 +112,9 @@ const ChartConfiguration = ({ configureChart }) => {
   const [endDate, setEndDate] = useState(inputType === 'month' ? '2024-12' : inputType === 'year' ? '2024' : '2024-01-20');
   const { selectedWise } = useSelector((state) => state.graphSlice);
   const [processFlow, setProcessFlow] = useState("/sales/graph/so-wise-flow-process");
-  const [dynamicHeight, setDynamicHeight] = useState(0);
+  const [dynamicHeight, setDynamicHeight] = useState(4000);
 
   const [bodyWise, setBodyWise] = useState(initialBodyWise(selectedWise, type, priceOrQty, startDate, endDate, regionWise));
-  console.log('🔵🟢🔴 =>',{ bodyWise })
   const [chartApiConfig, setChartApiConfig] = useState({
     areaBump: [
       {
@@ -149,6 +157,9 @@ const ChartConfiguration = ({ configureChart }) => {
       }
     ]
   });
+
+  console.time('⏲️check taken time')
+  console.timeEnd('⏲️check taken time end')
 
   const handleInputType = (data) => {
     let { startDate: newStartDate, endDate: newEndDate } = setDateRange(data);
@@ -265,12 +276,14 @@ const ChartConfiguration = ({ configureChart }) => {
     }
   }, [type]);
 
-  useEffect(() => {
-    if (finalData && finalData.length > 0) {
-      const newHeight = finalData.length * 30;
-      setDynamicHeight(newHeight);
-    }
-  }, [finalData])
+  // useEffect(() => {
+  //   if (finalData && finalData?.length > 0) {
+  //     const newHeight = finalData.length * 30;
+  //     setDynamicHeight(newHeight);
+  //   }
+  //   console.log('🟢 in the useeffect -> ',{dynamicHeight})
+  // }, [finalData])
+  // console.log('🟢 outside the effect -> ',{dynamicHeight})
 
   useEffect(() => {
     let isMounted = false;

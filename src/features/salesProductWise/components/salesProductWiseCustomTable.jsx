@@ -19,7 +19,7 @@ import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfig
 import { chartsData } from "../../nivoGraphs/data/fakeData";
 import { useDispatch } from "react-redux";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
-
+import { MdFullscreen } from "react-icons/md";
 
 const CustomTable = ({ setPage, newArray, alignment }) => {
   const [data, setData] = useState([...newArray]);
@@ -38,10 +38,16 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
   const dispatch = useDispatch();
   const { selectedWise } = useSelector((state) => state.graphSlice);
 
-  const salesCustomerWise = useSelector(
-    (state) => state.salescustomer.widgets
-  );
+  const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
 
+  console.time("⏲️ Check time")
+  const heavyCalculation = () => {
+    return new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+  const sse = useMemo(() => heavyCalculation(), []);
+  console.log("sse", sse)
+  console.timeEnd("⏲️ Check time end")
+  
   const toast = useToast();
   const tableContainerRef = useRef(null);
   const {
@@ -1009,13 +1015,13 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                               }}
                               mr={3}
                               onClick={() => handleView(chart)}>
-                              <FiSettings style={{ marginRight: "6px" }} /> View
-                              Graph
+                              <MdFullscreen style={{ marginRight: "6px" }} /> Full Screen
                             </Button>
                           </Box>
                         </Box>
                         <Box sx={{ height: "300px" }}>
-                          <NewMyCharts chart={chart} />
+                          {/* <NewMyCharts chart={chart} /> */}
+                          <DynamicChart chart={chart} />
                         </Box>
                       </Box>
                     </Box>
