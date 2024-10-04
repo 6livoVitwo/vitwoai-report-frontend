@@ -94,7 +94,6 @@ import Reportdetails from "../features/reportdetails";
 import DashboardNew from "../features/dashboardNew/pages/DashboardNew";
 import SalesKamWise from "../features/salesKamWise/components";
 import SalesKamWiseTableView from "../features/salesKamWise/components/salesKamWiseTableView";
-import SalesKamWiseGraphView from "../features/salesKamWise/components/salesKamWiseGraphView";
 import PurchaseDetails from "../features/purchaseDetailsReport/components";
 const Dashboard = lazy(() => import("../features/dashboard/components"));
 
@@ -1000,20 +999,7 @@ const AllRoutes = () => {
                 </PortalForLayout>
               }
             />
-            <Route
-              path="/reports/sales-kam-wise/graph-view"
-              element={
-                <PortalForLayout
-                  globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
-                  <SalesKamWiseGraphView
-                    globalLayout={setGlobalStaticFragmennt}
-                  />
-                </PortalForLayout>
-              }
-            />
           </Route>
-
 
           <Route
             path="/reports/sales-region-wise/"

@@ -1161,7 +1161,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
       </Drawer>
 
 
-
       <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered>
         <ModalOverlay />
         <ModalContent minW="30%">
