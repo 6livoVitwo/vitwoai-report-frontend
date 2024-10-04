@@ -1029,7 +1029,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
               finalFocusRef={btnRef}>
               <DrawerOverlay />
               <DrawerContent
-                maxW="85vw">
+                maxW="87vw">
                 <DrawerCloseButton style={{ color: "white" }} />
                 <DrawerHeader
                   style={{
@@ -1107,7 +1107,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                                     mr: "6px",
                                   }}
                                 />
-                                Configure
+                                Select
                               </Button>
                             </Box>
                             <Box
@@ -1134,7 +1134,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                     finalFocusRef={btnRef}
                   >
                     <DrawerOverlay />
-                    <DrawerContent maxW="85vw">
+                    <DrawerContent maxW="86vw">
                       <DrawerCloseButton color="white" size="lg" mt="8px" />
                       <DrawerHeader
                         color="white"
