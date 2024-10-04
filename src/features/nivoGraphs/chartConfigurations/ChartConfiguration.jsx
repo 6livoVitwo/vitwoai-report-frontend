@@ -28,6 +28,18 @@ const chartComponents = {
   bar: BarChart
 };
 
+const graphDescriptions = {
+  bar: "The Bar chart can display multiple data series, either stacked or side by side. It supports both vertical and horizontal layouts, with negative values positioned below the respective axes. You can customize the bar item component to render any valid SVG element, receiving styles, data, and event handlers. The responsive variant is called ResponsiveBar, available in the @nivo/api package. For legend configuration, you'll need to specify the dataFrom property, which determines how to compute the legend's data using indexes or keys.",
+  pie: "This component generates a pie chart from an array of data, where each item must include an id and a value property. Keep in mind that the margin object does not account for radial labels, so you should adjust it accordingly to provide sufficient space. The responsive version of this component is called ResponsivePie.",
+  areaBump:
+    "The AreaBump chart combines ranking and values, displaying both over time on the y-axis. This makes it ideal for understanding trends in performance. If your primary interest lies in rankings alone, the Bump chart is a more streamlined option. It effectively highlights shifts in position without the added complexity of values. Choose based on your specific data needs!",
+  bump: "The Bump chart visualizes the rankings of multiple series over time. While it resembles line charts, it focuses solely on displaying rankings rather than specific measurements on the y-axis. This makes it easy to track changes in position for each series at any given moment. By highlighting only the rankings, it simplifies the analysis of competitive dynamics. It's an effective tool for showcasing shifts in standings over time.",
+  line: "This line chart supports stacking capabilities. It takes an array of data series, each with an id and a nested array of points (containing x and y properties), to compute the line for each series. Any datum with a null x or y value will be treated as a gap, resulting in skipped segments of the corresponding line.",
+  funnel:
+    "This component also offers a React hook, useFunnel(), that allows you to operate in headless mode. With this hook, you can compute the chart data while handling the rendering independently. It supports nearly all the same properties as the chart itself.",
+  heatmap: "The heat map matrix provides flexible customization options. You can select from a variety of color scales to suit your needs. Additionally, you have the option to change the cell shape to either rectangular or circular. If you prefer, you can even use a custom component for the cells. This level of customization allows for a tailored visual experience. It's perfect for presenting data in a way that best fits your project's style. Enhance your data visualization with these versatile features!",
+};
+
 const newEndpoint = (data = "", type = "", processFlow = "") => {
   if (data === "sales-product-wise") {
     if (type === "bump" || type === "areaBump" || type === "line") {
@@ -138,6 +150,9 @@ const ChartConfiguration = ({ configureChart }) => {
   const { selectedWise } = useSelector((state) => state.graphSlice);
   const [processFlow, setProcessFlow] = useState("/sales/graph/so-wise-flow-process");
   const [dynamicHeight, setDynamicHeight] = useState(4000);
+  const [currentDescription, setCurrentDescription] = useState(
+    graphDescriptions[type]
+  );
 
   const [bodyWise, setBodyWise] = useState(initialBodyWise(selectedWise, type, priceOrQty, startDate, endDate, regionWise));
   const [chartApiConfig, setChartApiConfig] = useState({
@@ -433,14 +448,13 @@ const ChartConfiguration = ({ configureChart }) => {
   }
 
   return (
-    <Card variant={'unstyled'}>
+    <Card variant={"unstyled"}>
       <CardBody sx={{ minHeight: "77vh" }}>
         <Box
           display="flex"
           flexWrap="wrap"
           justifyContent="space-between"
-          marginTop="10px"
-        >
+          marginTop="10px">
           {/* graph view section */}
           <Box
             width={{
@@ -465,7 +479,9 @@ const ChartConfiguration = ({ configureChart }) => {
                   {/* {wise !== "" ? capitalizeWord(wise) : capitalizeWord(type)} Product Wise */}
                   {capitalizeWord(selectedWise)}
                 </Heading>
-                <Badge colorScheme="green" px={4}>{type}</Badge>
+                <Badge colorScheme="green" px={4}>
+                  {type}
+                </Badge>
               </Box>
               <Box sx={{ height: "350px", width: "100%", overflowX: "auto" }}>
                 <ChartComponent
@@ -506,7 +522,7 @@ const ChartConfiguration = ({ configureChart }) => {
                     <Heading mt={4} mb={4}>
                       Graph Info
                     </Heading>
-                    <TypingMaster />
+                    <TypingMaster text={currentDescription} />
                   </Box>
                 </Box>
               </AccordionTab>
@@ -524,69 +540,140 @@ const ChartConfiguration = ({ configureChart }) => {
                 contentStyle={{
                   border: "1px solid #ecebeb",
                 }}>
-                {type === "funnel" ? <Box>
-                  <Grid templateColumns="repeat(1, 1fr)" gap={6}>
-                    <Stack spacing={3}>
-                      <Text fontSize="sm" fontWeight="500">
-                        Process Flow
-                      </Text>
-                      <Select size="lg" value={processFlow} onChange={(e) => handleProcessFlow(e.target.value)}>
-                        <option value="/sales/graph/so-wise-flow-process">SO</option>
-                        <option value="/sales/graph/request-wise-flow-process">Request</option>
-                        <option value="/sales/graph/quotation-so-wise-flow-process">Quotation SO</option>
-                        <option value="/sales/graph/quotation-invoice-wise-flow-process">Quotation Invoice</option>
-                        <option value="/sales/graph/invoice-wise-flow-process">Invoice</option>
-                      </Select>
-                    </Stack>
-                  </Grid>
-                </Box> :
+                {type === "funnel" ? (
                   <Box>
-                    {type !== "heatmap" && <Grid templateColumns="repeat(1, 1fr)" gap={6}>
+                    <Grid templateColumns="repeat(1, 1fr)" gap={6}>
                       <Stack spacing={3}>
                         <Text fontSize="sm" fontWeight="500">
-                          Period (<span style={{ textTransform: "capitalize", fontWeight: "bold", color: "green" }}>{inputType}</span> Wise)
+                          Process Flow
                         </Text>
-                        <Select size="lg" value={inputType} onChange={(e) => handleInputType(e.target.value)}>
-                          <option value="date">Day</option>
-                          <option value="month">Month</option>
-                          <option value="year">Year</option>
+                        <Select
+                          size="lg"
+                          value={processFlow}
+                          onChange={(e) => handleProcessFlow(e.target.value)}>
+                          <option value="/sales/graph/so-wise-flow-process">
+                            SO
+                          </option>
+                          <option value="/sales/graph/request-wise-flow-process">
+                            Request
+                          </option>
+                          <option value="/sales/graph/quotation-so-wise-flow-process">
+                            Quotation SO
+                          </option>
+                          <option value="/sales/graph/quotation-invoice-wise-flow-process">
+                            Quotation Invoice
+                          </option>
+                          <option value="/sales/graph/invoice-wise-flow-process">
+                            Invoice
+                          </option>
                         </Select>
                       </Stack>
-                    </Grid>}
-                    {selectedWise !== "sales-customer-wise" && <Grid templateColumns="repeat(1, 1fr)" gap={6}>
-                      <Stack spacing={3}>
-                        <Text fontSize="sm" fontWeight="500">
-                          Quantity
-                        </Text>
-                        <Select size="lg" value={priceOrQty} onChange={(e) => handlePriceOrQty(e.target.value)}>
-                          <option value="qty">Qty</option>
-                          <option value="price">Price</option>
-                        </Select>
-                      </Stack>
-                    </Grid>}
-                    {type !== "heatmap" && <Stack spacing={0} sx={{
-                      borderRadius: "6px",
-                      shadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
-                      border: "1px solid rgba(0, 0, 0, 0.10)",
-                      mt: 4,
-                      p: 4
-                    }}>
-                      <Text fontSize="sm" fontWeight="500">
-                        Date Filter (<span style={{ textTransform: "capitalize", fontWeight: "bold", color: "green" }}>{inputType}</span> Wise)
-                      </Text>
-                      <Grid templateColumns="repeat(2, 1fr)" gap={6}>
-                        <Stack spacing={0}>
-                          <Text fontSize="sm" fontWeight="500" >From Date</Text>
-                          <input style={{ border: "1px solid rgba(0, 0, 0, 0.10)", borderRadius: "6px", paddingLeft: 4, paddingRight: 4 }} type={inputType} value={startDate} onChange={(e) => handleFromDate(e.target.value)} />
-                        </Stack>
-                        <Stack spacing={0}>
-                          <Text fontSize="sm" fontWeight="500">To Date</Text>
-                          <input style={{ border: "1px solid rgba(0, 0, 0, 0.10)", borderRadius: "6px", paddingLeft: 4, paddingRight: 4 }} type={inputType} value={endDate} onChange={(e) => handleToDate(e.target.value)} />
+                    </Grid>
+                  </Box>
+                ) : (
+                  <Box>
+                    {type !== "heatmap" && (
+                      <Grid templateColumns="repeat(1, 1fr)" gap={6}>
+                        <Stack spacing={3}>
+                          <Text fontSize="sm" fontWeight="500">
+                            Period (
+                            <span
+                              style={{
+                                textTransform: "capitalize",
+                                fontWeight: "bold",
+                                color: "green",
+                              }}>
+                              {inputType}
+                            </span>{" "}
+                            Wise)
+                          </Text>
+                          <Select
+                            size="lg"
+                            value={inputType}
+                            onChange={(e) => handleInputType(e.target.value)}>
+                            <option value="date">Day</option>
+                            <option value="month">Month</option>
+                            <option value="year">Year</option>
+                          </Select>
                         </Stack>
                       </Grid>
-                    </Stack>}
+                    )}
+                    {selectedWise !== "sales-customer-wise" && (
+                      <Grid templateColumns="repeat(1, 1fr)" gap={6}>
+                        <Stack spacing={3}>
+                          <Text fontSize="sm" fontWeight="500">
+                            Quantity
+                          </Text>
+                          <Select
+                            size="lg"
+                            value={priceOrQty}
+                            onChange={(e) => handlePriceOrQty(e.target.value)}>
+                            <option value="qty">Qty</option>
+                            <option value="price">Price</option>
+                          </Select>
+                        </Stack>
+                      </Grid>
+                    )}
+                    {type !== "heatmap" && (
+                      <Stack
+                        spacing={0}
+                        sx={{
+                          borderRadius: "6px",
+                          shadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+                          border: "1px solid rgba(0, 0, 0, 0.10)",
+                          mt: 4,
+                          p: 4,
+                        }}>
+                        <Text fontSize="sm" fontWeight="500">
+                          Date Filter (
+                          <span
+                            style={{
+                              textTransform: "capitalize",
+                              fontWeight: "bold",
+                              color: "green",
+                            }}>
+                            {inputType}
+                          </span>{" "}
+                          Wise)
+                        </Text>
+                        <Grid templateColumns="repeat(2, 1fr)" gap={6}>
+                          <Stack spacing={0}>
+                            <Text fontSize="sm" fontWeight="500">
+                              From Date
+                            </Text>
+                            <input
+                              style={{
+                                border: "1px solid rgba(0, 0, 0, 0.10)",
+                                borderRadius: "6px",
+                                paddingLeft: 4,
+                                paddingRight: 4,
+                              }}
+                              type={inputType}
+                              value={startDate}
+                              onChange={(e) => handleFromDate(e.target.value)}
+                            />
+                          </Stack>
+                          <Stack spacing={0}>
+                            <Text fontSize="sm" fontWeight="500">
+                              To Date
+                            </Text>
+                            <input
+                              style={{
+                                border: "1px solid rgba(0, 0, 0, 0.10)",
+                                borderRadius: "6px",
+                                paddingLeft: 4,
+                                paddingRight: 4,
+                              }}
+                              type={inputType}
+                              value={endDate}
+                              onChange={(e) => handleToDate(e.target.value)}
+                            />
+                          </Stack>
+                        </Grid>
+                      </Stack>
+                    )}
                   </Box>
-                }
+                )}
               </AccordionTab>
             </Accordion>
           </Box>
