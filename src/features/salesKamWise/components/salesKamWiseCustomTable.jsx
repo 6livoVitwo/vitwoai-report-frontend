@@ -1068,7 +1068,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
                   }}>
                   Choose Data Wise Graph
                 </DrawerHeader>
-                <DrawerBody blockScrollOnMount={true}>
+                <DrawerBody>
                   <Box
                     sx={{
                       display: "flex",
