@@ -40,14 +40,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 
   const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
 
-  console.time("⏲️ Check time")
-  const heavyCalculation = () => {
-    return new Promise((resolve) => setTimeout(resolve, 1000));
-  }
-  const sse = useMemo(() => heavyCalculation(), []);
-  console.log("sse", sse)
-  console.timeEnd("⏲️ Check time end")
-  
   const toast = useToast();
   const tableContainerRef = useRef(null);
   const {
