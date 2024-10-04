@@ -11,6 +11,7 @@ import AreaBumpChart from "../chartSettings/AreaBumpChart";
 import BumpChart from "../chartSettings/BumpChart";
 import LineChart from "../chartSettings/LineChart";
 import FunnelChart from "../chartSettings/FunnelChart";
+import BarChart from "../chartSettings/BarChart";
 import { calculateCount, createBodyWise, setDateRange, updateBodyWise, updateCountAndWidth } from "../graphUtils/common";
 import TypingMaster from "../../dashboardNew/components/TypingMaster";
 import { useDynamicNewQuery } from "./graphApi";
@@ -24,7 +25,7 @@ const chartComponents = {
   line: LineChart,
   funnel: FunnelChart,
   heatmap: HeatMapChart,
-  bar: 
+  bar: BarChart
 };
 
 const newEndpoint = (data = "", type = "", processFlow = "") => {
@@ -33,8 +34,9 @@ const newEndpoint = (data = "", type = "", processFlow = "") => {
       return "/sales/graph/product-wise-time-series-seq"
     } else if (type === "heatmap") {
       return "/sales/graph/kam-wise-heat-density"
+    } else if (type === "bar" || type === "pie") {
+      return "/sales/sales-graph-two";
     }
-    return "/sales/graph/product-wise-time-series-seq"
   } else if (data === "sales-customer-wise") {
     if (type === "bump" || type === "areaBump" || type === "line") {
       return "/sales/graph/customer-wise-time-series-seq"
@@ -65,10 +67,31 @@ const initialBodyWise = (selectedWise = "", type = "", priceOrQty = "", startDat
         "monthFrom": split(startDate, '-')[1],
         "monthTo": split(endDate, '-')[1],
       }
-    }else if (type === "heatmap") {
+    } else if (type === "heatmap") {
       return {
         "priceOrQty": `${priceOrQty}`,
       }
+    } else if (type === "bar" || type === "pie") {
+      return {
+        xaxis: "items.itemName",
+        yaxis: [
+          "salesPgi.salesDelivery.totalAmount",
+          "salesPgi.totalAmount",
+          "quotation.totalAmount",
+          "salesOrder.totalAmount",
+          "all_total_amt",
+        ],
+        groupBy: ["items.itemName"],
+        valuetype: "sum",
+        filter: [
+          {
+            column: "invoice_date",
+            operator: "between",
+            type: "date",
+            value: ["2021-03-01", "2025-03-29"],
+          },
+        ],
+      };
     }
   } else if (selectedWise === "sales-region-wise") {
     if (type === "bump" || type === "areaBump" || type === "line") {
@@ -104,6 +127,7 @@ const ChartConfiguration = ({ configureChart }) => {
   const [chartDataApi, setChartDataApi] = useState([]);
   const [wise, setWise] = useState("sales");
   const [priceOrQty, setPriceOrQty] = useState("qty");
+  const [sumOrCount, setSumOrCount] = useState("count");
   const [previewLoading, setPreviewLoading] = useState(false);
   const currentWidgets = useSelector((state) => state.salescustomer.widgets);
   const [inputType, setInputType] = useState("month");
@@ -122,41 +146,57 @@ const ChartConfiguration = ({ configureChart }) => {
         wise: "sales",
         method: "POST",
         endpoint: newEndpoint(selectedWise, type, processFlow),
-        body: bodyWise
+        body: bodyWise,
       },
     ],
     bump: [
       {
         wise: "sales",
         method: "POST",
-        endpoint: newEndpoint(selectedWise),
-        body: bodyWise
-      }
+        endpoint: newEndpoint(selectedWise, type, processFlow),
+        body: bodyWise,
+      },
     ],
     line: [
       {
         wise: "sales",
         method: "POST",
-        endpoint: newEndpoint(selectedWise),
-        body: bodyWise
-      }
+        endpoint: newEndpoint(selectedWise, type, processFlow),
+        body: bodyWise,
+      },
     ],
     funnel: [
       {
         wise: "sales",
         method: "GET",
         endpoint: newEndpoint(selectedWise, type, processFlow),
-        body: bodyWise
-      }
+        body: bodyWise,
+      },
     ],
     heatmap: [
       {
         wise: "sales",
         method: "POST",
-        endpoint: newEndpoint(selectedWise, type),
-        body: bodyWise
-      }
-    ]
+        endpoint: newEndpoint(selectedWise, type, processFlow),
+        body: bodyWise,
+      },
+    ],
+    bar: [
+      {
+        wise: "sales",
+        method: "POST",
+        endpoint: newEndpoint(selectedWise, type, processFlow),
+        body: bodyWise,
+      },
+    ],
+    pie: [
+      {
+        wise: "sales",
+        method: "POST",
+        endpoint: newEndpoint(selectedWise, type, processFlow),
+        body: bodyWise,
+      },
+    ],
   });
 
   const handleInputType = (data) => {
@@ -174,21 +214,27 @@ const ChartConfiguration = ({ configureChart }) => {
 
   const handlePriceOrQty = (data) => {
     let newBodyWise = createBodyWise(inputType, startDate, endDate, data, type);
-    console.log({ newBodyWise })
     setPriceOrQty(data);
     setBodyWise(newBodyWise);
     updateChartApiConfig(newBodyWise);
   }
 
-  const handleDateUpdate = (type, data) => {
-    let newStartDate = type === 'from' ? data : startDate;
-    let newEndDate = type === 'to' ? data : endDate;
+  const handleSumOrCount = (data) => {
+    let newBodyWise = createBodyWise(inputType, startDate, endDate, data, type);
+    setSumOrCount(data);
+    setBodyWise(newBodyWise);
+    updateChartApiConfig(newBodyWise);
+  }
+
+  const handleDateUpdate = (dateType, data, type) => {
+    let newStartDate = dateType === 'from' ? data : startDate;
+    let newEndDate = dateType === 'to' ? data : endDate;
 
     // Update BodyWise
-    const updatedBodyWise = updateBodyWise(inputType, newStartDate, newEndDate, bodyWise);
+    const updatedBodyWise = updateBodyWise(inputType, newStartDate, newEndDate, bodyWise, type);
 
     // Set state updates
-    if (type === 'from') {
+    if (dateType === 'from') {
       setStartDate(data);
     } else {
       setEndDate(data);
@@ -203,11 +249,11 @@ const ChartConfiguration = ({ configureChart }) => {
   };
 
   const handleFromDate = (data) => {
-    handleDateUpdate('from', data);
+    handleDateUpdate('from', data, type);
   }
 
   const handleToDate = (data) => {
-    handleDateUpdate('to', data);
+    handleDateUpdate('to', data, type);
   };
 
   const updateChartApiConfig = (newBodyWise) => {
@@ -218,42 +264,58 @@ const ChartConfiguration = ({ configureChart }) => {
         {
           wise: "sales",
           method: "POST",
-          endpoint: newEndpoint(selectedWise),
-          body: newBodyWise
+          endpoint: newEndpoint(selectedWise, type, processFlow),
+          body: newBodyWise,
         },
       ],
       bump: [
         {
           wise: "sales",
           method: "POST",
-          endpoint: newEndpoint(selectedWise),
-          body: newBodyWise
-        }
+          endpoint: newEndpoint(selectedWise, type, processFlow),
+          body: newBodyWise,
+        },
       ],
       line: [
         {
           wise: "sales",
           method: "POST",
-          endpoint: newEndpoint(selectedWise),
-          body: newBodyWise
-        }
+          endpoint: newEndpoint(selectedWise, type, processFlow),
+          body: newBodyWise,
+        },
       ],
       funnel: [
         {
           wise: "sales",
           method: "GET",
           endpoint: newEndpoint(selectedWise, type, processFlow),
-          body: bodyWise
-        }
+          body: bodyWise,
+        },
       ],
       heatmap: [
         {
           wise: "sales",
           method: "POST",
           endpoint: newEndpoint(selectedWise, type, processFlow),
-          body: newBodyWise
-        }
-      ]
+          body: newBodyWise,
+        },
+      ],
+      bar: [
+        {
+          wise: "sales",
+          method: "POST",
+          endpoint: newEndpoint(selectedWise, type, processFlow),
+          body: bodyWise,
+        },
+      ],
+      pie: [
+        {
+          wise: "sales",
+          method: "POST",
+          endpoint: newEndpoint(selectedWise, type, processFlow),
+          body: bodyWise,
+        },
+      ],
     }));
   };
 
@@ -261,13 +323,21 @@ const ChartConfiguration = ({ configureChart }) => {
   const { endpoint, body, method } = chartConfig ? chartConfig.find((config) => config.wise === wise) : {};
   const { data: graphData, isLoading, isError, error } = useDynamicNewQuery(endpoint ? { endpoint: type === 'funnel' ? processFlow : endpoint, body, method } : null, { skip: !endpoint });
 
+  console.log('🔵 imran => ', { graphData })
+
   let finalData = graphData?.data;
   if (type === 'funnel') {
     finalData = graphData?.steps;
+  } else if (type === 'bar') {
+    finalData = graphData?.content;
   }
 
   useEffect(() => {
     if (type === 'heatmap') {
+      setInputType("");
+      setEndDate("");
+      setStartDate("");
+    } else if(type === 'bar') {
       setInputType("");
       setEndDate("");
       setStartDate("");
@@ -482,7 +552,7 @@ const ChartConfiguration = ({ configureChart }) => {
                   </Grid>
                 </Box> :
                   <Box>
-                    {type !== "heatmap" && <Grid templateColumns="repeat(1, 1fr)" gap={6}>
+                    {type !== "heatmap" && type !== "bar" && <Grid templateColumns="repeat(1, 1fr)" gap={6}>
                       <Stack spacing={3}>
                         <Text fontSize="sm" fontWeight="500">
                           Period (<span style={{ textTransform: "capitalize", fontWeight: "bold", color: "green" }}>{inputType}</span> Wise)
@@ -494,7 +564,7 @@ const ChartConfiguration = ({ configureChart }) => {
                         </Select>
                       </Stack>
                     </Grid>}
-                    {selectedWise !== "sales-customer-wise" && <Grid templateColumns="repeat(1, 1fr)" gap={6}>
+                    {selectedWise !== "sales-customer-wise" && type !== "bar" && <Grid templateColumns="repeat(1, 1fr)" gap={6}>
                       <Stack spacing={3}>
                         <Text fontSize="sm" fontWeight="500">
                           Quantity
@@ -502,6 +572,17 @@ const ChartConfiguration = ({ configureChart }) => {
                         <Select size="lg" value={priceOrQty} onChange={(e) => handlePriceOrQty(e.target.value)}>
                           <option value="qty">Qty</option>
                           <option value="price">Price</option>
+                        </Select>
+                      </Stack>
+                    </Grid>}
+                    {type === "bar" && <Grid templateColumns="repeat(1, 1fr)" gap={6}>
+                      <Stack spacing={3}>
+                        <Text fontSize="sm" fontWeight="500">
+                          Filter
+                        </Text>
+                        <Select size="lg" value={sumOrCount} onChange={(e) => handleSumOrCount(e.target.value)}>
+                          <option value="count">Count</option>
+                          <option value="sum">Sum</option>
                         </Select>
                       </Stack>
                     </Grid>}
@@ -518,11 +599,11 @@ const ChartConfiguration = ({ configureChart }) => {
                       <Grid templateColumns="repeat(2, 1fr)" gap={6}>
                         <Stack spacing={0}>
                           <Text fontSize="sm" fontWeight="500" >From Date</Text>
-                          <input style={{ border: "1px solid rgba(0, 0, 0, 0.10)", borderRadius: "6px", paddingLeft: 4, paddingRight: 4 }} type={inputType} value={startDate} onChange={(e) => handleFromDate(e.target.value)} />
+                          <input style={{ border: "1px solid rgba(0, 0, 0, 0.10)", borderRadius: "6px", paddingLeft: 4, paddingRight: 4 }} type={inputType === "" && "date"} value={startDate} onChange={(e) => handleFromDate(e.target.value)} />
                         </Stack>
                         <Stack spacing={0}>
                           <Text fontSize="sm" fontWeight="500">To Date</Text>
-                          <input style={{ border: "1px solid rgba(0, 0, 0, 0.10)", borderRadius: "6px", paddingLeft: 4, paddingRight: 4 }} type={inputType} value={endDate} onChange={(e) => handleToDate(e.target.value)} />
+                          <input style={{ border: "1px solid rgba(0, 0, 0, 0.10)", borderRadius: "6px", paddingLeft: 4, paddingRight: 4 }} type={inputType === "" && "date"} value={endDate} onChange={(e) => handleToDate(e.target.value)} />
                         </Stack>
                       </Grid>
                     </Stack>}
