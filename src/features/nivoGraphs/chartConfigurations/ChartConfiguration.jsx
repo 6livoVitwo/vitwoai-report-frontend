@@ -21,14 +21,13 @@ import { capitalizeWord } from "../../../utils/common";
 import { MdRemoveRedEye, MdSave } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { Accordion, AccordionTab } from "primereact/accordion";
-
 import { split } from "lodash";
-
 import AreaBumpChart from "../chartSettings/AreaBumpChart";
 import BumpChart from "../chartSettings/BumpChart";
 import LineChart from "../chartSettings/LineChart";
 import FunnelChart from "../chartSettings/FunnelChart";
 import BarChart from "../chartSettings/BarChart";
+import { MultiSelect } from "primereact/multiselect";
 import {
   calculateCount,
   createBodyWise,
@@ -155,6 +154,18 @@ const initialBodyWise = (
   }
 };
 
+
+  const yAxisOptions = [
+    {
+      value: "salesPgi.salesDelivery.totalAmount",
+      label: "Sales PGI Delivery Amount",
+    },
+    { value: "salesPgi.totalAmount", label: "Sales PGI Amount" },
+    { value: "quotation.totalAmount", label: "Quotation Amount" },
+    { value: "salesOrder.totalAmount", label: "Sales Order Amount" },
+    { value: "all_total_amt", label: "All Total Amount" },
+  ];
+
 const ChartConfiguration = ({ configureChart }) => {
   const { type } = configureChart;
   const toast = useToast();
@@ -170,6 +181,7 @@ const ChartConfiguration = ({ configureChart }) => {
   const [inputType, setInputType] = useState("month");
   const [dynamicWidth, setDynamicWidth] = useState(1200);
   const [regionWise, setRegionWise] = useState("pincode");
+  const [selectedYAxisValues, setSelectedYAxisValues] = useState([]);
   const [startDate, setStartDate] = useState(
     inputType === "month"
       ? "2024-01"
@@ -290,6 +302,35 @@ const ChartConfiguration = ({ configureChart }) => {
     setBodyWise(newBodyWise);
     updateChartApiConfig(newBodyWise);
   };
+
+const handleYAxisChange = (e) => {
+  console.log("MultiSelect change event:", e);
+  const selectedValues = e.value;
+  console.log("Selected Y-Axis Values:", selectedValues);
+
+  if (!selectedValues || selectedValues.length === 0) {
+    console.warn("No Y-Axis values selected");
+    return;
+  }
+
+  const newBodyWise = createBodyWise(
+    inputType,
+    startDate,
+    endDate,
+    selectedValues,
+    type
+  );
+  console.log("New BodyWise:", newBodyWise);
+
+  setBodyWise(newBodyWise);
+  setSelectedYAxisValues(selectedValues);
+  updateChartApiConfig(newBodyWise);
+};
+
+  useEffect(() => {
+    console.log("Chart API Config updated:", chartApiConfig);
+  }, [chartApiConfig]);
+
 
   const handleDateUpdate = (dateType, data, type) => {
     let newStartDate = dateType === "from" ? data : startDate;
@@ -426,15 +467,6 @@ const ChartConfiguration = ({ configureChart }) => {
       setStartDate("");
     }
   }, [type]);
-
-  // useEffect(() => {
-  //   if (finalData && finalData?.length > 0) {
-  //     const newHeight = finalData.length * 30;
-  //     setDynamicHeight(newHeight);
-  //   }
-  //   console.log('🟢 in the useeffect -> ',{dynamicHeight})
-  // }, [finalData])
-  // console.log('🟢 outside the effect -> ',{dynamicHeight})
 
   useEffect(() => {
     let isMounted = false;
@@ -698,6 +730,16 @@ const ChartConfiguration = ({ configureChart }) => {
                       )}
                     {type === "bar" && (
                       <Grid templateColumns="repeat(1, 1fr)" gap={6}>
+                        <MultiSelect
+                          className="w-full sm:w-22rem"
+                          display="chip"
+                          style={{ border: "1px solid #e2e8f0" }}
+                          options={yAxisOptions}
+                          value={selectedYAxisValues} // This is the state that holds the selected values
+                          onChange={handleYAxisChange} // This function should handle updates
+                          placeholder="Select Y-Axis"
+                        />
+
                         <Stack spacing={3}>
                           <Text fontSize="sm" fontWeight="500">
                             Filter
