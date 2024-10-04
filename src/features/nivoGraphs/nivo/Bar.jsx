@@ -2,7 +2,7 @@ import { ResponsiveBar } from '@nivo/bar';
 import React from 'react';
 import { barChartData } from '../data/chartData';
 
-const BarChart = ({ data = barChartData, liveData = [], variant = 'grouped-vertical' }) => {
+const Bar = ({ data = barChartData, liveData = [], variant = 'grouped-vertical' }) => {
 
 	const dataKeys = Object.keys(liveData[0] || {});
 	const keysCommaSeparated = dataKeys.join(',');
@@ -191,5 +191,5 @@ const BarChart = ({ data = barChartData, liveData = [], variant = 'grouped-verti
   );
 };
 
-export default BarChart;
+export default Bar;
 

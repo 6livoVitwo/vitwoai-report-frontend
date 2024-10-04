@@ -23,7 +23,8 @@ const chartComponents = {
   bump: BumpChart,
   line: LineChart,
   funnel: FunnelChart,
-  heatmap: HeatMapChart
+  heatmap: HeatMapChart,
+  bar: 
 };
 
 const newEndpoint = (data = "", type = "", processFlow = "") => {
@@ -157,9 +158,6 @@ const ChartConfiguration = ({ configureChart }) => {
       }
     ]
   });
-
-  console.time('⏲️check taken time')
-  console.timeEnd('⏲️check taken time end')
 
   const handleInputType = (data) => {
     let { startDate: newStartDate, endDate: newEndDate } = setDateRange(data);
