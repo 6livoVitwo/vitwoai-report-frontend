@@ -58,12 +58,13 @@ import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
-import { useGetSelectedColumnsQuery } from "../slice/purchaseProductWiseApi";
+import { useGetSelectedColumnsPurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { useGetGlobalsearchPurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { useGetProductGroupQuery } from "../slice/purchaseProductWiseApi";
+import { size } from "lodash";
 
-const CustomTable = ({ setPage, newArray, alignment, filters }) => {
+const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
@@ -93,37 +94,37 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
 
-  const generateColumnMappings = (filtersData) => {
-    const mappings = [];
-    filtersData.forEach((field) => {
-      const humanReadableName = field.split(".").pop(); // Use your own logic for mapping
-      mappings[humanReadableName] = field;
-    });
-    return mappings;
-  };
+  // const generateColumnMappings = (filtersData) => {
+  //   const mappings = [];
+  //   filtersData.forEach((field) => {
+  //     const humanReadableName = field.split(".").pop(); // Use your own logic for mapping
+  //     mappings[humanReadableName] = field;
+  //   });
+  //   return mappings;
+  // };
   // Dynamically generate column mappings from filters.data
-  const columnMappings = generateColumnMappings(filters.data);
-  console.log("🟢columnMappings", columnMappings);
+  // const columnMappings = generateColumnMappings(filters.data);
+  // console.log("🟢columnMappings", columnMappings);
   // console.log(columnMappings["goodName"]);
 
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
   };
   // Function to map filters dynamically
-  const mapFilters = (filters) => {
-    return filters.map((filter) => ({
-      ...filter,
-      // If filter.column is a string, directly use columnMappings; otherwise, check for filter.column.key
-      column: columnMappings[filter.column],
-      // sortBy:filter.column,
-    }));
-  };
+  // const mapFilters = (filters) => {
+  //   return filters.map((filter) => ({
+  //     ...filter,
+  //     // If filter.column is a string, directly use columnMappings; otherwise, check for filter.column.key
+  //     column: columnMappings[filter.column],
+  //     // sortBy:filter.column,
+  //   }));
+  // };
 
   // const {data: sales} = useProductWisePurchaseQuery({filters});
   // console.log("sales_piyas1221", sales);
 
   //...Advanced Filter API CALL...
-  const { data: productDataFilter } = useProductWisePurchaseQuery(
+  const { data: productDataFilter,refetch: refetchProductFilter } = useProductWisePurchaseQuery(
     { filters: localFilters }
     // { skip: !filtersApplied }
   );
@@ -142,8 +143,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   // console.log("piyas ninja", ProductData);
 
   //Api calling for selected columns
-  const { data: columnData } = useGetSelectedColumnsQuery();
-  // console.log("01010101", columnData);
+  const { data: columnData, refetch: refetchColumnData } = useGetSelectedColumnsPurchaseQuery();
+  console.log("columnData🔵🔵", columnData);
 
   // api calling from global search
   const { data: searchData } = useGetGlobalsearchPurchaseQuery(filters, {
@@ -152,8 +153,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   // console.log("piyas3333333", searchData);
 
   // api calling for product group....
-  const { data: productGroup } = useGetProductGroupQuery();
-  console.log("productGroup⭕", productGroup);
+  // const { data: productGroup } = useGetProductGroupQuery();
+  // console.log("productGroup⭕", productGroup);
 
   const toast = useToast();
 
@@ -229,19 +230,19 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     });
   }, [sortColumn, sortOrder, refetchProduct]); // Ensure dependencies are correct
 
-  const loadMoreData = async () => {
-    if (!loading) {
-      setLoading(true);
-      // Fetch or generate new data
-      const moreData = [...newArray]; // Assuming newArray contains new data
-      setData((prevData) => {
-        const uniqueData = [...new Set([...prevData, ...moreData])];
-        return uniqueData;
-      });
-      setPage((prevPage) => prevPage + 1);
-      setLoading(false);
-    }
-  };
+    const loadMoreData = async () => {
+      if (!loading) {
+        setLoading(true);
+        // Fetch or generate new data
+        const moreData = [...newArray]; // Assuming newArray contains new data
+        setData((prevData) => {
+          const uniqueData = [...new Set([...prevData, ...moreData])];
+          return uniqueData;
+        });
+        setPage((prevPage) => prevPage + 1);
+        setLoading(false);
+      }
+    };
 
   useEffect(() => {
     const initialColumns = getColumns(data)
@@ -273,50 +274,151 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   };
 
   // Handle column selection
-  const toggleColumn = (columnName) => {
-    setSelectedColumns((prevSelectedColumns) =>
-      prevSelectedColumns.includes(columnName)
-        ? prevSelectedColumns.filter((col) => col !== columnName)
-        : [...prevSelectedColumns, columnName]
+  // const toggleColumn = (columnName) => {
+  //   setSelectedColumns((prevSelectedColumns) =>
+  //     prevSelectedColumns.includes(columnName)
+  //       ? prevSelectedColumns.filter((col) => col !== columnName)
+  //       : [...prevSelectedColumns, columnName]
+  //   );
+  // };
+
+  // // Handle select all toggle
+  // const handleSelectAllToggle = () => {
+  //   if (selectAll) {
+  //     setSelectedColumns([]); // Deselect all columns
+  //   } else {
+  //     const allColumns = getColumns(data) // Select all columns
+  //       .concat(
+  //         columnData
+  //           ? Object.keys(columnData?.content[0] || {}).map((key) => ({
+  //               field: key,
+  //               header: key,
+  //             }))
+  //           : []
+  //       )
+  //       .map((column) => column.field);
+
+  //     setSelectedColumns(allColumns);
+  //   }
+  //   setSelectAll(!selectAll);
+  // };
+
+  // const handleModalClose = () => {
+  //   setSelectedColumns(defaultColumns);
+  //   onClose();
+  // };
+
+  // const handleApplyChanges = () => {
+  //   onClose();
+  //   toast({
+  //     title: "Column Added Successfully",
+  //     status: "success",
+  //     isClosable: true,
+  //   });
+  // };
+
+  
+  const toggleColumn = (field) => {
+    // if (defaultColumns.includes(field)) return; 
+    if (field === "SL No") return; 
+    setSelectedColumns((prev) =>
+      prev.includes(field)
+        ? prev.filter((col) => col !== field)
+        : [...prev, field]
     );
-  };
+};
 
-  // Handle select all toggle
-  const handleSelectAllToggle = () => {
-    if (selectAll) {
-      setSelectedColumns([]); // Deselect all columns
+  // On page load, retrieve selected columns from localStorage or use default columns
+  useEffect(() => {
+    const storedColumns = JSON.parse(localStorage.getItem("selectedColumns"));
+    if (storedColumns) {
+      setSelectedColumns(storedColumns);
     } else {
-      const allColumns = getColumns(data) // Select all columns
-        .concat(
-          columnData
-            ? Object.keys(columnData?.content[0] || {}).map((key) => ({
-                field: key,
-                header: key,
-              }))
-            : []
-        )
-        .map((column) => column.field);
-
-      setSelectedColumns(allColumns);
+      setSelectedColumns(defaultColumns);
     }
-    setSelectAll(!selectAll);
+  }, [data]);
+
+  const handleSelectAllToggle = () => {
+    // Get all columns from columnData
+    const allColumns = columnData
+      ? Object.keys(columnData?.content[0] || {}).map((key) => ({
+          field: key,
+          listName: columnData.content[0][key]?.listName || key, // Use listName or fallback to key
+        }))
+      : [];
+  
+    let updatedColumns;
+    if (selectAll) {
+      setSelectedColumns([]); // Deselect all
+      updatedColumns = defaultColumns; // Reset to default columns when deselected
+    } else {
+      setSelectedColumns(allColumns.map((col) => col.listName)); // Select all listNames from columnData
+      updatedColumns = allColumns.map((col) => col.listName); // Use listName from columnData
+    }
+  
+    // Save the selected columns to localStorage
+    localStorage.setItem("selectedColumns", JSON.stringify(updatedColumns));
+    setSelectAll(!selectAll); // Toggle the selectAll state
   };
+  
+  
+
 
   const handleModalClose = () => {
+    // Reset selected columns to default and close modal
     setSelectedColumns(defaultColumns);
+    localStorage.setItem("selectedColumns", JSON.stringify(defaultColumns)); // Save default columns to localStorage
     onClose();
   };
 
+  // const handleApplyChanges = () => {
+  //   // Save selected columns to localStorage and refetch data
+  //   localStorage.setItem("selectedColumns", JSON.stringify(selectedColumns));
+  //   refetchColumnData({ columns: selectedColumns });
+  //   onClose();
+
+  //   toast({
+  //     title: "Column Added Successfully",
+  //     status: "success",
+  //     isClosable: true,
+  //   });
+  // };
   const handleApplyChanges = () => {
+    // Create a copy of the filters and update the 'data' field with selected listNames, excluding "SL No"
+    const updatedSelectedColumns = selectedColumns
+      .map((col) => {
+        const matchingColumn = columnData?.content[0][col];
+        return matchingColumn ? matchingColumn.listName : col; // Use `listName` if available
+      })
+      .filter((col) => col !== "SL No"); // Exclude "SL No" from the selected columns
+  
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      data: updatedSelectedColumns, // Replace data with selected listNames, excluding "SL No"
+    }));
+  
+    // Save the selected columns to localStorage
+    localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
+  
+    // Refetch data based on selected columns
+    refetchColumnData({ columns: updatedSelectedColumns });
+  
+    // Close the modal
     onClose();
+  
+    // Show success toast notification
     toast({
-      title: "Column Added Successfully",
+      title: "Columns Applied Successfully",
       status: "success",
       isClosable: true,
     });
   };
-
-  const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery), []);
+  
+  
+  
+  
+  
+  const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
 
   useEffect(() => {
     return () => {
@@ -327,17 +429,32 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   const handleSearchChange = (e) => {
     setInputValue(e.target.value);
   };
+
   const handleSearchClick = () => {
-    debouncedSearchQuery(inputValue);
+    // Update filters to include search criteria
+    const updatedFilters = {
+      ...filters,
+      filter: [
+        ...filters.filter,
+        {
+          column: selectedColumns[1], // Assuming selectedColumns is a string or array
+          operator: "like",
+          type: "string",
+          value: inputValue,
+        },
+      ],
+    };
+    setFilters(updatedFilters);
+    setSearchQuery(inputValue); 
   };
   const clearAllFilters = () => {
     setSearchQuery("");
     setInputValue("");
     setColumnFilters({});
     setSortColumn("");
+    setTempFilterCondition({});
+    setTempFilterValue("");
   };
-
-  // const filteredItems = productDataFilter?.content || [];
 
   const filteredItems = useMemo(() => {
     // Combine newArray and columnData.content
@@ -345,7 +462,19 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     if (columnData && columnData.content.length > 0) {
       combinedData = combinedData.concat(columnData.content);
     }
-    let filteredData = [...combinedData]; // Copy the combined data
+    let filteredData = searchData && searchData.length > 0 ? searchData : combinedData; // Copy the combined data
+
+   // Apply searchData from the API
+  if (searchData && searchData.length > 0) {
+    // Assuming searchData is an array of items
+    filteredData = filteredData.filter(item => {
+      return searchData.some(searchItem =>
+        Object.values(searchItem).some(value =>
+          String(value).toLowerCase().includes(String(inputValue).toLowerCase())
+        )
+      );
+    });
+  }
     // Apply column filters
     Object.keys(columnFilters).forEach((field) => {
       const filter = columnFilters[field];
@@ -436,6 +565,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     filterCondition,
     filterValue,
     selectedColumns,
+    inputValue,
   ]);
 
   // useEffect(() => {
@@ -448,7 +578,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     header = header.trim();
     header = header.trim();
     header = header.replace(/^[A-Z]+\(|\)$/g, "");
-    header = header.replace(/_/g, " "); 
+    header = header.replace(/_/g, " ");
     const parts = header.split(".");
     const lastPart = parts.pop();
     const words = lastPart.split("_").join("");
@@ -564,8 +694,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
       columnType.includes("SUM(")
         ? handleApplyFiltersSUM()
         : handleApplyFilters();
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        size:1000,
+      }));
     }
   };
+
 
   const exportToExcel = () => {
     import("xlsx").then((xlsx) => {
@@ -1043,7 +1178,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                                           gap="10px"
                                         >
                                           <Select
-                                            placeholder="Select condition"
+                                            placeholder="condition"
                                             size="sm"
                                             fontSize="12px"
                                             h="35px"
@@ -1051,7 +1186,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                                               handleTempFilterConditionChange
                                             }
                                           >
-                                            <option value="equal">Equal</option>
+                                            <option value="equal">Equal </option>
                                             <option value="notEqual">
                                               Not Equal
                                             </option>
@@ -1083,7 +1218,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                                               handleTempFilterValueChange
                                             }
                                             // placeholder={`Filter ${column}`}
-                                            placeholder={"Search by name"}
+                                            placeholder={"Search by value"}
                                             value={tempFilterValue}
                                             type={
                                               tempFilterCondition === "between"
@@ -1103,8 +1238,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                                                   handleTempFilterValueChange
                                                 }
                                                 // placeholder={`Filter ${column}`}
-                                                placeholder={"Search by name"}
-
+                                                placeholder={"Search by value"}
                                               />
                                             </>
                                           )}

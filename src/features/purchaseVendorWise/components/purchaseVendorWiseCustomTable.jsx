@@ -63,7 +63,7 @@ import { Calendar } from "primereact/calendar";
 import { useGetGlobalsearchVendorQuery } from "../slice/purchaseVendorWiseApi";
 import { useVendorWisePurchaseQuery } from "../slice/purchaseVendorWiseApi";
 import { useGetSelectedColumnsVendorQuery } from "../slice/purchaseVendorWiseApi";
-const CustomTable = ({ setPage, newArray, alignment, filters, refetch }) => {
+const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
@@ -282,8 +282,23 @@ const CustomTable = ({ setPage, newArray, alignment, filters, refetch }) => {
     setInputValue(e.target.value);
   };
   const handleSearchClick = () => {
-    debouncedSearchQuery(inputValue);
+    // Update filters to include search criteria
+    const updatedFilters = {
+      ...filters,
+      filter: [
+        ...filters.filter,
+        {
+          column: selectedColumns[1], // Assuming selectedColumns is a string or array
+          operator: "like",
+          type: "string",
+          value: inputValue,
+        },
+      ],
+    };
+    setFilters(updatedFilters);
+    setSearchQuery(inputValue); 
   };
+
   const clearAllFilters = () => {
     setSearchQuery("");
     setInputValue("");
@@ -294,6 +309,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, refetch }) => {
 
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray];
+    
     Object.keys(columnFilters).forEach((field) => {
       const filter = columnFilters[field];
       if (filter.condition && filter.value) {

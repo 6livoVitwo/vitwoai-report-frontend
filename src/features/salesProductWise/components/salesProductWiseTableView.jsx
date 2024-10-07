@@ -1,47 +1,11 @@
+
+
 import React, { useState, useEffect, useRef } from "react";
 import CustomTable from "./salesProductWiseCustomTable";
 import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useProductWiseSalesQuery } from "../slice/salesProductWiseApi";
-let filters = {
-  data: [
-    "items.itemName",
-    "SUM(salesPgi.salesDelivery.totalAmount)",
-    "SUM(salesPgi.totalAmount)",
-    "SUM(quotation.totalAmount)",
-    "SUM(salesOrder.totalAmount)",
-    "SUM(items.qty)",
-    "SUM(items.basePrice - items.totalDiscountAmt)",
-    "SUM(all_total_amt)",
-    "invoice_date",
-  ],
-  groupBy: ["items.itemName"],
-  filter: [
-    // {
-    //   column: "company_id",
-    //   operator: "equal",
-    //   type: "integer",
-    //   value: 1,
-    // },
-    // {
-    //   column: "branch_id",
-    //   operator: "equal",
-    //   type: "integer",
-    //   value: 1,
-    // },
-    // {
-    //   column: "location_id",
-    //   operator: "equal",
-    //   type: "integer",
-    //   value: 1,
-    // },
-  ],
-  page: 0,
-  size: 20,
-  sortDir: "asc",
-  sortBy: "items.itemName",
-};
 
 const SalesProductWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
@@ -50,6 +14,25 @@ const SalesProductWiseTableView = () => {
   const [individualItems, setIndividualItems] = useState([]);
   const [toastShown, setToastShown] = useState(false);
   const toast = useToast();
+
+  const [filters, setFilters] = useState({
+    data: [
+      "items.itemName",
+      "SUM(salesPgi.salesDelivery.totalAmount)",
+      "SUM(salesPgi.totalAmount)",
+      "SUM(quotation.totalAmount)",
+      "SUM(salesOrder.totalAmount)",
+      "SUM(items.qty)",
+      "SUM(items.basePrice - items.totalDiscountAmt)",
+      "SUM(all_total_amt)",
+    ],
+    groupBy: ["items.itemName"],
+    filter: [],
+    page: 0,
+    size: 50,
+    sortBy: "invoice_date",
+    sortDir: "asc",
+  });
 
   const {
     data: sales,
@@ -64,9 +47,9 @@ const SalesProductWiseTableView = () => {
   });
 
   const pageInfo = sales?.lastPage;
-
   const tableContainerRef = useRef(null);
 
+  // Function to flatten objects
   const flattenObject = (obj, prefix = "") => {
     let result = {};
     for (let key in obj) {
@@ -88,6 +71,7 @@ const SalesProductWiseTableView = () => {
     return result;
   };
 
+  // Function to format dates
   const formatDate = (date) => {
     if (!date) return "";
     const [year, month, day] = date.split("-");
@@ -108,6 +92,7 @@ const SalesProductWiseTableView = () => {
     "Total Amount": data["SUM(all_total_amt)"],
   });
 
+  // Effect to handle data fetching
   useEffect(() => {
     if (sales?.content?.length) {
       const newItems = sales.content.flatMap((invoice) => {
@@ -122,9 +107,53 @@ const SalesProductWiseTableView = () => {
       setIndividualItems((prevItems) => [...prevItems, ...newItems]);
     }
   }, [sales]);
+  
 
+    const updateFilters = (newFilter) => {
+    // First, check if the new filter value exists in the current data
+    const valueExistsInCurrentData = newArray.some((item) => {
+      const itemValue = item[newFilter.column]
+        ? item[newFilter.column].toString().toLowerCase()
+        : "";
+      const filterValue = newFilter.value ? newFilter.value.toLowerCase() : "";
+      return itemValue.includes(filterValue); // Check if the item's value includes the filter value
+    });
+  
+    if (valueExistsInCurrentData) {
+      // If value exists, update the filters and refetch data from the server
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        filter: [...prevFilters.filter, newFilter], // Append new filter
+        page: 0, // Reset page to fetch from the first page with the new filter
+      }));
+  
+      // Clear the current individualItems to avoid showing old results while fetching
+      setIndividualItems([]);
+    } else {
+      // If value doesn't exist, show a toast notification and do nothing else
+      toast({
+        title: "Filter Not Found",
+        description: `No items found for the filter: ${newFilter.value}`,
+        status: "warning",
+        isClosable: true,
+        duration: 4000,
+        render: () => (
+          <Box
+            p={3}
+            bg="orange.300"
+            borderRadius="md"
+            style={{ width: "300px", height: "70px" }} // Set custom width and height
+          >
+            <Box fontWeight="bold">Filter Not Found</Box>
+            <Box>No items found for the filter: {newFilter.value}</Box>
+          </Box>
+        ),
+      });
+    }
+  };
+  
+  
   useEffect(() => {
-    // Show the toast only if the user has scrolled to the last page and toast hasn't been shown
     if (sales?.totalPages < page && !toastShown) {
       toast({
         title: "No More Data",
@@ -148,6 +177,7 @@ const SalesProductWiseTableView = () => {
     }
   }, [sales, page, toast, toastShown]);
 
+  // Loading state
   if (isLoading) {
     return (
       <Box
@@ -167,6 +197,8 @@ const SalesProductWiseTableView = () => {
       </Box>
     );
   }
+
+  // Error state
   if (error) {
     return (
       <Box
@@ -181,15 +213,15 @@ const SalesProductWiseTableView = () => {
       </Box>
     );
   }
+
+  // Transforming the data for the table
   const newArray = individualItems.map((data, index) =>
     extractFields(data, index)
   );
-  // console.log(sales, 'main data');
-  // console.log(newArray, 'newArray');
 
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
-      {individualItems.length > 0 && (
+      {newArray.length > 0 && (
         <CustomTable
           newArray={newArray}
           page={page}
@@ -198,6 +230,8 @@ const SalesProductWiseTableView = () => {
           pageInfo={pageInfo}
           setSize={setSize}
           filters={filters}
+          setFilters={setFilters}
+          updateFilters={updateFilters}
           alignment={{
             "Sales Delivery Total Amount": "right",
             "Sales Pgi Total Amount": "right",

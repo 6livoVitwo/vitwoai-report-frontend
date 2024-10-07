@@ -6,44 +6,44 @@ import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useVendorWisePurchaseQuery } from "../slice/purchaseVendorWiseApi";
 import { useFetchDataQuery } from "../slice/purchaseVendorWiseApi";
 
-let filters = {
-  data: [
-    "grnInvoice.vendorCode",
-    "grnInvoice.vendorName",
-    "SUM(grnInvoice.grnSubTotal)",
-    "SUM(grnInvoice.grnTotalCgst)",
-    "SUM(grnInvoice.grnTotalSgst)",
-    "SUM(grnInvoice.grnTotalIgst)",
-    "SUM(grnInvoice.grnTotalTds)",
-    "SUM(grnInvoice.grnTotalAmount)",
-    "SUM(grnInvoice.dueAmt)",
-  ],
-  groupBy: ["grnInvoice.vendorCode", "grnInvoice.vendorName"],
-  filter: [
-    // {
-    //   column: "companyId",
-    //   operator: "equal",
-    //   type: "integer",
-    //   value: 1,
-    // },
-    // {
-    //   column: "branchId",
-    //   operator: "equal",
-    //   type: "integer",
-    //   value: 1,
-    // },
-    // {
-    //   column: "locationId",
-    //   operator: "equal",
-    //   type: "integer",
-    //   value: 1,
-    // },
-  ],
-  page: 0,
-  size: 20,
-  sortDir: "asc",
-  sortBy: "grnInvoice.vendorCode",
-};
+// let filters = {
+//   data: [
+//     "grnInvoice.vendorCode",
+//     "grnInvoice.vendorName",
+//     "SUM(grnInvoice.grnSubTotal)",
+//     "SUM(grnInvoice.grnTotalCgst)",
+//     "SUM(grnInvoice.grnTotalSgst)",
+//     "SUM(grnInvoice.grnTotalIgst)",
+//     "SUM(grnInvoice.grnTotalTds)",
+//     "SUM(grnInvoice.grnTotalAmount)",
+//     "SUM(grnInvoice.dueAmt)",
+//   ],
+//   groupBy: ["grnInvoice.vendorCode", "grnInvoice.vendorName"],
+//   filter: [
+//     // {
+//     //   column: "companyId",
+//     //   operator: "equal",
+//     //   type: "integer",
+//     //   value: 1,
+//     // },
+//     // {
+//     //   column: "branchId",
+//     //   operator: "equal",
+//     //   type: "integer",
+//     //   value: 1,
+//     // },
+//     // {
+//     //   column: "locationId",
+//     //   operator: "equal",
+//     //   type: "integer",
+//     //   value: 1,
+//     // },
+//   ],
+//   page: 0,
+//   size: 20,
+//   sortDir: "asc",
+//   sortBy: "grnInvoice.vendorCode",
+// };
 const PurchaseVendorWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
   const [page, setPage] = useState(0);
@@ -51,6 +51,45 @@ const PurchaseVendorWiseTableView = () => {
   const [individualItems, setIndividualItems] = useState([]);
   const [toastShown, setToastShown] = useState(false);
   const toast = useToast();
+  const [filters, setFilters] = useState(
+    {
+      data: [
+        "grnInvoice.vendorCode",
+        "grnInvoice.vendorName",
+        "SUM(grnInvoice.grnSubTotal)",
+        "SUM(grnInvoice.grnTotalCgst)",
+        "SUM(grnInvoice.grnTotalSgst)",
+        "SUM(grnInvoice.grnTotalIgst)",
+        "SUM(grnInvoice.grnTotalTds)",
+        "SUM(grnInvoice.grnTotalAmount)",
+        "SUM(grnInvoice.dueAmt)",
+      ],
+      groupBy: ["grnInvoice.vendorCode", "grnInvoice.vendorName"],
+      filter: [
+        // {
+        //   column: "companyId",
+        //   operator: "equal",
+        //   type: "integer",
+        //   value: 1,
+        // },
+        // {
+        //   column: "branchId",
+        //   operator: "equal",
+        //   type: "integer",
+        //   value: 1,
+        // },
+        // {
+        //   column: "locationId",
+        //   operator: "equal",
+        //   type: "integer",
+        //   value: 1,
+        // },
+      ],
+      page: 0,
+      size: 20,
+      sortDir: "asc",
+      sortBy: "grnInvoice.vendorCode",
+    });
 
   const {
     data: sales,
@@ -91,7 +130,7 @@ const PurchaseVendorWiseTableView = () => {
 
   const extractFields = (data, index) => ({
     "SL No": index + 1,
-    "Vendor Name": data["grnInvoice.vendorName"],
+    "grnInvoice.vendorName": data["grnInvoice.vendorName"],
     "Vendor Code": data["grnInvoice.vendorCode"],
     "Sub Total": data["SUM(grnInvoice.grnSubTotal)"],
     "Total CGSt": data["SUM(grnInvoice.grnTotalCgst)"],
@@ -188,6 +227,7 @@ const PurchaseVendorWiseTableView = () => {
           pageInfo={pageInfo}
           setSize={setSize}
           filters={filters}
+          setFilters={setFilters}
           alignment={{
             "Sub Total": "right",
             "Total CGSt": "right",

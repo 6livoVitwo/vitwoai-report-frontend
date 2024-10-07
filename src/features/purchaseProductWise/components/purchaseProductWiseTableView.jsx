@@ -5,22 +5,9 @@ import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
 // import{useGetSelectedColumnsQuery} from "../slice/purchaseProductWiseApi"
+ 
 
-let filters = {
-  data: [
-    "items.goodName",
-    "items.goodCode",
-    "SUM(items.goodQty)",
-    "SUM(items.receivedQty)",
-    "SUM(items.totalAmount)",
-  ],
-  groupBy: ["items.goodName"],
-  filter: [],
-  page: 0,
-  size: 50,
-  sortDir: "asc",
-  sortBy: "items.goodName",
-};
+
 
 const PurchaseProductWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
@@ -28,6 +15,27 @@ const PurchaseProductWiseTableView = () => {
   const [size, setSize] = useState(50);
   const [toastShown, setToastShown] = useState(false);
   const [individualItems, setIndividualItems] = useState([]);
+
+  const [filters, setFilters] = useState(
+    {
+      data: [
+        "items.goodName",
+        "items.goodCode",
+        "SUM(items.goodQty)",
+        "SUM(items.receivedQty)",
+        "SUM(items.totalAmount)",
+        
+      ],
+      groupBy: ["items.goodName"],
+      filter: [],
+      page: 0,
+      size: 50,
+      sortDir: "asc",
+      sortBy: "items.goodName",
+    }
+   );
+
+  //  console.log("filter11101", filters);
 
   const toast = useToast();
 
@@ -50,9 +58,9 @@ const PurchaseProductWiseTableView = () => {
   const fieldMapping = {
     "items.goodName": "items.goodName",
     "items.goodCode": "items.goodCode",
-    "SUM(items.goodQty)": "Total Quantity",
-    "SUM(items.receivedQty)": "Received Quantity",
-    "SUM(items.totalAmount)": "Total Amount",
+    "SUM(items.goodQty)": "SUM(items.goodQty)",
+    "SUM(items.receivedQty)": "SUM(items.receivedQty)",
+    "SUM(items.totalAmount)": "SUM(items.totalAmount)",
   };
 
   const flattenObject = (obj, prefix = "") => {
@@ -176,6 +184,7 @@ const PurchaseProductWiseTableView = () => {
           pageInfo={pageInfo}
           setSize={setSize}
           filters={filters}
+          setFilters={setFilters}
           extractFields={extractFields}
           alignment={{
             "Total Quantity": "right",
