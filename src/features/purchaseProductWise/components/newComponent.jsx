@@ -44,8 +44,6 @@ const CustomTable = ({ setFirst, individualItems }) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const observer = useRef();
 
-	console.log(individualItems, 'individualItems');
-
 	// Mock data fetching function
 	const fetchMockData = async (page) => {
 		setFirst(page);

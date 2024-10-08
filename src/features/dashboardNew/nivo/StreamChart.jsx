@@ -3,8 +3,7 @@ import { ResponsiveStream } from "@nivo/stream";
 import { streamChartData } from "../data/chartData";
 
 
-const StreamChart = ({ data = streamChartData }) => {
-  console.log("Stream chart", data);
+const StreamChart = ({ data = streamChartData }) => {  
   return (
     <ResponsiveStream
       data={data}

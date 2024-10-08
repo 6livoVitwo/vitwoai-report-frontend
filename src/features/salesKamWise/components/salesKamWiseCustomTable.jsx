@@ -417,7 +417,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 
   const handleGraphAddDrawer = () => {
     onOpenGraphSettingDrawer();
-    dispatch(handleGraphWise("sales-product-wise"));
+    dispatch(handleGraphWise("sales-kam-wise"));
   }
 
   return (

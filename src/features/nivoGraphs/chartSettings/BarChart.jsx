@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { format, parse } from 'date-fns';
-import { getAllDates } from "../graphUtils/common";
+import React from "react";
 import Bar from "../nivo/Bar";
 
-const BarChart = ({ liveData = [], startDate = "", endDate = "", dynamicWidth = 1200, inputType = "" }) => {  
-console.log('🔵🟢',{liveData})
+const BarChart = ({ liveData = [], startDate = "", endDate = "", dynamicWidth, inputType = "" }) => {
+  console.log({liveData})
   return (
     <>
       {liveData.length > 0 ? (

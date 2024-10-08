@@ -119,9 +119,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 	const loadMoreData = async () => {
 		if (!loading) {
 			setLoading(true);
-			// Fetch or generate new data
 			const moreData = [...newArray]; // Assuming newArray contains new data
-			console.log(moreData, "moreData")
 			setData((prevData) => {
 				const uniqueData = [...new Set([...prevData, ...moreData])];
 				return uniqueData;
@@ -356,11 +354,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 			);
 		});
 	};
-
-	// console.log(data, 'data');
-	// console.log(newArray, 'newArray');
-	// console.log(selectedColumns, 'selectedColumns');
-	// console.log(filteredItems, 'filteredItems');
 
 	return (
 		<Box bg='white' padding='0px 10px' borderRadius='5px'>

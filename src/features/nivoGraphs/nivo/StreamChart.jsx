@@ -4,7 +4,6 @@ import { streamChartData } from "../data/chartData";
 
 
 const StreamChart = ({ data = streamChartData }) => {
-  console.log("Stream chart", data);
   return (
     <ResponsiveStream
       data={data}

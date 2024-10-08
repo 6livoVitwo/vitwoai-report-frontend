@@ -56,14 +56,11 @@ const PurchaseProductWiseTableView = ( ) => {
 
    // Fetch data from the API with sorting parameters
    const {data } = useFetchDataQuery(filters);
-  //  console.log('piyas');
-  //  console.log(data);
    
   // Function to decode JWT token
   const decodeToken = (token) => {
     try {
-      const decodedData = jwtDecode(token); // Decode JWT token
-      // console.log("Decoded JWT Data:", decodedData); // Log decoded data to console
+      const decodedData = jwtDecode(token);
       return decodedData;
     } catch (error) {
       // console.error("Invalid token", error);
@@ -165,12 +162,7 @@ const PurchaseProductWiseTableView = ( ) => {
       duration: 800, //(5000 ms = 5 seconds)
     })
   }
-
   const mainData = sales?.content
-
-  // console.log(mainData, 'main data');
-  // console.log(newArray, 'newArray');
-
 
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">

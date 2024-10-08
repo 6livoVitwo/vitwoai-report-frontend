@@ -163,8 +163,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     setConfigureChart(newConfig || {});
   };
 
-  console.log(configureChart);
-
   const loadMoreData = async () => {
     if (!loading) {
       setLoading(true);
@@ -420,7 +418,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
     onOpenGraphSettingDrawer();
     dispatch(handleGraphWise("sales-customer-wise"));
   };
-  console.log("🟢🔴🔵", { selectedWise });
 
   return (
     <Box bg="white" padding="0px 10px" borderRadius="5px">

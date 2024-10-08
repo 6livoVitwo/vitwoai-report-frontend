@@ -617,7 +617,6 @@ const CustomTable = ({
   };
 
   const handleConfigure = (chart) => {
-    console.log({ chart })
     if (!chart) {
       return;
     }

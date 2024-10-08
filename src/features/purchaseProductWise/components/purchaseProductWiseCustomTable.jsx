@@ -471,11 +471,6 @@ const CustomTable = ({ setPage, newArray, alignment , sortColumn,  sortOrder,  s
     });
   };
 
-  console.log(data, 'data');
-  // console.log(newArray, "newArray");
-  // console.log(selectedColumns, "selectedColumns");
-  // console.log(filteredItems, "filteredItems");
-
   return (
     <Box bg="white" padding="0px 10px" borderRadius="5px">
       <Box

@@ -27,17 +27,8 @@ const transformLiveData = (data) => {
 const LineChart = ({ data = [], liveData = [] }) => {
   const transformedLiveData = transformLiveData(liveData);
 
-  console.log("Raw liveData", liveData);
-  console.log("Transformed liveData", transformedLiveData);
-
   const chartData = (liveData.length > 0 ? transformedLiveData : data).filter(
     (item) => item.data.every((d) => d.x != null && d.y != null)
-  );
-
-  console.log("Filtered chartData", chartData);
-  console.log(
-    "Data source used:",
-    liveData.length > 0 ? "liveData" : "static data"
   );
 
   if (chartData.length === 0) {
