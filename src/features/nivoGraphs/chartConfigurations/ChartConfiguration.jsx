@@ -64,24 +64,29 @@ const newEndpoint = (data = "", type = "", processFlow = "") => {
   } else if (data === "sales-customer-wise") {
     if (type === "bump" || type === "areaBump" || type === "line") {
       return "/sales/graph/customer-wise-time-series-seq";
+    } else if (type === "bar" || type === "pie") {
+      return "/sales/sales-graph-two";
     }
-    return "/sales/graph/customer-wise-time-series-seq";
   } else if (data === "sales-so-wise") {
     if (type === "funnel") {
       return processFlow;
     }
     return "/sales/graph/so-wise-flow-process";
-  } else if (data === "sales-region-wise") {
-    if (type === "bump" || type === "areaBump" || type === "line") {
-      return "/sales/graph/region-wise-time-series-seq";
-    } else if (type === "heatmap") {
-      return "/sales/graph/region-wise-heat-density";
-    }
   } else if (data === "sales-kam-wise") {
     if (type === "bump" || type === "areaBump" || type === "line") {
       return "/sales/graph/kam-wise-time-series-seq";
     } else if (type === "heatmap") {
       return "/sales/graph/kam-wise-heat-density";
+    } else if (type === "bar" || type === "pie") {
+      return "/sales/sales-graph-two";
+    }
+  } else if (data === "sales-region-wise") {
+    if (type === "bump" || type === "areaBump" || type === "line") {
+      return "/sales/graph/region-wise-time-series-seq";
+    } else if (type === "heatmap") {
+      return "/sales/graph/region-wise-heat-density";
+    } else if (type === "bar" || type === "pie") {
+      return "/sales/sales-graph-two";
     }
   }
 };
@@ -125,19 +130,6 @@ const initialBodyWise = (
         ],
       };
     }
-  } else if (selectedWise === "sales-region-wise") {
-    if (type === "bump" || type === "areaBump" || type === "line") {
-      return {
-        day: 12,
-        month: 6,
-        year: 2024,
-        wise: "",
-      };
-    } else if (type === "heatmap") {
-      return {
-        wise: `${regionWise}`,
-      };
-    }
   } else if (selectedWise === "sales-customer-wise") {
     if (type === "bump" || type === "areaBump" || type === "line") {
       return {
@@ -145,6 +137,29 @@ const initialBodyWise = (
         monthTo: "7",
         yearFrom: 2024,
         yearTo: 2024,
+      };
+    } else if (type === "bar" || type === "pie") {
+      return {
+        "xaxis": "items.goodsItems.goodsGroup.goodGroupName",
+        "yaxis": [
+          "salesPgi.salesDelivery.totalAmount",
+          "salesPgi.totalAmount",
+          "quotation.totalAmount",
+          "salesOrder.totalAmount",
+          "all_total_amt"
+        ],
+        "groupBy": [
+          "items.goodsItems.goodsGroup"
+        ],
+        "valuetype": "count",
+        "filter": [
+          {
+            "column": "invoice_date",
+            "operator": "between",
+            "type": "date",
+            "value": [startDate, endDate]
+          }
+        ]
       };
     }
   } else if (selectedWise === "sales-kam-wise") {
@@ -159,6 +174,67 @@ const initialBodyWise = (
       return {
         priceOrQty: `${priceOrQty}`,
       };
+    } else if (type === "bar" || type === "pie") {
+      return {
+        "xaxis": "kam.kamName",
+        "yaxis": [
+          "salesPgi.salesDelivery.totalAmount",
+          "salesPgi.totalAmount",
+          "quotation.totalAmount",
+          "salesOrder.totalAmount",
+          "all_total_amt"
+        ],
+        "groupBy": [
+          "kam.kamCode"
+        ],
+        "valuetype": "count",
+
+        "filter": [
+          {
+            "column": "invoice_date",
+            "operator": "between",
+            "type": "date",
+            "value": [startDate, endDate]
+          }
+        ]
+      }
+    }
+  } else if (selectedWise === "sales-region-wise") {
+    if (type === "bump" || type === "areaBump" || type === "line") {
+      return {
+        day: 12,
+        month: 6,
+        year: 2024,
+        wise: "",
+      };
+    } else if (type === "heatmap") {
+      return {
+        wise: `${regionWise}`,
+      };
+    } else if (type === "bar" || type === "pie") {
+      return {
+        "xaxis": "customer.customerAddress.customer_address_state",
+        "yaxis": [
+          "salesPgi.salesDelivery.totalAmount",
+          "salesPgi.totalAmount",
+          "quotation.totalAmount",
+          "salesOrder.totalAmount",
+          "all_total_amt"
+        ],
+        "groupBy": [
+          "customer.customerAddress.customer_address_state"
+        ],
+        "valuetype": "count",
+
+        "filter": [
+          {
+            "column": "invoice_date",
+            "operator": "between",
+            "type": "date",
+            "value": [startDate, endDate]
+          }
+        ]
+      }
     }
   }
 };
@@ -216,16 +292,7 @@ const ChartConfiguration = ({ configureChart }) => {
   const [yaxis, setYaxis] = useState("all_total_amt");
   const [newOption, setNewOption] = useState([]);
 
-  const [bodyWise, setBodyWise] = useState(
-    initialBodyWise(
-      selectedWise,
-      type,
-      priceOrQty,
-      startDate,
-      endDate,
-      regionWise
-    )
-  );
+  const [bodyWise, setBodyWise] = useState(initialBodyWise(selectedWise, type, priceOrQty, startDate, endDate, regionWise));
   const [chartApiConfig, setChartApiConfig] = useState({
     areaBump: [
       {
@@ -248,7 +315,7 @@ const ChartConfiguration = ({ configureChart }) => {
         wise: "sales",
         method: "POST",
         endpoint: newEndpoint(selectedWise, type, processFlow),
-        body: bodyWise,
+        body: bodyWise
       },
     ],
     funnel: [

@@ -100,7 +100,7 @@ const CustomTable = ({
   const [currentPage, setCurrentPage] = useState(0); // Default page is 0
   const [selectedRegion, setSelectedRegion] = useState(null); // Track selected region
   const [configureChart, setConfigureChart] = useState({});
-  const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);  
+  const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
   const dispatch = useDispatch();
 
   const generateColumnMappings = (filtersData) => {
@@ -1124,8 +1124,8 @@ const CustomTable = ({
                                 column === "description"
                                   ? "300px"
                                   : column === "name"
-                                  ? "200px"
-                                  : "100px"
+                                    ? "200px"
+                                    : "100px"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis">
@@ -1347,28 +1347,14 @@ const CustomTable = ({
                       my: 2,
                       flexGrow: 1,
                     }}>
-                    Total Graph (
-                    {
-                      chartsData.charts.filter(
-                        (chart) =>
-                          chart.type !== "bar" &&
-                          chart.type !== "funnel" &&
-                          chart.type !== "pie"
-                      ).length
-                    }
-                    )
+                    Total Graph ({chartsData.charts.filter((chart) => chart.type !== "funnel").length})
                   </Box>
                   <Box
                     display="flex"
                     flexWrap="wrap"
                     justifyContent="space-between">
                     {chartsData.charts.map((chart, index) => {
-                      if (
-                        chart.type === "bar" ||
-                        chart.type === "funnel" ||
-                        chart.type === "pie"
-                      )
-                        return null;
+                      if (chart.type === "funnel") return null;
                       return (
                         <Box
                           key={index}
