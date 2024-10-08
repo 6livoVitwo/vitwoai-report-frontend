@@ -316,111 +316,38 @@ const CustomTable = ({
     setSelectedColumns(newColumnsOrder);
   };
 
-  // const toggleColumn = (field) => {
-  //   setSelectedColumns((prev) =>
-  //     prev.includes(field)
-  //       ? prev.filter((col) => col !== field)
-  //       : [...prev, field]
-  //   );
-  // };
+  const toggleColumn = (field) => {
+    setSelectedColumns((prev) =>
+      prev.includes(field)
+        ? prev.filter((col) => col !== field)
+        : [...prev, field]
+    );
+  };
 
-  //   const handleSelectAllToggle = () => {
-  //     if (selectAll) {
-  //         setSelectedColumns([]); // Deselect all columns
-  //     } else {
-  //         const allColumns = getColumns(data)
-  //             .concat(
-  //                 columnData
-  //                     ? Object.keys(columnData?.content[0] || {}).map((key) => ({
-  //                         field: key,
-  //                         header: key,
-  //                     }))
-  //                     : []
-  //             )
-  //             .map((column) => column.field);
-  //         setSelectedColumns(allColumns); // Select all columns
-  //     }
-  //     setSelectAll(!selectAll);
-  // };
-  // const handleModalClose = () => {
-  //   setSelectedColumns(defaultColumns);
-  //   onClose();
-  // };
-
-  // const handleApplyChanges = () => {
-  //   refetchColumnData({ columns: selectedColumns });
-  //   onClose();
-  //   toast({
-  //     title: "Column Added Successfully",
-  //     status: "success",
-  //     isClosable: true,
-  //   });
-  // };
-
-  
-  // Default columns (These will be used if no columns are stored in localStorage)
-
-
-//   const toggleColumn = (field) => {
-//     // Ensure that default columns can't be deselected
-//     // if (defaultColumns.includes(field)) return;
-//     setSelectedColumns((prev) =>
-//       prev.includes(field)
-//         ? prev.filter((col) => col !== field)
-//         : [...prev, field]
-//     );
-// };
-const toggleColumn = (columnName) => {
-  setSelectedColumns((prevSelectedColumns) =>
-    prevSelectedColumns.includes(columnName)
-      ? prevSelectedColumns.filter((col) => col !== columnName)
-      : [...prevSelectedColumns, columnName]
-  );
-};
-
-  // On page load, retrieve selected columns from localStorage or use default columns
-  useEffect(() => {
-    const storedColumns = JSON.parse(localStorage.getItem("selectedColumns"));
-    if (storedColumns) {
-      setSelectedColumns(storedColumns);
-    } else {
-      setSelectedColumns(defaultColumns);
-    }
-  }, [data]);
-
-  const handleSelectAllToggle = () => {
-    const allColumns = getColumns(data)
-      .concat(
-        columnData
-          ? Object.keys(columnData?.content[0] || {}).map((key) => ({
-              field: key,
-              header: key,
-            }))
-          : []
-      )
-      .map((column) => column.field)
-      .filter(field => !defaultColumns.includes(field)); // Exclude default columns
-
-    if (selectAll) {
-      setSelectedColumns([]); // Deselect all
-      // localStorage.setItem("selectedColumns", JSON.stringify([]));
-    } else {
-      setSelectedColumns(allColumns); // Select all except default
-      // localStorage.setItem("selectedColumns", JSON.stringify(allColumns));
-    }
-    setSelectAll(!selectAll);
-};
-
+    const handleSelectAllToggle = () => {
+      if (selectAll) {
+          setSelectedColumns([]); // Deselect all columns
+      } else {
+          const allColumns = getColumns(data)
+              .concat(
+                  columnData
+                      ? Object.keys(columnData?.content[0] || {}).map((key) => ({
+                          field: key,
+                          header: key,
+                      }))
+                      : []
+              )
+              .map((column) => column.field);
+          setSelectedColumns(allColumns); // Select all columns
+      }
+      setSelectAll(!selectAll);
+  };
   const handleModalClose = () => {
-    // Reset selected columns to default and close modal
     setSelectedColumns(defaultColumns);
-    // localStorage.setItem("selectedColumns", JSON.stringify(defaultColumns)); // Save default columns to localStorage
     onClose();
   };
 
   const handleApplyChanges = () => {
-    // Save selected columns to localStorage and refetch data
-    // localStorage.setItem("selectedColumns", JSON.stringify(selectedColumns));
     refetchColumnData({ columns: selectedColumns });
     onClose();
     toast({
