@@ -322,8 +322,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   //   });
   // };
 
+
+  // Handle column selection
   const toggleColumn = (field) => {
-    // if (defaultColumns.includes(field)) return;
     if (field === "SL No") return;
     setSelectedColumns((prev) =>
       prev.includes(field)
@@ -467,8 +468,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     if (columnData && columnData.content.length > 0) {
       combinedData = combinedData.concat(columnData.content);
     }
-    let filteredData =
-      searchData && searchData.length > 0 ? searchData : combinedData; // Copy the combined data
+    let filteredData = searchData && searchData.length > 0 ? searchData : combinedData; // Copy the combined data
 
     // Apply searchData from the API
     if (searchData && searchData.length > 0) {

@@ -5,8 +5,6 @@ import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
  
-
-
 const PurchaseProductWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
   const [page, setPage] = useState(0);
@@ -33,8 +31,6 @@ const PurchaseProductWiseTableView = () => {
     }
    );
 
-  //  console.log("filter11101", filters);
-
   const toast = useToast();
 
   const {
@@ -52,7 +48,7 @@ const PurchaseProductWiseTableView = () => {
   const pageInfo = sales?.lastPage;
   const tableContainerRef = useRef(null);
 
-  // Create a mapping of API fields to display names
+ // Create a mapping of API fields to display names
   const fieldMapping = {
     "items.goodName": "items.goodName",
     "items.goodCode": "items.goodCode",
@@ -82,7 +78,6 @@ const PurchaseProductWiseTableView = () => {
   const extractFields = (data, index) => {
     const extractedFields = {
       "SL No": index + 1,
-      // Map the API fields to display names dynamically
       ...Object.keys(fieldMapping).reduce((acc, apiField) => {
         acc[fieldMapping[apiField]] = data[apiField];
         return acc;
