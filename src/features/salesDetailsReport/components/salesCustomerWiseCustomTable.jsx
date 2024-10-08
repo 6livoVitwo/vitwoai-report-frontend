@@ -54,6 +54,7 @@ const SalesDetailedCustomTable = ({ setPage, newArray, setDateRange }) => {
 	const [columnFilters, setColumnFilters] = useState({});
 	const [startDate, setStartDate] = useState(null);
 	const [endDate, setEndDate] = useState(null);
+	const [lastPage, setLastPage] = useState(false);
 
 	const toast = useToast();
 	const tableContainerRef = useRef(null);
@@ -143,16 +144,14 @@ const SalesDetailedCustomTable = ({ setPage, newArray, setDateRange }) => {
 		});
 	};
 
-	const debouncedSearchQuery = useMemo(
-		() => debounce(setSearchQuery, 300),
-		[]
-	);
+	const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 500), []);
 
+	
 	useEffect(() => {
 		return () => {
-			debouncedSearchQuery.cancel();
+		  debouncedSearchQuery.cancel();
 		};
-	}, [debouncedSearchQuery]);
+	  }, [debouncedSearchQuery]);
 
 	const handleSearchChange = (e) => {
 		debouncedSearchQuery(e.target.value);
@@ -309,12 +308,16 @@ const SalesDetailedCustomTable = ({ setPage, newArray, setDateRange }) => {
 
 	const handleStartDateChange = (date) => {
 		setStartDate(date);
-		updateArrayValue(date, endDate);
+		if (date && endDate) {
+			updateArrayValue(date, endDate);
+		}
 	};
-
+	
 	const handleEndDateChange = (date) => {
 		setEndDate(date);
-		updateArrayValue(startDate, date);
+		if (startDate && date) {
+			updateArrayValue(startDate, date);
+		}
 	};
 
 	const formatDate = (date) => {
@@ -375,7 +378,7 @@ const SalesDetailedCustomTable = ({ setPage, newArray, setDateRange }) => {
 							outline: 'none',
 						},
 					}}>
-					<DatePicker
+					{/* <DatePicker
 						selected={startDate}
 						onChange={handleStartDateChange}
 						dateFormat='yyyy/MM/dd'
@@ -388,7 +391,7 @@ const SalesDetailedCustomTable = ({ setPage, newArray, setDateRange }) => {
 						dateFormat='yyyy/MM/dd'
 						placeholderText='End Date'
 						className='datepicker'
-					/>
+					/> */}
 					{/* <Button onClick={exportToExcel} ml='4'>
 						<FontAwesomeIcon icon={faFileExcel} /> Export to Excel
 					</Button> */}

@@ -15,18 +15,57 @@ export const salesRegionWiseApi = apiSlice.injectEndpoints({
         };
       },
     }),
-
-     // Query to get selected columns
-     getSelectedStateWise: builder.query({
+    // Query to get selected columns dist wise
+    getselectedDistWise: builder.query({
+      query: () => {
+        return {
+          url: "/sales/drop-down-data/dist-wise",
+          method: "GET",
+        };
+      },
+    }),
+    // Query to get selected columns city wise
+    getselectedCityWise: builder.query({
+      query: () => {
+        return {
+          url: "/sales/drop-down-data/city-wise",
+          method: "GET",
+        };
+      },
+    }),
+    // Query to get selected columns country wise
+    getselectedCountryWise: builder.query({
+      query: () => {
+        return {
+          url: "/sales/drop-down-data/country-wise",
+          method: "GET",
+        };
+      },
+    }),
+    getselectedPincodeWise: builder.query({
+      query: () => {
+        return {
+          url: "/sales/drop-down-data/pincode-wise",
+          method: "GET",
+        };
+      },
+    }),
+    getselectedStateWise: builder.query({
       query: () => {
         return {
           url: "/sales/drop-down-data/state-wise",
           method: "GET",
-        }
+        };
       },
     }),
   }),
-
 });
 
-export const { useRegionWiseSalesQuery,useGetSelectedStateWiseQuery } = salesRegionWiseApi;
+export const {
+  useRegionWiseSalesQuery,
+  useGetselectedDistWiseQuery,
+  useGetselectedCityWiseQuery,
+  useGetselectedCountryWiseQuery,
+  useGetselectedPincodeWiseQuery,
+  useGetselectedStateWiseQuery,
+} = salesRegionWiseApi;

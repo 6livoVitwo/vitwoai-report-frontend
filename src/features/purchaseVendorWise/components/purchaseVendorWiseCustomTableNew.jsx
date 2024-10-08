@@ -295,14 +295,14 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 	};
 
 	const handleScroll = () => {
-		const { scrollTop, scrollHeight, clientHeight } =
-			tableContainerRef.current;
-
-		if (scrollTop + clientHeight >= scrollHeight - 5) {
+		const { scrollTop, scrollHeight, clientHeight } = tableContainerRef.current;
+	
+		// Check if we are not currently loading and not on the last page
+		if (scrollTop + clientHeight >= scrollHeight - 5 && !loading && !lastPage) {
 			loadMoreData();
 		}
 	};
-
+	
 	useEffect(() => {
 		const container = tableContainerRef.current;
 		if (container) {
@@ -310,6 +310,7 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 			return () => container.removeEventListener('scroll', handleScroll);
 		}
 	}, [loading, lastPage]);
+	
 
 	const handleColumnFilterConditionChange = (field, condition) => {
 		condition = String(condition);

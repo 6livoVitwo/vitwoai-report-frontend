@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import CustomTable from "./purchasePoWiseCustomTable";
-import { Box, Spinner, Image,useToast } from "@chakra-ui/react";
+import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { usePoWisePurchaseQuery } from "../slice/purchasePoWiseApi";
@@ -10,8 +10,8 @@ const PurchaseProductWiseTableView = () => {
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(50);
   const [individualItems, setIndividualItems] = useState([]);
+  const [toastShown, setToastShown] = useState(false);
   const toast = useToast();
-
 
   let filters = {
     data: [
@@ -33,27 +33,29 @@ const PurchaseProductWiseTableView = () => {
     ],
     groupBy: ["grnInvoice.grnPoNumber"],
     filter: [
-      {
-        column: "companyId",
-        operator: "equal",
-        type: "integer",
-        value: 1,
-      },
-      {
-        column: "branchId",
-        operator: "equal",
-        type: "integer",
-        value: 1,
-      },
-      {
-        column: "locationId",
-        operator: "equal",
-        type: "integer",
-        value: 1,
-      },
+      // {
+      //   column: "companyId",
+      //   operator: "equal",
+      //   type: "integer",
+      //   value: 1,
+      // },
+      // {
+      //   column: "branchId",
+      //   operator: "equal",
+      //   type: "integer",
+      //   value: 1,
+      // },
+      // {
+      //   column: "locationId",
+      //   operator: "equal",
+      //   type: "integer",
+      //   value: 1,
+      // },
     ],
     page: 0,
     size: 20,
+    sortDir: "asc",
+    sortBy: "grnInvoice.grnPoNumber",
   };
   const {
     data: sales,
@@ -115,6 +117,30 @@ const PurchaseProductWiseTableView = () => {
       setIndividualItems((prevItems) => [...prevItems, ...newItems]);
     }
   }, [sales]);
+  useEffect(() => {
+    // Show the toast only if the user has scrolled to the last page ////
+    if (sales?.totalPages < page && !toastShown) {
+      toast({
+        title: "No More Data",
+        description: "You have reached the end of the list.",
+        status: "warning",
+        isClosable: true,
+        duration: 4000,
+        render: () => (
+          <Box
+            p={3}
+            bg="orange.300"
+            borderRadius="md"
+            style={{ width: "300px", height: "70px" }} // Set custom width and height
+          >
+            <Box fontWeight="bold">No More Data</Box>
+            <Box>You have reached the end of the list.</Box>
+          </Box>
+        ),
+      });
+      setToastShown(true); // Mark the toast as shown
+    }
+  }, [sales, page, toast, toastShown]);
 
   if (isLoading) {
     return (
@@ -123,7 +149,8 @@ const PurchaseProductWiseTableView = () => {
         width="100%"
         display="flex"
         alignItems="center"
-        justifyContent="center">
+        justifyContent="center"
+      >
         <Spinner
           thickness="4px"
           speed="0.65s"
@@ -142,20 +169,11 @@ const PurchaseProductWiseTableView = () => {
         height="calc(100vh - 103px)"
         display="flex"
         alignItems="center"
-        justifyContent="center">
+        justifyContent="center"
+      >
         <Image src={NoDataFound} alt="No Data Available" />
       </Box>
     );
-  }
-  if(sales?.
-    totalPages < page){
-    toast({
-      title: 'No More Data',
-      description: 'You have reached the end of the list.',
-			status: 'warning',
-			isClosable: true,
-      duration:800, //(5000 ms = 5 seconds)
-		})
   }
   const newArray = individualItems.map((data, index) =>
     extractFields(data, index)
@@ -171,6 +189,7 @@ const PurchaseProductWiseTableView = () => {
           isFetching={isFetching}
           pageInfo={pageInfo}
           setSize={setSize}
+          filters={filters}
           alignment={{
             "Total Quantity": "right",
             "Received Quantity": "right",

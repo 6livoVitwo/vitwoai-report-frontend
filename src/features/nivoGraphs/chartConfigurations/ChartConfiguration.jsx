@@ -64,29 +64,24 @@ const newEndpoint = (data = "", type = "", processFlow = "") => {
   } else if (data === "sales-customer-wise") {
     if (type === "bump" || type === "areaBump" || type === "line") {
       return "/sales/graph/customer-wise-time-series-seq";
-    } else if (type === "bar" || type === "pie") {
-      return "/sales/sales-graph-two";
     }
+    return "/sales/graph/customer-wise-time-series-seq";
   } else if (data === "sales-so-wise") {
     if (type === "funnel") {
       return processFlow;
     }
     return "/sales/graph/so-wise-flow-process";
-  } else if (data === "sales-kam-wise") {
-    if (type === "bump" || type === "areaBump" || type === "line") {
-      return "/sales/graph/kam-wise-time-series-seq";
-    } else if (type === "heatmap") {
-      return "/sales/graph/kam-wise-heat-density";
-    } else if (type === "bar" || type === "pie") {
-      return "/sales/sales-graph-two";
-    }
   } else if (data === "sales-region-wise") {
     if (type === "bump" || type === "areaBump" || type === "line") {
       return "/sales/graph/region-wise-time-series-seq";
     } else if (type === "heatmap") {
       return "/sales/graph/region-wise-heat-density";
-    } else if (type === "bar" || type === "pie") {
-      return "/sales/sales-graph-two";
+    }
+  } else if (data === "sales-kam-wise") {
+    if (type === "bump" || type === "areaBump" || type === "line") {
+      return "/sales/graph/kam-wise-time-series-seq";
+    } else if (type === "heatmap") {
+      return "/sales/graph/kam-wise-heat-density";
     }
   }
 };
@@ -119,7 +114,7 @@ const initialBodyWise = (
           "all_total_amt",
         ],
         groupBy: ["items.itemName"],
-        valuetype: "sum",
+        valuetype: "count",
         filter: [
           {
             column: "invoice_date",
@@ -130,6 +125,19 @@ const initialBodyWise = (
         ],
       };
     }
+  } else if (selectedWise === "sales-region-wise") {
+    if (type === "bump" || type === "areaBump" || type === "line") {
+      return {
+        day: 12,
+        month: 6,
+        year: 2024,
+        wise: "",
+      };
+    } else if (type === "heatmap") {
+      return {
+        wise: `${regionWise}`,
+      };
+    }
   } else if (selectedWise === "sales-customer-wise") {
     if (type === "bump" || type === "areaBump" || type === "line") {
       return {
@@ -137,29 +145,6 @@ const initialBodyWise = (
         monthTo: "7",
         yearFrom: 2024,
         yearTo: 2024,
-      };
-    } else if (type === "bar" || type === "pie") {
-      return {
-        "xaxis": "items.goodsItems.goodsGroup.goodGroupName",
-        "yaxis": [
-          "salesPgi.salesDelivery.totalAmount",
-          "salesPgi.totalAmount",
-          "quotation.totalAmount",
-          "salesOrder.totalAmount",
-          "all_total_amt"
-        ],
-        "groupBy": [
-          "items.goodsItems.goodsGroup"
-        ],
-        "valuetype": "count",
-        "filter": [
-          {
-            "column": "invoice_date",
-            "operator": "between",
-            "type": "date",
-            "value": [startDate, endDate]
-          }
-        ]
       };
     }
   } else if (selectedWise === "sales-kam-wise") {
@@ -174,67 +159,6 @@ const initialBodyWise = (
       return {
         priceOrQty: `${priceOrQty}`,
       };
-    } else if (type === "bar" || type === "pie") {
-      return {
-        "xaxis": "kam.kamName",
-        "yaxis": [
-          "salesPgi.salesDelivery.totalAmount",
-          "salesPgi.totalAmount",
-          "quotation.totalAmount",
-          "salesOrder.totalAmount",
-          "all_total_amt"
-        ],
-        "groupBy": [
-          "kam.kamCode"
-        ],
-        "valuetype": "count",
-
-        "filter": [
-          {
-            "column": "invoice_date",
-            "operator": "between",
-            "type": "date",
-            "value": [startDate, endDate]
-          }
-        ]
-      }
-    }
-  } else if (selectedWise === "sales-region-wise") {
-    if (type === "bump" || type === "areaBump" || type === "line") {
-      return {
-        day: 12,
-        month: 6,
-        year: 2024,
-        wise: "",
-      };
-    } else if (type === "heatmap") {
-      return {
-        wise: `${regionWise}`,
-      };
-    } else if (type === "bar" || type === "pie") {
-      return {
-        "xaxis": "customer.customerAddress.customer_address_state",
-        "yaxis": [
-          "salesPgi.salesDelivery.totalAmount",
-          "salesPgi.totalAmount",
-          "quotation.totalAmount",
-          "salesOrder.totalAmount",
-          "all_total_amt"
-        ],
-        "groupBy": [
-          "customer.customerAddress.customer_address_state"
-        ],
-        "valuetype": "count",
-
-        "filter": [
-          {
-            "column": "invoice_date",
-            "operator": "between",
-            "type": "date",
-            "value": [startDate, endDate]
-          }
-        ]
-      }
     }
   }
 };
@@ -276,7 +200,7 @@ const ChartConfiguration = ({ configureChart }) => {
   const [chartDataApi, setChartDataApi] = useState([]);
   const [wise, setWise] = useState("sales");
   const [priceOrQty, setPriceOrQty] = useState("qty");
-  const [sumOrCount, setSumOrCount] = useState("count");
+  const [valuetype, setValuetype] = useState("count");
   const [previewLoading, setPreviewLoading] = useState(false);
   const currentWidgets = useSelector((state) => state.salescustomer.widgets);
   const [inputType, setInputType] = useState("month");
@@ -289,10 +213,17 @@ const ChartConfiguration = ({ configureChart }) => {
     "/sales/graph/so-wise-flow-process"
   );
   const [dynamicHeight, setDynamicHeight] = useState(4000);
-  const [yaxis, setYaxis] = useState("all_total_amt");
-  const [newOption, setNewOption] = useState([]);
 
-  const [bodyWise, setBodyWise] = useState(initialBodyWise(selectedWise, type, priceOrQty, startDate, endDate, regionWise));
+  const [bodyWise, setBodyWise] = useState(
+    initialBodyWise(
+      selectedWise,
+      type,
+      priceOrQty,
+      startDate,
+      endDate,
+      regionWise
+    )
+  );
   const [chartApiConfig, setChartApiConfig] = useState({
     areaBump: [
       {
@@ -315,7 +246,7 @@ const ChartConfiguration = ({ configureChart }) => {
         wise: "sales",
         method: "POST",
         endpoint: newEndpoint(selectedWise, type, processFlow),
-        body: bodyWise
+        body: bodyWise,
       },
     ],
     funnel: [
@@ -377,17 +308,21 @@ const ChartConfiguration = ({ configureChart }) => {
     updateChartApiConfig(newBodyWise);
   };
 
-  const handleSumOrCount = (data) => {
-    let newBodyWise = createBodyWise(inputType, startDate, endDate, data, type);
-    setSumOrCount(data);
-    setBodyWise(newBodyWise);
-    updateChartApiConfig(newBodyWise);
-  };
+ const handleValueTypeChange = (e) => {
+   const selectedValueType = e.target.value;
+   setValuetype(selectedValueType);
 
-  const handleYaxis = (value) => {
-    console.log(value);
-    setYaxis(value);
-  };
+   setChartApiConfig((prevConfig) => ({
+     ...prevConfig,
+     [type]: prevConfig[type].map((config) => ({
+       ...config,
+       body: {
+         ...config.body,
+         valuetype: selectedValueType,
+       },
+     })),
+   }));
+ };
 
   const handleDateUpdate = (dateType, data, type) => {
     let newStartDate = dateType === "from" ? data : startDate;
@@ -423,6 +358,38 @@ const ChartConfiguration = ({ configureChart }) => {
 
   const handleToDate = (data) => {
     handleDateUpdate("to", data, type);
+  };
+
+   const yAxisOptions = [
+     {
+       value: "salesPgi.salesDelivery.totalAmount",
+       label: "Sales PGI Delivery Amount",
+     },
+     { value: "salesPgi.totalAmount", label: "Sales PGI Amount" },
+     { value: "quotation.totalAmount", label: "Quotation Amount" },
+     { value: "salesOrder.totalAmount", label: "Sales Order Amount" },
+     { value: "all_total_amt", label: "All Total Amount" },
+  ];
+
+  console.log("yAxisOptions", yAxisOptions);
+
+  
+  const handleYAxisChange = (e) => {
+    const { value } = e.target;
+
+    // If it's a multi-select, you should handle arrays
+    const newValue = Array.isArray(value) ? value : [value];
+
+    setChartApiConfig((prevConfig) => ({
+      ...prevConfig,
+      [type]: prevConfig[type].map((config) => ({
+        ...config,
+        body: {
+          ...config.body,
+          yaxis: newValue,
+        },
+      })),
+    }));
   };
 
   const updateChartApiConfig = (newBodyWise) => {
@@ -528,15 +495,6 @@ const ChartConfiguration = ({ configureChart }) => {
       // let newArr = [];
 
       if (type === "pie") {
-        // newArr = Object.keys(finalData[0]).map((key) => {
-        //   console.log('hello', { key })
-        //   if (key === 'xaxis') return null;
-        //   return (
-        //     <option value={key}>{key}</option>
-        //   )
-        // })
-        // setNewOption(newArr);
-
         processedData = finalData.map((product, index) => {
           return {
             id: index,
@@ -806,51 +764,47 @@ const ChartConfiguration = ({ configureChart }) => {
                         </Grid>
                       )}
 
-                    {/* {(type === "bar" || type === "pie") && <Grid templateColumns="repeat(1, 1fr)" gap={6}>
-                      <Stack spacing={3}>
-                        <Text fontSize="sm" fontWeight="500">
-                          Y Axis
-                        </Text>
-                        <Select size="lg" value={yaxis} onChange={(e) => handleYaxis(e.target.value)}>
-                          {newOption}
-                        </Select>
-                      </Stack>
-                    </Grid>} */}
-
-                    {/* {type === "bar" && <Grid templateColumns="repeat(1, 1fr)" gap={6}>
-                      <Stack spacing={3}>
-                        <Text fontSize="sm" fontWeight="500">
-                          Y Axis
-                        </Text>
-                        <Stack sx={{ border: "1px solid rgba(0, 0, 0, 0.11)", borderRadius: "6px" }}>
-                          <MultiSelect
-                            value={selectedCities}
-                            onChange={(e) => setSelectedCities(e.value)}
-                            options={cities}
-                            optionLabel="name"
-                            placeholder="Select Cities"
-                            maxSelectedLabels={3}
-                            className="w-full"
-                          />
-                        </Stack>
-                      </Stack>
-                    </Grid>} */}
                     {(type === "bar" || type === "pie") && (
                       <Grid templateColumns="repeat(1, 1fr)" gap={6}>
+                        <Stack spacing={3}>
+                          <Text fontSize="sm" fontWeight="500">
+                            Y Axis
+                          </Text>
+                          {type === "pie" ? (
+                            <Select size="lg" onChange={handleYAxisChange}>
+                              {yAxisOptions.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                  {option.label}
+                                </option>
+                              ))}
+                            </Select>
+                          ) : (
+                            <MultiSelect
+                              display="chip"
+                              options={yAxisOptions.map((option) => ({
+                                value: option.value,
+                                label: option.label,
+                              }))}
+                              placeholder="Select Y-Axis"
+                              onChange={handleYAxisChange}
+                            />
+                          )}
+                        </Stack>
                         <Stack spacing={3}>
                           <Text fontSize="sm" fontWeight="500">
                             Filter
                           </Text>
                           <Select
                             size="lg"
-                            value={sumOrCount}
-                            onChange={(e) => handleSumOrCount(e.target.value)}>
+                            value={valuetype}
+                            onChange={handleValueTypeChange}>
                             <option value="count">Count</option>
                             <option value="sum">Sum</option>
                           </Select>
                         </Stack>
                       </Grid>
                     )}
+
                     {type !== "heatmap" && (
                       <Stack
                         spacing={0}

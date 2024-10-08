@@ -15,8 +15,29 @@ export const purchasePoWiseApi = apiSlice.injectEndpoints({
         };
       },
     }),
+    // Query to get global search
+    getGlobalsearchPo: builder.query({
+      query: (body) => {
+        return {
+          url: "/purchase/global-search/po",
+          method: "POST",
+          body: JSON.stringify(body),
+        };
+      },
+    }),
+    getSelectedColumnsPo: builder.query({
+      query: () => {
+        return {
+          url: "/purchase/drop-down-data/po",
+          method: "GET",
+        };
+      },
+    }),
   }),
 });
 
-export const { usePoWisePurchaseQuery } = purchasePoWiseApi;
-
+export const {
+  usePoWisePurchaseQuery,
+  useGetGlobalsearchPoQuery,
+  useGetSelectedColumnsPoQuery,
+} = purchasePoWiseApi;
