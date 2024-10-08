@@ -110,7 +110,7 @@ const MyNivoResponsiveBar = () => {
             "donutColor": "hsl(327, 70%, 50%)"
         }
     ]
-    console.log('data', data, { ResponsiveBar })
+    
     return (
         <Box sx={{ height: 500 }}>
             <ResponsiveBar

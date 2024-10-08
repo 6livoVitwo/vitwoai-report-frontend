@@ -4,7 +4,6 @@ import { Alert, Badge, Box, Card, Grid, IconButton, Text } from '@chakra-ui/reac
 import { MdOutlineArrowBackIos } from "react-icons/md";
 
 const GraphVariant = ({ singleGraphData, setIsVariant = () => { } }) => {
-    console.log('variant chart =>>', singleGraphData)
     return (
         <Box>
             <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>

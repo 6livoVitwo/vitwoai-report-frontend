@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ResponsiveAreaBump } from "@nivo/bump";
 import { areaBumpData } from "../data/chartData";
 import { format, parse } from 'date-fns';
-import { getAllDates } from "../../../utils/graphs-utilitis";
+import { getAllDates } from "../../nivoGraphs/graphUtils/common";
 
 const AreaBump = ({ liveData = [], startDate = "", endDate = "", dynamicWidth = 1200, inputType = "" }) => {
   const [data, setData] = useState([]);
@@ -52,11 +52,9 @@ const AreaBump = ({ liveData = [], startDate = "", endDate = "", dynamicWidth = 
     if (JSON.stringify(updatedData) !== JSON.stringify(data)) {
       setData(updatedData);
     }
-    console.log('Updated Data in the useeffect 🍃:', updatedData);
-    console.log('liveData in the useeffect 🍃:', liveData);
 
   }, [startDate, endDate, dynamicWidth, liveData, inputType]);
-console.log('area bump data', JSON.stringify(data))
+  
   return (
     <>
       {liveData.length > 0 ? (

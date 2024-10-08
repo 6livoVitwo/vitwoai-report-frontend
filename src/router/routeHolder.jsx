@@ -74,7 +74,9 @@ import PoWiseTableView from "../features/poWise/components/poWiseTableView";
 import PoWiseGraphView from "../features/poWise/components/poWiseGraphView";
 import SalesSoWise from "../features/salesSoWise/components/index";
 import SalesSoWiseTableView from "../features/salesSoWise/components/salesSoWiseTableView";
-import SalesSoWiseGraphView from "../features/salesSoWise/components/salesSoWiseGraphView";
+import SalesRegionWise from "../features/salesRegionWise/components/index";
+import SalesRegionWiseTableView from "../features/salesRegionWise/components/salesRegionWiseTableView";
+// import SalesSoWiseGraphView from "../features/salesSoWise/components/salesSoWiseGraphView";
 import GlobalCss from "../features/global/css";
 import { setAuthDetails } from "./slice";
 import Allreports from "../features/allreports";
@@ -90,13 +92,8 @@ import PurchasePoWiseTableView from "../features/purchasePoWise/components/purch
 import PurchasePoWiseGraphView from "../features/purchasePoWise/components/purchasePoWiseGraphView";
 import Reportdetails from "../features/reportdetails";
 import DashboardNew from "../features/dashboardNew/pages/DashboardNew";
-
 import SalesKamWise from "../features/salesKamWise/components";
 import SalesKamWiseTableView from "../features/salesKamWise/components/salesKamWiseTableView";
-import SalesKamWiseGraphView from "../features/salesKamWise/components/salesKamWiseGraphView";
-
-import SalesRegionWise from "../features/salesRegionWise/components";
-import SalesRegionWiseTableView from "../features/salesRegionWise/components/salesRegionWiseTableView";
 import SalesRegionStateWiseTableView from "../features/salesRegionWise/components/salesRegionStateWise";
 
 import PurchaseDetails from "../features/purchaseDetailsReport/components";
@@ -131,7 +128,6 @@ const AllRoutes = () => {
 
         setGlobalStaticFragmennt(true);
         nevigate("/");
-        console.log("Token stored successfully.");
       } else {
         console.log(
           "Sorry, your browser does not support Web Storage. Token cannot be stored."
@@ -1086,7 +1082,7 @@ const AllRoutes = () => {
                 </PortalForLayout>
               }
             />
-            <Route
+            {/* <Route
               path="/reports/sales-so-wise/graph-view"
               element={
                 <PortalForLayout
@@ -1098,7 +1094,7 @@ const AllRoutes = () => {
                   />
                 </PortalForLayout>
               }
-            />
+            /> */}
           </Route>
 
           <Route
@@ -1125,14 +1121,24 @@ const AllRoutes = () => {
                 </PortalForLayout>
               }
             />
+          </Route>
+
+          <Route
+            path="/reports/sales-region-wise/"
+            element={
+              <PortalForLayout
+                globalLayout={globalStaticFragmennt}
+                portalId={commonPortalRef}>
+                <SalesRegionWise globalLayout={setGlobalStaticFragmennt} />
+              </PortalForLayout>
+            }>
             <Route
-              path="/reports/sales-kam-wise/graph-view"
+              path="/reports/sales-region-wise/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}
-                >
-                  <SalesKamWiseGraphView
+                  portalId={commonPortalRef}>
+                  <SalesRegionWiseTableView
                     globalLayout={setGlobalStaticFragmennt}
                   />
                 </PortalForLayout>

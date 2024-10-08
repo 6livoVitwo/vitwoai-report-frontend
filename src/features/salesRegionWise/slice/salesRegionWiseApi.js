@@ -15,7 +15,6 @@ export const salesRegionWiseApi = apiSlice.injectEndpoints({
         };
       },
     }),
-
     // Query to get selected columns dist wise
     getselectedDistWise: builder.query({
       query: () => {

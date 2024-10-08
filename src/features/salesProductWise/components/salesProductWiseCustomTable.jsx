@@ -35,7 +35,6 @@ import {
   Popover,
   PopoverTrigger,
   PopoverContent,
-  PopoverHeader,
   PopoverBody,
   PopoverCloseButton,
   PopoverArrow,
@@ -49,6 +48,7 @@ import {
   Badge,
   Divider,
   DrawerFooter,
+  PopoverHeader,
   Tooltip,
 } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
@@ -67,10 +67,7 @@ import { DownloadIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
-import DynamicChart from "../components/DynamicChart";
-import ChartConfiguration from "../components/ChartConfiguration";
 import { useSelector } from "react-redux";
-import { chartsData } from "../data/fakeData";
 import { Calendar } from "primereact/calendar";
 import { FiPlus, FiSettings } from "react-icons/fi";
 import NewMyCharts from "../../dashboardNew/nivo/NewMyCharts";
@@ -79,6 +76,12 @@ import { useGetSelectedColumnsQuery } from "../slice/salesProductWiseApi";
 import { useProductWiseSalesQuery } from "../slice/salesProductWiseApi";
 import { useGetGlobalsearchProductQuery } from "../slice/salesProductWiseApi";
 import { all } from "axios";
+import DynamicChart from "../../nivoGraphs/chartConfigurations/DynamicChart";
+import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfiguration";
+import { chartsData } from "../../nivoGraphs/data/fakeData";
+import { useDispatch } from "react-redux";
+import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
+import { MdFullscreen } from "react-icons/md";
 
 const CustomTable = ({
   setPage,
@@ -87,7 +90,6 @@ const CustomTable = ({
   filters,
   setFilters,
 }) => {
-  console.log("imran🔴", { newArray });
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
@@ -129,6 +131,9 @@ const CustomTable = ({
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
   };
+  const parseDate = (dateString) => {
+    return new Date(Date.parse(dateString));
+  };
 
   //......Advanced Filtering....
   const { data: productDataFilter, refetch } = useProductWiseSalesQuery(
@@ -162,6 +167,7 @@ const CustomTable = ({
   const { data: searchData } = useGetGlobalsearchProductQuery(filters, {
     skip: !searchQuery,
   });
+  const dispatch = useDispatch();
 
   const toast = useToast();
   const tableContainerRef = useRef(null);
@@ -258,27 +264,26 @@ const CustomTable = ({
   const loadMoreData = async () => {
     if (!loading) {
       setLoading(true);
-  
+
       // Fetch or generate new data (assuming newArray contains new data)
-      const moreData = [...newArray]; 
-  
+      const moreData = [...newArray];
+
       setData((prevData) => {
         // Ensure new data is unique and not duplicated
         const uniqueData = [...new Set([...prevData, ...moreData])];
         return uniqueData;
       });
-  
+
       // Ensure selected columns stay the same after loading more data
       const storedColumns = JSON.parse(localStorage.getItem("selectedColumns"));
       if (storedColumns) {
         setSelectedColumns(storedColumns); // Keep selected columns from localStorage
       }
-  
+
       setPage((prevPage) => prevPage + 1);
       setLoading(false);
     }
   };
-  
 
   useEffect(() => {
     const initialColumns = getColumns(data)
@@ -324,23 +329,23 @@ const CustomTable = ({
     );
   };
 
-    const handleSelectAllToggle = () => {
-      if (selectAll) {
-          setSelectedColumns([]); // Deselect all columns
-      } else {
-          const allColumns = getColumns(data)
-              .concat(
-                  columnData
-                      ? Object.keys(columnData?.content[0] || {}).map((key) => ({
-                          field: key,
-                          header: key,
-                      }))
-                      : []
-              )
-              .map((column) => column.field);
-          setSelectedColumns(allColumns); // Select all columns
-      }
-      setSelectAll(!selectAll);
+  const handleSelectAllToggle = () => {
+    if (selectAll) {
+      setSelectedColumns([]); // Deselect all columns
+    } else {
+      const allColumns = getColumns(data)
+        .concat(
+          columnData
+            ? Object.keys(columnData?.content[0] || {}).map((key) => ({
+                field: key,
+                header: key,
+              }))
+            : []
+        )
+        .map((column) => column.field);
+      setSelectedColumns(allColumns); // Select all columns
+    }
+    setSelectAll(!selectAll);
   };
   const handleModalClose = () => {
     setSelectedColumns(defaultColumns);
@@ -385,7 +390,6 @@ const CustomTable = ({
     setFilters(updatedFilters);
     setSearchQuery(inputValue);
   };
-
 
   const clearAllFilters = () => {
     setSearchQuery("");
@@ -505,6 +509,14 @@ const CustomTable = ({
         if (a[sortColumn] < b[sortColumn]) return sortOrder === "asc" ? -1 : 1;
         if (a[sortColumn] > b[sortColumn]) return sortOrder === "asc" ? 1 : -1;
         return 0;
+      });
+    }
+
+    if (startDate && endDate) {
+      filteredData = filteredData.filter((item) => {
+        const rawDate = item["Invoice Date"];
+        const date = parseDate(rawDate);
+        return date >= startDate && date <= endDate;
       });
     }
 
@@ -708,10 +720,10 @@ const CustomTable = ({
   };
   const handleClick = useCallback(() => {
     if (activeFilterColumn) {
-      const columnType = activeFilterColumn; 
+      const columnType = activeFilterColumn;
       if (columnType.includes("SUM(")) {
         handleApplyFilters();
-        return; 
+        return;
       }
       handleApplyFiltersSUM();
       setFilters((prevFilters) => ({
@@ -772,9 +784,10 @@ const CustomTable = ({
     setConfigureChart(filterData);
   };
 
-  console.log(newArray, "newArray");
-  console.log(selectedColumns, "selectedColumns");
-  console.log(filteredItems, "filteredItems");
+  const handleGraphAddDrawer = () => {
+    onOpenGraphSettingDrawer();
+    dispatch(handleGraphWise("sales-product-wise"));
+  };
 
   return (
     <Box bg="white" padding="0px 10px" borderRadius="5px">
@@ -1057,8 +1070,6 @@ const CustomTable = ({
                         alignItems="center"
                       >
                         <Calendar
-                          // value={startDate}
-                          // onChange={(e) => setStartDate(e.value)}
                           placeholder="Start Date"
                           style={{
                             width: "150px",
@@ -1067,8 +1078,6 @@ const CustomTable = ({
                         />
                         <Text>to</Text>
                         <Calendar
-                          // value={endDate}
-                          // onChange={(e) => setEndDate(e.value)}
                           placeholder="End Date"
                           style={{
                             width: "150px",
@@ -1439,7 +1448,7 @@ const CustomTable = ({
       >
         <DrawerOverlay />
         <DrawerContent maxW="88vw">
-          <DrawerCloseButton />
+          <DrawerCloseButton style={{ color: "white" }} />
           <DrawerHeader
             style={{
               backgroundColor: "#003060",
@@ -1473,7 +1482,7 @@ const CustomTable = ({
                 ref={btnRef}
                 type="button"
                 variant="outlined"
-                onClick={onOpenGraphSettingDrawer}
+                onClick={handleGraphAddDrawer}
                 sx={{
                   display: "flex",
                   alignItems: "center",
@@ -1583,13 +1592,13 @@ const CustomTable = ({
                               mr={3}
                               onClick={() => handleView(chart)}
                             >
-                              <FiSettings style={{ marginRight: "6px" }} /> View
-                              Graph
+                              <MdFullscreen style={{ marginRight: "6px" }} />{" "}
+                              Full Screen
                             </Button>
                           </Box>
                         </Box>
                         <Box sx={{ height: "300px" }}>
-                          <NewMyCharts chart={chart} />
+                          <DynamicChart chart={chart} />
                         </Box>
                       </Box>
                     </Box>
@@ -1604,7 +1613,7 @@ const CustomTable = ({
               finalFocusRef={btnRef}
             >
               <DrawerOverlay />
-              <DrawerContent maxW="85vw">
+              <DrawerContent maxW="87vw">
                 <DrawerCloseButton style={{ color: "white" }} />
                 <DrawerHeader
                   style={{
@@ -1614,7 +1623,6 @@ const CustomTable = ({
                 >
                   Choose Data Wise Graph
                 </DrawerHeader>
-
                 <DrawerBody>
                   <Box
                     sx={{
@@ -1627,7 +1635,14 @@ const CustomTable = ({
                       flexGrow: 1,
                     }}
                   >
-                    Total Graph ({chartsData.charts.length})
+                    Total Graph (
+                    {
+                      chartsData.charts.filter(
+                        (chart) =>
+                          chart.type !== "funnel" && chart.type !== "heatmap"
+                      ).length
+                    }
+                    )
                   </Box>
                   <Box
                     display="flex"
@@ -1635,7 +1650,8 @@ const CustomTable = ({
                     justifyContent="space-between"
                   >
                     {chartsData.charts.map((chart, index) => {
-                      console.log("All Chart List", chart);
+                      if (chart.type === "funnel" || chart.type === "heatmap")
+                        return null;
                       return (
                         <Box
                           key={index}
@@ -1693,7 +1709,7 @@ const CustomTable = ({
                                     mr: "6px",
                                   }}
                                 />
-                                Configure
+                                Select
                               </Button>
                             </Box>
                             <Box
@@ -1712,7 +1728,6 @@ const CustomTable = ({
                             >
                               {chart.title}
                             </Badge>
-                            <Text fontSize={8}>{chart.chartName}</Text>
                           </Box>
                         </Box>
                       );
@@ -1724,9 +1739,10 @@ const CustomTable = ({
                     size="md"
                     isOpen={isOpenGraphSettingsModal}
                     onClose={onCloseGraphSettingsModal}
+                    finalFocusRef={btnRef}
                   >
                     <DrawerOverlay />
-                    <DrawerContent maxW="82vw">
+                    <DrawerContent maxW="86vw">
                       <DrawerCloseButton color="white" size="lg" mt="8px" />
                       <DrawerHeader
                         color="white"
@@ -1909,6 +1925,8 @@ const CustomTable = ({
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      <Box></Box>
     </Box>
   );
 };

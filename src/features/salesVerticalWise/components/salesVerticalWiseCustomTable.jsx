@@ -97,7 +97,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     isOpen: isOpenGraphSettingDrawer,
   } = useDisclosure();
   const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
-
   console.log(salesCustomerWise, "salesCustomerWise1");
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
@@ -493,10 +492,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     setConfigureChart(filterData);
   };
 
-  console.log(newArray, "newArray");
-  console.log(selectedColumns, "selectedColumns");
-  console.log(filteredItems, "filteredItems");
-
   const formatHeader = (header) => {
     header = header.trim();
     const parts = header.split(".");
@@ -642,11 +637,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
       );
     });
   };
-
-  // console.log(data, 'data');
-  console.log(newArray, "newArray");
-  console.log(selectedColumns, "selectedColumns");
-  console.log(filteredItems, "filteredItems");
 
   return (
     <Box bg="white" padding="0px 10px" borderRadius="5px">
@@ -1470,7 +1460,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
             </Box>
             <Box display="flex" flexWrap="wrap" justifyContent="space-between">
               {chartsData.charts.map((chart, index) => {
-                console.log("All Chart List", chart);
                 return (
                   <Box
                     key={index}

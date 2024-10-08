@@ -130,40 +130,47 @@ const SalesCustomerWiseTableView = () => {
       setToastShown(true); // Mark the toast as shown
     }
   }, [sales, page, toast, toastShown]);
-
-  if (isLoading) {
-    return (
-      <Box
-        height="calc(100vh - 75px)"
-        width="100%"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Spinner
-          thickness="4px"
-          speed="0.65s"
-          emptyColor="gray.200"
-          color="blue.500"
-          size="xl"
-        />
-      </Box>
-    );
-  }
-  if (error) {
-    return (
-      <Box
-        bg="white"
-        width="100%"
-        height="calc(100vh - 103px)"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Image src={NoDataFound} alt="No Data Available" />
-      </Box>
-    );
-  }
+	if (isLoading) {
+		return (
+			<Box
+				height='calc(100vh - 75px)'
+				width='100%'
+				display='flex'
+				alignItems='center'
+				justifyContent='center'>
+				<Spinner
+					thickness='4px'
+					speed='0.65s'
+					emptyColor='gray.200'
+					color='blue.500'
+					size='xl'
+				/>
+			</Box>
+		);
+	}
+	if (error) {
+		return (
+			<Box
+				bg='white'
+				width='100%'
+				height='calc(100vh - 103px)'
+				display='flex'
+				alignItems='center'
+				justifyContent='center'>
+				<Image src={NoDataFound} alt='No Data Available' />
+			</Box>
+		);
+	}
+	if (sales?.
+		totalPages < page) {
+		toast({
+			title: 'No More Data',
+			description: 'You have reached the end of the list.',
+			status: 'warning',
+			isClosable: true,
+			duration: 800, //(5000 ms = 5 seconds)
+		})
+	}
 
   const newArray = individualItems.map((data, index) =>
     extractFields(data, index)

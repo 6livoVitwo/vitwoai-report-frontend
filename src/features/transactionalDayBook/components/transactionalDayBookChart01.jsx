@@ -58,7 +58,6 @@ const TransactionalDayBookChart01 = ({ chartView = {} }) => {
 			<Legend />
 			{
 				checkedKeys.map((key) => {
-					console.log('key =>', key)
 					return (
 						<Bar dataKey={key} key={key} fill={`${lightColorCode()}`} />
 					)
@@ -95,7 +94,6 @@ const TransactionalDayBookChart01 = ({ chartView = {} }) => {
 			<Stack spacing={[1, 5]} direction={['column', 'row']} mt={5}>
 				{
 					customerKey.map((key, index) => {
-						console.log('chedckbox', key)
 						return (
 							<Checkbox
 								key={index}

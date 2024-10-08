@@ -32,7 +32,6 @@ const PurchaseProductWiseTableView = () => {
    );
 
   const toast = useToast();
-
   const {
     data: sales,
     isLoading,

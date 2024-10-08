@@ -12,8 +12,6 @@ const TransactionalDayBookChart = ({
 		type: "xy",
 	}
 }) => {
-	console.log('chartView🕴️', chartView);
-	console.log('chartData🕴️', chartView?.chartData);
 	const [data, setData] = useState([
 		{
 			country: 'IMRAN',
@@ -61,9 +59,6 @@ const TransactionalDayBookChart = ({
 		},
 	]);
 	const chartData = chartView?.chartData || data;
-
-	console.log('chartData 🥶🥶', chartData);
-	console.log('data 👀👀', data);
 
 	useEffect(() => {
 		am5.ready(function () {

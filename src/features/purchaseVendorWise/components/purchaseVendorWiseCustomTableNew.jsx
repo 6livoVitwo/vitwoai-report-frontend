@@ -53,9 +53,6 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 
-
-const log = console.log;
-
 const CustomTable = ({ setPage, newArray, alignment }) => {
 	const [data, setData] = useState([...newArray]);
 	const [loading, setLoading] = useState(false);
@@ -376,11 +373,6 @@ const CustomTable = ({ setPage, newArray, alignment }) => {
 			);
 		});
 	};
-
-	// console.log(data, 'data');
-	console.log(newArray, 'newArray');
-	console.log(selectedColumns, 'selectedColumns');
-	console.log(filteredItems, 'filteredItems');
 
 	return (
 		<Box bg='white' padding='0px 10px' borderRadius='5px'>

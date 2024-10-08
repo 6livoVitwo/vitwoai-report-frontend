@@ -2,337 +2,122 @@ import { Box, Drawer, DrawerBody, DrawerContent, DrawerHeader, DrawerOverlay, St
 import { ResponsiveAreaBump } from '@nivo/bump'
 import React, { useEffect, useState } from 'react'
 import { format, eachDayOfInterval, parseISO } from 'date-fns';
-
-// const tempData = [
-//   {
-//     "id": "Engin Oil",
-//     "data": [
-//       {
-//         "x": '2024-09-01',
-//         "y": 1
-//       },
-//       {
-//         "x": '2024-09-02',
-//         "y": 2
-//       },
-//       {
-//         "x": '2024-09-03',
-//         "y": 1
-//       },
-//       {
-//         "x": '2024-09-04',
-//         "y": 2
-//       },
-//       {
-//         "x": '2024-09-05',
-//         "y": 3
-//       },
-//       {
-//         "x": '2024-09-06',
-//         "y": 2
-//       }
-//     ]
-//   },
-//   {
-//     "id": "Gear Oil",
-//     "data": [
-//       {
-//         "x": '2024-09-01',
-//         "y": 2
-//       },
-//       {
-//         "x": '2024-09-02',
-//         "y": 2
-//       },
-//       {
-//         "x": '2024-09-06',
-//         "y": 1
-//       }
-//     ]
-//   },
-//   {
-//     "id": "Tier",
-//     "data": [
-//       {
-//         "x": '2024-09-01',
-//         "y": 1
-//       },
-//       {
-//         "x": '2024-09-04',
-//         "y": 2
-//       },
-//       {
-//         "x": '2024-09-06',
-//         "y": 1
-//       }
-//     ]
-//   },
-//   {
-//     "id": "Fork Oil",
-//     "data": [
-//       {
-//         "x": '2024-09-01',
-//         "y": 1
-//       },
-//       {
-//         "x": '2024-09-06',
-//         "y": 2
-//       }
-//     ]
-//   },
-//   {
-//     "id": "Chain Oil",
-//     "data": [
-//       {
-//         "x": '2024-09-01',
-//         "y": 1
-//       },
-//       {
-//         "x": '2024-09-06',
-//         "y": 2
-//       }
-//     ]
-//   }
-// ]
+import { ResponsiveHeatMap } from '@nivo/heatmap';
+import { ResponsivePie } from '@nivo/pie';
 
 const tempData = [
   {
-    "id": "Lehenga - Karpasa",
-    "data": [
-      {
-        "x": "2021",
-        "y": 99880.0
-      },
-      {
-        "x": "2022",
-        "y": 0
-      },
-      {
-        "x": "2023",
-        "y": 0
-      },
-      {
-        "x": "2024",
-        "y": 81880.0
-      }
-    ]
+    "id": "stylus",
+    "label": "stylus",
+    "value": 427,
+    "color": "hsl(359, 70%, 50%)"
   },
   {
-    "id": "Chandrani Perls 22X50",
-    "data": [
-      {
-        "x": "2021",
-        "y": 0
-      },
-      {
-        "x": "2022",
-        "y": 91880.0
-      },
-      {
-        "x": "2023",
-        "y": 482
-      },
-      {
-        "x": "2024",
-        "y": 0
-      }
-    ]
+    "id": "lisp",
+    "label": "lisp",
+    "value": 130,
+    "color": "hsl(69, 70%, 50%)"
   },
   {
-    "id": "County Bluetooth Speaker with Built-in FM Radio - Black",
-    "data": [
-      {
-        "x": "2021",
-        "y": 99880.0
-      },
-      {
-        "x": "2022",
-        "y": 91880.0
-      },
-      {
-        "x": "2023",
-        "y": 0
-      },
-      {
-        "x": "2024",
-        "y": 81880.0
-      }
-    ]
+    "id": "make",
+    "label": "make",
+    "value": 172,
+    "color": "hsl(10, 70%, 50%)"
   },
   {
-    "id": "Portable Music Player with 5000 Preloaded Songs",
-    "data": [
-      {
-        "x": "2021",
-        "y": 99880.0
-      },
-      {
-        "x": "2022",
-        "y": 91880.0
-      },
-      {
-        "x": "2023",
-        "y": 0
-      },
-      {
-        "x": "2024",
-        "y": 81880.0
-      }
-    ]
+    "id": "java",
+    "label": "java",
+    "value": 431,
+    "color": "hsl(2, 70%, 50%)"
   },
   {
-    "id": "Walki Talki 500M Range",
-    "data": [
-      {
-        "x": "2021",
-        "y": 99880.0
-      },
-      {
-        "x": "2022",
-        "y": 91880.0
-      },
-      {
-        "x": "2023",
-        "y": 0
-      },
-      {
-        "x": "2024",
-        "y": 81880.0
-      }
-    ]
-  },
-  {
-    "id": "Radio Servicing   /",
-    "data": [
-      {
-        "x": "2021",
-        "y": 99880.0
-      },
-      {
-        "x": "2022",
-        "y": 91880.0
-      },
-      {
-        "x": "2023",
-        "y": 0
-      },
-      {
-        "x": "2024",
-        "y": 81880.0
-      }
-    ]
-  },
-  {
-    "id": "Keyboard - MWP Sample",
-    "data": [
-      {
-        "x": "2021",
-        "y": 99880.0
-      },
-      {
-        "x": "2022",
-        "y": 91880.0
-      },
-      {
-        "x": "2023",
-        "y": 0
-      },
-      {
-        "x": "2024",
-        "y": 81880.0
-      }
-    ]
-  },
-  {
-    "id": "Carvaan Mobile Don Lite M23 Kannada - Classic Black (2.4)",
-    "data": [
-      {
-        "x": "2021",
-        "y": 250
-      },
-      {
-        "x": "2022",
-        "y": 91880.0
-      },
-      {
-        "x": "2023",
-        "y": 0
-      },
-      {
-        "x": "2024",
-        "y": 0
-      }
-    ]
-  },
-  {
-    "id": "service sales",
-    "data": [
-      {
-        "x": "2021",
-        "y": 99880.0
-      },
-      {
-        "x": "2022",
-        "y": 0
-      },
-      {
-        "x": "2023",
-        "y": 250
-      },
-      {
-        "x": "2024",
-        "y": 81880.0
-      }
-    ]
-  },
-  {
-    "id": "Invidia Graphics Card for Gamer 8X8 NOS",
-    "data": [
-      {
-        "x": "2021",
-        "y": 99880.0
-      },
-      {
-        "x": "2022",
-        "y": 91880.0
-      },
-      {
-        "x": "2023",
-        "y": 0
-      },
-      {
-        "x": "2024",
-        "y": 81880.0
-      }
-    ]
+    "id": "php",
+    "label": "php",
+    "value": 383,
+    "color": "hsl(145, 70%, 50%)"
   }
 ]
+
 const TestComp = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [clickedData, setClickedData] = useState({})
-  const [data, setData] = useState(tempData);
-  const [dynamicWidth, setDynamicWidth] = useState(1200);
-  const [startYear, setStartDate] = useState('2021');
-  const [endYear, setEndDate] = useState('2024');
+  const [data, setData] = useState([
+    {
+      "quotation.totalAmount": 0,
+      id: 'Service',
+      label: 'Service',
+      value:1770,
+      "all_total_amt": 1770,
+      "xaxis": "2",
+      "salesOrder.totalAmount": 0,
+      "salesPgi.totalAmount": 0,
+      "salesPgi.salesDelivery.totalAmount": 0
+    },
+    {
+      "quotation.totalAmount": 0,
+      id: 'Assets 50',
+      label: 'Assets 50',
+      value:16468.1,
+      "all_total_amt": 16468.1,
+      "xaxis": "Assets",
+      "salesOrder.totalAmount": 0,
+      "salesPgi.totalAmount": 0,
+      "salesPgi.salesDelivery.totalAmount": 0
+    },
+    {
+      "quotation.totalAmount": 0,
+      id: 'Assets 55',
+      label: 'Assets 55',
+      value:2100,
+      "all_total_amt": 2100,
+      "xaxis": "Assets55",
+      "salesOrder.totalAmount": 0,
+      "salesPgi.totalAmount": 0,
+      "salesPgi.salesDelivery.totalAmount": 0
+    }
+  ]);
 
   return (
     <>
       <div>TestComp</div>
       <div style={{ width: "95%", overflowX: "scroll", height: "500px", border: "1px solid black", padding: 30, marginBottom: 20, marginTop: 20 }}>
-        <ResponsiveAreaBump
+        <ResponsivePie
           data={data}
-          margin={{ top: 40, right: 100, bottom: 40, left: 100 }}
-          spacing={20}
-          width={dynamicWidth}
-          // onClick={(datum) => handleClicked(datum)}
-          colors={{ scheme: 'nivo' }}
-          blendMode="multiply"
+          margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
+          innerRadius={0.5}
+          padAngle={0.7}
+          cornerRadius={3}
+          activeOuterRadiusOffset={8}
+          borderWidth={1}
+          borderColor={{
+            from: 'color',
+            modifiers: [
+              [
+                'darker',
+                0.2
+              ]
+            ]
+          }}
+          arcLinkLabelsSkipAngle={10}
+          arcLinkLabelsTextColor="#333333"
+          arcLinkLabelsThickness={2}
+          arcLinkLabelsColor={{ from: 'color' }}
+          arcLabelsSkipAngle={10}
+          arcLabelsTextColor={{
+            from: 'color',
+            modifiers: [
+              [
+                'darker',
+                2
+              ]
+            ]
+          }}
           defs={[
             {
               id: 'dots',
               type: 'patternDots',
               background: 'inherit',
-              color: '#38bcb2',
+              color: 'rgba(255, 255, 255, 0.3)',
               size: 4,
               padding: 1,
               stagger: true
@@ -341,7 +126,7 @@ const TestComp = () => {
               id: 'lines',
               type: 'patternLines',
               background: 'inherit',
-              color: '#eed312',
+              color: 'rgba(255, 255, 255, 0.3)',
               rotation: -45,
               lineWidth: 6,
               spacing: 10
@@ -350,49 +135,80 @@ const TestComp = () => {
           fill={[
             {
               match: {
-                id: 'CoffeeScript'
+                id: 'ruby'
               },
               id: 'dots'
             },
             {
               match: {
-                id: 'TypeScript'
+                id: 'c'
+              },
+              id: 'dots'
+            },
+            {
+              match: {
+                id: 'go'
+              },
+              id: 'dots'
+            },
+            {
+              match: {
+                id: 'python'
+              },
+              id: 'dots'
+            },
+            {
+              match: {
+                id: 'scala'
+              },
+              id: 'lines'
+            },
+            {
+              match: {
+                id: 'lisp'
+              },
+              id: 'lines'
+            },
+            {
+              match: {
+                id: 'elixir'
+              },
+              id: 'lines'
+            },
+            {
+              match: {
+                id: 'javascript'
               },
               id: 'lines'
             }
           ]}
-          startLabel="id"
-          endLabel="id"
-          axisTop={{
-            tickSize: 5,
-            tickPadding: 5,
-            tickRotation: 0,
-            legend: '',
-            legendPosition: 'middle',
-            legendOffset: -36,
-            truncateTickAt: 0
-          }}
-          axisBottom={{
-            tickSize: 5,
-            tickPadding: 5,
-            tickRotation: 0,
-            legend: '',
-            legendPosition: 'middle',
-            legendOffset: 32,
-            truncateTickAt: 0
-          }}
+          legends={[
+            {
+              anchor: 'bottom',
+              direction: 'row',
+              justify: false,
+              translateX: 0,
+              translateY: 56,
+              itemsSpacing: 0,
+              itemWidth: 100,
+              itemHeight: 18,
+              itemTextColor: '#999',
+              itemDirection: 'left-to-right',
+              itemOpacity: 1,
+              symbolSize: 18,
+              symbolShape: 'circle',
+              effects: [
+                {
+                  on: 'hover',
+                  style: {
+                    itemTextColor: '#000'
+                  }
+                }
+              ]
+            }
+          ]}
         />
       </div>
-      {/* <Box sx={{ display: 'flex' }}>
-        <Stack spacing={4} width={320} bg={'yellow.300'} p={4}>
-          <Text>From Date</Text>
-          <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-        </Stack>
-        <Stack spacing={4} width={320} bg={'yellow.300'} p={4}>
-          <Text>To Date</Text>
-          <input type="date" value={endDate} onChange={(e) => handleToDate(e.target.value)} />
-        </Stack>
-      </Box> */}
       <Drawer placement="right" onClose={onClose} isOpen={isOpen} size='lg'>
         <DrawerOverlay />
         <DrawerContent>

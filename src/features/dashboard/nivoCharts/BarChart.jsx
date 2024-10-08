@@ -80,8 +80,6 @@ const BarChart = ({ variant = 'grouped-vertical' }) => {
 		fetchBarData();
 	}, [ barBody ]);
 
-	console.log({ barData });
-
 	const dataKeys = Object.keys(barData[0] || {});
 	const keysCommaSeparated = dataKeys.join(',');
 	// exclude xaxis key
@@ -113,9 +111,6 @@ const BarChart = ({ variant = 'grouped-vertical' }) => {
 	}
 
 	const handleDateFilter = () => {
-		console.log('handleDateFilter');
-		console.log({ formDate, toDate });
-
 		setBarBody({
 			...barBody,
 			"filter": [

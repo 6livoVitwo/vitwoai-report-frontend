@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-// Initial state with example widgets
 const initialState = {
   widgets: [],
 };

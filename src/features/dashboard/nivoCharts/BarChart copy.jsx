@@ -71,19 +71,7 @@ const BarChart = ({ data = barChartData, variant = 'grouped-vertical' }) => {
 		fetchBarData();
 	}, []);
 
-	console.log({ barData })
-
 	const { content: apiData } = barData;
-	console.log({ apiData })
-
-	// const dataKeys = Object.keys(apiData[0]);
-	// console.log({ dataKeys })
-  
-	
-	// separate by comma
-	// const keys = dataKeys.join(',');
-	// console.log({ keys })
-
 
 	let groupMode = 'grouped';
 	let layout = 'vertical';

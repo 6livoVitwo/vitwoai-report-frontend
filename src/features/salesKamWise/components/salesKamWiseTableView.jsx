@@ -51,11 +51,8 @@ const SalesKamWiseTableView = () => {
     size,
     authDetails: authData.authDetails,
   });
-
   const pageInfo = sales?.lastPage;
-
   const tableContainerRef = useRef(null);
-
   const flattenObject = (obj, prefix = "") => {
     let result = {};
     for (let key in obj) {
@@ -76,7 +73,6 @@ const SalesKamWiseTableView = () => {
     }
     return result;
   };
-
   const extractFields = (data, index) => ({
     "SL No": index + 1,
    "kam.kamName": data["kam.kamName"],
@@ -164,8 +160,6 @@ const SalesKamWiseTableView = () => {
   const newArray = individualItems.map((data, index) =>
     extractFields(data, index)
   );
-  // console.log(sales, 'main data');
-  // console.log(newArray, 'newArray');
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
       {individualItems.length > 0 && (

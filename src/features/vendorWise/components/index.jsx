@@ -3,7 +3,6 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 
 const VendorWise = () => {
-	console.log('VendorWise');
 	return (
 		<Box>
 			<Outlet />

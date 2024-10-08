@@ -190,8 +190,6 @@ const SalesSoWiseTableView = () => {
   const newArray = individualItems.map((data, index) =>
     extractFields(data, index)
   );
-  // console.log(sales, 'main data');
-  // console.log(newArray, 'newArray');
 
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
