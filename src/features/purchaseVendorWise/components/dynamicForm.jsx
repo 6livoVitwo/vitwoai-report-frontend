@@ -19,7 +19,6 @@ const DynamicForm = ({ schema = [] }) => {
 
 	const handleSubmit = (event) => {
 		event.preventDefault();
-		console.log('Form product data:', formData);
 	};
 
 	return (

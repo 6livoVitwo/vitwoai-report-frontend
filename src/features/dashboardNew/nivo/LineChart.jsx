@@ -6,7 +6,6 @@ import { getAllDates } from "../../nivoGraphs/graphUtils/common";
 
 const LineChart = ({ liveData = [], startDate = "", endDate = "", dynamicWidth = 1200, inputType = "" }) => {
   const [data, setData] = useState([]);
-  console.log('imran', {liveData})
   const allDates = getAllDates(inputType, startDate, endDate);
 
   useEffect(() => {
@@ -52,11 +51,7 @@ const LineChart = ({ liveData = [], startDate = "", endDate = "", dynamicWidth =
     if (JSON.stringify(updatedData) !== JSON.stringify(data)) {
       setData(updatedData);
     }
-    console.log('Updated Data in the useeffect 🍃:', updatedData);
-    console.log('liveData in the useeffect 🍃:', liveData);
-
-  }, [startDate, endDate, dynamicWidth, liveData, inputType]);
-  console.log('filter data', JSON.stringify(data))
+  }, [startDate, endDate, dynamicWidth, liveData, inputType]);  
 
   return (
     <>

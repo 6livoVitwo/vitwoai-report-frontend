@@ -47,7 +47,7 @@ export const setDateRange = (data) => {
     }
 }
 
-export const createBodyWise = (data, startDate, endDate, selectData, type = "") => {
+export const createBodyWise = (data, startDate, endDate, selectData, type = "", yaxisData="") => {
     if (data === 'month') {
         return {
             "priceOrQty": `${selectData}`,
@@ -67,13 +67,7 @@ export const createBodyWise = (data, startDate, endDate, selectData, type = "") 
             return {
                 "priceOrQty": `${selectData}`,
             }
-        }
-        return {
-            "priceOrQty": `${selectData}`,
-            "dateString": `${startDate} to ${endDate}`,
-        }
-    } else {
-        if (type === "bar") {
+        } else if (type === "bar") {
             return {
                 xaxis: "items.itemName",
                 yaxis: [
@@ -93,6 +87,31 @@ export const createBodyWise = (data, startDate, endDate, selectData, type = "") 
                         value: [startDate, endDate],
                     },
                 ],
+            }
+        } else if (type === "pie") {
+            return {
+                xaxis: "items.itemName",
+                yaxis: [`${yaxisData}`],
+                groupBy: ["items.itemName"],
+                valuetype: `${selectData}`,
+                filter: [
+                    {
+                        column: "invoice_date",
+                        operator: "between",
+                        type: "date",
+                        value: [startDate, endDate],
+                    },
+                ],
+            }
+        }
+        return {
+            "priceOrQty": `${selectData}`,
+            "dateString": `${startDate} to ${endDate}`,
+        }
+    } else {
+        if (type === "heatmap") {
+            return {
+                "priceOrQty": `${selectData}`,
             }
         }
     }
@@ -129,11 +148,6 @@ export const updateBodyWise = (inputType, startDate, endDate, bodyWise, type = "
             "yearTo": endDate,
         };
     } else if (inputType === 'date') {
-        return {
-            ...bodyWise,
-            dateString: `${startDate} to ${endDate}`,
-        };
-    } else {
         if (type === "bar") {
             return {
                 ...bodyWise,
@@ -147,6 +161,10 @@ export const updateBodyWise = (inputType, startDate, endDate, bodyWise, type = "
                 ],
             }
         }
+        return {
+            ...bodyWise,
+            dateString: `${startDate} to ${endDate}`,
+        };
     }
 };
 

@@ -1,10 +1,10 @@
 import FunnelChart from "../../dashboardNew/nivo/FunnelChart";
-import NivoPieChart from "../../dashboardNew/nivo/PieChart";
 import AreaBump from "../nivo/AreaBump";
 import Bar from "../nivo/Bar";
 import Bump from "../nivo/Bump";
 import HeatMap from "../nivo/HeatMap";
 import Line from "../nivo/Line";
+import Pie from "../nivo/Pie";
 
 const DynamicChart = ({ chart = {} }) => {
   const { type, data } = chart;
@@ -15,7 +15,7 @@ const DynamicChart = ({ chart = {} }) => {
   } else if (type === "areaBump") {
     chartData = <AreaBump data={data} />;
   } else if (type === "pie") {
-    chartData = <NivoPieChart data={data} />;
+    chartData = <Pie data={data} />;
   } else if (type === "line") {
     chartData = <Line data={data} />;
   } else if (type === "bump") {

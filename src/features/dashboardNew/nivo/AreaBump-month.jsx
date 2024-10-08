@@ -11,7 +11,6 @@ const AreaBump = ({ liveData = [], startDate="", endDate="", dynamicWidth=1200 }
   const endYear = (split(endDate, '-')[0] || '2024');
   const endMonth = (split(endDate, '-')[1] || '12');
   
-  console.log({startYear, startMonth, endYear, endMonth})
   
   const allDates = eachMonthOfInterval({
     start: new Date(startYear, startMonth - 1),
@@ -23,11 +22,8 @@ const AreaBump = ({ liveData = [], startDate="", endDate="", dynamicWidth=1200 }
     let maxCount = 0; 
     const updatedData = liveData?.map((d, i) => {
       const currentDates = d.data.map(item => item.x); // Extract the current dates in the dataset
-      console.log({currentDates})
-      // Find the maximum count of dates in the current data
+      
       maxCount = Math.max(maxCount, currentDates.length);
-      console.log({maxCount})
-      // Create placeholders for missing dates
       const placeholders = allDates
         .filter(date => !currentDates.includes(format(date, 'MM-yyyy')))
         .map(missingDate => ({
@@ -50,13 +46,9 @@ const AreaBump = ({ liveData = [], startDate="", endDate="", dynamicWidth=1200 }
     if (JSON.stringify(updatedData) !== JSON.stringify(data)) {
       setData(updatedData);
     }
-    console.log('Updated Data in the useeffect 🍃:', updatedData);
-    console.log('liveData in the useeffect 🍃:', liveData);
 
   }, [startDate, endDate, dynamicWidth, liveData]);
 
-  console.log('🫓',{liveData})
-  console.log('🫓',{data})
   return (
     <>
       {liveData.length > 0 ? (

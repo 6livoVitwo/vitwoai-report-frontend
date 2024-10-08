@@ -2,83 +2,135 @@ import { ResponsiveBar } from '@nivo/bar';
 import React from 'react';
 import { barChartData } from '../data/chartData';
 
-const Bar = ({ data = barChartData, variant = 'grouped-vertical' }) => {
-console.log('🔴', {data})
+const Bar = ({ data = barChartData, dynamicWidth }) => {
   const dataKeys = Object.keys(data[0] || {});
   const keysCommaSeparated = dataKeys.join(',');
   const keys = keysCommaSeparated.split(',').filter(key => key !== 'xaxis');
-
-  let groupMode = 'stacked';
-  let layout = 'vertical';
-  if (variant === 'grouped-horizontal') {
-    groupMode = 'grouped';
-    layout = 'horizontal';
-  } else if (variant === 'grouped-vertical') {
-    groupMode = 'grouped';
-    layout = 'vertical';
-  } else if (variant === 'stacked-horizontal') {
-    groupMode = 'stacked';
-    layout = 'horizontal';
-  } else if (variant === 'stacked-vertical') {
-    groupMode = 'stacked';
-    layout = 'vertical';
-  }
 
   return (
     <>
       <ResponsiveBar
         data={data}
-        keys={keys}
-        width={2000}
-        indexBy="xaxis"
+        // {...(dynamicWidth > 0 && { height: 600 })}
+        {...(dynamicWidth > 0 && { width: 3500 })}
+        {...(dynamicWidth > 0 ? { keys: keys } : {
+          keys: [
+            'hot dog',
+            'burger',
+            'sandwich',
+            'kebab',
+            'fries',
+            'donut'
+          ]
+        })}
+        {...(dynamicWidth > 0 ? { indexBy: 'xaxis' } : { indexBy: 'country' })}
         margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
         padding={0.3}
-        groupMode={groupMode}
-        layout={layout}
-        indexScale={{ type: "band", round: true }}
-        colors={{ scheme: "nivo" }}
+        groupMode="grouped"
+        valueScale={{ type: 'linear' }}
+        indexScale={{ type: 'band', round: true }}
+        colors={{ scheme: 'nivo' }}
+        defs={[
+          {
+            id: 'dots',
+            type: 'patternDots',
+            background: 'inherit',
+            color: '#38bcb2',
+            size: 4,
+            padding: 1,
+            stagger: true
+          },
+          {
+            id: 'lines',
+            type: 'patternLines',
+            background: 'inherit',
+            color: '#eed312',
+            rotation: -45,
+            lineWidth: 6,
+            spacing: 10
+          }
+        ]}
+        fill={[
+          {
+            match: {
+              id: 'fries'
+            },
+            id: 'dots'
+          },
+          {
+            match: {
+              id: 'sandwich'
+            },
+            id: 'lines'
+          }
+        ]}
         borderColor={{
-          from: "color",
-          modifiers: [["darker", 1.6]],
+          from: 'color',
+          modifiers: [
+            [
+              'darker',
+              1.6
+            ]
+          ]
         }}
         axisTop={null}
         axisRight={null}
+        axisBottom={{
+          tickSize: 5,
+          tickPadding: 5,
+          tickRotation: 0,
+          legend: dynamicWidth > 0 ? 'xaxis' : 'country',
+          legendPosition: 'middle',
+          legendOffset: 32,
+          truncateTickAt: 0
+        }}
+        axisLeft={{
+          tickSize: 5,
+          tickPadding: 5,
+          tickRotation: 0,
+          legend: 'food',
+          legendPosition: 'middle',
+          legendOffset: -40,
+          truncateTickAt: 0
+        }}
         labelSkipWidth={12}
         labelSkipHeight={12}
         labelTextColor={{
-          from: "color",
-          modifiers: [["darker", 1.6]],
+          from: 'color',
+          modifiers: [
+            [
+              'darker',
+              1.6
+            ]
+          ]
         }}
         legends={[
           {
-            dataFrom: "keys",
-            anchor: "bottom-right",
-            direction: "column",
+            dataFrom: 'keys',
+            anchor: 'bottom-right',
+            direction: 'column',
             justify: false,
             translateX: 120,
             translateY: 0,
             itemsSpacing: 2,
             itemWidth: 100,
             itemHeight: 20,
-            itemDirection: "left-to-right",
+            itemDirection: 'left-to-right',
             itemOpacity: 0.85,
             symbolSize: 20,
             effects: [
               {
-                on: "hover",
+                on: 'hover',
                 style: {
-                  itemOpacity: 1,
-                },
-              },
-            ],
-          },
+                  itemOpacity: 1
+                }
+              }
+            ]
+          }
         ]}
-        onClick={(e) => alert(JSON.stringify(e, null, 2))}
         role="application"
         ariaLabel="Nivo bar chart demo"
-        barAriaLabel={(e) =>
-          e.id + ": " + e.formattedValue + " in xaxis: " + e.indexValue
-        }
+        barAriaLabel={e => e.id + ": " + e.formattedValue + ` in ${dynamicWidth > 0 ? 'xaxis' : 'country'}: ` + e.indexValue}
       />
     </>
   );

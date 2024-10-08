@@ -3,7 +3,7 @@ import { format, parse } from 'date-fns';
 import { getAllDates } from "../graphUtils/common";
 import AreaBump from "../nivo/AreaBump";
 
-const AreaBumpChart = ({ liveData = [], startDate = "", endDate = "", dynamicWidth = 1200, inputType = "" }) => {
+const AreaBumpChart = ({ liveData = [], startDate = "", endDate = "", dynamicWidth = 1200, inputType = "" }) => {  
   const [data, setData] = useState([]);
 
   const allDates = getAllDates(inputType, startDate, endDate);

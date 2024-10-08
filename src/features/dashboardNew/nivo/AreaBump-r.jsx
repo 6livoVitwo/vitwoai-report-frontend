@@ -31,12 +31,9 @@ const AreaBump = ({ liveData = [], startDate = "", endDate = "", dynamicWidth = 
     // Generate all dates within the given range    
     let maxCount = 0;
     const updatedData = liveData?.map((d, i) => {
-      const currentDates = d.data.map(item => item.x); // Extract the current dates in the dataset
-      console.log({ currentDates })
+      const currentDates = d.data.map(item => item.x); // Extract the current dates in the dataset      
       // Find the maximum count of dates in the current data
-      maxCount = Math.max(maxCount, currentDates.length);
-      console.log({ maxCount })
-
+      maxCount = Math.max(maxCount, currentDates.length);      
       // Create placeholders for missing dates
       const monthPlaceholders = allDates
         .filter(date => !currentDates.includes(format(date, 'MM-yyyy')))
@@ -67,13 +64,9 @@ const AreaBump = ({ liveData = [], startDate = "", endDate = "", dynamicWidth = 
     if (JSON.stringify(updatedData) !== JSON.stringify(data)) {
       setData(updatedData);
     }
-    console.log('Updated Data in the useeffect 🍃:', updatedData);
-    console.log('liveData in the useeffect 🍃:', liveData);
 
   }, [startDate, endDate, dynamicWidth, liveData]);
 
-  console.log('🫓', { liveData })
-  console.log('🫓', { data })
   return (
     <>
       {liveData.length > 0 ? (

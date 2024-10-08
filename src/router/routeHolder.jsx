@@ -124,7 +124,6 @@ const AllRoutes = () => {
 
         setGlobalStaticFragmennt(true);
         nevigate("/");
-        console.log("Token stored successfully.");
       } else {
         console.log(
           "Sorry, your browser does not support Web Storage. Token cannot be stored."

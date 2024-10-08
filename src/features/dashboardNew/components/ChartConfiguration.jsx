@@ -450,10 +450,6 @@ const ChartConfiguration = ({ ...props }) => {
     }
   };
 
-
-  // console.log('imran7711')
-  // console.log(JSON.stringify(chartDataApi, null, 2))
-
   return (
     <>
       <Box
