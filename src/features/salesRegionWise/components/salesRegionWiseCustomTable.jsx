@@ -60,13 +60,19 @@ import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
+import { useRegionWiseSalesQuery } from "../slice/salesRegionWiseApi";
+import { useGetselectedDistWiseQuery } from "../slice/salesRegionWiseApi";
+import { useGetselectedCityWiseQuery } from "../slice/salesRegionWiseApi";
+import { useGetselectedCountryWiseQuery } from "../slice/salesRegionWiseApi";
+import { useGetselectedPincodeWiseQuery } from "../slice/salesRegionWiseApi";
+import { useGetselectedStateWiseQuery } from "../slice/salesRegionWiseApi";
+import { set } from "lodash";
 import DynamicChart from "../../nivoGraphs/chartConfigurations/DynamicChart";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import NewMyCharts from "../../dashboardNew/nivo/NewMyCharts";
 import { chartsData } from "../../nivoGraphs/data/fakeData"
 import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfiguration";
 import { FiPlus, FiSettings } from "react-icons/fi";
-import { useRegionWiseSalesQuery } from "../slice/salesRegionWiseApi";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 
@@ -75,6 +81,7 @@ const CustomTable = ({
   newArray,
   alignment,
   filters,
+  setFilters
 }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
@@ -98,15 +105,18 @@ const CustomTable = ({
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const [currentPage, setCurrentPage] = useState(0); // Default page is 0
-  const [selectedRegion, setSelectedRegion] = useState(null); // Track selected region
+  const [selectedRegion, setSelectedRegion] = useState(""); // Track selected region
+  const [placeholder, setPlaceholder] = useState("District"); // Default placeholder
+  const [columns, setColumns] = useState([]);
+  const [tableData, setTableData] = useState([]); // Store the fetched table data
+  const [isUpdated, setIsUpdated] = useState(false); // Force re-render when needed
   const [configureChart, setConfigureChart] = useState({});
-  const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);  
+  const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
   const dispatch = useDispatch();
 
   const generateColumnMappings = (filtersData) => {
     const mappings = [];
     filtersData.forEach((field) => {
-
       const humanReadableName = field.split(".").pop(); // Use your own logic for mapping
       mappings[humanReadableName] = field;
     });
@@ -213,26 +223,96 @@ const CustomTable = ({
     setSelectedReport(selectedValue);
   };
 
+  //..........Api calling for dropdown for district-wise ............
+  const { data: DistrictWiseData, refetch: refetchDistrict } =
+    useGetselectedDistWiseQuery(filters);
+  // console.log("DistrictWiseData_🟠", DistrictWiseData);
+
+  //..........Api calling for dropdown for city-wise ............
+  const { data: CityWiseData, refetch: refetchcity } =
+    useGetselectedCityWiseQuery(filters);
+  // console.log("CityWiseData_🟢", CityWiseData);
+
+  //..........Api calling for dropdown for pincode-wise ............
+  const { data: CountryWiseData, refetch: refetchcountry } =
+    useGetselectedCountryWiseQuery(filters);
+  // console.log("CountryWiseData_🟣", CountryWiseData);
+
+  //..........Api calling for dropdown for pincode-wise ............
+  const { data: PincodeWiseData, refetch: refetchpincode } =
+    useGetselectedPincodeWiseQuery(filters);
+  // console.log("PincodeWiseData_🟤", PincodeWiseData);
+
+  //..........Api calling for dropdown for state-wise ............
+  const { data: StateWiseData, refetch: refetchstate } =
+    useGetselectedStateWiseQuery(filters);
+  // console.log("StateWiseData_🟡", StateWiseData);
+
   const RerionType = [
-    {
-      label: "State-Wise",
-      value: "state"
-    },
-    {
-      label: "District-Wise",
-      value: "district"
-    },
-    { label: "City-Wise", value: "city" },
-    { label: "Country-Wise", value: "country" },
-    { label: "Pincode-Wise", value: "pincode" }
+    { label: "State", value: "state" },
+    { label: "District", value: "district" },
+    { label: "City", value: "city" },
+    { label: "Country", value: "country" },
+    { label: "Pincode", value: "pin_code" },
   ];
-
-
-  // Handle dropdown change
+  //...Handle dropdown region-type change....
   const handleRegionChange = (e) => {
-    setSelectedRegion(e.value); // Update selected region
-  };
+    const selectedValue = e.value; // Get the selected value from the dropdown
+    const selectedLable = e.originalEvent.target.innerText;
+    setPlaceholder(selectedLable);
 
+    // Update the filters object based on the selected region type
+    const updatedFilters = {
+      ...filters,
+      data: filters.data.map((key) => {
+        if (key.includes("customer.customerAddress.customer_address_")) {
+          // Replace the existing address key with the new one based on the selection
+          return `customer.customerAddress.customer_address_${selectedValue}`;
+        }
+        return key; // Keep other keys unchanged
+      }),
+      groupBy: filters.groupBy.map((group) => {
+        if (group.includes("customer.customerAddress.customer_address_")) {
+          return `customer.customerAddress.customer_address_${selectedValue}`;
+        }
+        return group; // Keep other groupBy keys unchanged
+      }),
+      sortBy: `customer.customerAddress.customer_address_${selectedValue}`, // Update sortBy field
+    };
+    //....Update the filters state....
+    setFilters(updatedFilters);
+    setSelectedRegion(selectedValue);
+    setIsUpdated(true);
+    // Show custom toast notification
+    toast({
+      title: `Region changed to ${selectedLable}`,
+      description: "Your filter has been updated.",
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+      containerStyle: {
+        width: "400px",
+        height: "100px",
+      },
+    });
+  };
+  // useEffect for refetching data
+  useEffect(() => {
+    refetchcity();
+    refetchDistrict();
+    refetchcountry();
+    refetchpincode();
+    refetchstate();
+    setIsUpdated(false);
+  }, [
+    filters,
+    refetchcity,
+    refetchDistrict,
+    refetchcountry,
+    refetchpincode,
+    refetchstate,
+    setIsUpdated,
+  ]);
 
   const loadMoreData = async () => {
     if (!loading) {
@@ -378,7 +458,6 @@ const CustomTable = ({
   //     page: currentPage,
   //   });
   // }, [sortColumn, sortOrder, filters.filter, refetchKamWiseSales]);
-
 
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray]; // Copy the original data
@@ -1124,8 +1203,8 @@ const CustomTable = ({
                                 column === "description"
                                   ? "300px"
                                   : column === "name"
-                                  ? "200px"
-                                  : "100px"
+                                    ? "200px"
+                                    : "100px"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis">
@@ -1347,28 +1426,14 @@ const CustomTable = ({
                       my: 2,
                       flexGrow: 1,
                     }}>
-                    Total Graph (
-                    {
-                      chartsData.charts.filter(
-                        (chart) =>
-                          chart.type !== "bar" &&
-                          chart.type !== "funnel" &&
-                          chart.type !== "pie"
-                      ).length
-                    }
-                    )
+                    Total Graph ({chartsData.charts.filter((chart) => chart.type !== "funnel").length})
                   </Box>
                   <Box
                     display="flex"
                     flexWrap="wrap"
                     justifyContent="space-between">
                     {chartsData.charts.map((chart, index) => {
-                      if (
-                        chart.type === "bar" ||
-                        chart.type === "funnel" ||
-                        chart.type === "pie"
-                      )
-                        return null;
+                      if (chart.type === "funnel") return null;
                       return (
                         <Box
                           key={index}
@@ -1611,4 +1676,3 @@ const CustomTable = ({
 };
 
 export default CustomTable;
-

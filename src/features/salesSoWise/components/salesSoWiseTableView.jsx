@@ -10,6 +10,7 @@ const SalesSoWiseTableView = () => {
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(50);
   const [individualItems, setIndividualItems] = useState([]);
+  const [toastShown, setToastShown] = useState(false);
   const toast = useToast();
 
   let filters = {
@@ -31,30 +32,29 @@ const SalesSoWiseTableView = () => {
     ],
     groupBy: ["salesOrder.so_id"],
     filter: [
-      {
-        column: "company_id",
-        operator: "equal",
-        type: "Integer",
-        value: 1,
-      },
-      {
-        column: "location_id",
-        operator: "equal",
-        type: "Integer",
-        value: 1,
-      },
-      {
-        column: "branch_id",
-        operator: "equal",
-        type: "Integer",
-        value: 1,
-      },
+      // {
+      //   column: "company_id",
+      //   operator: "equal",
+      //   type: "Integer",
+      //   value: 1,
+      // },
+      // {
+      //   column: "location_id",
+      //   operator: "equal",
+      //   type: "Integer",
+      //   value: 1,
+      // },
+      // {
+      //   column: "branch_id",
+      //   operator: "equal",
+      //   type: "Integer",
+      //   value: 1,
+      // },
     ],
     page: 0,
     size: 20,
-    "sortDir": "asc",
-    "sortBy": "customer.trade_name"
-
+    sortDir:"asc",
+    sortBy:"customer.trade_name",
   };
 
   const {
@@ -96,23 +96,23 @@ const SalesSoWiseTableView = () => {
 
   const extractFields = (data, index) => ({
     "SL No": index + 1,
-    "Trade Name": data["customer.trade_name"],
-    "Custom Code": data["customer.customer_code"],
+    "customer.trade_name": data["customer.trade_name"],
+    "customer_code": data["customer.customer_code"],
     "SO Total Amount": data["SUM(salesOrder.totalAmount)"],
     "SD Total Amount": data["SUM(salesPgi.salesDelivery.totalAmount)"],
     "Base Price":
       data[
-      "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)"
+        "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)"
       ],
-    "Invoice No": data["invoice_no"],
-    "SO No": data["salesOrder.so_number"],
-    Invoice_date: data["invoice_date"],
+    "invoice_no": data["invoice_no"],
+    "so_number": data["salesOrder.so_number"],
+    "invoice_date": data["invoice_date"],
     "Item Quantity": data["SUM(items.qty)"],
-    "Total Amount": data["SUM(all_total_amt)"],
+    "totalAmount": data["SUM(all_total_amt)"],
     "Sales PGI Total Amount": data["SUM(salesPgi.totalAmount)"],
     "Sales Quotation Amount": data["SUM(quotation.totalAmount)"],
-    "Due Amount": data["SUM(due_amount)"],
-    "Total Tax": data["SUM(items.totalTax)"],
+    "due_amount": data["SUM(due_amount)"],
+    "totalTax": data["SUM(items.totalTax)"],
   });
 
   useEffect(() => {
@@ -121,14 +121,38 @@ const SalesSoWiseTableView = () => {
         const flattenedInvoice = flattenObject(invoice);
         return invoice.items?.length
           ? invoice.items.map((item) => {
-            const flattenedItem = flattenObject(item, "item.");
-            return { ...flattenedInvoice, ...flattenedItem };
-          })
+              const flattenedItem = flattenObject(item, "item.");
+              return { ...flattenedInvoice, ...flattenedItem };
+            })
           : [flattenedInvoice];
       });
       setIndividualItems((prevItems) => [...prevItems, ...newItems]);
     }
   }, [sales]);
+  useEffect(() => {
+    // Show the toast only if the user has scrolled to the last page and toast hasn't been shown
+    if (sales?.totalPages < page && !toastShown) {
+      toast({
+        title: "No More Data",
+        description: "You have reached the end of the list.",
+        status: "warning",
+        isClosable: true,
+        duration: 4000,
+        render: () => (
+          <Box
+            p={3}
+            bg="orange.300"
+            borderRadius="md"
+            style={{ width: "300px", height: "70px" }} // Set custom width and height
+          >
+            <Box fontWeight="bold">No More Data</Box>
+            <Box>You have reached the end of the list.</Box>
+          </Box>
+        ),
+      });
+      setToastShown(true); // Mark the toast as shown
+    }
+  }, [sales, page, toast, toastShown]);
 
   if (isLoading) {
     return (
@@ -137,7 +161,8 @@ const SalesSoWiseTableView = () => {
         width="100%"
         display="flex"
         alignItems="center"
-        justifyContent="center">
+        justifyContent="center"
+      >
         <Spinner
           thickness="4px"
           speed="0.65s"
@@ -156,20 +181,11 @@ const SalesSoWiseTableView = () => {
         height="calc(100vh - 103px)"
         display="flex"
         alignItems="center"
-        justifyContent="center">
+        justifyContent="center"
+      >
         <Image src={NoDataFound} alt="No Data Available" />
       </Box>
     );
-  }
-  if (sales?.
-    totalPages < page) {
-    toast({
-      title: 'No More Data',
-      description: 'You have reached the end of the list.',
-      status: 'warning',
-      isClosable: true,
-      duration: 800, //(5000 ms = 5 seconds)
-    })
   }
   const newArray = individualItems.map((data, index) =>
     extractFields(data, index)
@@ -185,6 +201,7 @@ const SalesSoWiseTableView = () => {
           isFetching={isFetching}
           pageInfo={pageInfo}
           setSize={setSize}
+          filters={filters}
           alignment={{
             "SO Total Amount": "right",
             "SD Total Amount": "right",

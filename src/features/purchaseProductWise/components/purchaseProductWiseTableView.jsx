@@ -1,76 +1,37 @@
 import React, { useState, useEffect, useRef } from "react";
 import CustomTable from "./purchaseProductWiseCustomTable";
-import ChildComponent from "./purchaseProductWiseCustomTable";
 import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
-import { jwtDecode } from "jwt-decode";
-import { useFetchDataQuery } from "../../apis/apiSlice";
+ 
+const PurchaseProductWiseTableView = () => {
+  const authData = useSelector((state) => state.auth);
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(50);
+  const [toastShown, setToastShown] = useState(false);
+  const [individualItems, setIndividualItems] = useState([]);
 
-let filters = {
-"data": [
+  const [filters, setFilters] = useState(
+    {
+      data: [
         "items.goodName",
         "items.goodCode",
         "SUM(items.goodQty)",
         "SUM(items.receivedQty)",
-        "SUM(items.totalAmount)"
-    ],
-    "groupBy": [
-        "items.goodName"
-    ],
-  "filter": [
-    {
-      "column": "companyId",
-      "operator": "equal",
-      "type": "integer",
-      "value":  1,
-    },
-    {
-      "column": "branchId",
-      "operator": "equal",
-      "type": "integer",
-      "value":  1,
-    },
-    {
-      "column": "locationId",
-      "operator": "equal",
-      "type": "integer",
-      "value": 1,
+        "SUM(items.totalAmount)",
+        
+      ],
+      groupBy: ["items.goodName"],
+      filter: [],
+      page: 0,
+      size: 50,
+      sortDir: "asc",
+      sortBy: "items.goodName",
     }
-  ],
-  "page": 0,
-  "size": 50,
-  "sortDir": "asc",
-  "sortBy": "items.goodName"
-}
+   );
 
-const PurchaseProductWiseTableView = ( ) => {
-  const authData = useSelector((state) => state.auth);
-  const [page, setPage] = useState(0);
-  const [size, setSize] = useState(50);
-  const [individualItems, setIndividualItems] = useState([]);
   const toast = useToast();
-  const [sortColumn, setSortColumn] = useState(null);
-  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
-
-   // Fetch data from the API with sorting parameters
-   const {data } = useFetchDataQuery(filters);
-   
-  // Function to decode JWT token
-  const decodeToken = (token) => {
-    try {
-      const decodedData = jwtDecode(token);
-      return decodedData;
-    } catch (error) {
-      // console.error("Invalid token", error);
-      return null;
-    }
-  };
-  // Extract auth details if available
-  const decodedAuthDetails = authData.authDetails ? decodeToken(authData.authDetails) : null;
-
-
   const {
     data: sales,
     isLoading,
@@ -83,11 +44,17 @@ const PurchaseProductWiseTableView = ( ) => {
     authDetails: authData.authDetails,
   });
 
-
-
   const pageInfo = sales?.lastPage;
-
   const tableContainerRef = useRef(null);
+
+ // Create a mapping of API fields to display names
+  const fieldMapping = {
+    "items.goodName": "items.goodName",
+    "items.goodCode": "items.goodCode",
+    "SUM(items.goodQty)": "SUM(items.goodQty)",
+    "SUM(items.receivedQty)": "SUM(items.receivedQty)",
+    "SUM(items.totalAmount)": "SUM(items.totalAmount)",
+  };
 
   const flattenObject = (obj, prefix = "") => {
     let result = {};
@@ -95,10 +62,7 @@ const PurchaseProductWiseTableView = ( ) => {
       if (typeof obj[key] === "object" && obj[key] !== null) {
         if (Array.isArray(obj[key])) {
           obj[key].forEach((item, index) => {
-            Object.assign(
-              result,
-              flattenObject(item, `${prefix}${key}[${index}].`)
-            );
+            Object.assign(result, flattenObject(item, `${prefix}${key}[${index}].`));
           });
         } else {
           Object.assign(result, flattenObject(obj[key], `${prefix}${key}.`));
@@ -110,16 +74,55 @@ const PurchaseProductWiseTableView = ( ) => {
     return result;
   };
 
-  const extractFields = (data, index) => ({
-    "SL No": index + 1,
-    "Good Name": data["items.goodName"],
-    "Good Code": data["items.goodCode"],
-    "Total Quantity": data["SUM(items.goodQty)"],
-    "Received Quantity": data["SUM(items.receivedQty)"],
-    "Total Amount": data["SUM(items.totalAmount)"],
-  });
+  const extractFields = (data, index) => {
+    const extractedFields = {
+      "SL No": index + 1,
+      ...Object.keys(fieldMapping).reduce((acc, apiField) => {
+        acc[fieldMapping[apiField]] = data[apiField];
+        return acc;
+      }, {}),
+    };
+    return extractedFields;
+  };
 
+  useEffect(() => {
+    if (sales?.content?.length) {
+      const newItems = sales.content.flatMap((invoice) => {
+        const flattenedInvoice = flattenObject(invoice);
+        return invoice.items?.length
+          ? invoice.items.map((item) => {
+              const flattenedItem = flattenObject(item, "item.");
+              return { ...flattenedInvoice, ...flattenedItem };
+            })
+          : [flattenedInvoice];
+      });
+      setIndividualItems((prevItems) => [...prevItems, ...newItems]);
+    }
+  }, [sales]);
 
+  useEffect(() => {
+    if (sales?.totalPages < page && !toastShown) {
+      toast({
+        title: "No More Data",
+        description: "You have reached the end of the list.",
+        status: "warning",
+        isClosable: true,
+        duration: 4000,
+        render: () => (
+          <Box
+            p={3}
+            bg="orange.300"
+            borderRadius="md"
+            style={{ width: "300px", height: "70px" }} // Set custom width and height
+          >
+            <Box fontWeight="bold">No More Data</Box>
+            <Box>You have reached the end of the list.</Box>
+          </Box>
+        ),
+      });
+      setToastShown(true); // Mark the toast as shown
+    }
+  }, [sales, page, toast, toastShown]);
 
   if (isLoading) {
     return (
@@ -128,7 +131,8 @@ const PurchaseProductWiseTableView = ( ) => {
         width="100%"
         display="flex"
         alignItems="center"
-        justifyContent="center">
+        justifyContent="center"
+      >
         <Spinner
           thickness="4px"
           speed="0.65s"
@@ -147,44 +151,40 @@ const PurchaseProductWiseTableView = ( ) => {
         height="calc(100vh - 103px)"
         display="flex"
         alignItems="center"
-        justifyContent="center">
+        justifyContent="center"
+      >
         <Image src={NoDataFound} alt="No Data Available" />
       </Box>
     );
   }
-  if (sales?.
-    totalPages <= page) {
-    toast({
-      title: 'No More Data',
-      description: 'You have reached the end of the list.',
-      status: 'warning',
-      isClosable: true,
-      duration: 800, //(5000 ms = 5 seconds)
-    })
-  }
-  const mainData = sales?.content
+
+  const mainData = sales?.content;
+
+  const newArray = individualItems.map((data, index) =>
+    extractFields(data, index)
+  );
 
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
-   
+      {individualItems.length > 0 && (
         <CustomTable
-          newArray={mainData}
+          newArray={newArray} // Update this to use newArray
           page={page}
           setPage={setPage}
           isFetching={isFetching}
+          sales={sales}
           pageInfo={pageInfo}
           setSize={setSize}
-          sortColumn={sortColumn} 
-          sortOrder={sortOrder} 
-          setSortColumn={setSortColumn} 
-          setSortOrder={setSortOrder} 
+          filters={filters}
+          setFilters={setFilters}
+          extractFields={extractFields}
           alignment={{
             "Total Quantity": "right",
             "Received Quantity": "right",
             "Total Amount": "right",
           }}
         />
-   
+      )}
     </Box>
   );
 };

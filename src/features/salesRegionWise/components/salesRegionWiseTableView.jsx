@@ -3,10 +3,19 @@ import CustomTable from "./salesRegionWiseCustomTable";
 import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
-import {useRegionWiseSalesQuery} from "../slice/salesRegionWiseApi";
-let filters = {
-  "data": [
-      "customer.customerAddress.customer_address_pin_code",
+import { useRegionWiseSalesQuery } from "../slice/salesRegionWiseApi";
+// let filters = ;
+
+const SalesRegionWiseTableView = () => {
+  const authData = useSelector((state) => state.auth);
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(50);
+  const [individualItems, setIndividualItems] = useState([]);
+  const [toastShown, setToastShown] = useState(false);
+  const toast = useToast();
+  const [filters, setFilters] = useState({
+    data: [
+      "customer.customerAddress.customer_address_district",
       "SUM(igst)",
       "SUM(sgst)",
       "SUM(cgst)",
@@ -28,15 +37,7 @@ let filters = {
   "size":50,
   "sortBy": "customer.customerAddress.customer_address_pin_code",
   "sortDir": "asc"
-};
-
-const SalesRegionWiseTableView = () => {
-  const authData = useSelector((state) => state.auth);
-  const [page, setPage] = useState(0);
-  const [size, setSize] = useState(50);
-  const [individualItems, setIndividualItems] = useState([]);
-  const [toastShown, setToastShown] = useState(false);
-  const toast = useToast();
+});
 
   const {
     data: sales,
@@ -188,4 +189,3 @@ const SalesRegionWiseTableView = () => {
 };
 
 export default SalesRegionWiseTableView;
-
