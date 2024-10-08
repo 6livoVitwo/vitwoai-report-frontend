@@ -4,9 +4,7 @@ import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
-// import{useGetSelectedColumnsQuery} from "../slice/purchaseProductWiseApi"
  
-
 
 
 const PurchaseProductWiseTableView = () => {

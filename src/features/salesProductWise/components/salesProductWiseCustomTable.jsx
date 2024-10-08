@@ -85,7 +85,6 @@ const CustomTable = ({
   newArray,
   alignment,
   filters,
-  updateFilters,
   setFilters,
 }) => {
   console.log("imran🔴", { newArray });
@@ -358,18 +357,25 @@ const CustomTable = ({
   //   });
   // };
 
+  
   // Default columns (These will be used if no columns are stored in localStorage)
 
 
-  const toggleColumn = (field) => {
-    // Ensure that default columns can't be deselected
-    // if (defaultColumns.includes(field)) return;
-    
-    setSelectedColumns((prev) =>
-      prev.includes(field)
-        ? prev.filter((col) => col !== field)
-        : [...prev, field]
-    );
+//   const toggleColumn = (field) => {
+//     // Ensure that default columns can't be deselected
+//     // if (defaultColumns.includes(field)) return;
+//     setSelectedColumns((prev) =>
+//       prev.includes(field)
+//         ? prev.filter((col) => col !== field)
+//         : [...prev, field]
+//     );
+// };
+const toggleColumn = (columnName) => {
+  setSelectedColumns((prevSelectedColumns) =>
+    prevSelectedColumns.includes(columnName)
+      ? prevSelectedColumns.filter((col) => col !== columnName)
+      : [...prevSelectedColumns, columnName]
+  );
 };
 
   // On page load, retrieve selected columns from localStorage or use default columns
@@ -397,10 +403,10 @@ const CustomTable = ({
 
     if (selectAll) {
       setSelectedColumns([]); // Deselect all
-      localStorage.setItem("selectedColumns", JSON.stringify([]));
+      // localStorage.setItem("selectedColumns", JSON.stringify([]));
     } else {
       setSelectedColumns(allColumns); // Select all except default
-      localStorage.setItem("selectedColumns", JSON.stringify(allColumns));
+      // localStorage.setItem("selectedColumns", JSON.stringify(allColumns));
     }
     setSelectAll(!selectAll);
 };
@@ -408,13 +414,13 @@ const CustomTable = ({
   const handleModalClose = () => {
     // Reset selected columns to default and close modal
     setSelectedColumns(defaultColumns);
-    localStorage.setItem("selectedColumns", JSON.stringify(defaultColumns)); // Save default columns to localStorage
+    // localStorage.setItem("selectedColumns", JSON.stringify(defaultColumns)); // Save default columns to localStorage
     onClose();
   };
 
   const handleApplyChanges = () => {
     // Save selected columns to localStorage and refetch data
-    localStorage.setItem("selectedColumns", JSON.stringify(selectedColumns));
+    // localStorage.setItem("selectedColumns", JSON.stringify(selectedColumns));
     refetchColumnData({ columns: selectedColumns });
     onClose();
     toast({
@@ -424,48 +430,35 @@ const CustomTable = ({
     });
   };
 
-  const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery), []);
+  const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
+
   useEffect(() => {
     return () => {
       debouncedSearchQuery.cancel();
     };
   }, [debouncedSearchQuery]);
+
   const handleSearchChange = (e) => {
     setInputValue(e.target.value);
   };
   const handleSearchClick = () => {
-    const newFilter = {
-      column: selectedColumns[1],
-      operator: "like", // Operator for "like" search
-      type: "string ", // Assuming string type
-      value: inputValue, // Search value entered by the user
+    // Update filters to include search criteria
+    const updatedFilters = {
+      ...filters,
+      filter: [
+        ...filters.filter,
+        {
+          column: selectedColumns[1], // Assuming selectedColumns is a string or array
+          operator: "like",
+          type: "string",
+          value: inputValue,
+        },
+      ],
     };
-
-    // Pass newFilter to parent to update the filters
-    updateFilters(newFilter);
+    setFilters(updatedFilters);
+    setSearchQuery(inputValue);
   };
-  // const handleSearchClick = () => {
-  //   // Filter selectedColumns to exclude columns that are sums
-  //   const filteredColumns = selectedColumns.filter(column => !column.startsWith("SUM"));
 
-  //   // Ensure that selectedColumns[1] is a non-sum column
-  //   const selectedColumn = filteredColumns[1];
-  //   // Only proceed if a valid column is selected
-  //   if (selectedColumn) {
-  //     const newFilter = {
-  //       column: selectedColumn,   // Use the filtered selected column
-  //       operator: "like",         // Operator for "like" search
-  //       type: "string",           // Assuming string type
-  //       value: inputValue         // Search value entered by the user
-  //     };
-  //     updateFilters(newFilter);
-  //   } else {
-  //     // Handle case when no valid non-sum column is found
-  //     console.error('No valid non-sum column found for filtering.');
-  //   }
-  // };
-
-  // console.log("piyas1212col",selectedColumns)
 
   const clearAllFilters = () => {
     setSearchQuery("");

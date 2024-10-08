@@ -52,7 +52,7 @@ import {
   faArrowRightArrowLeft,
 } from "@fortawesome/free-solid-svg-icons";
 import { saveAs } from "file-saver";
-import { faFileExcel } from "@fortawesome/free-solid-svg-icons";
+import { faFileExcel,faGear} from "@fortawesome/free-solid-svg-icons";
 import { DownloadIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
@@ -80,10 +80,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [endDate, setEndDate] = useState();
   const [filterCondition, setFilterCondition] = useState("");
   const [filterValue, setFilterValue] = useState("");
+  const [filterValue2, setFilterValue2] = useState("");
   const [applyFilter, setApplyFilter] = useState(false);
   // Temporary states to hold user inputs before applying the filter
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
+  const [tempFilterValue2, setTempFilterValue2] = useState("");
+
   const [tempSearchQuery, setTempSearchQuery] = useState("");
   const [columns, setColumns] = useState([]);
   const [originalData, setOriginalData] = useState([]);
@@ -124,10 +127,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   // console.log("sales_piyas1221", sales);
 
   //...Advanced Filter API CALL...
-  const { data: productDataFilter,refetch: refetchProductFilter } = useProductWisePurchaseQuery(
-    { filters: localFilters }
-    // { skip: !filtersApplied }
-  );
+  const { data: productDataFilter, refetch: refetchProductFilter } =
+    useProductWisePurchaseQuery(
+      { filters: localFilters }
+      // { skip: !filtersApplied }
+    );
   // console.log("productDataFilterPiyas", productDataFilter);
 
   //API Calling sorting
@@ -143,7 +147,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   // console.log("piyas ninja", ProductData);
 
   //Api calling for selected columns
-  const { data: columnData, refetch: refetchColumnData } = useGetSelectedColumnsPurchaseQuery();
+  const { data: columnData, refetch: refetchColumnData } =
+    useGetSelectedColumnsPurchaseQuery();
   console.log("columnData🔵🔵", columnData);
 
   // api calling from global search
@@ -230,19 +235,19 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     });
   }, [sortColumn, sortOrder, refetchProduct]); // Ensure dependencies are correct
 
-    const loadMoreData = async () => {
-      if (!loading) {
-        setLoading(true);
-        // Fetch or generate new data
-        const moreData = [...newArray]; // Assuming newArray contains new data
-        setData((prevData) => {
-          const uniqueData = [...new Set([...prevData, ...moreData])];
-          return uniqueData;
-        });
-        setPage((prevPage) => prevPage + 1);
-        setLoading(false);
-      }
-    };
+  const loadMoreData = async () => {
+    if (!loading) {
+      setLoading(true);
+      // Fetch or generate new data
+      const moreData = [...newArray]; // Assuming newArray contains new data
+      setData((prevData) => {
+        const uniqueData = [...new Set([...prevData, ...moreData])];
+        return uniqueData;
+      });
+      setPage((prevPage) => prevPage + 1);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const initialColumns = getColumns(data)
@@ -317,16 +322,15 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   //   });
   // };
 
-  
   const toggleColumn = (field) => {
-    // if (defaultColumns.includes(field)) return; 
-    if (field === "SL No") return; 
+    // if (defaultColumns.includes(field)) return;
+    if (field === "SL No") return;
     setSelectedColumns((prev) =>
       prev.includes(field)
         ? prev.filter((col) => col !== field)
         : [...prev, field]
     );
-};
+  };
 
   // On page load, retrieve selected columns from localStorage or use default columns
   useEffect(() => {
@@ -346,7 +350,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           listName: columnData.content[0][key]?.listName || key, // Use listName or fallback to key
         }))
       : [];
-  
+    // Remove duplicates based on listName
+    const uniqueColumns = Array.from(
+      new Set(allColumns.map((col) => col.listName)) // Convert to Set to remove duplicates
+    );
+
     let updatedColumns;
     if (selectAll) {
       setSelectedColumns([]); // Deselect all
@@ -355,14 +363,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setSelectedColumns(allColumns.map((col) => col.listName)); // Select all listNames from columnData
       updatedColumns = allColumns.map((col) => col.listName); // Use listName from columnData
     }
-  
+
     // Save the selected columns to localStorage
     localStorage.setItem("selectedColumns", JSON.stringify(updatedColumns));
     setSelectAll(!selectAll); // Toggle the selectAll state
   };
-  
-  
-
 
   const handleModalClose = () => {
     // Reset selected columns to default and close modal
@@ -384,21 +389,24 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   //   });
   // };
   const handleApplyChanges = () => {
-    // Create a copy of the filters and update the 'data' field with selected listNames, excluding "SL No"
-    const updatedSelectedColumns = selectedColumns
-      .map((col) => {
-        const matchingColumn = columnData?.content[0][col];
-        return matchingColumn ? matchingColumn.listName : col; // Use `listName` if available
-      })
-      .filter((col) => col !== "SL No"); // Exclude "SL No" from the selected columns
+    // Remove duplicate selected columns based on listName
+    const updatedSelectedColumns = Array.from(
+      new Set(
+        selectedColumns.map((col) => {
+          const matchingColumn = columnData?.content[0][col];
+          return matchingColumn ? matchingColumn.listName || col : col; // Use listName if available
+        })
+      )
+    ).filter((col) => col !== "SL No"); // Optionally exclude "SL No" from the filters
   
+    // Update filters with unique columns
     setFilters((prevFilters) => ({
       ...prevFilters,
-      data: updatedSelectedColumns, // Replace data with selected listNames, excluding "SL No"
+      data: updatedSelectedColumns, // Replace data with unique selected listNames
     }));
   
     // Save the selected columns to localStorage
-    localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
+    localStorage.setItem("selectedColumns", JSON.stringify(selectedColumns));
   
     // Refetch data based on selected columns
     refetchColumnData({ columns: updatedSelectedColumns });
@@ -414,10 +422,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     });
   };
   
-  
-  
-  
-  
+
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
 
   useEffect(() => {
@@ -445,7 +450,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       ],
     };
     setFilters(updatedFilters);
-    setSearchQuery(inputValue); 
+    setSearchQuery(inputValue);
   };
   const clearAllFilters = () => {
     setSearchQuery("");
@@ -462,19 +467,22 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     if (columnData && columnData.content.length > 0) {
       combinedData = combinedData.concat(columnData.content);
     }
-    let filteredData = searchData && searchData.length > 0 ? searchData : combinedData; // Copy the combined data
+    let filteredData =
+      searchData && searchData.length > 0 ? searchData : combinedData; // Copy the combined data
 
-   // Apply searchData from the API
-  if (searchData && searchData.length > 0) {
-    // Assuming searchData is an array of items
-    filteredData = filteredData.filter(item => {
-      return searchData.some(searchItem =>
-        Object.values(searchItem).some(value =>
-          String(value).toLowerCase().includes(String(inputValue).toLowerCase())
-        )
-      );
-    });
-  }
+    // Apply searchData from the API
+    if (searchData && searchData.length > 0) {
+      // Assuming searchData is an array of items
+      filteredData = filteredData.filter((item) => {
+        return searchData.some((searchItem) =>
+          Object.values(searchItem).some((value) =>
+            String(value)
+              .toLowerCase()
+              .includes(String(inputValue).toLowerCase())
+          )
+        );
+      });
+    }
     // Apply column filters
     Object.keys(columnFilters).forEach((field) => {
       const filter = columnFilters[field];
@@ -511,8 +519,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             case "between":
               if (Array.isArray(filter.value) && filter.value.length === 2) {
                 return (
-                  Number(value) >= Number(filter.value[0]) &&
-                  Number(value) <= Number(filter.value[1])
+                  Number(value) >= Number(filter.value) &&
+                  Number(value) <= Number(filter.value2)
                 );
               }
               return false;
@@ -564,6 +572,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     sortOrder,
     filterCondition,
     filterValue,
+    filterValue2,
     selectedColumns,
     inputValue,
   ]);
@@ -595,11 +604,22 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       .join(" ");
   };
 
+  // ...Handle scroll...
+  let previousScrollLeft = 0;
   const handleScroll = () => {
-    const { scrollTop, scrollHeight, clientHeight } = tableContainerRef.current;
+    const { scrollTop, scrollHeight, clientHeight, scrollLeft, clientWidth } =
+      tableContainerRef.current;
 
-    if (scrollTop + clientHeight >= scrollHeight - 2) {
-      loadMoreData();
+    // Check if horizontal scroll has changed
+    if (scrollLeft !== previousScrollLeft) {
+      // Update the previous scroll left position
+      previousScrollLeft = scrollLeft;
+      return;
+    }
+
+    // Only trigger the API call if scrolling vertically
+    if (scrollTop + clientHeight >= scrollHeight - 5 && !loading) {
+      loadMoreData(); // Load more data when scrolled to the bottom
     }
   };
 
@@ -626,6 +646,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     const value = e?.target?.value; // Safely accessing e.target.value
     if (value !== undefined) {
       setTempFilterValue(value);
+    } else {
+      console.error("Temp filter value is undefined.");
+    }
+  };
+  const handleTempFilterValue2Change = (e) => {
+    const value = e?.target?.value; // Safely accessing e.target.value
+    if (value !== undefined) {
+      setTempFilterValue2(value);
     } else {
       console.error("Temp filter value is undefined.");
     }
@@ -660,6 +688,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         operator: tempFilterCondition,
         type: typeof tempFilterValue === "number" ? "integer" : "string",
         value: tempFilterValue,
+        value2: tempFilterValue2
       };
       // Update localFilters state
       const updatedFilters = {
@@ -696,11 +725,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         : handleApplyFilters();
       setFilters((prevFilters) => ({
         ...prevFilters,
-        size:1000,
+        size: 1000,
       }));
     }
   };
-
 
   const exportToExcel = () => {
     import("xlsx").then((xlsx) => {
@@ -913,7 +941,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 color: "white",
               }}
             >
-              <FontAwesomeIcon icon={faChartSimple} fontSize="20px" />
+              {/* <FontAwesomeIcon icon={faChartSimple} fontSize="20px" /> */}
+              <FontAwesomeIcon icon={faGear}  fontSize="20px"/>
             </Button>
           </Tooltip>
 
@@ -1105,6 +1134,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                             {formatHeader(column)}
 
                             {/* A-Z Filter  */}
+                            { column !== "SL No" && (
                             <Button
                               className="A_to_Z"
                               bg="none"
@@ -1127,6 +1157,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                 />
                               )}
                             </Button>
+                          )}
+                          {column !== "SL No" && (
                             <Popover
                               isOpen={activeFilterColumn === column}
                               onClose={() => setActiveFilterColumn(null)}
@@ -1178,7 +1210,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                           gap="10px"
                                         >
                                           <Select
-                                            placeholder="condition"
+                                            placeholder="Select condition"
                                             size="sm"
                                             fontSize="12px"
                                             h="35px"
@@ -1186,11 +1218,15 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                               handleTempFilterConditionChange
                                             }
                                           >
-                                            <option value="equal">Equal </option>
-                                            <option value="notEqual">
-                                              Not Equal
+                                            <option value="equal">
+                                              Equal   
                                             </option>
-                                            <option value="like">Like</option>
+                                            <option value="notEqual">
+                                              Not Equal  
+                                            </option>
+                                            <option value="like">
+                                              Like    
+                                            </option>
                                             <option value="notLike">
                                               Not Like
                                             </option>
@@ -1231,11 +1267,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                             <>
                                               <Input
                                                 className="Between"
+                                                value={tempFilterValue2}
                                                 h="35px"
                                                 fontSize="12px"
                                                 padding="6px"
                                                 onChange={
-                                                  handleTempFilterValueChange
+                                                  handleTempFilterValue2Change
                                                 }
                                                 // placeholder={`Filter ${column}`}
                                                 placeholder={"Search by value"}
@@ -1272,6 +1309,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                 </PopoverContent>
                               )}
                             </Popover>
+                          )}
                           </Th>
                         )}
                       </Draggable>
