@@ -54,6 +54,15 @@ const chartComponents = {
   pie: PieChart,
 };
 
+const graphDescriptions = {
+  bar: "The Bar chart can display multiple data series, either stacked or side by side. It supports both vertical and horizontal layouts, with negative values positioned below the respective axes. You can customize the bar item component to render any valid SVG element, receiving styles, data, and event handlers. The responsive variant is called ResponsiveBar, available in the @nivo/api package. For legend configuration, you'll need to specify the dataFrom property, which determines how to compute the legend's data using indexes or keys.",
+  pie: "This component generates a pie chart from an array of data, where each item must include an id and a value property. Keep in mind that the margin object does not account for radial labels, so you should adjust it accordingly to provide sufficient space. The responsive version of this component is called ResponsivePie.",
+  areaBump:
+    "The AreaBump chart combines ranking and values, displaying both over time on the y-axis. This makes it ideal for understanding trends in performance. If your primary interest lies in rankings alone, the Bump chart is a more streamlined option. It effectively highlights shifts in position without the added complexity of values. Choose based on your specific data needs!",
+  bump: "The Bump chart visualizes the rankings of multiple series over time. While it resembles line charts, it focuses solely on displaying rankings rather than specific measurements on the y-axis. This makes it easy to track changes in position for each series at any given moment. By highlighting only the rankings, it simplifies the analysis of competitive dynamics. It's an effective tool for showcasing shifts in standings over time.",
+  line: "This line chart supports stacking capabilities. It takes an array of data series, each with an id and a nested array of points (containing x and y properties), to compute the line for each series. Any datum with a null x or y value will be treated as a gap, resulting in skipped segments of the corresponding line.",
+};
+
 const newEndpoint = (data = "", type = "", processFlow = "") => {
   if (data === "sales-product-wise") {
     if (type === "bump" || type === "areaBump" || type === "line") {
@@ -285,6 +294,9 @@ const ChartConfiguration = ({ configureChart }) => {
   const [startDate, setStartDate] = useState(initialStartDate(inputType, type));
   const [endDate, setEndDate] = useState(initialEndDate(inputType, type));
   const { selectedWise } = useSelector((state) => state.graphSlice);
+    const [currentDescription, setCurrentDescription] = useState(
+      graphDescriptions[type]
+    );
   const [processFlow, setProcessFlow] = useState(
     "/sales/graph/so-wise-flow-process"
   );
@@ -743,7 +755,7 @@ const ChartConfiguration = ({ configureChart }) => {
                     <Heading mt={4} mb={4}>
                       Graph Info
                     </Heading>
-                    <TypingMaster />
+                    <TypingMaster text={currentDescription} />
                   </Box>
                 </Box>
               </AccordionTab>
