@@ -175,6 +175,7 @@ const SalesRegionWiseTableView = () => {
           pageInfo={pageInfo}
           setSize={setSize}
           filters={filters}
+          setFilters={setFilters}
           sortBy="kam.kamName"
           sortDir="asc"
           alignment={{
