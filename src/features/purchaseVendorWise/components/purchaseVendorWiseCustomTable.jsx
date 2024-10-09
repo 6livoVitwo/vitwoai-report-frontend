@@ -35,13 +35,19 @@ import {
   Popover,
   PopoverTrigger,
   PopoverContent,
-  PopoverHeader,
   PopoverBody,
-  PopoverFooter,
+  Alert,
   PopoverArrow,
   PopoverCloseButton,
-  PopoverAnchor,
+  Drawer,
+  DrawerCloseButton,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerBody,
   Tooltip,
+  Badge,
+  Divider,
 } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
@@ -60,6 +66,14 @@ import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
+import { useDispatch } from "react-redux";
+import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfiguration";
+import DynamicChart from "../../nivoGraphs/chartConfigurations/DynamicChart";
+import { chartsData } from "../../nivoGraphs/data/fakeData";
+import NewMyCharts from "../../dashboardNew/nivo/NewMyCharts";
+import { useSelector } from "react-redux";
+import { FiPlus, FiSettings } from "react-icons/fi";
+import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import { useGetGlobalsearchVendorQuery } from "../slice/purchaseVendorWiseApi";
 import { useVendorWisePurchaseQuery } from "../slice/purchaseVendorWiseApi";
 import { useGetSelectedColumnsVendorQuery } from "../slice/purchaseVendorWiseApi";
@@ -81,10 +95,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [sortColumn, setSortColumn] = useState();
   const [sortOrder, setSortOrder] = useState();
+  const [configureChart, setConfigureChart] = useState({});
   const [currentPage, setCurrentPage] = useState(0); // Default page is 0
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
+  const dispatch = useDispatch();
+      const salesCustomerWise = useSelector(
+        (state) => state.salescustomer.widgets
+      );
+
 
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
@@ -131,6 +151,30 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
     onClose: onCloseDownloadReportModal,
     isOpen: isOpenDownloadReportModal,
   } = useDisclosure();
+  const {
+    onOpen: onOpenGraphAddDrawer,
+    onClose: onCloseGraphAddDrawer,
+    isOpen: isOpenGraphAddDrawer,
+  } = useDisclosure();
+  const {
+    onOpen: onOpenGraphSettingDrawer,
+    onClose: onCloseGraphSettingDrawer,
+    isOpen: isOpenGraphSettingDrawer,
+  } = useDisclosure();
+
+  const {
+    isOpen: isOpenGraphSettingsModal,
+    onOpen: onOpenGraphSettingsModal,
+    onClose: onCloseGraphSettingsModal,
+  } = useDisclosure();
+
+  const {
+    isOpen: isOpenGraphDetailsView,
+    onOpen: onOpenGraphDetailsView,
+    onClose: onCloseGraphDetailsView,
+  } = useDisclosure();
+
+  const btnRef = React.useRef();
 
   const getColumnStyle = (header) => ({
     textAlign: alignment[header] || "left",
@@ -537,6 +581,38 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
     });
   };
 
+   const removeProperty = (object) => {
+     if (!object) {
+       return {};
+     }
+     const { data, id, ...rest } = object;
+     return rest;
+   };
+
+   const handleConfigure = (chart) => {
+     if (!chart) {
+       return;
+     }
+     onOpenGraphSettingsModal();
+     const filterData = removeProperty(chart);
+     setConfigureChart(filterData);
+   };
+
+   const handleView = (chart) => {
+     if (!chart) {
+       return;
+     }
+     onOpenGraphDetailsView();
+     const filterData = removeProperty(chart);
+     setConfigureChart(filterData);
+   };
+
+   const handleGraphAddDrawer = () => {
+     onOpenGraphSettingDrawer();
+     dispatch(handleGraphWise("sales-customer-wise"));
+   };
+
+
   // console.log(data, 'data');
   // console.log(newArray, 'newArray');
   // console.log(selectedColumns, 'selectedColumns');
@@ -556,8 +632,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
           "& input:placeholder": {
             color: "white",
           },
-        }}
-      >
+        }}>
         <Box display="flex" alignItems="center" w="20%" position="relative">
           <Input
             onChange={handleSearchChange}
@@ -583,12 +658,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
               cursor: "pointer",
               fontSize: "20px",
               zIndex: "2",
-            }}
-          >
+            }}>
             <i
               className="pi pi-search"
-              style={{ fontSize: "2rem", opacity: "0.8" }}
-            ></i>
+              style={{ fontSize: "2rem", opacity: "0.8" }}></i>
           </button>
         </Box>
         <Box
@@ -604,8 +677,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
               borderRadius: "5px",
               outline: "none",
             },
-          }}
-        >
+          }}>
           <Tooltip label="Clear All" hasArrow>
             <Button
               borderRadius="5px"
@@ -617,12 +689,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
               _hover={{
                 bg: "mainBlue",
                 color: "white",
-              }}
-            >
+              }}>
               <i
                 className="pi pi-filter-slash"
-                style={{ fontSize: "1.5rem" }}
-              ></i>
+                style={{ fontSize: "1.5rem" }}></i>
             </Button>
           </Tooltip>
           <Dropdown
@@ -640,6 +710,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
           />
           {/* Graph view  */}
           <Button
+            onClick={onOpenGraphAddDrawer}
             aria-label="Graph View"
             borderRadius="30px"
             width="40px"
@@ -655,8 +726,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
             }}
             _focus={{
               boxShadow: "outline",
-            }}
-          >
+            }}>
             <FontAwesomeIcon icon={faChartLine} fontSize="20px" />
           </Button>
 
@@ -672,8 +742,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
             _hover={{
               bg: "mainBlue",
               color: "",
-            }}
-          >
+            }}>
             <FontAwesomeIcon icon={faChartSimple} fontSize="20px" />
           </Button>
           <Menu>
@@ -696,8 +765,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                   alignItems: "center",
                   justifyContent: "center",
                 },
-              }}
-            >
+              }}>
               <DownloadIcon fontSize="20px" />
             </MenuButton>
             <MenuList>
@@ -705,8 +773,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                 onClick={exportToExcel}
                 fontSize="13px"
                 fontWeight="600"
-                height="35px"
-              >
+                height="35px">
                 <Box minW="25px">
                   <FontAwesomeIcon icon={faFileExcel} />
                 </Box>
@@ -716,8 +783,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                 fontSize="13px"
                 fontWeight="600"
                 height="35px"
-                onClick={onOpenDownloadReportModal}
-              >
+                onClick={onOpenDownloadReportModal}>
                 <Box minW="25px">
                   <FontAwesomeIcon icon={faFileExcel} />
                 </Box>
@@ -727,8 +793,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                 isCentered
                 size="xl"
                 isOpen={isOpenDownloadReportModal}
-                onClose={onCloseDownloadReportModal}
-              >
+                onClose={onCloseDownloadReportModal}>
                 <ModalOverlay />
                 <ModalContent>
                   <ModalHeader
@@ -736,8 +801,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                     bg="mainBlue"
                     color="white"
                     fontSize="16px"
-                    padding="12px"
-                  >
+                    padding="12px">
                     Select Date Range
                   </ModalHeader>
                   <ModalCloseButton mt="5px" color="white" size="lg" />
@@ -755,8 +819,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                           mr: "0px",
                           bg: "#dedede",
                         },
-                      }}
-                    >
+                      }}>
                       <Text fontWeight="600" mb="5px" fontSize="14px">
                         Select Your Date - Range
                       </Text>
@@ -764,8 +827,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                         display="flex"
                         justifyContent="space-between"
                         padding="5px"
-                        alignItems="center"
-                      >
+                        alignItems="center">
                         <Calendar
                           value={startDate}
                           onChange={(e) => setStartDate(e.value)}
@@ -799,8 +861,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                         bg: "var(--chakra-colors-mainBlue)",
                       }}
                       color="white"
-                      onClick={onCloseDownloadReportModal}
-                    >
+                      onClick={onCloseDownloadReportModal}>
                       Close
                     </Button>
                     <Button
@@ -810,8 +871,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                       _hover={{
                         bg: "var(--chakra-colors-mainBlue)",
                       }}
-                      color="white"
-                    >
+                      color="white">
                       Filter
                     </Button>
                   </ModalFooter>
@@ -826,29 +886,25 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
         className="table-tableContainerRef"
         overflowY="auto"
         height="calc(100vh - 179px)"
-        width="calc(100vw - 115px)"
-      >
+        width="calc(100vw - 115px)">
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="droppable" direction="horizontal">
             {(provided) => (
               <Table
                 {...provided.droppableProps}
                 ref={provided.innerRef}
-                variant="simple"
-              >
+                variant="simple">
                 <Thead
                   style={{
                     position: "sticky",
                     top: 0,
-                  }}
-                >
+                  }}>
                   <Tr bg="#cfd8e1">
                     {selectedColumns.map((column, index) => (
                       <Draggable
                         key={column}
                         draggableId={column}
-                        index={index}
-                      >
+                        index={index}>
                         {(provided) => (
                           <Th
                             ref={provided.innerRef}
@@ -859,16 +915,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                             fontWeight="500"
                             textTransform="capitalize"
                             fontFamily="Poppins, sans-serif"
-                            color="black"
-                          >
+                            color="black">
                             {formatHeader(column)}
                             {/* A-Z Filter  */}
                             <Button
                               className="A_to_Z"
                               bg="none"
                               _hover={{ bg: "none" }}
-                              onClick={() => handleSort(column)}
-                            >
+                              onClick={() => handleSort(column)}>
                               {sortColumn === column ? (
                                 sortOrder === "asc" ? (
                                   <FontAwesomeIcon
@@ -887,8 +941,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                             </Button>
                             <Popover
                               isOpen={activeFilterColumn === column}
-                              onClose={() => setActiveFilterColumn(null)}
-                            >
+                              onClose={() => setActiveFilterColumn(null)}>
                               <PopoverTrigger>
                                 <Button
                                   bg="transparent"
@@ -900,16 +953,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                                       style={{
                                         color: "slateblue",
                                         fontSize: "1.4rem",
-                                      }}
-                                    ></i>
+                                      }}></i>
                                   ) : (
                                     <i
                                       className="pi pi-filter"
                                       style={{
                                         color: "slateblue",
                                         fontSize: "1.4rem",
-                                      }}
-                                    ></i>
+                                      }}></i>
                                   )}
                                 </Button>
                               </PopoverTrigger>
@@ -926,15 +977,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                                           fontWeight="500"
                                           fontSize="14px"
                                           mt="10px"
-                                          mb="5px"
-                                        >
+                                          mb="5px">
                                           {formatHeader(column)}
                                         </Text>
                                         <Box
                                           display="flex"
                                           flexDirection="column"
-                                          gap="10px"
-                                        >
+                                          gap="10px">
                                           <Select
                                             placeholder="Select condition"
                                             size="sm"
@@ -942,8 +991,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                                             h="35px"
                                             onChange={
                                               handleTempFilterConditionChange
-                                            }
-                                          >
+                                            }>
                                             <option value="equal">Equal</option>
                                             <option value="notEqual">
                                               Not Equal
@@ -1008,8 +1056,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                                     justifyContent="flex-end"
                                     width="90%"
                                     ml="8px"
-                                    mb="10px"
-                                  >
+                                    mb="10px">
                                     <Button
                                       bg="mainBlue"
                                       width="58px"
@@ -1020,8 +1067,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                                         color: "white",
                                         bg: "mainBlue",
                                       }}
-                                      onClick={handleClick}
-                                    >
+                                      onClick={handleClick}>
                                       Apply
                                     </Button>
                                   </Box>
@@ -1042,8 +1088,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                           <Td
                             key={colIndex}
                             padding="10px"
-                            style={getColumnStyle(column)}
-                          >
+                            style={getColumnStyle(column)}>
                             <Text
                               fontSize="13px"
                               whiteSpace="nowrap"
@@ -1055,8 +1100,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                                   : "100px"
                               }
                               overflow="hidden"
-                              textOverflow="ellipsis"
-                            >
+                              textOverflow="ellipsis">
                               {item[column]}
                             </Text>
                           </Td>
@@ -1076,6 +1120,318 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
           </Droppable>
         </DragDropContext>
       </TableContainer>
+
+      <Drawer
+        isOpen={isOpenGraphAddDrawer}
+        placement="right"
+        onClose={onCloseGraphAddDrawer}
+        finalFocusRef={btnRef}>
+        <DrawerOverlay />
+        <DrawerContent maxW="88vw">
+          <DrawerCloseButton style={{ color: "white" }} />
+          <DrawerHeader
+            style={{
+              backgroundColor: "#003060",
+              color: "white",
+            }}>
+            Sales Customer Wise
+          </DrawerHeader>
+          <DrawerBody>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                "& button": {
+                  color: "#718296",
+                  padding: "20px 20px",
+                  fontSize: "14px",
+                  border: "1px solid #dee2e6",
+                  backgroundColor: "white",
+                },
+                "& button:hover": {
+                  backgroundColor: "rgb(0, 48, 96)",
+                  borderRadius: "5px",
+                },
+              }}
+              mb={6}>
+              <Text fontWeight="bold">Sales Wise Graph View</Text>
+              <Button
+                ref={btnRef}
+                type="button"
+                variant="outlined"
+                onClick={handleGraphAddDrawer}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  _hover: {
+                    color: "white",
+                  },
+                }}>
+                <FiPlus />
+                Add Graph
+              </Button>
+            </Box>
+
+            {/* Update sales graph details report */}
+            <Box display="flex" flexWrap="wrap" justifyContent="space-between">
+              {salesCustomerWise && salesCustomerWise?.length === 0 && (
+                <Alert
+                  status="error"
+                  sx={{
+                    fontSize: "16px",
+                    padding: "5px",
+                    borderRadius: "5px",
+                    height: "30px",
+                    px: "10px",
+                  }}>
+                  No Sales Graph are there
+                </Alert>
+              )}
+              {salesCustomerWise &&
+                salesCustomerWise?.map((chart, index) => {
+                  return (
+                    <Box
+                      key={index}
+                      width={{
+                        base: "100%",
+                        lg: "49%",
+                      }}
+                      mb={6}>
+                      <Box
+                        sx={{
+                          backgroundColor: "white",
+                          padding: "15px",
+                          my: 2.5,
+                          borderRadius: "8px",
+                          transition: "box-shadow 0.3s ease-in-out",
+                          border: "1px solid #dee2e6",
+                          "&:hover": {
+                            boxShadow: "0 4px 4px rgba(0, 0, 0, 0.2)",
+                          },
+                        }}
+                        mb={3}>
+                        <Box
+                          display="flex"
+                          justifyContent="space-between"
+                          alignItems="center"
+                          mb={8}>
+                          <Box
+                            style={{
+                              padding: "10px",
+                              fontWeight: 600,
+                              color: "black",
+                            }}>
+                            {chart.chartName}
+                            <Text
+                              sx={{
+                                color: "#718296",
+                                fontSize: "10px",
+                              }}>
+                              {chart.description}
+                            </Text>
+                          </Box>
+                          <Box
+                            style={{
+                              padding: "10px",
+                              fontWeight: 600,
+                              color: "black",
+                            }}>
+                            <Button
+                              variant="outline"
+                              style={{
+                                padding: "15px 10px",
+                                fontSize: "12px",
+                                color: "#718296",
+                              }}
+                              mr={3}
+                              onClick={() => handleConfigure(chart)}>
+                              <FiSettings style={{ marginRight: "6px" }} />{" "}
+                              Configure
+                            </Button>
+
+                            <Button
+                              variant="outline"
+                              style={{
+                                padding: "15px 10px",
+                                fontSize: "12px",
+                                color: "#718296",
+                              }}
+                              mr={3}
+                              onClick={() => handleView(chart)}>
+                              <FiSettings style={{ marginRight: "6px" }} /> View
+                              Graph
+                            </Button>
+                          </Box>
+                        </Box>
+                        <Box sx={{ height: "300px" }}>
+                          <NewMyCharts chart={chart} />
+                        </Box>
+                      </Box>
+                    </Box>
+                  );
+                })}
+            </Box>
+            {/* //sales-customer-wise graph settings */}
+            <Drawer
+              isOpen={isOpenGraphSettingDrawer}
+              placement="right"
+              onClose={onCloseGraphSettingDrawer}
+              size="xl">
+              <DrawerOverlay />
+              <DrawerContent
+                maxW="87vw"
+                sx={{
+                  "& .stickyTop": {
+                    position: "sticky",
+                    top: 0,
+                    zIndex: 1,
+                    backgroundColor: "white",
+                  },
+                }}>
+                <DrawerCloseButton style={{ color: "white" }} />
+                <DrawerHeader
+                  style={{
+                    backgroundColor: "#003060",
+                    color: "white",
+                  }}>
+                  Choose Data Wise Graph
+                </DrawerHeader>
+                <DrawerBody>
+                  <Box
+                    className="stickyTop"
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 4px",
+                      p: 2,
+                      my: 2,
+                      flexGrow: 1,
+                    }}>
+                    Total Graph (
+                    {
+                      chartsData.charts.filter(
+                        (chart) =>
+                          chart.type !== "heatmap" && chart.type !== "funnel"
+                      ).length
+                    }
+                    )
+                  </Box>
+                  <Box
+                    display="flex"
+                    flexWrap="wrap"
+                    justifyContent="space-between">
+                    {chartsData.charts.map((chart, index) => {
+                      if (chart.type === "heatmap" || chart.type === "funnel")
+                        return null;
+                      return (
+                        <Box
+                          key={index}
+                          width={{
+                            base: "100%",
+                            lg: "49.4%",
+                          }}
+                          mb={6}>
+                          <Box
+                            sx={{
+                              backgroundColor: "white",
+                              padding: "15px",
+                              my: 5,
+                              borderRadius: "8px",
+                              border: "1px solid #c4c4c4",
+                            }}
+                            mb={3}>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "flex-end",
+                                "& button": {
+                                  color: "#718296",
+                                  padding: "20px 20px",
+                                  fontSize: "14px",
+                                  border: "1px solid #dee2e6",
+                                  backgroundColor: "white",
+                                  borderRadius: "8px",
+                                },
+                                "& button:hover": {
+                                  backgroundColor: "rgb(0, 48, 96)",
+                                  borderRadius: "5px",
+                                  color: "white",
+                                },
+                              }}
+                              mb={6}>
+                              <Button
+                                type="button"
+                                variant="outlined"
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 1,
+                                  _hover: {
+                                    color: "white",
+                                  },
+                                }}
+                                onClick={() => handleConfigure(chart)}>
+                                <FiSettings
+                                  sx={{
+                                    mr: "6px",
+                                  }}
+                                />
+                                Select
+                              </Button>
+                            </Box>
+                            <Box
+                              sx={{
+                                width: "100%",
+                                height: "200px",
+                              }}>
+                              <DynamicChart chart={chart} />
+                            </Box>
+                            <Badge
+                              colorScheme="blue"
+                              py={0}
+                              px={3}
+                              fontSize={9}>
+                              {chart.title}
+                            </Badge>
+                          </Box>
+                        </Box>
+                      );
+                    })}
+                  </Box>
+
+                  <Drawer
+                    isCentered
+                    size="md"
+                    isOpen={isOpenGraphSettingsModal}
+                    onClose={onCloseGraphSettingsModal}>
+                    <DrawerOverlay />
+                    <DrawerContent maxW="86vw">
+                      <DrawerCloseButton color="white" size="lg" mt="8px" />
+                      <DrawerHeader
+                        color="white"
+                        mb="4px"
+                        fontSize="17px"
+                        fontWeight="500"
+                        padding="15px 15px"
+                        backgroundColor="#003060">
+                        Graphical View Settings
+                      </DrawerHeader>
+                      <Divider orientation="horizontal" mb={6} />
+                      <DrawerBody>
+                        <ChartConfiguration configureChart={configureChart} />
+                      </DrawerBody>
+                    </DrawerContent>
+                  </Drawer>
+                </DrawerBody>
+              </DrawerContent>
+            </Drawer>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
+
       {/* <Button
 				position='fixed'
 				bottom='4'
@@ -1108,8 +1464,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
             bg="mainBlue"
             color="white"
             fontSize="16px"
-            padding="12px"
-          >
+            padding="12px">
             Select Columns to Show
           </ModalHeader>
           <ModalCloseButton mt="5px" color="white" size="lg" />
@@ -1120,8 +1475,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                 onChange={handleSelectAllToggle}
                 mb={4}
                 size="lg"
-                fontWeight="600"
-              >
+                fontWeight="600">
                 Select All
               </Checkbox>
             </Box>
@@ -1136,8 +1490,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                 "& .columnCheckBox:nth-of-type(odd)": {
                   bg: "borderGrayLight",
                 },
-              }}
-            >
+              }}>
               {(getColumns(data) || [])
                 .concat(
                   columnData
@@ -1159,8 +1512,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                       padding="5px"
                       bg="rgba(231,231,231,1)"
                       borderRadius="5px"
-                      width="48%"
-                    >
+                      width="48%">
                       <Checkbox
                         size="lg"
                         display="flex"
@@ -1169,14 +1521,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                         key={column.field}
                         defaultChecked={selectedColumns.includes(column.field)}
                         isChecked={selectedColumns.includes(column.field)}
-                        onChange={() => toggleColumn(column.field)}
-                      >
+                        onChange={() => toggleColumn(column.field)}>
                         <Text
                           fontWeight="500"
                           ml="10px"
                           fontSize="12px"
-                          color="textBlackDeep"
-                        >
+                          color="textBlackDeep">
                           {formattedHeader}
                         </Text>
                       </Checkbox>
@@ -1195,8 +1545,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
               _hover={{
                 bg: "var(--chakra-colors-mainBlue)",
               }}
-              onClick={handleModalClose}
-            >
+              onClick={handleModalClose}>
               Cancel
             </Button>
             <Button
@@ -1207,8 +1556,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                 bg: "var(--chakra-colors-mainBlue)",
               }}
               color="white"
-              onClick={handleApplyChanges}
-            >
+              onClick={handleApplyChanges}>
               Apply Changes
             </Button>
           </ModalFooter>

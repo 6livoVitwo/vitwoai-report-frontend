@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Box, Heading, Flex, Button } from '@chakra-ui/react';
 import ReportsCards from '../dashboard/components/ReportsCards';
-import ProductWise from '../../asset/images/products-wise.png';
-import VendorWise from '../../asset/images/vendor-wise.png';
-import PoWise from '../../asset/images/po-wise.png';
 import SalesVerticalWise from '../../asset/images/sales-vertical-wise.png';
 import SalesSoWise from '../../asset/images/sales-so-wise.png';
 import loadingImg from '../../asset/imgs/Loading.json';
+import productWise from '../../asset/imgs/Product Wise.json';
+import vendorWise from '../../asset/imgs/Vendor Wise.json';
+import poWise from '../../asset/imgs/PO Wise.json';
 
 const Allreports = () => {
 	const cardsData = [
@@ -17,19 +17,19 @@ const Allreports = () => {
           id: "9",
           name: "Product Wise",
           link: "/reports/product-wise/table-view",
-          imgsrc: ProductWise,
+          imgsrc: productWise,
         },
         {
           id: "10",
           name: "Vendor Wise",
           link: "/reports/vendor-wise/table-view",
-          imgsrc: VendorWise,
+          imgsrc: vendorWise,
         },
         {
           id: "11",
           name: "PO Wise",
           link: "/reports/po-wise/table-view",
-          imgsrc: PoWise,
+          imgsrc: poWise,
         },
       ],
     },
@@ -66,12 +66,12 @@ const Allreports = () => {
           link: "/reports/sales-kam-wise/table-view",
           imgsrc: SalesSoWise,
         },
-		{
-			id: "26",
-			name: "Region Wise",
-			link: "/reports/sales-region-wise/table-view",
-			imgsrc: SalesSoWise,
-		  },
+        {
+          id: "26",
+          name: "Region Wise",
+          link: "/reports/sales-region-wise/table-view",
+          imgsrc: SalesSoWise,
+        },
       ],
     },
   ];

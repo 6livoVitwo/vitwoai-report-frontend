@@ -29,14 +29,11 @@ import Allreports from "../features/allreports";
 import AllCharts from "../features/dashboard/AllCharts";
 import PurchaseProductWise from "../features/purchaseProductWise/components";
 import PurchaseProductWiseTableView from "../features/purchaseProductWise/components/purchaseProductWiseTableView";
-import PurchaseProductWiseGraphView from "../features/purchaseProductWise/components/purchaseProductWiseGraphView";
 import PurchaseVendorWise from "../features/purchaseVendorWise/components";
 import PurchaseVendorWiseTableView from "../features/purchaseVendorWise/components/purchaseVendorWiseTableView";
-import PurchaseVendorWiseGraphView from "../features/purchaseVendorWise/components/purchaseVendorWiseGraphView";
 import SalesDetails from "../features/salesDetailsReport/components";
 import PurchasePoWise from "../features/purchasePoWise/components";
 import PurchasePoWiseTableView from "../features/purchasePoWise/components/purchasePoWiseTableView";
-import PurchasePoWiseGraphView from "../features/purchasePoWise/components/purchasePoWiseGraphView";
 import Reportdetails from "../features/reportdetails";
 import DashboardNew from "../features/dashboardNew/pages/DashboardNew";
 import SalesKamWise from "../features/salesKamWise/components";
@@ -192,18 +189,6 @@ const AllRoutes = () => {
                 </PortalForLayout>
               }
             />
-            <Route
-              path="/reports/product-wise/graph-view"
-              element={
-                <PortalForLayout
-                  globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
-                  <PurchaseProductWiseGraphView
-                    globalLayout={setGlobalStaticFragmennt}
-                  />
-                </PortalForLayout>
-              }
-            />
           </Route>
 
           <Route
@@ -222,18 +207,6 @@ const AllRoutes = () => {
                   globalLayout={globalStaticFragmennt}
                   portalId={commonPortalRef}>
                   <PurchaseVendorWiseTableView
-                    globalLayout={setGlobalStaticFragmennt}
-                  />
-                </PortalForLayout>
-              }
-            />
-            <Route
-              path="/reports/vendor-wise/graph-view"
-              element={
-                <PortalForLayout
-                  globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
-                  <PurchaseVendorWiseGraphView
                     globalLayout={setGlobalStaticFragmennt}
                   />
                 </PortalForLayout>
@@ -395,18 +368,6 @@ const AllRoutes = () => {
                   globalLayout={globalStaticFragmennt}
                   portalId={commonPortalRef}>
                   <PurchasePoWiseTableView
-                    globalLayout={setGlobalStaticFragmennt}
-                  />
-                </PortalForLayout>
-              }
-            />
-            <Route
-              path="/reports/po-wise/graph-view"
-              element={
-                <PortalForLayout
-                  globalLayout={globalStaticFragmennt}
-                  portalId={commonPortalRef}>
-                  <PurchasePoWiseGraphView
                     globalLayout={setGlobalStaticFragmennt}
                   />
                 </PortalForLayout>
