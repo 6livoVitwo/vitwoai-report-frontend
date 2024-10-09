@@ -547,6 +547,7 @@ const CustomTable = ({
 
   const formatHeader = (header) => {
     header = header.trim();
+    header = header.replace(/^[A-Z]+\(|\)$/g, "");
     const parts = header.split(".");
     const lastPart = parts.pop();
     const words = lastPart.split("_").join("");
@@ -817,7 +818,7 @@ const CustomTable = ({
             value={selectedRegion}
             onChange={handleRegionChange}
             style={{
-              width: "200px",
+              width: "100px",
               background: "#dedede",
             }}
           />
