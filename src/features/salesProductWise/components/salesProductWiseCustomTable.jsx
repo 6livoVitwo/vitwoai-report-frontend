@@ -728,7 +728,7 @@ const CustomTable = ({
       handleApplyFiltersSUM();
       setFilters((prevFilters) => ({
         ...prevFilters,
-        size: 200, // Update size to full
+        size:1000, // Update size to full
       }));
     }
   }, [

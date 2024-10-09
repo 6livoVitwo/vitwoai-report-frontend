@@ -695,6 +695,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         ...localFilters,
         filter: [...localFilters.filter, newFilter],
       };
+      //update the api filters
       setColumnFilters((prevFilters) => ({
         ...prevFilters,
         [activeFilterColumn]: {
@@ -712,23 +713,31 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
+      refetchProductFilter();
     } else {
       console.error("Filter condition, value, or column is missing");
     }
   };
 
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     if (activeFilterColumn) {
-      const columnType = activeFilterColumn; // Assuming activeFilterColumn holds the column type
-      columnType.includes("SUM(")
-        ? handleApplyFiltersSUM()
-        : handleApplyFilters();
+      const columnType = activeFilterColumn;
+      if (columnType.includes("SUM(")) {
+        handleApplyFilters();
+        return;
+      }
+      handleApplyFiltersSUM();
       setFilters((prevFilters) => ({
         ...prevFilters,
-        size: 1000,
+        size:1000, // Update size to full
       }));
     }
-  };
+  }, [
+    activeFilterColumn,
+    handleApplyFiltersSUM,
+    handleApplyFilters,
+    setFilters,
+  ]);
 
   const exportToExcel = () => {
     import("xlsx").then((xlsx) => {
