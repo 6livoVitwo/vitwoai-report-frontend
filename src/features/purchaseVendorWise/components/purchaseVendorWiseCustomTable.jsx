@@ -77,7 +77,8 @@ import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice
 import { useGetGlobalsearchVendorQuery } from "../slice/purchaseVendorWiseApi";
 import { useVendorWisePurchaseQuery } from "../slice/purchaseVendorWiseApi";
 import { useGetSelectedColumnsVendorQuery } from "../slice/purchaseVendorWiseApi";
-const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch }) => {
+const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetch }) => {
+  const { selectedWise } = useSelector((state) => state.graphSlice);
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
@@ -101,9 +102,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const dispatch = useDispatch();
-      const salesCustomerWise = useSelector(
-        (state) => state.salescustomer.widgets
-      );
+  const salesCustomerWise = useSelector(
+    (state) => state.salescustomer.widgets
+  );
 
 
   const handlePopoverClick = (column) => {
@@ -288,9 +289,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
         .concat(
           columnData
             ? Object.keys(columnData?.content[0] || {}).map((key) => ({
-                field: key,
-                header: key,
-              }))
+              field: key,
+              header: key,
+            }))
             : []
         )
         .map((column) => column.field);
@@ -340,7 +341,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
       ],
     };
     setFilters(updatedFilters);
-    setSearchQuery(inputValue); 
+    setSearchQuery(inputValue);
   };
 
   const clearAllFilters = () => {
@@ -353,7 +354,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
 
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray];
-    
+
     Object.keys(columnFilters).forEach((field) => {
       const filter = columnFilters[field];
       if (filter.condition && filter.value) {
@@ -463,7 +464,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
   const handleScroll = () => {
     const { scrollTop, scrollHeight, clientHeight } = tableContainerRef.current;
 
-    if (scrollTop + clientHeight >= scrollHeight - 2 ) {
+    if (scrollTop + clientHeight >= scrollHeight - 2) {
       loadMoreData();
     }
   };
@@ -581,42 +582,36 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
     });
   };
 
-   const removeProperty = (object) => {
-     if (!object) {
-       return {};
-     }
-     const { data, id, ...rest } = object;
-     return rest;
-   };
+  const removeProperty = (object) => {
+    if (!object) {
+      return {};
+    }
+    const { data, id, ...rest } = object;
+    return rest;
+  };
 
-   const handleConfigure = (chart) => {
-     if (!chart) {
-       return;
-     }
-     onOpenGraphSettingsModal();
-     const filterData = removeProperty(chart);
-     setConfigureChart(filterData);
-   };
+  const handleConfigure = (chart) => {
+    if (!chart) {
+      return;
+    }
+    onOpenGraphSettingsModal();
+    const filterData = removeProperty(chart);
+    setConfigureChart(filterData);
+  };
 
-   const handleView = (chart) => {
-     if (!chart) {
-       return;
-     }
-     onOpenGraphDetailsView();
-     const filterData = removeProperty(chart);
-     setConfigureChart(filterData);
-   };
+  const handleView = (chart) => {
+    if (!chart) {
+      return;
+    }
+    onOpenGraphDetailsView();
+    const filterData = removeProperty(chart);
+    setConfigureChart(filterData);
+  };
 
-   const handleGraphAddDrawer = () => {
-     onOpenGraphSettingDrawer();
-     dispatch(handleGraphWise("sales-customer-wise"));
-   };
-
-
-  // console.log(data, 'data');
-  // console.log(newArray, 'newArray');
-  // console.log(selectedColumns, 'selectedColumns');
-  // console.log(filteredItems, 'filteredItems');
+  const handleGraphAddDrawer = () => {
+    onOpenGraphAddDrawer();
+    dispatch(handleGraphWise("purchase-vendor-wise"));
+  };
 
   return (
     <Box bg="white" padding="0px 10px" borderRadius="5px">
@@ -710,7 +705,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
           />
           {/* Graph view  */}
           <Button
-            onClick={onOpenGraphAddDrawer}
+            onClick={handleGraphAddDrawer}
             aria-label="Graph View"
             borderRadius="30px"
             width="40px"
@@ -1034,19 +1029,19 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                                           />
                                           {tempFilterCondition ===
                                             "between" && (
-                                            <>
-                                              <Input
-                                                className="Between"
-                                                h="35px"
-                                                fontSize="12px"
-                                                padding="6px"
-                                                onChange={
-                                                  handleTempFilterValueChange
-                                                }
-                                                placeholder={`Filter ${column}`}
-                                              />
-                                            </>
-                                          )}
+                                              <>
+                                                <Input
+                                                  className="Between"
+                                                  h="35px"
+                                                  fontSize="12px"
+                                                  padding="6px"
+                                                  onChange={
+                                                    handleTempFilterValueChange
+                                                  }
+                                                  placeholder={`Filter ${column}`}
+                                                />
+                                              </>
+                                            )}
                                         </Box>
                                       </Box>
                                     </Box>
@@ -1096,8 +1091,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                                 column === "description"
                                   ? "300px"
                                   : column === "name"
-                                  ? "200px"
-                                  : "100px"
+                                    ? "200px"
+                                    : "100px"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis">
@@ -1160,7 +1155,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                 ref={btnRef}
                 type="button"
                 variant="outlined"
-                onClick={handleGraphAddDrawer}
+                onClick={onOpenGraphSettingDrawer}
                 sx={{
                   display: "flex",
                   alignItems: "center",
@@ -1495,9 +1490,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                 .concat(
                   columnData
                     ? Object.keys(columnData?.content[0] || {}).map((key) => ({
-                        field: key,
-                        header: key,
-                      }))
+                      field: key,
+                      header: key,
+                    }))
                     : []
                 )
                 .map((column, index) => {

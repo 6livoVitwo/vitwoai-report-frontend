@@ -7,7 +7,7 @@ const FunnelChart = ({ liveData = [], dynamicWidth = 1200 }) => {
       {liveData.length > 0 ? (
         <Funnel data={liveData} dynamicWidth={dynamicWidth} />
       ) : (
-        <Funnel dynamicWidth={dynamicWidth} />
+        <Funnel />
       )}
     </>
   );

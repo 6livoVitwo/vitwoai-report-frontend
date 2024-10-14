@@ -80,7 +80,6 @@ const newEndpoint = (data = "", type = "", processFlow = "") => {
     if (type === "funnel") {
       return processFlow;
     }
-    return "/sales/graph/so-wise-flow-process";
   } else if (data === "sales-kam-wise") {
     if (type === "bump" || type === "areaBump" || type === "line") {
       return "/sales/graph/kam-wise-time-series-seq";
@@ -96,6 +95,24 @@ const newEndpoint = (data = "", type = "", processFlow = "") => {
       return "/sales/graph/region-wise-heat-density";
     } else if (type === "bar" || type === "pie") {
       return "/sales/sales-graph-two";
+    }
+  } else if (data === "purchase-product-wise") {
+    if (type === "areaBump" || type === "line" || type === "bump") {
+      return "/purchase/graph/material-wise-time-series-seq"
+    } else if (type === "bar" || type === "pie") {
+      return "/purchase/purchase-graph-two";
+    }
+  } else if (data === "purchase-vendor-wise") {
+    if (type === "areaBump" || type === "line" || type === "bump") {
+      return "/purchase/graph/vendor-wise-time-series-seq"
+    } else if (type === "bar" || type === "pie") {
+      return "/purchase/purchase-graph-two";
+    }
+  } else if (data === "purchase-po-wise") {
+    if (type === "funnel") {
+      return processFlow;
+    } else if (type === "bar" || type === "pie") {
+      return "/purchase/purchase-graph-two";
     }
   }
 };
@@ -245,6 +262,93 @@ const initialBodyWise = (
         ]
       }
     }
+  } else if (selectedWise === "purchase-product-wise") {
+    if (type === "bump" || type === "areaBump" || type === "line") {
+      return {
+        priceOrQty: `${priceOrQty}`,
+        yearFrom: split(startDate, "-")[0],
+        yearTo: split(endDate, "-")[0],
+        monthFrom: split(startDate, "-")[1],
+        monthTo: split(endDate, "-")[1],
+      };
+    } else if (type === "bar" || type === "pie") {
+      return {
+        "xaxis": "items.goodName",
+        "yaxis": [
+          "grnInvoice.grnSubTotal",
+          "grnInvoice.grnTotalCgst",
+          "grnInvoice.grnTotalIgst",
+          "grnInvoice.grnTotalAmount"
+        ],
+        "groupBy": [
+          "items.goodCode"
+        ],
+        "valuetype": "sum",
+        "filter": [
+          {
+            "column": "vendorDocumentDate",
+            "operator": "between",
+            "type": "date",
+            "value": [startDate, endDate]
+          }
+        ]
+      }
+    }
+  } else if (selectedWise === "purchase-vendor-wise") {
+    if (type === "bump" || type === "areaBump" || type === "line") {
+      return {
+        yearFrom: split(startDate, "-")[0],
+        yearTo: split(endDate, "-")[0],
+        monthFrom: split(startDate, "-")[1],
+        monthTo: split(endDate, "-")[1],
+      };
+    } else if (type === "bar" || type === "pie") {
+      return {
+        "xaxis": "vendors.trade_name",
+        "yaxis": [
+          "grnInvoice.grnSubTotal",
+          "grnInvoice.grnTotalCgst",
+          "grnInvoice.grnTotalIgst",
+          "grnInvoice.grnTotalAmount"
+        ],
+        "groupBy": [
+          "vendors.vendor_code"
+        ],
+        "valuetype": "count",
+        "filter": [
+          {
+            "column": "vendorDocumentDate",
+            "operator": "between",
+            "type": "date",
+            "value": [startDate, endDate]
+          }
+        ]
+      }
+    }
+  } else if (selectedWise === "purchase-po-wise") {
+    if (type === "bar" || type === "pie") {
+      return {
+        "xaxis": "po.po_number",
+        "yaxis": [
+          "grnInvoice.grnSubTotal",
+          "grnInvoice.grnTotalCgst",
+          "grnInvoice.grnTotalIgst",
+          "grnInvoice.grnTotalAmount"
+        ],
+        "groupBy": [
+          "po.po_number"
+        ],
+        "valuetype": "count",
+        "filter": [
+          {
+            "column": "vendorDocumentDate",
+            "operator": "between",
+            "type": "date",
+            "value": [startDate, endDate]
+          }
+        ]
+      }
+    }
   }
 };
 
@@ -294,9 +398,9 @@ const ChartConfiguration = ({ configureChart }) => {
   const [startDate, setStartDate] = useState(initialStartDate(inputType, type));
   const [endDate, setEndDate] = useState(initialEndDate(inputType, type));
   const { selectedWise } = useSelector((state) => state.graphSlice);
-    const [currentDescription, setCurrentDescription] = useState(
-      graphDescriptions[type]
-    );
+  const [currentDescription, setCurrentDescription] = useState(
+    graphDescriptions[type]
+  );
   const [processFlow, setProcessFlow] = useState(
     "/sales/graph/so-wise-flow-process"
   );
@@ -680,6 +784,8 @@ const ChartConfiguration = ({ configureChart }) => {
     setProcessFlow(value);
   };
 
+  console.log('🟢🔵🔴', { selectedWise })
+
   return (
     <Card variant={"unstyled"}>
       <CardBody sx={{ minHeight: "77vh" }}>
@@ -780,26 +886,46 @@ const ChartConfiguration = ({ configureChart }) => {
                         <Text fontSize="sm" fontWeight="500">
                           Process Flow
                         </Text>
-                        <Select
-                          size="lg"
-                          value={processFlow}
-                          onChange={(e) => handleProcessFlow(e.target.value)}>
-                          <option value="/sales/graph/so-wise-flow-process">
-                            SO
-                          </option>
-                          <option value="/sales/graph/request-wise-flow-process">
-                            Request
-                          </option>
-                          <option value="/sales/graph/quotation-so-wise-flow-process">
-                            Quotation SO
-                          </option>
-                          <option value="/sales/graph/quotation-invoice-wise-flow-process">
-                            Quotation Invoice
-                          </option>
-                          <option value="/sales/graph/invoice-wise-flow-process">
-                            Invoice
-                          </option>
-                        </Select>
+                        {selectedWise !== "purchase-po-wise" ? (
+                          <Select
+                            size="lg"
+                            value={processFlow}
+                            onChange={(e) => handleProcessFlow(e.target.value)}>
+                            <option value="/sales/graph/so-wise-flow-process">
+                              SO
+                            </option>
+                            <option value="/sales/graph/request-wise-flow-process">
+                              Request
+                            </option>
+                            <option value="/sales/graph/quotation-so-wise-flow-process">
+                              Quotation SO
+                            </option>
+                            <option value="/sales/graph/quotation-invoice-wise-flow-process">
+                              Quotation Invoice
+                            </option>
+                            <option value="/sales/graph/invoice-wise-flow-process">
+                              Invoice
+                            </option>
+                          </Select>
+                        ) : (
+                          <Select
+                            size="lg"
+                            value={processFlow}
+                            onChange={(e) => handleProcessFlow(e.target.value)}>
+                            <option value="/purchase/graph/rfq-wise-flow-process">
+                              RFQ
+                            </option>
+                            <option value="/purchase/graph/po-wise-flow-process">
+                              PO
+                            </option>
+                            <option value="/purchase/graph/grn-wise-flow-process">
+                              GRN
+                            </option>
+                            <option value="/purchase/graph/grn-invoice-wise-flow-process">
+                              GRN Invoice
+                            </option>
+                          </Select>
+                        )}
                       </Stack>
                     </Grid>
                   </Box>
@@ -831,7 +957,7 @@ const ChartConfiguration = ({ configureChart }) => {
                         </Stack>
                       </Grid>
                     )}
-                    {selectedWise !== "sales-customer-wise" &&
+                    {selectedWise !== "sales-customer-wise" && selectedWise !== "purchase-vendor-wise" &&
                       type !== "bar" &&
                       type !== "pie" && (
                         <Grid templateColumns="repeat(1, 1fr)" gap={6}>

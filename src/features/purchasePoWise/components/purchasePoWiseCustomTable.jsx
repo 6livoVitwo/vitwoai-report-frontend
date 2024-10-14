@@ -83,6 +83,7 @@ import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfig
 
 
 const CustomTable = ({ setPage, newArray, alignment, filters }) => {
+  const {selectedWise} = useSelector((state) => state.graphSlice);
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
@@ -204,9 +205,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
    };
 
    const handleGraphAddDrawer = () => {
-     onOpenGraphSettingDrawer();
-     dispatch(handleGraphWise("sales-customer-wise"));
+     onOpenGraphAddDrawer();
+     dispatch(handleGraphWise("purchase-po-wise"));
    };
+   console.log('🟢', {selectedWise})
 
   const getColumnStyle = (header) => ({
     textAlign: alignment[header] || "left",
@@ -687,7 +689,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
           />
           {/* Graph view  */}
           <Button
-            onClick={onOpenGraphAddDrawer}
+            onClick={handleGraphAddDrawer}
             aria-label="Graph View"
             borderRadius="30px"
             width="40px"
@@ -1131,7 +1133,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                 ref={btnRef}
                 type="button"
                 variant="outlined"
-                onClick={handleGraphAddDrawer}
+                onClick={onOpenGraphSettingDrawer}
                 sx={{
                   display: "flex",
                   alignItems: "center",
@@ -1285,7 +1287,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                     {
                       chartsData.charts.filter(
                         (chart) =>
-                          chart.type !== "heatmap" && chart.type !== "funnel"
+                          chart.type !== "heatmap" && chart.type !== "bump" && chart.type !== "areaBump" && chart.type !== "line"
                       ).length
                     }
                     )
@@ -1295,7 +1297,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                     flexWrap="wrap"
                     justifyContent="space-between">
                     {chartsData.charts.map((chart, index) => {
-                      if (chart.type === "heatmap" || chart.type === "funnel")
+                      if (chart.type !== "funnel" && chart.type !== "bar" && chart.type !== "pie")
                         return null;
                       return (
                         <Box

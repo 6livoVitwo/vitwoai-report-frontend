@@ -8,7 +8,7 @@ const HeatMapChart = ({ liveData = [], dynamicWidth = 1200, dynamicHeight }) => 
       {liveData.length > 0 ? (
         <HeatMap data={liveData} dynamicWidth={dynamicWidth} dynamicHeight={dynamicHeight} />
       ) : (
-        <HeatMap dynamicWidth={dynamicWidth} />
+        <HeatMap />
       )}
     </>
   );

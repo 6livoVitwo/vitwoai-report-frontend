@@ -9,7 +9,7 @@ const PieChart = ({ liveData = [], startDate = "", endDate = "", dynamicWidth = 
       {liveData?.length > 0 ? (
         <Pie data={liveData} dynamicWidth={dynamicWidth} />
       ) : (
-        <Pie dynamicWidth={dynamicWidth} />
+        <Pie />
       )}
     </>
   );
