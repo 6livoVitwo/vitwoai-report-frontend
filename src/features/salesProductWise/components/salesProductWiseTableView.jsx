@@ -12,26 +12,27 @@ const SalesProductWiseTableView = () => {
   const [individualItems, setIndividualItems] = useState([]);
   const [toastShown, setToastShown] = useState(false);
   const toast = useToast();
-
-  const [filters, setFilters] = useState({
-    data: [
-      "items.itemName",
-      "SUM(salesPgi.salesDelivery.totalAmount)",
-      "SUM(salesPgi.totalAmount)",
-      "SUM(quotation.totalAmount)",
-      "SUM(salesOrder.totalAmount)",
-      "SUM(items.qty)",
-      "SUM(items.basePrice - items.totalDiscountAmt)",
-      "SUM(all_total_amt)",
-    ],
-    groupBy: ["items.itemName"],
-    filter: [],
-    page: 0,
-    size: 50,
-    sortBy: "invoice_date",
-    sortDir: "asc",
-  });
-
+ 
+  const [filters, setFilters] = useState(
+    {
+      data: [
+              "items.itemName",
+              "SUM(salesPgi.salesDelivery.totalAmount)",
+              "SUM(salesPgi.totalAmount)",
+              "SUM(quotation.totalAmount)",
+              "SUM(salesOrder.totalAmount)",
+              "SUM(items.qty)",
+              "SUM(items.basePrice - items.totalDiscountAmt)",
+              "SUM(all_total_amt)",
+      ],
+      groupBy: ["items.itemName"],
+      filter: [],
+      page: 0,
+      size: 20,
+      sortDir: "asc",
+      sortBy: "invoice_date",
+    }
+  )
 
   const {
     data: sales,
@@ -44,7 +45,6 @@ const SalesProductWiseTableView = () => {
     size,
     authDetails: authData.authDetails,
   });
-
 
   const pageInfo = sales?.lastPage;
 
@@ -76,12 +76,11 @@ const SalesProductWiseTableView = () => {
     "items.itemName": data["items.itemName"],
     "SUM(salesPgi.totalAmount)": data["SUM(salesPgi.totalAmount)"],
     "invoice_date": data["invoice_date"],
-    // "Sales Delivery Total Amount": data["SUM(salesPgi.salesDelivery.totalAmount)"],
+    "SUM(salesPgi.salesDelivery.totalAmount)": data["SUM(salesPgi.salesDelivery.totalAmount)"],
     // "Sales Order": data["SUM(salesOrder.totalAmount)"],
-    // "Total Qty": data["SUM(items.qty)"],
+    // "Total Qty": data["SUM(items.qty)"]
     // "Sub Total": data["SUM(items.basePrice - items.totalDiscountAmt)"],
     // "Total Amount": data["SUM(all_total_amt)"],
-
   });
 
   useEffect(() => {
@@ -122,44 +121,43 @@ const SalesProductWiseTableView = () => {
       setToastShown(true); // Mark the toast as shown
     }
   }, [sales, page, toast, toastShown]);
-
-  if (isLoading) {
-    return (
-      <Box
-        height="calc(100vh - 75px)"
-        width="100%"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Spinner
-          thickness="4px"
-          speed="0.65s"
-          emptyColor="gray.200"
-          color="blue.500"
-          size="xl"
-        />
-      </Box>
-    );
-  }
-  if (error) {
-    return (
-      <Box
-        bg="white"
-        width="100%"
-        height="calc(100vh - 103px)"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Image src={NoDataFound} alt="No Data Available" />
-      </Box>
-    );
-  }
-
+	if (isLoading) {
+		return (
+			<Box
+				height='calc(100vh - 75px)'
+				width='100%'
+				display='flex'
+				alignItems='center'
+				justifyContent='center'>
+				<Spinner
+					thickness='4px'
+					speed='0.65s'
+					emptyColor='gray.200'
+					color='blue.500'
+					size='xl'
+				/>
+			</Box>
+		);
+	}
+	if (error) {
+		return (
+			<Box
+				bg='white'
+				width='100%'
+				height='calc(100vh - 103px)'
+				display='flex'
+				alignItems='center'
+				justifyContent='center'>
+				<Image src={NoDataFound} alt='No Data Available' />
+			</Box>
+		);
+	}
+	
   const newArray = individualItems.map((data, index) =>
     extractFields(data, index)
   );
+  // console.log(sales, 'main data');
+  // console.log(newArray, 'newArray');
 
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">

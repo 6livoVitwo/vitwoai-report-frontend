@@ -158,8 +158,8 @@ const CustomTable = ({
     useProductWiseSalesQuery({
       filters: {
         ...filters,
-         sortBy: sortColumn,
-         sortDir: sortOrder,
+        //  sortBy: sortColumn,
+        //  sortDir: sortOrder,
       },
       page: currentPage,
     });
@@ -315,7 +315,7 @@ const CustomTable = ({
   const handleDragEnd = (result) => {
     if (!result.destination) {
       return;
-    }
+    } 
     const newColumnsOrder = Array.from(selectedColumns);
     const [removed] = newColumnsOrder.splice(result.source.index, 1);
     newColumnsOrder.splice(result.destination.index, 0, removed);
@@ -611,31 +611,11 @@ const CustomTable = ({
       .join(" ");
   };
 
-  // const handleScroll = () => {
-  //   const {
-  //     scrollTop,
-  //     scrollHeight,
-  //     clientHeight,
-  //     scrollLeft,
-  //     clientWidth,
-  //     scrollRight,
-  //   } = tableContainerRef.current;
 
-  //   // Only trigger the API call if scrolling vertically
-  //   if (
-  //     // scrollRight === 0 &&
-  //     // scrollLeft === 0 &&
-  //     scrollTop + clientHeight >= scrollHeight - 5 &&
-  //     !loading
-  //   ) {
-  //     loadMoreData(); // Load more data when scrolled to the bottom
-  //   }
-  // };
   let previousScrollLeft = 0;
   const handleScroll = () => {
     const { scrollTop, scrollHeight, clientHeight, scrollLeft, clientWidth } =
       tableContainerRef.current;
-
     // Check if horizontal scroll has changed
     if (scrollLeft !== previousScrollLeft) {
       // Update the previous scroll left position
