@@ -66,8 +66,8 @@ import { useDispatch } from "react-redux";
 import { faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { DownloadIcon } from "@chakra-ui/icons";
 import { useSelector } from "react-redux";
-import { chartsData } from "../data/fakeData";
-import DynamicChart from "../components/DynamicChart";
+import { chartsData } from "../../nivoGraphs/data/fakeData";
+import DynamicChart from "../../nivoGraphs/chartConfigurations/DynamicChart";
 import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
@@ -463,8 +463,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     });
     // return filteredData;
   }, [
-    data,
-    searchData,
     searchQuery,
     columnFilters,
     sortColumn,
@@ -1410,7 +1408,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                     {
                       chartsData.charts.filter(
                         (chart) =>
-                          chart.type !== "heatmap" && chart.type !== "funnel"
+                          chart.type !== "heatmap" && chart.type !== "funnel" && chart.type !== "line" && chart.type !== "areaBump" && chart.type !== "bump"
                       ).length
                     }
                     )
@@ -1420,8 +1418,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                     flexWrap="wrap"
                     justifyContent="space-between">
                     {chartsData.charts.map((chart, index) => {
-                      if (chart.type === "heatmap" || chart.type === "funnel")
-                        return null;
+                      if (chart.type === "heatmap" || chart.type === "funnel" || chart.type === "line" || chart.type === "areaBump" || chart.type === "bump") return null;
                       return (
                         <Box
                           key={index}
