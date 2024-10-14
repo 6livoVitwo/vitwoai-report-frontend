@@ -397,7 +397,7 @@ const ChartConfiguration = ({ configureChart }) => {
   const [regionWise, setRegionWise] = useState("pincode");
   const [startDate, setStartDate] = useState(initialStartDate(inputType, type));
   const [endDate, setEndDate] = useState(initialEndDate(inputType, type));
-  const { selectedWise } = useSelector((state) => state.graphSlice);
+  const { selectedWise, reportType } = useSelector((state) => state.graphSlice);
   const [currentDescription, setCurrentDescription] = useState(
     graphDescriptions[type]
   );
@@ -516,7 +516,7 @@ const ChartConfiguration = ({ configureChart }) => {
     }));
   };
 
-  const handleDateUpdate = (dateType, data, type) => {
+  const handleDateUpdate = (dateType, data, type, reportType) => {
     let newStartDate = dateType === "from" ? data : startDate;
     let newEndDate = dateType === "to" ? data : endDate;
 
@@ -545,11 +545,11 @@ const ChartConfiguration = ({ configureChart }) => {
   };
 
   const handleFromDate = (data) => {
-    handleDateUpdate("from", data, type);
+    handleDateUpdate("from", data, type, reportType);
   };
 
   const handleToDate = (data) => {
-    handleDateUpdate("to", data, type);
+    handleDateUpdate("to", data, type, reportType);
   };
 
   const yAxisOptions = [

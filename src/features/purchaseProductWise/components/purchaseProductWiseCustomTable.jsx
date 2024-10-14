@@ -820,7 +820,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   const handleGraphAddDrawer = () => {    
     onOpenGraphAddDrawer();
-    dispatch(handleGraphWise("purchase-product-wise"));
+    dispatch(handleGraphWise({selectedWise: "purchase-product-wise", reportType: 'purchase'}));
   };
 
   console.log('🟢',{selectedWise})

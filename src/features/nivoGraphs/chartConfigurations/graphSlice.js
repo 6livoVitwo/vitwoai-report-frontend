@@ -4,6 +4,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   widgets: [],
   selectedWise: 'sales-product-wise',
+  reportType: 'sales',
 };
 
 // Create the slice
@@ -46,7 +47,10 @@ const graphSlice = createSlice({
     },
 
     handleGraphWise: (state, action) => {
-      state.selectedWise = action.payload
+      const { selectedWise, reportType } = action.payload;
+
+      state.selectedWise = selectedWise;
+      state.reportType = reportType;
     }
   },
 });
