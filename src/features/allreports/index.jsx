@@ -12,6 +12,12 @@ import loadingImg from '../../asset/imgs/Loading.json';
 import purchaseProductWise from '../../asset/imgs/purchase-product-wise.json';
 import purchaseVendorWise from '../../asset/imgs/purchase-vendor-wise.json';
 import purchasePoWise from "../../asset/imgs/purchase-po-wise.json";
+import salesProductWise from "../../asset/imgs/sales-product-wise.json";
+import salesCustomerWise from "../../asset/imgs/sales-customer-wise.json";
+import salesVerticalWise from '../../asset/imgs/sales-vertical-wise.json';
+import salesSoWise from '../../asset/imgs/sales-so-wise.json';
+import salesKamWise from '../../asset/imgs/sales-kam-wise.json';
+import salesRegionWise from '../../asset/imgs/sales-region-wise.json';
 
 const Allreports = () => {
 	const cardsData = [
@@ -51,37 +57,37 @@ const Allreports = () => {
           id: "21",
           name: "Product Wise",
           link: "/reports/sales-product-wise/table-view",
-          imgsrc: loadingImg,
+          imgsrc: salesProductWise,
         },
         {
           id: "22",
           name: "Customer Wise",
           link: "/reports/sales-customer-wise/table-view",
-          //   imgsrc: assets.todolist_img,
+          imgsrc: salesCustomerWise,
         },
         {
           id: "23",
           name: "Vertical Wise",
           link: "/reports/sales-vertical-wise/table-view",
-          imgsrc: SalesVerticalWise,
+          imgsrc: salesVerticalWise,
         },
         {
           id: "24",
           name: "So Wise",
           link: "/reports/sales-so-wise/table-view",
-          imgsrc: SalesSoWise,
+          imgsrc: salesSoWise,
         },
         {
           id: "25",
           name: "Kam Wise",
           link: "/reports/sales-kam-wise/table-view",
-          imgsrc: SalesSoWise,
+          imgsrc: salesKamWise,
         },
         {
           id: "26",
           name: "Region Wise",
           link: "/reports/sales-region-wise/table-view",
-          imgsrc: SalesSoWise,
+          imgsrc: salesRegionWise,
         },
       ],
     },

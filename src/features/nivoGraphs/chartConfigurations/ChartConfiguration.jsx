@@ -145,7 +145,7 @@ const initialBodyWise = (
           "all_total_amt",
         ],
         groupBy: ["items.itemName"],
-        valuetype: "sum",
+        valuetype: "count",
         filter: [
           {
             column: "invoice_date",
@@ -273,26 +273,24 @@ const initialBodyWise = (
       };
     } else if (type === "bar" || type === "pie") {
       return {
-        "xaxis": "items.goodName",
-        "yaxis": [
+        xaxis: "items.goodName",
+        yaxis: [
           "grnInvoice.grnSubTotal",
           "grnInvoice.grnTotalCgst",
           "grnInvoice.grnTotalIgst",
-          "grnInvoice.grnTotalAmount"
+          "grnInvoice.grnTotalAmount",
         ],
-        "groupBy": [
-          "items.goodCode"
-        ],
-        "valuetype": "sum",
-        "filter": [
+        groupBy: ["items.goodCode"],
+        valuetype: "count",
+        filter: [
           {
-            "column": "vendorDocumentDate",
-            "operator": "between",
-            "type": "date",
-            "value": [startDate, endDate]
-          }
-        ]
-      }
+            column: "vendorDocumentDate",
+            operator: "between",
+            type: "date",
+            value: [startDate, endDate],
+          },
+        ],
+      };
     }
   } else if (selectedWise === "purchase-vendor-wise") {
     if (type === "bump" || type === "areaBump" || type === "line") {
@@ -552,18 +550,44 @@ const ChartConfiguration = ({ configureChart }) => {
     handleDateUpdate("to", data, type, reportType);
   };
 
-  const yAxisOptions = [
-    {
-      value: "salesPgi.salesDelivery.totalAmount",
-      label: "Sales PGI Delivery Amount",
-    },
-    { value: "salesPgi.totalAmount", label: "Sales PGI Amount" },
-    { value: "quotation.totalAmount", label: "Quotation Amount" },
-    { value: "salesOrder.totalAmount", label: "Sales Order Amount" },
-    { value: "all_total_amt", label: "All Total Amount" },
-  ];
+  // const yAxisOptions = [
+  //   {
+  //     value: "salesPgi.salesDelivery.totalAmount",
+  //     label: "Sales PGI Delivery Amount",
+  //   },
+  //   { value: "salesPgi.totalAmount", label: "Sales PGI Amount" },
+  //   { value: "quotation.totalAmount", label: "Quotation Amount" },
+  //   { value: "salesOrder.totalAmount", label: "Sales Order Amount" },
+  //   { value: "all_total_amt", label: "All Total Amount" },
+  // ];
 
-  console.log("yAxisOptions", yAxisOptions);
+  // console.log("yAxisOptions", yAxisOptions);
+  
+const yAxisOptions = () => {
+  if (reportType === "sales") {
+    return [
+      {
+        value: "salesPgi.salesDelivery.totalAmount",
+        label: "Sales PGI Delivery Amount",
+      },
+      { value: "salesPgi.totalAmount", label: "Sales PGI Amount" },
+      { value: "quotation.totalAmount", label: "Quotation Amount" },
+      { value: "salesOrder.totalAmount", label: "Sales Order Amount" },
+      { value: "all_total_amt", label: "All Total Amount" },
+    ];
+  } else if (reportType === "purchase") {
+    return [
+      {
+        value: "grnInvoice.grnSubTotal",
+        label: "GRN Subtotal",
+      },
+      { value: "grnInvoice.grnTotalCgst", label: "GRN Total CGST" },
+      { value: "grnInvoice.grnTotalIgst", label: "GRN Total IGST" },
+      { value: "grnInvoice.grnTotalAmount", label: "GRN Total Amount" },
+    ];
+  }
+  return [];
+};
 
 
   const handleYAxisChange = (e) => {
@@ -957,7 +981,8 @@ const ChartConfiguration = ({ configureChart }) => {
                         </Stack>
                       </Grid>
                     )}
-                    {selectedWise !== "sales-customer-wise" && selectedWise !== "purchase-vendor-wise" &&
+                    {selectedWise !== "sales-customer-wise" &&
+                      selectedWise !== "purchase-vendor-wise" &&
                       type !== "bar" &&
                       type !== "pie" && (
                         <Grid templateColumns="repeat(1, 1fr)" gap={6}>
@@ -986,7 +1011,7 @@ const ChartConfiguration = ({ configureChart }) => {
                           </Text>
                           {type === "pie" ? (
                             <Select size="lg" onChange={handleYAxisChange}>
-                              {yAxisOptions.map((option) => (
+                              {yAxisOptions().map((option) => (
                                 <option key={option.value} value={option.value}>
                                   {option.label}
                                 </option>
@@ -995,7 +1020,7 @@ const ChartConfiguration = ({ configureChart }) => {
                           ) : (
                             <MultiSelect
                               display="chip"
-                              options={yAxisOptions.map((option) => ({
+                              options={yAxisOptions().map((option) => ({
                                 value: option.value,
                                 label: option.label,
                               }))}
