@@ -16,16 +16,19 @@ const graphSlice = createSlice({
     setSalesCustomerWidgets: (state, action) => {
       state.widgets = action.payload || [];
     },
+
     // Add a new widget
     addWidget: (state, action) => {
       state.widgets.unshift(action.payload);
     },
+
     // Remove a widget by id
     removeWidget: (state, action) => {
       state.widgets = state.widgets.filter(
         (widget) => widget.id !== action.payload
       );
     },
+
     // Update a widget by index
     updateWidget: (state, action) => {
       const { index, ...updates } = action.payload;
