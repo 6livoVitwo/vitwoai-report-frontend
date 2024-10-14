@@ -169,7 +169,7 @@ const AllRoutes = () => {
             }></Route>
 
           <Route
-            path="/reports/product-wise"
+            path="/reports/purchase-product-wise"
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
@@ -178,7 +178,7 @@ const AllRoutes = () => {
               </PortalForLayout>
             }>
             <Route
-              path="/reports/product-wise/table-view"
+              path="/reports/purchase-product-wise/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
@@ -192,7 +192,7 @@ const AllRoutes = () => {
           </Route>
 
           <Route
-            path="/reports/vendor-wise"
+            path="/reports/purchase-vendor-wise"
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
@@ -201,7 +201,7 @@ const AllRoutes = () => {
               </PortalForLayout>
             }>
             <Route
-              path="/reports/vendor-wise/table-view"
+              path="/reports/purchase-vendor-wise/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}
@@ -353,7 +353,7 @@ const AllRoutes = () => {
           </Route>
 
           <Route
-            path="/reports/po-wise/"
+            path="/reports/purchase-po-wise/"
             element={
               <PortalForLayout
                 globalLayout={globalStaticFragmennt}
@@ -362,7 +362,7 @@ const AllRoutes = () => {
               </PortalForLayout>
             }>
             <Route
-              path="/reports/po-wise/table-view"
+              path="/reports/purchase-po-wise/table-view"
               element={
                 <PortalForLayout
                   globalLayout={globalStaticFragmennt}

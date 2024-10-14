@@ -8,7 +8,7 @@ const BarChart = ({ liveData = [], startDate = "", endDate = "", dynamicWidth, i
       {liveData.length > 0 ? (
         <Bar data={liveData} dynamicWidth={dynamicWidth} />
       ) : (
-        <Bar dynamicWidth={dynamicWidth} />
+        <Bar />
       )}
     </>
   );

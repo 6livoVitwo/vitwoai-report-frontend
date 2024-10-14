@@ -21,19 +21,19 @@ const Allreports = () => {
         {
           id: "9",
           name: "Product Wise",
-          link: "/reports/product-wise/table-view",
+          link: "/reports/purchase-product-wise/table-view",
           imgsrc: purchaseProductWise,
         },
         {
           id: "10",
           name: "Vendor Wise",
-          link: "/reports/vendor-wise/table-view",
+          link: "/reports/purchase-vendor-wise/table-view",
           imgsrc: purchaseVendorWise,
         },
         {
           id: "11",
           name: "PO Wise",
-          link: "/reports/po-wise/table-view",
+          link: "/reports/purchase-po-wise/table-view",
           imgsrc: purchasePoWise,
         },
       ],

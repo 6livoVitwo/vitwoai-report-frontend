@@ -59,7 +59,7 @@ const BumpChart = ({ liveData = [], startDate = "", endDate = "", dynamicWidth =
       {liveData.length > 0 ? (
         <Bump data={data} dynamicWidth={dynamicWidth} />
       ) : (
-        <Bump dynamicWidth={dynamicWidth} />
+        <Bump />
       )}
     </>
   );

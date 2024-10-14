@@ -60,7 +60,7 @@ import {
   faArrowRightArrowLeft,
 } from "@fortawesome/free-solid-svg-icons";
 import { saveAs } from "file-saver";
-import { faFileExcel,faGear} from "@fortawesome/free-solid-svg-icons";
+import { faFileExcel, faGear } from "@fortawesome/free-solid-svg-icons";
 import { DownloadIcon } from "@chakra-ui/icons";
 import { FiPlus, FiSettings } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
@@ -79,6 +79,7 @@ import { useGetGlobalsearchPurchaseQuery } from "../slice/purchaseProductWiseApi
 import DynamicChart from "../../nivoGraphs/chartConfigurations/DynamicChart";
 
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
+  const { selectedWise } = useSelector((state) => state.graphSlice);
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
@@ -92,10 +93,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [selectedReport, setSelectedReport] = useState(null);
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
-    const salesCustomerWise = useSelector(
-      (state) => state.salescustomer.widgets
-    );
-    const [configureChart, setConfigureChart] = useState({});
+  const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
+  const [configureChart, setConfigureChart] = useState({});
   const [filterCondition, setFilterCondition] = useState("");
   const [filterValue, setFilterValue] = useState("");
   const [filterValue2, setFilterValue2] = useState("");
@@ -216,7 +215,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     onClose: onCloseGraphDetailsView,
   } = useDisclosure();
 
-    const btnRef = React.useRef();
+  const btnRef = React.useRef();
 
   const getColumnStyle = (header) => ({
     textAlign: alignment[header] || "left",
@@ -390,9 +389,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     // Get all columns from columnData
     const allColumns = columnData
       ? Object.keys(columnData?.content[0] || {}).map((key) => ({
-          field: key,
-          listName: columnData.content[0][key]?.listName || key, // Use listName or fallback to key
-        }))
+        field: key,
+        listName: columnData.content[0][key]?.listName || key, // Use listName or fallback to key
+      }))
       : [];
     // Remove duplicates based on listName
     const uniqueColumns = Array.from(
@@ -442,22 +441,22 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         })
       )
     ).filter((col) => col !== "SL No"); // Optionally exclude "SL No" from the filters
-  
+
     // Update filters with unique columns
     setFilters((prevFilters) => ({
       ...prevFilters,
       data: updatedSelectedColumns, // Replace data with unique selected listNames
     }));
-  
+
     // Save the selected columns to localStorage
     localStorage.setItem("selectedColumns", JSON.stringify(selectedColumns));
-  
+
     // Refetch data based on selected columns
     refetchColumnData({ columns: updatedSelectedColumns });
-  
+
     // Close the modal
     onClose();
-  
+
     // Show success toast notification
     toast({
       title: "Columns Applied Successfully",
@@ -465,7 +464,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       isClosable: true,
     });
   };
-  
+
 
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
 
@@ -793,42 +792,38 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     });
   };
 
-   const removeProperty = (object) => {
-     if (!object) {
-       return {};
-     }
-     const { data, id, ...rest } = object;
-     return rest;
-   };
+  const removeProperty = (object) => {
+    if (!object) {
+      return {};
+    }
+    const { data, id, ...rest } = object;
+    return rest;
+  };
 
-   const handleConfigure = (chart) => {
-     if (!chart) {
-       return;
-     }
-     onOpenGraphSettingsModal();
-     const filterData = removeProperty(chart);
-     setConfigureChart(filterData);
-   };
+  const handleConfigure = (chart) => {
+    if (!chart) {
+      return;
+    }
+    onOpenGraphSettingsModal();
+    const filterData = removeProperty(chart);
+    setConfigureChart(filterData);
+  };
 
-   const handleView = (chart) => {
-     if (!chart) {
-       return;
-     }
-     onOpenGraphDetailsView();
-     const filterData = removeProperty(chart);
-     setConfigureChart(filterData);
-   };
+  const handleView = (chart) => {
+    if (!chart) {
+      return;
+    }
+    onOpenGraphDetailsView();
+    const filterData = removeProperty(chart);
+    setConfigureChart(filterData);
+  };
 
-   const handleGraphAddDrawer = () => {
-     onOpenGraphSettingDrawer();
-     dispatch(handleGraphWise("sales-customer-wise"));
-   };
+  const handleGraphAddDrawer = () => {    
+    onOpenGraphAddDrawer();
+    dispatch(handleGraphWise("purchase-product-wise"));
+  };
 
-
-  console.log(data, "data");
-  // console.log(newArray, "newArray");
-  // console.log(selectedColumns, "selectedColumns");
-  // console.log("filteredItems010101",filteredItems);
+  console.log('🟢',{selectedWise})
 
   return (
     <Box bg="white" padding="0px 10px" borderRadius="5px">
@@ -971,7 +966,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           {/* Graph view  */}
           <Tooltip label="Graph View" hasArrow>
             <Button
-              onClick={onOpenGraphAddDrawer}
+              onClick={handleGraphAddDrawer}
               aria-label="Graph View"
               borderRadius="30px"
               width="40px"
@@ -1302,30 +1297,30 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                               value={tempFilterValue}
                                               type={
                                                 tempFilterCondition ===
-                                                "between"
+                                                  "between"
                                                   ? "string"
                                                   : "integer"
                                               }
                                             />
                                             {tempFilterCondition ===
                                               "between" && (
-                                              <>
-                                                <Input
-                                                  className="Between"
-                                                  value={tempFilterValue2}
-                                                  h="35px"
-                                                  fontSize="12px"
-                                                  padding="6px"
-                                                  onChange={
-                                                    handleTempFilterValue2Change
-                                                  }
-                                                  // placeholder={`Filter ${column}`}
-                                                  placeholder={
-                                                    "Search by value"
-                                                  }
-                                                />
-                                              </>
-                                            )}
+                                                <>
+                                                  <Input
+                                                    className="Between"
+                                                    value={tempFilterValue2}
+                                                    h="35px"
+                                                    fontSize="12px"
+                                                    padding="6px"
+                                                    onChange={
+                                                      handleTempFilterValue2Change
+                                                    }
+                                                    // placeholder={`Filter ${column}`}
+                                                    placeholder={
+                                                      "Search by value"
+                                                    }
+                                                  />
+                                                </>
+                                              )}
                                           </Box>
                                         </Box>
                                       </Box>
@@ -1377,19 +1372,19 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                 column === "description"
                                   ? "300px"
                                   : column === "name"
-                                  ? "200px"
-                                  : "100px"
+                                    ? "200px"
+                                    : "100px"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis">
                               {/* Check if column exists in the productDataFilter */}
                               {item[column] !== undefined &&
-                              typeof item[column] === "object" &&
-                              item[column] !== null
+                                typeof item[column] === "object" &&
+                                item[column] !== null
                                 ? item[column].listName || item[column].index
                                 : item[column] !== undefined
-                                ? item[column]
-                                : "-"}
+                                  ? item[column]
+                                  : "-"}
                             </Text>
                           </Td>
                         ))}
@@ -1422,7 +1417,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               backgroundColor: "#003060",
               color: "white",
             }}>
-            Sales Customer Wise
+            Purchase Product Wise
           </DrawerHeader>
           <DrawerBody>
             <Box
@@ -1443,12 +1438,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 },
               }}
               mb={6}>
-              <Text fontWeight="bold">Sales Wise Graph View</Text>
+              <Text fontWeight="bold">Purchase Wise Graph View</Text>
               <Button
                 ref={btnRef}
                 type="button"
                 variant="outlined"
-                onClick={handleGraphAddDrawer}
+                onClick={onOpenGraphSettingDrawer}
                 sx={{
                   display: "flex",
                   alignItems: "center",
@@ -1759,9 +1754,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 .concat(
                   columnData
                     ? Object.keys(columnData?.content[0] || {}).map((key) => ({
-                        field: key,
-                        header: key,
-                      }))
+                      field: key,
+                      header: key,
+                    }))
                     : []
                 )
                 .map((column, index) => {

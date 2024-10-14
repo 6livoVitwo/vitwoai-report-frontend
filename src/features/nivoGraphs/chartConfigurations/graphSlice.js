@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 // Initial state with example widgets
 const initialState = {
   widgets: [],
-  selectedWise: 'sales-product',
+  selectedWise: 'sales-product-wise',
 };
 
 // Create the slice
