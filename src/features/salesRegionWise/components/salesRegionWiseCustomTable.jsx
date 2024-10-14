@@ -111,7 +111,7 @@ const CustomTable = ({
   const [tableData, setTableData] = useState([]); // Store the fetched table data
   const [isUpdated, setIsUpdated] = useState(false); // Force re-render when needed
   const [configureChart, setConfigureChart] = useState({});
-  const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);  
+  const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
   const dispatch = useDispatch();
 
   const generateColumnMappings = (filtersData) => {
@@ -1204,8 +1204,8 @@ const CustomTable = ({
                                 column === "description"
                                   ? "300px"
                                   : column === "name"
-                                  ? "200px"
-                                  : "100px"
+                                    ? "200px"
+                                    : "100px"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis">
@@ -1427,24 +1427,14 @@ const CustomTable = ({
                       my: 2,
                       flexGrow: 1,
                     }}>
-                    Total Graph (
-                    {
-                      chartsData.charts.filter(
-                        (chart) =>
-                          chart.type !== "funnel"
-                      ).length
-                    }
-                    )
+                    Total Graph ({chartsData.charts.filter((chart) => chart.type !== "funnel").length})
                   </Box>
                   <Box
                     display="flex"
                     flexWrap="wrap"
                     justifyContent="space-between">
                     {chartsData.charts.map((chart, index) => {
-                      if (
-                        chart.type === "funnel"
-                      )
-                        return null;
+                      if (chart.type === "funnel") return null;
                       return (
                         <Box
                           key={index}
