@@ -91,7 +91,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
   };
 
   //......Advanced Filter API Calling......
-  const { data: VendorDataFilter } = useVendorWisePurchaseQuery(
+  const { data: VendorDataFilter,refetch: refetchVendor } = useVendorWisePurchaseQuery(
     { filters: localFilters }
     // { skip: !filtersApplied }
   );
@@ -504,18 +504,30 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
+      refetchVendor();
     } else {
       console.error("Filter condition, value, or column is missing");
     }
   };
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     if (activeFilterColumn) {
-      const columnType = activeFilterColumn; // Assuming activeFilterColumn holds the column type
-      columnType.includes("SUM(")
-        ? handleApplyFiltersSUM()
-        : handleApplyFilters();
+      const columnType = activeFilterColumn;
+      if (columnType.includes("SUM(")) {
+        handleApplyFilters();
+        return;
+      }
+      handleApplyFiltersSUM();
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        size:1000, // Update size to full
+      }));
     }
-  };
+  }, [
+    activeFilterColumn,
+    handleApplyFiltersSUM,
+    handleApplyFilters,
+    setFilters,
+  ]);
 
   const exportToExcel = () => {
     import("xlsx").then((xlsx) => {
