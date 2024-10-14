@@ -4,9 +4,14 @@ import ReportsCards from '../dashboard/components/ReportsCards';
 import SalesVerticalWise from '../../asset/images/sales-vertical-wise.png';
 import SalesSoWise from '../../asset/images/sales-so-wise.png';
 import loadingImg from '../../asset/imgs/Loading.json';
-import productWise from '../../asset/imgs/Product Wise.json';
-import vendorWise from '../../asset/imgs/Vendor Wise.json';
-import poWise from '../../asset/imgs/PO Wise.json';
+// import productWise from '../../asset/imgs/Product Wise.json';
+// import vendorWise from '../../asset/imgs/Vendor Wise.json';
+// import poWise from '../../asset/imgs/PO Wise.json';
+
+//Add lotifies dummy json
+import purchaseProductWise from '../../asset/imgs/purchase-product-wise.json';
+import purchaseVendorWise from '../../asset/imgs/purchase-vendor-wise.json';
+import purchasePoWise from "../../asset/imgs/purchase-po-wise.json";
 
 const Allreports = () => {
 	const cardsData = [
@@ -17,19 +22,19 @@ const Allreports = () => {
           id: "9",
           name: "Product Wise",
           link: "/reports/product-wise/table-view",
-          imgsrc: productWise,
+          imgsrc: purchaseProductWise,
         },
         {
           id: "10",
           name: "Vendor Wise",
           link: "/reports/vendor-wise/table-view",
-          imgsrc: vendorWise,
+          imgsrc: purchaseVendorWise,
         },
         {
           id: "11",
           name: "PO Wise",
           link: "/reports/po-wise/table-view",
-          imgsrc: poWise,
+          imgsrc: purchasePoWise,
         },
       ],
     },
