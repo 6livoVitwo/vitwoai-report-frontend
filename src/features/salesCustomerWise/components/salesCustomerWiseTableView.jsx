@@ -12,31 +12,34 @@ const SalesCustomerWiseTableView = () => {
   const [individualItems, setIndividualItems] = useState([]);
   const [toastShown, setToastShown] = useState(false);
   const toast = useToast();
+ 
+  const [filters, setFilters] = useState(
+    {
+      data: [
+        "customer.trade_name",
+        "customer.customer_code",
+        "customer.customer_gstin",
+        "SUM(igst)",
+        "SUM(sgst)",
+        "SUM(cgst)",
+        "SUM(due_amount)",
+        "SUM(salesPgi.salesDelivery.totalAmount)",
+        "SUM(salesPgi.totalAmount)",
+        "SUM(quotation.totalAmount)",
+        "SUM(salesOrder.totalAmount)",
+        "SUM(items.qty)",
+        "SUM(items.basePrice - items.totalDiscountAmt)",
+        "SUM(all_total_amt)",
+      ],
+      groupBy: ["customer.trade_name"],
+      filter: [],
+      page: 0,
+      size: 20,
+      sortDir: "asc",
+      sortBy: "customer.trade_name",
+    }
+  )
 
-  let filters = {
-    data: [
-      "customer.trade_name",
-      "customer.customer_code",
-      "customer.customer_gstin",
-      "SUM(igst)",
-      "SUM(sgst)",
-      "SUM(cgst)",
-      "SUM(due_amount)",
-      "SUM(salesPgi.salesDelivery.totalAmount)",
-      "SUM(salesPgi.totalAmount)",
-      "SUM(quotation.totalAmount)",
-      "SUM(salesOrder.totalAmount)",
-      "SUM(items.qty)",
-      "SUM(items.basePrice - items.totalDiscountAmt)",
-      "SUM(all_total_amt)",
-    ],
-    groupBy: ["customer.trade_name"],
-    filter: [],
-    page: 0,
-    size: 20,
-    sortDir: "asc",
-    sortBy: "customer.trade_name",
-  };
   const {
     data: sales,
     isLoading,
@@ -179,6 +182,7 @@ const SalesCustomerWiseTableView = () => {
           pageInfo={pageInfo}
           setSize={setSize}
           filters={filters}
+          setFilters={setFilters}
           alignment={{
             IGST: "right",
             SGST: "right",

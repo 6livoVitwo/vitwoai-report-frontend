@@ -13,7 +13,7 @@ const PurchaseProductWiseTableView = () => {
   const [toastShown, setToastShown] = useState(false);
   const toast = useToast();
 
-  let filters = {
+  const [filters, setFilters] = useState({
     data: [
       "grnInvoice.grnPoNumber",
       "grnInvoice.grnIvCode",
@@ -56,7 +56,8 @@ const PurchaseProductWiseTableView = () => {
     size: 20,
     sortDir: "asc",
     sortBy: "grnInvoice.grnPoNumber",
-  };
+  });
+
   const {
     data: sales,
     isLoading,
@@ -96,11 +97,11 @@ const PurchaseProductWiseTableView = () => {
 
   const extractFields = (data, index) => ({
     "SL No": index + 1,
-    "Grn Po Number": data["grnInvoice.grnPoNumber"],
-    "Grn Iv Code": data["grnInvoice.grnIvCode"],
-    "Grn Type": data["grnInvoice.grnType"],
+    "grnInvoice.grnPoNumber": data["grnInvoice.grnPoNumber"],
+    "grnInvoice.grnIvCode": data["grnInvoice.grnIvCode"],
+    "grnInvoice.grnType": data["grnInvoice.grnType"],
     "Vendor Code": data["grnInvoice.vendorCode"],
-    "Vendor Name": data["grnInvoice.vendorName"],
+    "grnInvoice.vendorName": data["grnInvoice.vendorName"],
   });
 
   useEffect(() => {
@@ -190,6 +191,7 @@ const PurchaseProductWiseTableView = () => {
           pageInfo={pageInfo}
           setSize={setSize}
           filters={filters}
+          setFilters={setFilters}
           alignment={{
             "Total Quantity": "right",
             "Received Quantity": "right",

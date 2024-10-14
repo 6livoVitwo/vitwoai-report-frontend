@@ -72,7 +72,7 @@ import { Calendar } from "primereact/calendar";
 import { FiPlus, FiSettings } from "react-icons/fi";
 import NewMyCharts from "../../dashboardNew/nivo/NewMyCharts";
 import ReactDatePicker from "react-datepicker";
-import { useGetSelectedColumnsQuery } from "../slice/salesProductWiseApi";
+import { useGetSelectedColumnsproductQuery } from "../slice/salesProductWiseApi";
 import { useProductWiseSalesQuery } from "../slice/salesProductWiseApi";
 import { useGetGlobalsearchProductQuery } from "../slice/salesProductWiseApi";
 import { all } from "axios";
@@ -119,6 +119,7 @@ const CustomTable = ({
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const [fullData, setFullData] = useState([]); // Full data set for all pages
+  const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   // const [isInitialRender, setIsInitialRender] = useState(true);
 
   // useEffect(() => {
@@ -149,7 +150,7 @@ const CustomTable = ({
 
   //api call for drop-down-data columns
   const { data: columnData, refetch: refetchColumnData } =
-    useGetSelectedColumnsQuery();
+  useGetSelectedColumnsproductQuery();
   // console.log("columnData211212", columnData);
 
   // api call for sort A-Z
@@ -157,8 +158,8 @@ const CustomTable = ({
     useProductWiseSalesQuery({
       filters: {
         ...filters,
-        // sortBy: sortColumn,
-        // sortDir: sortOrder,
+         sortBy: sortColumn,
+         sortDir: sortOrder,
       },
       page: currentPage,
     });
@@ -322,7 +323,8 @@ const CustomTable = ({
   };
 
   const toggleColumn = (field) => {
-    setSelectedColumns((prev) =>
+    if (field === "SL No") return;
+    setTempSelectedColumns((prev) =>
       prev.includes(field)
         ? prev.filter((col) => col !== field)
         : [...prev, field]
@@ -330,37 +332,84 @@ const CustomTable = ({
   };
 
   const handleSelectAllToggle = () => {
+    const allColumns = columnData
+      ? Object.keys(columnData?.content[0] || {}).map((key) => ({
+          field: key,
+          listName: columnData.content[0][key]?.listName || key,
+        }))
+      : [];
+  
+    const uniqueColumns = Array.from(new Set(allColumns.map((col) => col.listName)));
+  
+    let updatedColumns;
     if (selectAll) {
-      setSelectedColumns([]); // Deselect all columns
+      setTempSelectedColumns([]); // Deselect all in temporary state
+      updatedColumns = defaultColumns; // Restore default columns
     } else {
-      const allColumns = getColumns(data)
-        .concat(
-          columnData
-            ? Object.keys(columnData?.content[0] || {}).map((key) => ({
-                field: key,
-                header: key,
-              }))
-            : []
-        )
-        .map((column) => column.field);
-      setSelectedColumns(allColumns); // Select all columns
+      setTempSelectedColumns(uniqueColumns); // Select all columns in temporary state
+      updatedColumns = uniqueColumns; // Select all columns
     }
+  
     setSelectAll(!selectAll);
   };
   const handleModalClose = () => {
+    setTempSelectedColumns(defaultColumns);
     setSelectedColumns(defaultColumns);
     onClose();
   };
 
   const handleApplyChanges = () => {
-    refetchColumnData({ columns: selectedColumns });
+    const updatedSelectedColumns = Array.from(
+      new Set(
+        tempSelectedColumns.map((col) => {
+          const matchingColumn = columnData?.content[0][col];
+          return matchingColumn ? matchingColumn.listName || col : col;
+        })
+      )
+    ).filter((col) => col !== "SL No");
+  
+    // Update filters with unique columns
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      data: updatedSelectedColumns, // Replace data with unique selected listNames
+    }));
+  
+    const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
+  
+    const columnsChanged =
+      JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
+  
+    if (!columnsChanged) {
+      toast({
+        title: "No changes to apply",
+        status: "info",
+        isClosable: true,
+      });
+      return;
+    }
+  
+    // Update the final selected columns (this will trigger the table update)
+    setSelectedColumns(updatedSelectedColumns);
+  
+    // Refetch data based on selected columns
+    refetchColumnData({ columns: updatedSelectedColumns });
+  
+    // Close the modal
     onClose();
+  
+    // Show success toast notification
     toast({
-      title: "Column Added Successfully",
+      title: "Columns Applied Successfully",
       status: "success",
       isClosable: true,
     });
   };
+  
+  useEffect(() => {
+    if (isOpen) {
+      setTempSelectedColumns(defaultColumns); // Initialize with default columns when modal opens
+    }
+  }, [isOpen]);
 
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
 
@@ -543,6 +592,9 @@ const CustomTable = ({
 
   const formatHeader = (header) => {
     header = header.trim();
+    header = header.trim();
+    header = header.replace(/^[A-Z]+\(|\)$/g, "");
+    header = header.replace(/_/g, " ");
     const parts = header.split(".");
     const lastPart = parts.pop();
     const words = lastPart.split("_").join("");
@@ -1225,6 +1277,7 @@ const CustomTable = ({
                           >
                             {/* A-Z Filter  */}
                             {formatHeader(column)}
+                          { column !== "SL No" &&(  
                             <Button
                               className="A_to_Z"
                               bg="none"
@@ -1247,7 +1300,8 @@ const CustomTable = ({
                                 />
                               )}
                             </Button>
-
+                          )}
+                           { column !== "SL No" &&(  
                             <Popover
                               isOpen={activeFilterColumn === column}
                               onClose={() => setActiveFilterColumn(null)}
@@ -1388,6 +1442,7 @@ const CustomTable = ({
                                 </PopoverContent>
                               )}
                             </Popover>
+                           )}
                           </Th>
                         )}
                       </Draggable>
@@ -1878,8 +1933,8 @@ const CustomTable = ({
                         display="flex"
                         padding="5px"
                         borderColor="mainBluemedium"
-                        defaultChecked={selectedColumns.includes(column.field)}
-                        isChecked={selectedColumns.includes(column.field)}
+                        defaultChecked={tempSelectedColumns.includes(column.field)}
+                        isChecked={tempSelectedColumns.includes(column.field)}
                         onChange={() => toggleColumn(column.field)}
                       >
                         <Text

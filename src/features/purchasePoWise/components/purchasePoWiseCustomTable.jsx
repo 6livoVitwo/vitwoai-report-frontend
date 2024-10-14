@@ -62,9 +62,9 @@ import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
 import { useGetGlobalsearchPoQuery } from "../slice/purchasePoWiseApi";
 import { usePoWisePurchaseQuery } from "../slice/purchasePoWiseApi";
-import {useGetSelectedColumnsPoQuery} from "../slice/purchasePoWiseApi";
+import { useGetSelectedColumnsPoQuery } from "../slice/purchasePoWiseApi";
 
-const CustomTable = ({ setPage, newArray, alignment, filters }) => {
+const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
@@ -86,16 +86,18 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
+  const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
 
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
   };
 
   //....Advance Filter Api Calling.........
-  const { data: PoWiseDataFilter } = usePoWisePurchaseQuery(
-    { filters:localFilters },
-    // { skip: !filtersApplied }
-  );
+  const { data: PoWiseDataFilter, refetch: refetchPoWiseDataFilter } =
+    usePoWisePurchaseQuery(
+      { filters: localFilters }
+      // { skip: !filtersApplied }
+    );
 
   // api calling from global search
   const { data: searchData } = useGetGlobalsearchPoQuery(filters, {
@@ -103,7 +105,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   });
 
   // ....api calling from drop-down data ....
-  const { data: columnData } = useGetSelectedColumnsPoQuery();
+  const { data: columnData, refetch: refetchColumnDatapo } =
+    useGetSelectedColumnsPoQuery();
   // console.log("01010101", columnData);
 
   //API Calling sorting
@@ -168,6 +171,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     setInputValue("");
     setColumnFilters({});
     setSortColumn("");
+    setTempFilterCondition({});
+    setTempFilterValue("");
   };
   //sort asc desc
   const handleSort = (column) => {
@@ -232,47 +237,95 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     setSelectedColumns(newColumnsOrder);
   };
 
-  const toggleColumn = (columnName) => {
-    setSelectedColumns((prevSelectedColumns) =>
-      prevSelectedColumns.includes(columnName)
-        ? prevSelectedColumns.filter((col) => col !== columnName)
-        : [...prevSelectedColumns, columnName]
+  const toggleColumn = (field) => {
+    if (field === "SL No") return;
+    setTempSelectedColumns((prev) =>
+      prev.includes(field)
+        ? prev.filter((col) => col !== field)
+        : [...prev, field]
     );
   };
 
   const handleSelectAllToggle = () => {
-    if (selectAll) {
-      setSelectedColumns([]); // Deselect all columns
-    } else {
-      const allColumns = getColumns(data) // Select all columns
-        .concat(
-          columnData
-            ? Object.keys(columnData?.content[0] || {}).map((key) => ({
-                field: key,
-                header: key,
-              }))
-            : []
-        )
-        .map((column) => column.field);
+    const allColumns = columnData
+      ? Object.keys(columnData?.content[0] || {}).map((key) => ({
+          field: key,
+          listName: columnData.content[0][key]?.listName || key,
+        }))
+      : [];
 
-      setSelectedColumns(allColumns);
+    const uniqueColumns = Array.from(
+      new Set(allColumns.map((col) => col.listName))
+    );
+
+    let updatedColumns;
+    if (selectAll) {
+      setTempSelectedColumns([]); // Deselect all in temporary state
+      updatedColumns = defaultColumns; // Restore default columns
+    } else {
+      setTempSelectedColumns(uniqueColumns); // Select all in temporary state
+      updatedColumns = uniqueColumns; // Select all columns
     }
+
     setSelectAll(!selectAll);
   };
 
   const handleModalClose = () => {
+    setTempSelectedColumns(defaultColumns);
     setSelectedColumns(defaultColumns);
     onClose();
   };
 
   const handleApplyChanges = () => {
+    const updatedSelectedColumns = Array.from(
+      new Set(
+        tempSelectedColumns.map((col) => {
+          const matchingColumn = columnData?.content[0][col];
+          return matchingColumn ? matchingColumn.listName || col : col;
+        })
+      )
+    ).filter((col) => col !== "SL No");
+
+    // Update filters with unique columns
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      data: updatedSelectedColumns, // Replace data with unique selected listNames
+    }));
+
+    const storedColumns =
+      JSON.parse(localStorage.getItem("selectedColumns")) || [];
+
+    const columnsChanged =
+      JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
+
+    if (!columnsChanged) {
+      toast({
+        title: "No changes to apply",
+        status: "info",
+        isClosable: true,
+      });
+      return;
+    }
+
+    // Update the final selected columns (this will trigger the table update)
+    setSelectedColumns(updatedSelectedColumns);
+
+    // Refetch data based on selected columns
+    refetchColumnDatapo({ columns: updatedSelectedColumns });
+
+    // Close the modal
     onClose();
+
+    // Show success toast notification
     toast({
-      title: "Column Added Successfully",
+      title: "Columns Applied Successfully",
       status: "success",
       isClosable: true,
     });
   };
+  useEffect(() => {
+    setTempSelectedColumns(defaultColumns);
+  }, [isOpen]);
 
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
 
@@ -286,11 +339,39 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     setInputValue(e.target.value);
   };
   const handleSearchClick = () => {
-    debouncedSearchQuery(inputValue);
+    // Update filters to include search criteria
+    const updatedFilters = {
+      ...filters,
+      filter: [
+        ...filters.filter,
+        {
+          column: selectedColumns[5], // Assuming selectedColumns is a string or array
+          operator: "like",
+          type: "string",
+          value: inputValue,
+        },
+      ],
+    };
+    setFilters(updatedFilters);
+    setSearchQuery(inputValue);
   };
 
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray];
+
+    // Apply searchData from the API
+    if (searchData && searchData.length > 0) {
+      // Assuming searchData is an array of items
+      filteredData = filteredData.filter((item) => {
+        return searchData.some((searchItem) =>
+          Object.values(searchItem).some((value) =>
+            String(value)
+              .toLowerCase()
+              .includes(String(inputValue).toLowerCase())
+          )
+        );
+      });
+    }
     Object.keys(columnFilters).forEach((field) => {
       const filter = columnFilters[field];
       if (filter.condition && filter.value) {
@@ -484,6 +565,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
+      refetchPoWiseDataFilter();
     } else {
       console.error("Filter condition, value, or column is missing");
     }
@@ -494,6 +576,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
       columnType.includes("SUM(")
         ? handleApplyFiltersSUM()
         : handleApplyFilters();
+
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        size: 1000, // Update size to full
+      }));
     }
   };
 
@@ -946,7 +1033,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                                               handleTempFilterValueChange
                                             }
                                             // placeholder={`Filter ${column}`}
-                                            placeholder={"Search by name"} 
+                                            placeholder={"Search by name"}
                                             value={tempFilterValue}
                                             type={
                                               tempFilterCondition === "between"
@@ -1045,7 +1132,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
           </Droppable>
         </DragDropContext>
       </TableContainer>
-      
+
       <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered>
         <ModalOverlay />
         <ModalContent minW="40%">
@@ -1084,7 +1171,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                 },
               }}
             >
-               {(getColumns(data) || [])
+              {(getColumns(data) || [])
                 .concat(
                   columnData
                     ? Object.keys(columnData?.content[0] || {}).map((key) => ({
@@ -1098,37 +1185,39 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                     column.field || column.header
                   );
 
-                return (
-                  <Box
-                    key={column.field}
-                    className="columnCheckBox"
-                    padding="5px"
-                    bg="rgba(231,231,231,1)"
-                    borderRadius="5px"
-                    width="48%"
-                  >
-                    <Checkbox
-                      size="lg"
-                      display="flex"
-                      padding="5px"
-                      borderColor="mainBluemedium"
+                  return (
+                    <Box
                       key={column.field}
-                      defaultChecked={selectedColumns.includes(column.field)}
-                      isChecked={selectedColumns.includes(column.field)}
-                      onChange={() => toggleColumn(column.field)}
+                      className="columnCheckBox"
+                      padding="5px"
+                      bg="rgba(231,231,231,1)"
+                      borderRadius="5px"
+                      width="48%"
                     >
-                      <Text
-                        fontWeight="500"
-                        ml="10px"
-                        fontSize="12px"
-                        color="textBlackDeep"
+                      <Checkbox
+                        size="lg"
+                        display="flex"
+                        padding="5px"
+                        borderColor="mainBluemedium"
+                        key={column.field}
+                        defaultChecked={tempSelectedColumns.includes(
+                          column.field
+                        )}
+                        isChecked={tempSelectedColumns.includes(column.field)}
+                        onChange={() => toggleColumn(column.field)}
                       >
-                        {formattedHeader}
-                      </Text>
-                    </Checkbox>
-                  </Box>
-                );
-              })}
+                        <Text
+                          fontWeight="500"
+                          ml="10px"
+                          fontSize="12px"
+                          color="textBlackDeep"
+                        >
+                          {formattedHeader}
+                        </Text>
+                      </Checkbox>
+                    </Box>
+                  );
+                })}
             </Box>
           </ModalBody>
           <ModalFooter>

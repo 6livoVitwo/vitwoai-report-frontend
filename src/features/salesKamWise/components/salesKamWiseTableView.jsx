@@ -4,33 +4,6 @@ import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useKamWiseSalesQuery } from "../slice/salesKamWiseApi";
-let filters = {
-  data: [
-    "kam.kamCode",
-    "kam.kamName",
-    "kam.email",
-    "kam.emp_code",
-    "kam.designation",
-    "kam.contact",
-    "invoice_no",
-    "invoice_date",
-    "SUM(due_amount)",
-    "SUM(salesPgi.salesDelivery.totalAmount)",
-    "SUM(salesPgi.totalAmount)",
-    "SUM(quotation.totalAmount)",
-    "SUM(salesOrder.totalAmount)",
-    "SUM(items.qty)",
-    "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
-    "SUM(all_total_amt)",
-    "SUM(items.totalTax)",
-  ],
-  groupBy: ["kam.kamName", "kam.kamCode"],
-  filter: [],
-  page: 0,
-  size: 20,
-  sortDir: "asc",
-  sortBy: "kam.kamName",
-};
 
 const SalesKamWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
@@ -39,6 +12,34 @@ const SalesKamWiseTableView = () => {
   const [individualItems, setIndividualItems] = useState([]);
   const [toastShown, setToastShown] = useState(false);
   const toast = useToast();
+
+  const [filters, setFilters] = useState({
+    data: [
+      "kam.kamCode",
+      "kam.kamName",
+      "kam.email",
+      "kam.emp_code",
+      "kam.designation",
+      "kam.contact",
+      "invoice_no",
+      "invoice_date",
+      "SUM(due_amount)",
+      "SUM(salesPgi.salesDelivery.totalAmount)",
+      "SUM(salesPgi.totalAmount)",
+      "SUM(quotation.totalAmount)",
+      "SUM(salesOrder.totalAmount)",
+      "SUM(items.qty)",
+      "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
+      "SUM(all_total_amt)",
+      "SUM(items.totalTax)",
+    ],
+    groupBy: ["kam.kamName", "kam.kamCode"],
+    filter: [],
+    page: 0,
+    size: 20,
+    sortDir: "asc",
+    sortBy: "kam.kamName",
+  });
 
   const {
     data: sales,
@@ -75,7 +76,7 @@ const SalesKamWiseTableView = () => {
   };
   const extractFields = (data, index) => ({
     "SL No": index + 1,
-   "kam.kamName": data["kam.kamName"],
+    "kam.kamName": data["kam.kamName"],
     email: data["kam.email"],
     emp_code: data["kam.emp_code"],
     designation: data["kam.designation"],
@@ -171,6 +172,7 @@ const SalesKamWiseTableView = () => {
           pageInfo={pageInfo}
           setSize={setSize}
           filters={filters}
+          setFilters={setFilters}
           sortBy="kam.kamName"
           sortDir="asc"
           alignment={{

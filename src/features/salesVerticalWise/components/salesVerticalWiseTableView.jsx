@@ -12,6 +12,29 @@ const SalesVerticalWiseTableView = () => {
   const [individualItems, setIndividualItems] = useState([]);
   const [toastShown, setToastShown] = useState(false);
   const toast = useToast();
+
+  const [filters, setFilters] = useState(
+    {
+      data: [
+        "invoice_date",
+        "companyFunction.functionalities_name",
+        "SUM(salesPgi.salesDelivery.totalAmount)",
+        "SUM(salesPgi.totalAmount)",
+        "SUM(quotation.totalAmount)",
+        "SUM(salesOrder.totalAmount)",
+        "SUM(items.qty)",
+        "SUM(items.basePrice - items.totalDiscountAmt)",
+        "SUM(all_total_amt)",
+      ],
+      groupBy: ["companyFunction.functionalities_name"],
+      filter: [],
+      page: 0,
+      size: 20,
+      sortDir: "asc",
+      sortBy: "companyFunction.functionalities_name",
+    }
+  )
+
   const formatDate = (dateString) => {
     try {
       const [year, month, day] = dateString.split("-").map(Number);
@@ -24,26 +47,6 @@ const SalesVerticalWiseTableView = () => {
     } catch (error) {
       return "Invalid Date";
     }
-  };
-
-  let filters = {
-    data: [
-      "invoice_date",
-      "companyFunction.functionalities_name",
-      "SUM(salesPgi.salesDelivery.totalAmount)",
-      "SUM(salesPgi.totalAmount)",
-      "SUM(quotation.totalAmount)",
-      "SUM(salesOrder.totalAmount)",
-      "SUM(items.qty)",
-      "SUM(items.basePrice - items.totalDiscountAmt)",
-      "SUM(all_total_amt)",
-    ],
-    groupBy: ["companyFunction.functionalities_name"],
-    filter: [],
-    page: 0,
-    size: 20,
-    sortDir: "asc",
-    sortBy: "companyFunction.functionalities_name",
   };
 
   const {
@@ -185,6 +188,7 @@ const SalesVerticalWiseTableView = () => {
           pageInfo={pageInfo}
           setSize={setSize}
           filters={filters}
+          setFilters={setFilters}
           alignment={{
             "Sales Delivery Total Amount": "right",
             "Sales Pgi Total Amount": "right",

@@ -78,7 +78,7 @@ import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfig
 import DynamicChart from "../../nivoGraphs/chartConfigurations/DynamicChart";
 import { chartsData } from "../../nivoGraphs/data/fakeData";
 
-const CustomTable = ({ setPage, newArray, alignment,filters }) => {
+const CustomTable = ({ setPage, newArray, alignment,filters,setFilters}) => {
   const dispatch = useDispatch();
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
@@ -130,8 +130,8 @@ const CustomTable = ({ setPage, newArray, alignment,filters }) => {
     filters: {
       ...filters,
       filter: mapFilters(filters.filter), // Map filters dynamically
-      sortBy: columnMappings[sortColumn] || sortColumn,
-      sortDir: sortOrder,
+      // sortBy: columnMappings[sortColumn] || sortColumn,
+      // sortDir: sortOrder,
     },
     page: currentPage,
   });
@@ -326,7 +326,7 @@ const CustomTable = ({ setPage, newArray, alignment,filters }) => {
     });
   };
 
-  const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 50), []);
+  const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
   // Clean up debounce on unmount
   useEffect(() => {
     return () => {
@@ -338,14 +338,29 @@ const CustomTable = ({ setPage, newArray, alignment,filters }) => {
     setInputValue(e.target.value);
   };
   const handleSearchClick = () => {
-    debouncedSearchQuery(inputValue);
+    // Update filters to include search criteria
+    const updatedFilters = {
+      ...filters,
+      filter: [
+        ...filters.filter,
+        {
+          column: selectedColumns[1], // Assuming selectedColumns is a string or array
+          operator: "like",
+          type: "string",
+          value: inputValue,
+        },
+      ],
+    };
+    setFilters(updatedFilters);
+    setSearchQuery(inputValue);
   };
   const clearAllFilters = () => {
     setSearchQuery("");
     setInputValue("");
     setColumnFilters({});
-    setSortColumn('');
-    setSortOrder("asc");
+    setSortColumn("");
+    setTempFilterCondition({});
+    setTempFilterValue("");
   };
 
   //sort asc desc
@@ -372,6 +387,20 @@ const CustomTable = ({ setPage, newArray, alignment,filters }) => {
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray];
 
+      // Apply searchData from the API
+      if (searchData && searchData.length > 0) {
+        // Assuming searchData is an array of items
+        filteredData = filteredData.filter((item) => {
+          return searchData.some((searchItem) =>
+            Object.values(searchItem).some((value) =>
+              String(value)
+                .toLowerCase()
+                .includes(String(inputValue).toLowerCase())
+            )
+          );
+        });
+      }
+    // Apply global filter
     Object.keys(columnFilters).forEach((field) => {
       const filter = columnFilters[field];
       if (filter.condition && filter.value) {
@@ -465,21 +494,30 @@ const CustomTable = ({ setPage, newArray, alignment,filters }) => {
       .join(" ");
   };
 
+  let previousScrollLeft = 0;
   const handleScroll = () => {
-    const { scrollTop, scrollHeight, scrollleft, clientHeight } =
+    const { scrollTop, scrollHeight, clientHeight, scrollLeft, clientWidth } =
       tableContainerRef.current;
 
-    if (scrollTop + clientHeight >= scrollHeight - 5) {
-      loadMoreData();
+    // Check if horizontal scroll has changed
+    if (scrollLeft !== previousScrollLeft) {
+      // Update the previous scroll left position
+      previousScrollLeft = scrollLeft;
+      return;
+    }
+
+    // Only trigger the API call if scrolling vertically
+    if (scrollTop + clientHeight >= scrollHeight - 5 && !loading) {
+      loadMoreData(); // Load more data when scrolled to the bottom
     }
   };
-
   useEffect(() => {
     const container = tableContainerRef.current;
     if (container) {
-      container.addEventListener("scroll", handleScroll);
-      handleScroll();
-      return () => container.removeEventListener("scroll", handleScroll);
+      const debouncedHandleScroll = debounce(handleScroll, 200);
+      container.addEventListener("scroll", debouncedHandleScroll);
+      return () =>
+        container.removeEventListener("scroll", debouncedHandleScroll);
     }
   }, [loading, lastPage]);
 
@@ -563,6 +601,10 @@ const CustomTable = ({ setPage, newArray, alignment,filters }) => {
       columnType.includes("SUM(")
         ? handleApplyFiltersSUM()
         : handleApplyFilters();
+        setFilters((prevFilters) => ({
+          ...prevFilters,
+          size:1000, // Update size to full
+        }));
     }
   };
 
@@ -1042,7 +1084,7 @@ const CustomTable = ({ setPage, newArray, alignment,filters }) => {
                                             onChange={
                                               handleTempFilterValueChange
                                             }
-                                            placeholder={`Filter ${column}`}
+                                            placeholder="Search by value"
                                           />
                                         </Box>
                                       </Box>

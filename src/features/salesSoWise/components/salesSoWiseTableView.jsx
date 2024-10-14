@@ -12,50 +12,51 @@ const SalesSoWiseTableView = () => {
   const [individualItems, setIndividualItems] = useState([]);
   const [toastShown, setToastShown] = useState(false);
   const toast = useToast();
-
-  let filters = {
-    data: [
-      "customer.trade_name",
-      "customer.customer_code",
-      "salesOrder.so_number",
-      "invoice_no",
-      "invoice_date",
-      "SUM(due_amount)",
-      "SUM(salesPgi.salesDelivery.totalAmount)",
-      "SUM(salesPgi.totalAmount)",
-      "SUM(quotation.totalAmount)",
-      "SUM(salesOrder.totalAmount)",
-      "SUM(items.qty)",
-      "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
-      "SUM(all_total_amt)",
-      "SUM(items.totalTax)",
-    ],
-    groupBy: ["salesOrder.so_id"],
-    filter: [
-      // {
-      //   column: "company_id",
-      //   operator: "equal",
-      //   type: "Integer",
-      //   value: 1,
-      // },
-      // {
-      //   column: "location_id",
-      //   operator: "equal",
-      //   type: "Integer",
-      //   value: 1,
-      // },
-      // {
-      //   column: "branch_id",
-      //   operator: "equal",
-      //   type: "Integer",
-      //   value: 1,
-      // },
-    ],
-    page: 0,
-    size: 20,
-    sortDir:"asc",
-    sortBy:"customer.trade_name",
-  };
+  const [filters, setFilters] = useState(
+    {
+      data: [
+        "customer.trade_name",
+        "customer.customer_code",
+        "salesOrder.so_number",
+        "invoice_no",
+        "invoice_date",
+        "SUM(due_amount)",
+        "SUM(salesPgi.salesDelivery.totalAmount)",
+        "SUM(salesPgi.totalAmount)",
+        "SUM(quotation.totalAmount)",
+        "SUM(salesOrder.totalAmount)",
+        "SUM(items.qty)",
+        "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
+        "SUM(all_total_amt)",
+        "SUM(items.totalTax)",
+      ],
+      groupBy: ["salesOrder.so_id"],
+      filter: [
+        // {
+        //   column: "company_id",
+        //   operator: "equal",
+        //   type: "Integer",
+        //   value: 1,
+        // },
+        // {
+        //   column: "location_id",
+        //   operator: "equal",
+        //   type: "Integer",
+        //   value: 1,
+        // },
+        // {
+        //   column: "branch_id",
+        //   operator: "equal",
+        //   type: "Integer",
+        //   value: 1,
+        // },
+      ],
+      page: 0,
+      size: 20,
+      sortDir:"asc",
+      sortBy:"customer.trade_name",
+    }
+  )
 
   const {
     data: sales,
@@ -202,6 +203,7 @@ const SalesSoWiseTableView = () => {
           pageInfo={pageInfo}
           setSize={setSize}
           filters={filters}
+          setFilters={setFilters}
           alignment={{
             "SO Total Amount": "right",
             "SD Total Amount": "right",

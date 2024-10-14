@@ -74,14 +74,13 @@ const SalesProductWiseTableView = () => {
   const extractFields = (data, index) => ({
     "SL No": index + 1,
     "items.itemName": data["items.itemName"],
-    "Sales Delivery Total Amount": data["SUM(salesPgi.salesDelivery.totalAmount)"],
-    "Sales Pgi Total Amount": data["SUM(salesPgi.totalAmount)"],
-    "Invoice Date": data["invoice_date"],
-    "Quotation": data["SUM(salesPgi.totalAmount)"],
-    "Sales Order": data["SUM(salesOrder.totalAmount)"],
-    "Total Qty": data["SUM(items.qty)"],
-    "Sub Total": data["SUM(items.basePrice - items.totalDiscountAmt)"],
-    "Total Amount": data["SUM(all_total_amt)"],
+    "SUM(salesPgi.totalAmount)": data["SUM(salesPgi.totalAmount)"],
+    "invoice_date": data["invoice_date"],
+    // "Sales Delivery Total Amount": data["SUM(salesPgi.salesDelivery.totalAmount)"],
+    // "Sales Order": data["SUM(salesOrder.totalAmount)"],
+    // "Total Qty": data["SUM(items.qty)"],
+    // "Sub Total": data["SUM(items.basePrice - items.totalDiscountAmt)"],
+    // "Total Amount": data["SUM(all_total_amt)"],
 
   });
 

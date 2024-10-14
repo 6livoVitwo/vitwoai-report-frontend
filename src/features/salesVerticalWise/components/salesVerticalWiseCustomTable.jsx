@@ -76,7 +76,7 @@ import { useGetSelectedColumnsVerticalQuery } from "../slice/salesVerticalWiseAp
 import { useGetGlobalsearchVerticalQuery } from "../slice/salesVerticalWiseApi";
 import { useVerticalWiseSalesQuery } from "../slice/salesVerticalWiseApi";
 
-const CustomTable = ({ setPage, newArray, alignment, filters }) => {
+const CustomTable = ({ setPage, newArray, alignment, filters,setFilters}) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
@@ -340,7 +340,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     });
   };
 
-  const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 50), []);
+  const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
 
   useEffect(() => {
     return () => {
@@ -352,13 +352,29 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     setInputValue(e.target.value);
   };
   const handleSearchClick = () => {
-    debouncedSearchQuery(inputValue);
+    // Update filters to include search criteria
+    const updatedFilters = {
+      ...filters,
+      filter: [
+        ...filters.filter,
+        {
+          column: selectedColumns[1], // Assuming selectedColumns is a string or array
+          operator: "like",
+          type: "string",
+          value: inputValue,
+        },
+      ],
+    };
+    setFilters(updatedFilters);
+    setSearchQuery(inputValue);
   };
   const clearAllFilters = () => {
     setSearchQuery("");
     setInputValue("");
     setColumnFilters({});
     setSortColumn("");
+    setTempFilterCondition({});
+    setTempFilterValue("");
   };
 
   //sort asc desc
@@ -384,6 +400,20 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray];
 
+     // Apply searchData from the API
+     if (searchData && searchData.length > 0) {
+      // Assuming searchData is an array of items
+      filteredData = filteredData.filter((item) => {
+        return searchData.some((searchItem) =>
+          Object.values(searchItem).some((value) =>
+            String(value)
+              .toLowerCase()
+              .includes(String(inputValue).toLowerCase())
+          )
+        );
+      });
+    }
+    // Apply filters
     Object.keys(columnFilters).forEach((field) => {
       const filter = columnFilters[field];
       if (filter.condition && filter.value) {
@@ -615,6 +645,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
       columnType.includes("SUM(")
         ? handleApplyFiltersSUM()
         : handleApplyFilters();
+       
     }
   };
 
@@ -1157,7 +1188,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                                               handleTempFilterValueChange
                                             }
                                             // placeholder={`Filter ${column}`
-                                            placeholder="Filter Name" 
+                                            placeholder="Search by value" 
                                           />
                                         </Box>
                                       </Box>

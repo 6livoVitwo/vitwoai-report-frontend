@@ -74,7 +74,8 @@ import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfig
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import { useDispatch } from "react-redux";
 import DynamicChart from "../../nivoGraphs/chartConfigurations/DynamicChart";
-const CustomTable = ({ setPage, newArray, alignment, filters }) => {
+import { size } from "lodash";
+const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
@@ -97,13 +98,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
 
-//........Api calling for advanced filter...........
- const{data:advancedFilterData}=useCustomerWiseSalesQuery(
-  { filters: localFilters },
-  // { skip: !filtersApplied }
- );
+  //........Api calling for advanced filter...........
+  const { data: advancedFilterData } = useCustomerWiseSalesQuery(
+    { filters: localFilters }
+    // { skip: !filtersApplied }
+  );
 
-  //..........Api calling for search............
+  //..........Api calling for global search............
   const { data: searchData } = useGetGlobalsearchCustomerQuery(filters, {
     skip: !searchQuery,
   });
@@ -192,7 +193,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     {
       label: "Region Wise",
       value: "/reports/sales-region-wise/table-view",
-    }
+    },
   ];
 
   useEffect(() => {
@@ -307,7 +308,21 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
     setInputValue(e.target.value);
   };
   const handleSearchClick = () => {
-    debouncedSearchQuery(inputValue);
+    // Update filters to include search criteria
+    const updatedFilters = {
+      ...filters,
+      filter: [
+        ...filters.filter,
+        {
+          column: selectedColumns[1], // Assuming selectedColumns is a string or array
+          operator: "like",
+          type: "string",
+          value: inputValue,
+        },
+      ],
+    };
+    setFilters(updatedFilters);
+    setSearchQuery(inputValue);
   };
   const clearAllFilters = () => {
     setColumnFilters({}); //clear filters
@@ -340,6 +355,20 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray];
 
+    // Apply searchData from the API
+    if (searchData && searchData.length > 0) {
+      // Assuming searchData is an array of items
+      filteredData = filteredData.filter((item) => {
+        return searchData.some((searchItem) =>
+          Object.values(searchItem).some((value) =>
+            String(value)
+              .toLowerCase()
+              .includes(String(inputValue).toLowerCase())
+          )
+        );
+      });
+    }
+    // Apply filters
     Object.keys(columnFilters).forEach((field) => {
       const filter = columnFilters[field];
       if (filter.condition && filter.value) {
@@ -440,20 +469,30 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
       .join(" ");
   };
 
+  let previousScrollLeft = 0;
   const handleScroll = () => {
-    const { scrollTop, scrollHeight, clientHeight } = tableContainerRef.current;
+    const { scrollTop, scrollHeight, clientHeight, scrollLeft, clientWidth } =
+      tableContainerRef.current;
 
-    if (scrollTop + clientHeight >= scrollHeight - 5) {
-      loadMoreData();
+    // Check if horizontal scroll has changed
+    if (scrollLeft !== previousScrollLeft) {
+      // Update the previous scroll left position
+      previousScrollLeft = scrollLeft;
+      return;
+    }
+
+    // Only trigger the API call if scrolling vertically
+    if (scrollTop + clientHeight >= scrollHeight - 5 && !loading) {
+      loadMoreData(); // Load more data when scrolled to the bottom
     }
   };
-
   useEffect(() => {
     const container = tableContainerRef.current;
     if (container) {
-      container.addEventListener("scroll", handleScroll);
-      handleScroll();
-      return () => container.removeEventListener("scroll", handleScroll);
+      const debouncedHandleScroll = debounce(handleScroll, 200);
+      container.addEventListener("scroll", debouncedHandleScroll);
+      return () =>
+        container.removeEventListener("scroll", debouncedHandleScroll);
     }
   }, [loading, lastPage]);
 
@@ -544,6 +583,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
       columnType.includes("SUM(")
         ? handleApplyFiltersSUM()
         : handleApplyFilters();
+        setFilters((prevFilters) => ({
+          ...prevFilters,
+          size:1000,
+        }))
+
     }
   };
   const exportToExcel = () => {
@@ -1065,7 +1109,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                                             onChange={
                                               handleTempFilterValueChange
                                             }
-                                            placeholder={`Filter ${column}`}
+                                            // placeholder={`Filter ${column}`}
+                                            placeholder={"Search by value"}
                                           />
                                         </Box>
                                       </Box>
@@ -1319,7 +1364,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
               isOpen={isOpenGraphSettingDrawer}
               placement="right"
               onClose={onCloseGraphSettingDrawer}
-              size="xl">
+              size="xl"
+            >
               <DrawerOverlay />
               <DrawerContent
                 maxW="87vw"
@@ -1330,13 +1376,15 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                     zIndex: 1,
                     backgroundColor: "white",
                   },
-                }}>
+                }}
+              >
                 <DrawerCloseButton style={{ color: "white" }} />
                 <DrawerHeader
                   style={{
                     backgroundColor: "#003060",
                     color: "white",
-                  }}>
+                  }}
+                >
                   Choose Data Wise Graph
                 </DrawerHeader>
                 <DrawerBody>
@@ -1350,7 +1398,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                       p: 2,
                       my: 2,
                       flexGrow: 1,
-                    }}>
+                    }}
+                  >
                     Total Graph (
                     {
                       chartsData.charts.filter(
@@ -1363,7 +1412,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                   <Box
                     display="flex"
                     flexWrap="wrap"
-                    justifyContent="space-between">
+                    justifyContent="space-between"
+                  >
                     {chartsData.charts.map((chart, index) => {
                       if (chart.type === "heatmap" || chart.type === "funnel")
                         return null;
@@ -1374,7 +1424,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                             base: "100%",
                             lg: "49.4%",
                           }}
-                          mb={6}>
+                          mb={6}
+                        >
                           <Box
                             sx={{
                               backgroundColor: "white",
@@ -1383,7 +1434,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                               borderRadius: "8px",
                               border: "1px solid #c4c4c4",
                             }}
-                            mb={3}>
+                            mb={3}
+                          >
                             <Box
                               sx={{
                                 display: "flex",
@@ -1402,7 +1454,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                                   color: "white",
                                 },
                               }}
-                              mb={6}>
+                              mb={6}
+                            >
                               <Button
                                 type="button"
                                 variant="outlined"
@@ -1414,7 +1467,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                                     color: "white",
                                   },
                                 }}
-                                onClick={() => handleConfigure(chart)}>
+                                onClick={() => handleConfigure(chart)}
+                              >
                                 <FiSettings
                                   sx={{
                                     mr: "6px",
@@ -1427,14 +1481,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                               sx={{
                                 width: "100%",
                                 height: "200px",
-                              }}>
+                              }}
+                            >
                               <DynamicChart chart={chart} />
                             </Box>
                             <Badge
                               colorScheme="blue"
                               py={0}
                               px={3}
-                              fontSize={9}>
+                              fontSize={9}
+                            >
                               {chart.title}
                             </Badge>
                           </Box>
@@ -1447,7 +1503,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                     isCentered
                     size="md"
                     isOpen={isOpenGraphSettingsModal}
-                    onClose={onCloseGraphSettingsModal}>
+                    onClose={onCloseGraphSettingsModal}
+                  >
                     <DrawerOverlay />
                     <DrawerContent maxW="86vw">
                       <DrawerCloseButton color="white" size="lg" mt="8px" />
@@ -1457,7 +1514,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters }) => {
                         fontSize="17px"
                         fontWeight="500"
                         padding="15px 15px"
-                        backgroundColor="#003060">
+                        backgroundColor="#003060"
+                      >
                         Graphical View Settings
                       </DrawerHeader>
                       <Divider orientation="horizontal" mb={6} />

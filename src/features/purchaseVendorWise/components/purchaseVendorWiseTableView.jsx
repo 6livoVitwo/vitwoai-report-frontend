@@ -4,46 +4,7 @@ import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useVendorWisePurchaseQuery } from "../slice/purchaseVendorWiseApi";
-import { useFetchDataQuery } from "../slice/purchaseVendorWiseApi";
 
-// let filters = {
-//   data: [
-//     "grnInvoice.vendorCode",
-//     "grnInvoice.vendorName",
-//     "SUM(grnInvoice.grnSubTotal)",
-//     "SUM(grnInvoice.grnTotalCgst)",
-//     "SUM(grnInvoice.grnTotalSgst)",
-//     "SUM(grnInvoice.grnTotalIgst)",
-//     "SUM(grnInvoice.grnTotalTds)",
-//     "SUM(grnInvoice.grnTotalAmount)",
-//     "SUM(grnInvoice.dueAmt)",
-//   ],
-//   groupBy: ["grnInvoice.vendorCode", "grnInvoice.vendorName"],
-//   filter: [
-//     // {
-//     //   column: "companyId",
-//     //   operator: "equal",
-//     //   type: "integer",
-//     //   value: 1,
-//     // },
-//     // {
-//     //   column: "branchId",
-//     //   operator: "equal",
-//     //   type: "integer",
-//     //   value: 1,
-//     // },
-//     // {
-//     //   column: "locationId",
-//     //   operator: "equal",
-//     //   type: "integer",
-//     //   value: 1,
-//     // },
-//   ],
-//   page: 0,
-//   size: 20,
-//   sortDir: "asc",
-//   sortBy: "grnInvoice.vendorCode",
-// };
 const PurchaseVendorWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
   const [page, setPage] = useState(0);
@@ -65,26 +26,7 @@ const PurchaseVendorWiseTableView = () => {
         "SUM(grnInvoice.dueAmt)",
       ],
       groupBy: ["grnInvoice.vendorCode", "grnInvoice.vendorName"],
-      filter: [
-        // {
-        //   column: "companyId",
-        //   operator: "equal",
-        //   type: "integer",
-        //   value: 1,
-        // },
-        // {
-        //   column: "branchId",
-        //   operator: "equal",
-        //   type: "integer",
-        //   value: 1,
-        // },
-        // {
-        //   column: "locationId",
-        //   operator: "equal",
-        //   type: "integer",
-        //   value: 1,
-        // },
-      ],
+      filter: [ ],
       page: 0,
       size: 20,
       sortDir: "asc",
@@ -132,9 +74,9 @@ const PurchaseVendorWiseTableView = () => {
     "SL No": index + 1,
     "grnInvoice.vendorName": data["grnInvoice.vendorName"],
     "Vendor Code": data["grnInvoice.vendorCode"],
-    "Sub Total": data["SUM(grnInvoice.grnSubTotal)"],
-    "Total CGSt": data["SUM(grnInvoice.grnTotalCgst)"],
-    "Total Sgst": data["SUM(grnInvoice.grnTotalSgst)"],
+    "SUM(grnInvoice.grnSubTotal)": data["SUM(grnInvoice.grnSubTotal)"],
+    "SUM(grnInvoice.grnTotalCgst)": data["SUM(grnInvoice.grnTotalCgst)"],
+    "SUM(grnInvoice.grnTotalSgst)": data["SUM(grnInvoice.grnTotalSgst)"],
   });
 
   useEffect(() => {

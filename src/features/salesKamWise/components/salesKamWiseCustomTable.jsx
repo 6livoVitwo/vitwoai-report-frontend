@@ -77,7 +77,7 @@ import { useDispatch } from "react-redux";
 import { MdFullscreen } from "react-icons/md";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfiguration";
-const CustomTable = ({ setPage, newArray, alignment ,filters}) => {
+const CustomTable = ({ setPage, newArray, alignment ,filters,setFilters}) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
@@ -332,15 +332,30 @@ const CustomTable = ({ setPage, newArray, alignment ,filters}) => {
     setInputValue(e.target.value);
   };
   const handleSearchClick = () => {
-    debouncedSearchQuery(inputValue);
+    // Update filters to include search criteria
+    const updatedFilters = {
+      ...filters,
+      filter: [
+        ...filters.filter,
+        {
+          column: selectedColumns[1], // Assuming selectedColumns is a string or array
+          operator: "like",
+          type: "string",
+          value: inputValue,
+        },
+      ],
+    };
+    setFilters(updatedFilters);
+    setSearchQuery(inputValue);
   };
 
   const clearAllFilters = () => {
-    setColumnFilters({}); //clear filters
-    setSearchQuery("");
+   setSearchQuery("");
     setInputValue("");
+    setColumnFilters({});
     setSortColumn("");
-    setSortOrder("asc");
+    setTempFilterCondition({});
+    setTempFilterValue("");
   };
 
   // sort asc desc
@@ -389,6 +404,21 @@ const CustomTable = ({ setPage, newArray, alignment ,filters}) => {
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray]; // Copy the original data
 
+    
+      // Apply searchData from the API
+      if (searchData && searchData.length > 0) {
+        // Assuming searchData is an array of items
+        filteredData = filteredData.filter((item) => {
+          return searchData.some((searchItem) =>
+            Object.values(searchItem).some((value) =>
+              String(value)
+                .toLowerCase()
+                .includes(String(inputValue).toLowerCase())
+            )
+          );
+        });
+      }
+    // Apply filters
     Object.keys(columnFilters).forEach((field) => {
       const filter = columnFilters[field];
       if (filter.condition && filter.value) {
@@ -494,27 +524,33 @@ const CustomTable = ({ setPage, newArray, alignment ,filters}) => {
       .join(" ");
   };
 
+  // ...Handle scroll...
+  let previousScrollLeft = 0;
   const handleScroll = () => {
-    const { scrollTop, scrollHeight, clientHeight, scrollLeft, scrollRight } =
+    const { scrollTop, scrollHeight, clientHeight, scrollLeft, clientWidth } =
       tableContainerRef.current;
 
-    if (
-      scrollRight === 0 &&
-      scrollTop + clientHeight >= scrollHeight - 5 &&
-      !loading
-    ) {
-      loadMoreData();
+    // Check if horizontal scroll has changed
+    if (scrollLeft !== previousScrollLeft) {
+      // Update the previous scroll left position
+      previousScrollLeft = scrollLeft;
+      return;
+    }
+
+    // Only trigger the API call if scrolling vertically
+    if (scrollTop + clientHeight >= scrollHeight - 5 && !loading) {
+      loadMoreData(); // Load more data when scrolled to the bottom
     }
   };
-
   useEffect(() => {
     const container = tableContainerRef.current;
     if (container) {
-      container.addEventListener("scroll", handleScroll);
-      return () => container.removeEventListener("scroll", handleScroll);
+      const debouncedHandleScroll = debounce(handleScroll, 200);
+      container.addEventListener("scroll", debouncedHandleScroll);
+      return () =>
+        container.removeEventListener("scroll", debouncedHandleScroll);
     }
   }, [loading, lastPage]);
-
   //function for filter
   const handleTempFilterConditionChange = (e) => {
     const value = e?.target?.value;

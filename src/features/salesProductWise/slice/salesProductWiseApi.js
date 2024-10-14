@@ -16,7 +16,7 @@ export const salesProductWiseApi = apiSlice.injectEndpoints({
       },
     }),
     // Query to get selected columns
-    getSelectedColumns: builder.query({
+    getSelectedColumnsproduct: builder.query({
       query: () => "/sales/drop-down-data/product",
     }),
 
@@ -38,6 +38,6 @@ export const salesProductWiseApi = apiSlice.injectEndpoints({
 
 export const {
   useProductWiseSalesQuery,
-  useGetSelectedColumnsQuery,
+  useGetSelectedColumnsproductQuery,
   useGetGlobalsearchProductQuery,
 } = salesProductWiseApi;
