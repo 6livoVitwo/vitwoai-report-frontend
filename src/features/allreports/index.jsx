@@ -36,6 +36,12 @@ const Allreports = () => {
           link: "/reports/purchase-po-wise/table-view",
           imgsrc: purchasePoWise,
         },
+        {
+          id: "11",
+          name: "Functional Wise",
+          link: "/reports/purchase-po-wise/table-view",
+          imgsrc: purchasePoWise,
+        },
       ],
     },
     {
