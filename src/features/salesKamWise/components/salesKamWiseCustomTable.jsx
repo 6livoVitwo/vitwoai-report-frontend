@@ -102,6 +102,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const [currentPage, setCurrentPage] = useState(0); // Default page is 0
+  const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
+
 
   const generateColumnMappings = (filtersData) => {
     const mappings = [];
@@ -114,15 +116,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
   // Dynamically generate column mappings from filters.data
   const columnMappings = generateColumnMappings(filters.data);
-  console.log("🟢columnMappings", columnMappings);
-  console.log(columnMappings["kamCode"]);
 
   // Function to map filters dynamically
   const mapFilters = (filters) => {
-    console.log('🟠', { filters });
     return filters.map((filter) => ({
       ...filter,
-      // If filter.column is a string, directly use columnMappings; otherwise, check for filter.column.key
       sortBy: filter.column,
     }));
   };
@@ -139,19 +137,18 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     },
     page: currentPage,
   });
-  console.log("kamData_piyas121", kamData);
-
 
   //......Advance Filter Api Calling.........
   const { data: kamDataFilter } = useKamWiseSalesQuery(
     { filters: localFilters },
     // { skip: !filtersApplied }
   );
-  //  console.log("kamDataFilter1212121",kamDataFilter);
 
 
-  const { data: columnDatakam } = useGetSelectedColumnsKamQuery();
-  //console.log("piyas10101",columnDatakam);
+
+  //..........Api calling for selected columns............
+  const { data: columnDatakam, refetch: refetchColumnDatakam } = useGetSelectedColumnsKamQuery();
+
 
   //..........Api calling for search............
   const { data: searchData } = useGetGlobalsearchKamQuery(filters, {
@@ -282,43 +279,88 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSelectedColumns(newColumnsOrder);
   };
 
-  const toggleColumn = (columnName) => {
-    setSelectedColumns((prevSelectedColumns) =>
-      prevSelectedColumns.includes(columnName)
-        ? prevSelectedColumns.filter((col) => col !== columnName)
-        : [...prevSelectedColumns, columnName]
+  const toggleColumn = (field) => {
+    if (field === "SL No") return;
+    setTempSelectedColumns((prev) =>
+      prev.includes(field)
+        ? prev.filter((col) => col !== field)
+        : [...prev, field]
     );
   };
 
   const handleSelectAllToggle = () => {
-    const allColumnFields = getColumns(data).map(({ field }) => field);
+    const allColumns = columnDatakam
+      ? Object.keys(columnDatakam?.content[0] || {}).map((key) => ({
+        field: key,
+        listName: columnDatakam.content[0][key]?.listName || key,
+      }))
+      : [];
+
+    const uniqueColumns = Array.from(new Set(allColumns.map((col) => col.listName)));
+
+    let updatedColumns;
     if (selectAll) {
-      setSelectedColumns([]);
+      setTempSelectedColumns([]); // Deselect all in temporary state
+      updatedColumns = defaultColumns;
     } else {
-      setSelectedColumns(allColumnFields);
+      setTempSelectedColumns(uniqueColumns); // Select all in temporary state
+      updatedColumns = uniqueColumns;
     }
-    setSelectAll((prevSelectAll) => !prevSelectAll);
+
+    setSelectAll(!selectAll);
   };
 
   const handleModalClose = () => {
     setSelectedColumns(defaultColumns);
     onClose();
   };
+  const handleApplyChanges = () => {
+    const updatedSelectedColumns = Array.from(
+      new Set(
+        tempSelectedColumns.map((col) => {
+          const matchingColumn = columnDatakam?.content[0][col];
+          return matchingColumn ? matchingColumn.listName || col : col;
+        })
+      )
+    ).filter((col) => col !== "SL No");
 
-  // Function to handle setting the active column when the popover is clicked
+    // Update filters with unique columns
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      data: updatedSelectedColumns, // Replace data with unique selected listNames
+    }));
+
+    const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
+
+    const columnsChanged = JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
+
+    if (!columnsChanged) {
+      toast({
+        title: "No changes to apply",
+        status: "info",
+        isClosable: true,
+      });
+      return;
+    }
+    setSelectedColumns(updatedSelectedColumns);
+    refetchColumnDatakam({ columns: updatedSelectedColumns });
+    onClose();
+    // Show success toast notification
+    toast({
+      title: "Columns Applied Successfully",
+      status: "success",
+      isClosable: true,
+    });
+  };
+  useEffect(() => {
+    setTempSelectedColumns(defaultColumns);
+  }, [isOpen]);
+
   const handlePopoverClick = (column) => {
     // setActiveFilterColumn((prev) => (prev === column ? null : column)); // Toggle column
     setActiveFilterColumn(column);
   };
 
-  const handleApplyChanges = () => {
-    onClose();
-    toast({
-      title: "Column Added Successfully",
-      status: "success",
-      isClosable: true,
-    });
-  };
 
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 10), []);
 
@@ -501,10 +543,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     selectedColumns,
     tempFilterCondition,
   ]);
-
-  console.log("Temp Condition:", tempFilterCondition);
-  // console.log("Temp Value:", tempFilterValue);
-  console.log("Updated Filters:", columnFilters);
 
   const formatHeader = (header) => {
     header = header.trim();
@@ -1586,8 +1624,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         padding="5px"
                         borderColor="mainBluemedium"
                         key={column.field}
-                        defaultChecked={selectedColumns.includes(column.field)}
-                        isChecked={selectedColumns.includes(column.field)}
+                        defaultChecked={tempSelectedColumns.includes(column.field)}
+                        isChecked={tempSelectedColumns.includes(column.field)}
                         onChange={() => toggleColumn(column.field)}
                       >
                         <Text
