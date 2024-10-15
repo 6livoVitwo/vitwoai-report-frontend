@@ -106,7 +106,7 @@ const CustomTable = ({
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const [currentPage, setCurrentPage] = useState(0); // Default page is 0
   const [selectedRegion, setSelectedRegion] = useState(""); // Track selected region
-  const [placeholder, setPlaceholder] = useState("District"); // Default placeholder
+  const [placeholder, setPlaceholder] = useState("District");
   const [columns, setColumns] = useState([]);
   const [tableData, setTableData] = useState([]); // Store the fetched table data
   const [isUpdated, setIsUpdated] = useState(false); // Force re-render when needed
@@ -226,27 +226,27 @@ const CustomTable = ({
   //..........Api calling for dropdown for district-wise ............
   const { data: DistrictWiseData, refetch: refetchDistrict } =
     useGetselectedDistWiseQuery(filters);
-  // console.log("DistrictWiseData_🟠", DistrictWiseData);
+
 
   //..........Api calling for dropdown for city-wise ............
   const { data: CityWiseData, refetch: refetchcity } =
     useGetselectedCityWiseQuery(filters);
-  // console.log("CityWiseData_🟢", CityWiseData);
+
 
   //..........Api calling for dropdown for pincode-wise ............
   const { data: CountryWiseData, refetch: refetchcountry } =
     useGetselectedCountryWiseQuery(filters);
-  // console.log("CountryWiseData_🟣", CountryWiseData);
+
 
   //..........Api calling for dropdown for pincode-wise ............
   const { data: PincodeWiseData, refetch: refetchpincode } =
     useGetselectedPincodeWiseQuery(filters);
-  // console.log("PincodeWiseData_🟤", PincodeWiseData);
+
 
   //..........Api calling for dropdown for state-wise ............
   const { data: StateWiseData, refetch: refetchstate } =
     useGetselectedStateWiseQuery(filters);
-  // console.log("StateWiseData_🟡", StateWiseData);
+
 
   const RerionType = [
     { label: "State", value: "state" },
@@ -257,7 +257,7 @@ const CustomTable = ({
   ];
   //...Handle dropdown region-type change....
   const handleRegionChange = (e) => {
-    const selectedValue = e.value; // Get the selected value from the dropdown
+    const selectedValue = e.value;
     const selectedLable = e.originalEvent.target.innerText;
     setPlaceholder(selectedLable);
 
@@ -385,7 +385,6 @@ const CustomTable = ({
     // setActiveFilterColumn((prev) => (prev === column ? null : column)); // Toggle column
     setActiveFilterColumn(column);
   };
-
   const handleApplyChanges = () => {
     onClose();
     toast({
@@ -829,7 +828,7 @@ const CustomTable = ({
           <Dropdown
             options={RerionType}
             optionLabel="label"
-            placeholder="Select Region Type"
+            placeholder={"Region"}
             value={selectedRegion}
             onChange={handleRegionChange}
             style={{
