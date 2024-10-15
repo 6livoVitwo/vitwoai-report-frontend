@@ -407,7 +407,21 @@ const CustomTable = ({
     setInputValue(e.target.value);
   };
   const handleSearchClick = () => {
-    debouncedSearchQuery(inputValue);
+    const filteredColumns = selectedColumns.filter(column => !column.includes('SUM'));
+    const updatedFilters = {
+      ...filters,
+      filter: [
+        ...filters.filter,
+        ...filteredColumns.map(column => ({
+          column: column,
+          operator: "like",
+          type: "string",
+          value: inputValue,
+        })),
+      ],
+    };
+    setFilters(updatedFilters);
+    setSearchQuery(inputValue);
   };
 
   const clearAllFilters = () => {
@@ -462,6 +476,7 @@ const CustomTable = ({
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray]; // Copy the original data
 
+    // Apply filters
     Object.keys(columnFilters).forEach((field) => {
       const filter = columnFilters[field];
       if (filter.condition && filter.value) {

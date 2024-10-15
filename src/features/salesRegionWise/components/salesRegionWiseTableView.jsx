@@ -4,7 +4,6 @@ import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useRegionWiseSalesQuery } from "../slice/salesRegionWiseApi";
-// let filters = ;
 
 const SalesRegionWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
