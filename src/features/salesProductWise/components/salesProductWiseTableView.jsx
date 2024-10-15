@@ -4,6 +4,7 @@ import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useProductWiseSalesQuery } from "../slice/salesProductWiseApi";
+import { useGetSelectedColumnsproductQuery } from "../slice/salesProductWiseApi";
 
 const SalesProductWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
@@ -12,27 +13,25 @@ const SalesProductWiseTableView = () => {
   const [individualItems, setIndividualItems] = useState([]);
   const [toastShown, setToastShown] = useState(false);
   const toast = useToast();
- 
-  const [filters, setFilters] = useState(
-    {
-      data: [
-              "items.itemName",
-              "SUM(salesPgi.salesDelivery.totalAmount)",
-              "SUM(salesPgi.totalAmount)",
-              "SUM(quotation.totalAmount)",
-              "SUM(salesOrder.totalAmount)",
-              "SUM(items.qty)",
-              "SUM(items.basePrice - items.totalDiscountAmt)",
-              "SUM(all_total_amt)",
-      ],
-      groupBy: ["items.itemName"],
-      filter: [],
-      page: 0,
-      size: 20,
-      sortDir: "asc",
-      sortBy: "invoice_date",
-    }
-  )
+
+  const [filters, setFilters] = useState({
+    data: [
+      "items.itemName",
+      "SUM(salesPgi.salesDelivery.totalAmount)",
+      "SUM(salesPgi.totalAmount)",
+      "SUM(quotation.totalAmount)",
+      "SUM(salesOrder.totalAmount)",
+      "SUM(items.qty)",
+      "SUM(items.basePrice - items.totalDiscountAmt)",
+      "SUM(all_total_amt)",
+    ],
+    groupBy: ["items.itemName"],
+    filter: [],
+    page: 0,
+    size: 20,
+    sortDir: "asc",
+    sortBy: "invoice_date",
+  });
 
   const {
     data: sales,
@@ -71,34 +70,21 @@ const SalesProductWiseTableView = () => {
     return result;
   };
 
-  const extractFields = (data, index) => ({
-    "SL No": index + 1,
-    "items.itemName": data["items.itemName"],
-    "SUM(salesPgi.totalAmount)": data["SUM(salesPgi.totalAmount)"],
-    "invoice_date": data["invoice_date"],
-    "SUM(salesPgi.salesDelivery.totalAmount)": data["SUM(salesPgi.salesDelivery.totalAmount)"],
-    // "Sales Order": data["SUM(salesOrder.totalAmount)"],
-    // "Total Qty": data["SUM(items.qty)"]
-    // "Sub Total": data["SUM(items.basePrice - items.totalDiscountAmt)"],
-    // "Total Amount": data["SUM(all_total_amt)"],
-  });
-
   useEffect(() => {
     if (sales?.content?.length) {
       const newItems = sales.content.flatMap((invoice) => {
         const flattenedInvoice = flattenObject(invoice);
         return invoice.items?.length
           ? invoice.items.map((item) => {
-              const flattenedItem = flattenObject(item, "item.");
-              return { ...flattenedInvoice, ...flattenedItem };
-            })
+            const flattenedItem = flattenObject(item, "item.");
+            return { ...flattenedInvoice, ...flattenedItem };
+          })
           : [flattenedInvoice];
       });
       setIndividualItems((prevItems) => [...prevItems, ...newItems]);
     }
   }, [sales]);
   useEffect(() => {
-    // Show the toast only if the user has scrolled to the last page and toast hasn't been shown
     if (sales?.totalPages < page && !toastShown) {
       toast({
         title: "No More Data",
@@ -111,59 +97,55 @@ const SalesProductWiseTableView = () => {
             p={3}
             bg="orange.300"
             borderRadius="md"
-            style={{ width: "300px", height: "70px" }} // Set custom width and height
+            style={{ width: "300px", height: "70px" }}
           >
             <Box fontWeight="bold">No More Data</Box>
             <Box>You have reached the end of the list.</Box>
           </Box>
         ),
       });
-      setToastShown(true); // Mark the toast as shown
+      setToastShown(true); 
     }
   }, [sales, page, toast, toastShown]);
-	if (isLoading) {
-		return (
-			<Box
-				height='calc(100vh - 75px)'
-				width='100%'
-				display='flex'
-				alignItems='center'
-				justifyContent='center'>
-				<Spinner
-					thickness='4px'
-					speed='0.65s'
-					emptyColor='gray.200'
-					color='blue.500'
-					size='xl'
-				/>
-			</Box>
-		);
-	}
-	if (error) {
-		return (
-			<Box
-				bg='white'
-				width='100%'
-				height='calc(100vh - 103px)'
-				display='flex'
-				alignItems='center'
-				justifyContent='center'>
-				<Image src={NoDataFound} alt='No Data Available' />
-			</Box>
-		);
-	}
-	
-  const newArray = individualItems.map((data, index) =>
-    extractFields(data, index)
-  );
-  // console.log(sales, 'main data');
-  // console.log(newArray, 'newArray');
+  if (isLoading) {
+    return (
+      <Box
+        height="calc(100vh - 75px)"
+        width="100%"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Spinner
+          thickness="4px"
+          speed="0.65s"
+          emptyColor="gray.200"
+          color="blue.500"
+          size="xl"
+        />
+      </Box>
+    );
+  }
+  if (error) {
+    return (
+      <Box
+        bg="white"
+        width="100%"
+        height="calc(100vh - 103px)"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Image src={NoDataFound} alt="No Data Available" />
+      </Box>
+    );
+  }
 
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
       {individualItems.length > 0 && (
         <CustomTable
-          newArray={newArray}
+          newArray={individualItems}
           page={page}
           setPage={setPage}
           isFetching={isFetching}

@@ -76,7 +76,7 @@ import { useGetSelectedColumnsVerticalQuery } from "../slice/salesVerticalWiseAp
 import { useGetGlobalsearchVerticalQuery } from "../slice/salesVerticalWiseApi";
 import { useVerticalWiseSalesQuery } from "../slice/salesVerticalWiseApi";
 
-const CustomTable = ({ setPage, newArray, alignment, filters,setFilters}) => {
+const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
@@ -91,6 +91,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters}) => {
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
   const [configureChart, setConfigureChart] = useState({});
+  const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
+
   const {
     onOpen: onOpenGraphSettingDrawer,
     onClose: onCloseGraphSettingDrawer,
@@ -117,8 +119,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters}) => {
   };
   // Dynamically generate column mappings from filters.data
   const columnMappings = generateColumnMappings(filters.data);
-  console.log("columnMappings", columnMappings);
-  console.log(columnMappings["functionalities_name"]);
 
   // Function to map filters dynamically
   const mapFilters = (filters) => {
@@ -128,25 +128,24 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters}) => {
       column: columnMappings[filter.column],
     }));
   };
+
   //......Advanced Filtering....
   const { data: advancedFilterData } = useVerticalWiseSalesQuery(
-    {filters: localFilters},
+    { filters: localFilters },
     // { skip: !filtersApplied }
   );
-  // console.log("advancedFilterData_Piyas", advancedFilterData);
 
   const getMappedColumnName = (column) => {
     for (const [key, value] of Object.entries(columnMappings)) {
       if (value === column) {
         return key; // Return the API column name when matched
       }
-      if(key === column){
+      if (key === column) {
         return key;
       }
     }
     return null; // Return null if no match found
   };
-  console.log("Active filter column.🔵", activeFilterColumn);
 
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
@@ -161,11 +160,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters}) => {
   //     console.log("No matching column found");
   //   }
   // };
-  
 
-  //.........Api call to get selected columns.......
-  const { data: selectedColumnsData } = useGetSelectedColumnsVerticalQuery();
-  // console.log("Piyas00010001",selectedColumnsData);
+
+  //.........Api call drop down selected columns.......
+  const { data: selectedColumnsData, refetch: refetchSelectedColumns } = useGetSelectedColumnsVerticalQuery();
+
 
   //.........Api call to get global search.......
   const { data: searchData } = useGetGlobalsearchVerticalQuery(filters, {
@@ -299,30 +298,36 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters}) => {
     setSelectedColumns(newColumnsOrder);
   };
 
-  const toggleColumn = (columnName) => {
-    setSelectedColumns((prevSelectedColumns) =>
-      prevSelectedColumns.includes(columnName)
-        ? prevSelectedColumns.filter((col) => col !== columnName)
-        : [...prevSelectedColumns, columnName]
+  const toggleColumn = (field) => {
+    if (field === "SL No") return;
+    setTempSelectedColumns((prev) =>
+      prev.includes(field)
+        ? prev.filter((col) => col !== field)
+        : [...prev, field]
     );
   };
 
   const handleSelectAllToggle = () => {
+    const allColumns = selectedColumnsData
+      ? Object.keys(selectedColumnsData?.content[0] || {}).map((key) => ({
+        field: key,
+        listName: selectedColumnsData.content[0][key]?.listName || key,
+      }))
+      : [];
+
+    const uniqueColumns = Array.from(
+      new Set(allColumns.map((col) => col.listName))
+    );
+
+    let updatedColumns;
     if (selectAll) {
-      setSelectedColumns([]); // Deselect all columns
+      setTempSelectedColumns([]);
+      updatedColumns = defaultColumns;
     } else {
-      const allColumns = getColumns(data) // Select all columns
-        .concat(
-          selectedColumnsData
-            ? Object.keys(selectedColumnsData?.content[0] || {}).map((key) => ({
-                field: key,
-                header: key,
-              }))
-            : []
-        )
-        .map((column) => column.field);
-      setSelectedColumns(allColumns);
+      setTempSelectedColumns(uniqueColumns);
+      updatedColumns = uniqueColumns;
     }
+
     setSelectAll(!selectAll);
   };
 
@@ -332,13 +337,49 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters}) => {
   };
 
   const handleApplyChanges = () => {
+    const updatedSelectedColumns = Array.from(
+      new Set(
+        tempSelectedColumns.map((col) => {
+          const matchingColumn = selectedColumnsData?.content[0][col];
+          return matchingColumn ? matchingColumn.listName || col : col;
+        })
+      )
+    ).filter((col) => col !== "SL No");
+
+    // Update filters with unique columns
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      data: updatedSelectedColumns,
+    }));
+
+    const storedColumns =
+      JSON.parse(localStorage.getItem("selectedColumns")) || [];
+
+    const columnsChanged =
+      JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
+
+    if (!columnsChanged) {
+      toast({
+        title: "No changes to apply",
+        status: "info",
+        isClosable: true,
+      });
+      return;
+    }
+    setSelectedColumns(updatedSelectedColumns);
+    refetchSelectedColumns({ columns: updatedSelectedColumns });
     onClose();
     toast({
-      title: "Column Added Successfully",
+      title: "Columns Applied Successfully",
       status: "success",
       isClosable: true,
     });
   };
+  useEffect(() => {
+    if (isOpen) {
+      setTempSelectedColumns(defaultColumns);
+    }
+  }, [isOpen]);
 
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
 
@@ -352,17 +393,17 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters}) => {
     setInputValue(e.target.value);
   };
   const handleSearchClick = () => {
-    // Update filters to include search criteria
+    const filteredColumns = selectedColumns.filter(column => !column.includes('SUM'));
     const updatedFilters = {
       ...filters,
       filter: [
         ...filters.filter,
-        {
-          column: selectedColumns[1], // Assuming selectedColumns is a string or array
+        ...filteredColumns.map(column => ({
+          column: column,
           operator: "like",
           type: "string",
           value: inputValue,
-        },
+        })),
       ],
     };
     setFilters(updatedFilters);
@@ -400,8 +441,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters}) => {
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray];
 
-     // Apply searchData from the API
-     if (searchData && searchData.length > 0) {
+    // Apply searchData from the API
+    if (searchData && searchData.length > 0) {
       // Assuming searchData is an array of items
       filteredData = filteredData.filter((item) => {
         return searchData.some((searchItem) =>
@@ -524,6 +565,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters}) => {
 
   const formatHeader = (header) => {
     header = header.trim();
+    header = header.replace(/^[A-Z]+\(|\)$/g, "");
+    header = header.replace(/_/g, " ");
     const parts = header.split(".");
     const lastPart = parts.pop();
     const words = lastPart.split("_").join("");
@@ -645,7 +688,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters}) => {
       columnType.includes("SUM(")
         ? handleApplyFiltersSUM()
         : handleApplyFilters();
-       
+
     }
   };
 
@@ -1032,7 +1075,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters}) => {
                 ref={provided.innerRef}
                 variant="simple"
               >
-                <Thead style={{position: "sticky",top:0}} >
+                <Thead style={{ position: "sticky", top: 0 }} >
                   <Tr bg="#cfd8e1">
                     {selectedColumns.map((column, index) => (
                       <Draggable
@@ -1188,7 +1231,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters}) => {
                                               handleTempFilterValueChange
                                             }
                                             // placeholder={`Filter ${column}`
-                                            placeholder="Search by value" 
+                                            placeholder="Search by value"
                                           />
                                         </Box>
                                       </Box>
@@ -1242,8 +1285,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters}) => {
                                 column === "description"
                                   ? "300px"
                                   : column === "name"
-                                  ? "200px"
-                                  : "100px"
+                                    ? "200px"
+                                    : "100px"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis"
@@ -1614,11 +1657,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters}) => {
                 .concat(
                   selectedColumnsData
                     ? Object.keys(selectedColumnsData?.content[0] || {}).map(
-                        (key) => ({
-                          field: key,
-                          header: key,
-                        })
-                      )
+                      (key) => ({
+                        field: key,
+                        header: key,
+                      })
+                    )
                     : []
                 )
                 .map((column, index) => {
@@ -1640,8 +1683,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters}) => {
                         padding="5px"
                         borderColor="mainBluemedium"
                         key={column.field}
-                        defaultChecked={selectedColumns.includes(column.field)}
-                        isChecked={selectedColumns.includes(column.field)}
+                        defaultChecked={tempSelectedColumns.includes(column.field)}
+                        isChecked={tempSelectedColumns.includes(column.field)}
                         onChange={() => toggleColumn(column.field)}
                       >
                         <Text

@@ -63,7 +63,7 @@ import { Calendar } from "primereact/calendar";
 import { useGetGlobalsearchVendorQuery } from "../slice/purchaseVendorWiseApi";
 import { useVendorWisePurchaseQuery } from "../slice/purchaseVendorWiseApi";
 import { useGetSelectedColumnsVendorQuery } from "../slice/purchaseVendorWiseApi";
-const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch }) => {
+const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetch }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
@@ -104,7 +104,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
   // console.log("piyas3333333", searchData);
 
   // ....api calling from drop-down data ....
-  const { data: columnData , refetch: refetchColumnvendor } = useGetSelectedColumnsVendorQuery();
+  const { data: columnData, refetch: refetchColumnvendor } = useGetSelectedColumnsVendorQuery();
   // console.log("01010101", columnData);
 
   //API Calling sorting
@@ -241,13 +241,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
   const handleSelectAllToggle = () => {
     const allColumns = columnData
       ? Object.keys(columnData?.content[0] || {}).map((key) => ({
-          field: key,
-          listName: columnData.content[0][key]?.listName || key,
-        }))
+        field: key,
+        listName: columnData.content[0][key]?.listName || key,
+      }))
       : [];
-  
+
     const uniqueColumns = Array.from(new Set(allColumns.map((col) => col.listName)));
-  
+
     let updatedColumns;
     if (selectAll) {
       setTempSelectedColumns([]); // Deselect all in temporary state
@@ -256,7 +256,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
       setTempSelectedColumns(uniqueColumns); // Select all in temporary state
       updatedColumns = uniqueColumns;
     }
-  
+
     setSelectAll(!selectAll);
   };
 
@@ -275,16 +275,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
       )
     ).filter((col) => col !== "SL No");
 
-     // Update filters with unique columns
-     setFilters((prevFilters) => ({
+    // Update filters with unique columns
+    setFilters((prevFilters) => ({
       ...prevFilters,
       data: updatedSelectedColumns, // Replace data with unique selected listNames
     }));
-    
+
     const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
-  
+
     const columnsChanged = JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
-  
+
     if (!columnsChanged) {
       toast({
         title: "No changes to apply",
@@ -293,16 +293,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
       });
       return;
     }
-  
+
     // Update the final selected columns (this will trigger the table update)
     setSelectedColumns(updatedSelectedColumns);
 
     // Refetch data based on selected columns
     refetchColumnvendor({ columns: updatedSelectedColumns });
-  
+
     // Close the modal
     onClose();
-  
+
     // Show success toast notification
     toast({
       title: "Columns Applied Successfully",
@@ -326,21 +326,21 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
     setInputValue(e.target.value);
   };
   const handleSearchClick = () => {
-    // Update filters to include search criteria
+    const filteredColumns = selectedColumns.filter(column => !column.includes('SUM'));
     const updatedFilters = {
       ...filters,
       filter: [
         ...filters.filter,
-        {
-          column: selectedColumns[1], // Assuming selectedColumns is a string or array
+        ...filteredColumns.map(column => ({
+          column: column,
           operator: "like",
           type: "string",
           value: inputValue,
-        },
+        })),
       ],
     };
     setFilters(updatedFilters);
-    setSearchQuery(inputValue); 
+    setSearchQuery(inputValue);
   };
 
   const clearAllFilters = () => {
@@ -353,7 +353,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
 
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray];
-    
+
     Object.keys(columnFilters).forEach((field) => {
       const filter = columnFilters[field];
       if (filter.condition && filter.value) {
@@ -466,7 +466,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
   const handleScroll = () => {
     const { scrollTop, scrollHeight, clientHeight } = tableContainerRef.current;
 
-    if (scrollTop + clientHeight >= scrollHeight - 2 ) {
+    if (scrollTop + clientHeight >= scrollHeight - 2) {
       loadMoreData();
     }
   };
@@ -1038,19 +1038,19 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                                           />
                                           {tempFilterCondition ===
                                             "between" && (
-                                            <>
-                                              <Input
-                                                className="Between"
-                                                h="35px"
-                                                fontSize="12px"
-                                                padding="6px"
-                                                onChange={
-                                                  handleTempFilterValueChange
-                                                }
-                                                placeholder={`Filter ${column}`}
-                                              />
-                                            </>
-                                          )}
+                                              <>
+                                                <Input
+                                                  className="Between"
+                                                  h="35px"
+                                                  fontSize="12px"
+                                                  padding="6px"
+                                                  onChange={
+                                                    handleTempFilterValueChange
+                                                  }
+                                                  placeholder={`Filter ${column}`}
+                                                />
+                                              </>
+                                            )}
                                         </Box>
                                       </Box>
                                     </Box>
@@ -1103,8 +1103,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                                 column === "description"
                                   ? "300px"
                                   : column === "name"
-                                  ? "200px"
-                                  : "100px"
+                                    ? "200px"
+                                    : "100px"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis"
@@ -1194,9 +1194,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters,setFilters, refetch
                 .concat(
                   columnData
                     ? Object.keys(columnData?.content[0] || {}).map((key) => ({
-                        field: key,
-                        header: key,
-                      }))
+                      field: key,
+                      header: key,
+                    }))
                     : []
                 )
                 .map((column, index) => {

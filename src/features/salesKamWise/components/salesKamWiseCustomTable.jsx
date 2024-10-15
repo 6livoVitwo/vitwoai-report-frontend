@@ -77,7 +77,7 @@ import { useDispatch } from "react-redux";
 import { MdFullscreen } from "react-icons/md";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfiguration";
-const CustomTable = ({ setPage, newArray, alignment ,filters,setFilters}) => {
+const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
@@ -90,8 +90,8 @@ const CustomTable = ({ setPage, newArray, alignment ,filters,setFilters}) => {
   const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
   const [startDate, setStartDate] = useState();
-    const [configureChart, setConfigureChart] = useState({});
-    const dispatch = useDispatch();
+  const [configureChart, setConfigureChart] = useState({});
+  const dispatch = useDispatch();
   const [endDate, setEndDate] = useState();
   const [sortColumn, setSortColumn] = useState();
   const [sortOrder, setSortOrder] = useState();
@@ -119,32 +119,32 @@ const CustomTable = ({ setPage, newArray, alignment ,filters,setFilters}) => {
 
   // Function to map filters dynamically
   const mapFilters = (filters) => {
-    console.log('🟠',{ filters });
+    console.log('🟠', { filters });
     return filters.map((filter) => ({
       ...filter,
       // If filter.column is a string, directly use columnMappings; otherwise, check for filter.column.key
       sortBy: filter.column,
     }));
   };
-  
-  
+
+
   //API Calling sorting
-  const { data:kamData, refetch: refetchKamWiseSales } = useKamWiseSalesQuery({
+  const { data: kamData, refetch: refetchKamWiseSales } = useKamWiseSalesQuery({
     filters: {
       ...filters,
       filter: mapFilters(filters.filter), // Map filters dynamically
       sortBy: columnMappings[sortColumn] || sortColumn,
       sortDir: sortOrder,
-      
+
     },
     page: currentPage,
   });
   console.log("kamData_piyas121", kamData);
- 
+
 
   //......Advance Filter Api Calling.........
   const { data: kamDataFilter } = useKamWiseSalesQuery(
-    { filters:localFilters},
+    { filters: localFilters },
     // { skip: !filtersApplied }
   );
   //  console.log("kamDataFilter1212121",kamDataFilter);
@@ -193,7 +193,7 @@ const CustomTable = ({ setPage, newArray, alignment ,filters,setFilters}) => {
     onClose: onCloseGraphDetailsView,
   } = useDisclosure();
 
-    const btnRef = React.useRef();
+  const btnRef = React.useRef();
 
   const getColumnStyle = (header) => ({
     textAlign: alignment[header] || "left",
@@ -332,17 +332,17 @@ const CustomTable = ({ setPage, newArray, alignment ,filters,setFilters}) => {
     setInputValue(e.target.value);
   };
   const handleSearchClick = () => {
-    // Update filters to include search criteria
+    const filteredColumns = selectedColumns.filter(column => !column.includes('SUM'));
     const updatedFilters = {
       ...filters,
       filter: [
         ...filters.filter,
-        {
-          column: selectedColumns[1], // Assuming selectedColumns is a string or array
+        ...filteredColumns.map(column => ({
+          column: column,
           operator: "like",
           type: "string",
           value: inputValue,
-        },
+        })),
       ],
     };
     setFilters(updatedFilters);
@@ -350,7 +350,7 @@ const CustomTable = ({ setPage, newArray, alignment ,filters,setFilters}) => {
   };
 
   const clearAllFilters = () => {
-   setSearchQuery("");
+    setSearchQuery("");
     setInputValue("");
     setColumnFilters({});
     setSortColumn("");
@@ -404,20 +404,20 @@ const CustomTable = ({ setPage, newArray, alignment ,filters,setFilters}) => {
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray]; // Copy the original data
 
-    
-      // Apply searchData from the API
-      if (searchData && searchData.length > 0) {
-        // Assuming searchData is an array of items
-        filteredData = filteredData.filter((item) => {
-          return searchData.some((searchItem) =>
-            Object.values(searchItem).some((value) =>
-              String(value)
-                .toLowerCase()
-                .includes(String(inputValue).toLowerCase())
-            )
-          );
-        });
-      }
+
+    // Apply searchData from the API
+    if (searchData && searchData.length > 0) {
+      // Assuming searchData is an array of items
+      filteredData = filteredData.filter((item) => {
+        return searchData.some((searchItem) =>
+          Object.values(searchItem).some((value) =>
+            String(value)
+              .toLowerCase()
+              .includes(String(inputValue).toLowerCase())
+          )
+        );
+      });
+    }
     // Apply filters
     Object.keys(columnFilters).forEach((field) => {
       const filter = columnFilters[field];
@@ -508,6 +508,8 @@ const CustomTable = ({ setPage, newArray, alignment ,filters,setFilters}) => {
 
   const formatHeader = (header) => {
     header = header.trim();
+    header = header.replace(/^[A-Z]+\(|\)$/g, "");
+    header = header.replace(/_/g, " ");
     const parts = header.split(".");
     const lastPart = parts.pop();
     const words = lastPart.split("_").join("");
@@ -978,7 +980,7 @@ const CustomTable = ({ setPage, newArray, alignment ,filters,setFilters}) => {
                 variant="simple"
               >
                 <Thead
-                style={{position: "sticky",top:0}}
+                  style={{ position: "sticky", top: 0 }}
                 >
                   <Tr bg="#cfd8e1">
                     {selectedColumns.map((column, index) => (
@@ -1188,8 +1190,8 @@ const CustomTable = ({ setPage, newArray, alignment ,filters,setFilters}) => {
                                 column === "description"
                                   ? "300px"
                                   : column === "name"
-                                  ? "200px"
-                                  : "100px"
+                                    ? "200px"
+                                    : "100px"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis"
@@ -1558,11 +1560,11 @@ const CustomTable = ({ setPage, newArray, alignment ,filters,setFilters}) => {
                 .concat(
                   columnDatakam
                     ? Object.keys(columnDatakam?.content[0] || {}).map(
-                        (key) => ({
-                          field: key,
-                          header: key,
-                        })
-                      )
+                      (key) => ({
+                        field: key,
+                        header: key,
+                      })
+                    )
                     : []
                 )
                 .map((column, index) => {

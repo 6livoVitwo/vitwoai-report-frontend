@@ -86,21 +86,21 @@ const SalesVerticalWiseTableView = () => {
     return result;
   };
 
-  const extractFields = (data, index) => ({
-    "SL No": index + 1,
-    "companyFunction.functionalities_name":
-      data["companyFunction.functionalities_name"],
-    "Sales Delivery Total Amount":
-      data["SUM(salesPgi.salesDelivery.totalAmount)"],
-    "Sales Pgi Total Amount": data["SUM(salesPgi.totalAmount)"],
-    Quotation: data["SUM(salesPgi.totalAmount)"],
-    "Sales Order": data["SUM(salesOrder.totalAmount)"],
-    "Total Qty": data["SUM(items.qty)"],
-    "Sub Total": data["SUM(items.basePrice - items.totalDiscountAmt)"],
-    "Total Amount": data["SUM(all_total_amt)"],
-    "Due Amount": data["SUM(due_amount)"],
-    invoice_date: formatDate(data["invoice_date"]),
-  });
+  // const extractFields = (data, index) => ({
+  //   "SL No": index + 1,
+  //   "companyFunction.functionalities_name":
+  //     data["companyFunction.functionalities_name"],
+  //   "Sales Delivery Total Amount":
+  //     data["SUM(salesPgi.salesDelivery.totalAmount)"],
+  //   "Sales Pgi Total Amount": data["SUM(salesPgi.totalAmount)"],
+  //   Quotation: data["SUM(salesPgi.totalAmount)"],
+  //   "Sales Order": data["SUM(salesOrder.totalAmount)"],
+  //   "Total Qty": data["SUM(items.qty)"],
+  //   "Sub Total": data["SUM(items.basePrice - items.totalDiscountAmt)"],
+  //   "Total Amount": data["SUM(all_total_amt)"],
+  //   "Due Amount": data["SUM(due_amount)"],
+  //   invoice_date: formatDate(data["invoice_date"]),
+  // });
 
   useEffect(() => {
     if (sales?.content?.length) {
@@ -174,14 +174,14 @@ const SalesVerticalWiseTableView = () => {
       </Box>
     );
   }
-  const newArray = individualItems.map((data, index) =>
-    extractFields(data, index)
-  );
+  // const newArray = individualItems.map((data, index) =>
+  //   extractFields(data, index)
+  // );
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
       {individualItems.length > 0 && (
         <CustomTable
-          newArray={newArray}
+          newArray={individualItems}
           page={page}
           setPage={setPage}
           isFetching={isFetching}

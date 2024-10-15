@@ -26,7 +26,7 @@ const PurchaseVendorWiseTableView = () => {
         "SUM(grnInvoice.dueAmt)",
       ],
       groupBy: ["grnInvoice.vendorCode", "grnInvoice.vendorName"],
-      filter: [ ],
+      filter: [],
       page: 0,
       size: 20,
       sortDir: "asc",
@@ -85,16 +85,15 @@ const PurchaseVendorWiseTableView = () => {
         const flattenedInvoice = flattenObject(invoice);
         return invoice.items?.length
           ? invoice.items.map((item) => {
-              const flattenedItem = flattenObject(item, "item.");
-              return { ...flattenedInvoice, ...flattenedItem };
-            })
+            const flattenedItem = flattenObject(item, "item.");
+            return { ...flattenedInvoice, ...flattenedItem };
+          })
           : [flattenedInvoice];
       });
       setIndividualItems((prevItems) => [...prevItems, ...newItems]);
     }
   }, [sales]);
   useEffect(() => {
-    // Show the toast only if the user has scrolled to the last page and toast hasn't been shown
     if (sales?.totalPages < page && !toastShown) {
       toast({
         title: "No More Data",
@@ -151,15 +150,11 @@ const PurchaseVendorWiseTableView = () => {
       </Box>
     );
   }
-
-  const newArray = individualItems.map((data, index) =>
-    extractFields(data, index)
-  );
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
       {individualItems.length > 0 && (
         <CustomTable
-          newArray={newArray}
+          newArray={individualItems}
           page={page}
           setPage={setPage}
           isFetching={isFetching}

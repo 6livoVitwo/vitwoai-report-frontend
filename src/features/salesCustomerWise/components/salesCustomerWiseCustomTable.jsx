@@ -97,6 +97,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
+  const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
 
   //........Api calling for advanced filter...........
   const { data: advancedFilterData } = useCustomerWiseSalesQuery(
@@ -123,8 +124,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const { selectedWise } = useSelector((state) => state.graphSlice);
   const dispatch = useDispatch();
 
-  //..........Api calling for column data............
-  const { data: columnDatacustomer } = useGetSelectedColumnscustomerQuery();
+  //..........Api calling for drop down column data............
+  const { data: columnDatacustomer, refetch: refetchcoustomer } = useGetSelectedColumnscustomerQuery();
 
   const toast = useToast();
   const tableContainerRef = useRef(null);
@@ -254,31 +255,34 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSelectedColumns(newColumnsOrder);
   };
 
-  const toggleColumn = (columnName) => {
-    setSelectedColumns((prevSelectedColumns) =>
-      prevSelectedColumns.includes(columnName)
-        ? prevSelectedColumns.filter((col) => col !== columnName)
-        : [...prevSelectedColumns, columnName]
+  const toggleColumn = (field) => {
+    if (field === "SL No") return;
+    setTempSelectedColumns((prev) =>
+      prev.includes(field)
+        ? prev.filter((col) => col !== field)
+        : [...prev, field]
     );
   };
 
   const handleSelectAllToggle = () => {
-    if (selectAll) {
-      setSelectedColumns([]); // Deselect all columns
-    } else {
-      const allColumns = getColumns(data) // Select all columns
-        .concat(
-          columnDatacustomer
-            ? Object.keys(columnDatacustomer?.content[0] || {}).map((key) => ({
-                field: key,
-                header: key,
-              }))
-            : []
-        )
-        .map((column) => column.field);
+    const allColumns = columnDatacustomer
+      ? Object.keys(columnDatacustomer?.content[0] || {}).map((key) => ({
+        field: key,
+        listName: columnDatacustomer.content[0][key]?.listName || key,
+      }))
+      : [];
 
-      setSelectedColumns(allColumns);
+    const uniqueColumns = Array.from(new Set(allColumns.map((col) => col.listName)));
+
+    let updatedColumns;
+    if (selectAll) {
+      setTempSelectedColumns([]); // Deselect all in temporary state
+      updatedColumns = defaultColumns;
+    } else {
+      setTempSelectedColumns(uniqueColumns); // Select all in temporary state
+      updatedColumns = uniqueColumns;
     }
+
     setSelectAll(!selectAll);
   };
 
@@ -288,13 +292,53 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   const handleApplyChanges = () => {
+    const updatedSelectedColumns = Array.from(
+      new Set(
+        tempSelectedColumns.map((col) => {
+          const matchingColumn = columnDatacustomer?.content[0][col];
+          return matchingColumn ? matchingColumn.listName || col : col;
+        })
+      )
+    ).filter((col) => col !== "SL No");
+
+    // Update filters with unique columns
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      data: updatedSelectedColumns, // Replace data with unique selected listNames
+    }));
+
+    const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
+
+    const columnsChanged = JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
+
+    if (!columnsChanged) {
+      toast({
+        title: "No changes to apply",
+        status: "info",
+        isClosable: true,
+      });
+      return;
+    }
+
+    // Update the final selected columns (this will trigger the table update)
+    setSelectedColumns(updatedSelectedColumns);
+
+    // Refetch data based on selected columns
+    refetchcoustomer({ columns: updatedSelectedColumns });
+
+    // Close the modal
     onClose();
+
+    // Show success toast notification
     toast({
-      title: "Column Added Successfully",
+      title: "Columns Applied Successfully",
       status: "success",
       isClosable: true,
     });
   };
+  useEffect(() => {
+    setTempSelectedColumns(defaultColumns);
+  }, [isOpen]);
 
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
 
@@ -307,23 +351,26 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const handleSearchChange = (e) => {
     setInputValue(e.target.value);
   };
+
   const handleSearchClick = () => {
-    // Update filters to include search criteria
+    const filteredColumns = selectedColumns.filter(column => !column.includes('SUM'));
     const updatedFilters = {
       ...filters,
       filter: [
         ...filters.filter,
-        {
-          column: selectedColumns[1], // Assuming selectedColumns is a string or array
+        ...filteredColumns.map(column => ({
+          column: column,
           operator: "like",
           type: "string",
           value: inputValue,
-        },
+        })),
       ],
     };
     setFilters(updatedFilters);
     setSearchQuery(inputValue);
   };
+
+
   const clearAllFilters = () => {
     setColumnFilters({}); //clear filters
     setSearchQuery("");
@@ -453,6 +500,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   const formatHeader = (header) => {
     header = header.trim();
+    header = header.replace(/^[A-Z]+\(|\)$/g, "");
+    header = header.replace(/_/g, " ");
     const parts = header.split(".");
     const lastPart = parts.pop();
     const words = lastPart.split("_").join("");
@@ -583,10 +632,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       columnType.includes("SUM(")
         ? handleApplyFiltersSUM()
         : handleApplyFilters();
-        setFilters((prevFilters) => ({
-          ...prevFilters,
-          size:1000,
-        }))
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        size: 1000,
+      }))
 
     }
   };
@@ -1167,8 +1216,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                 column === "description"
                                   ? "300px"
                                   : column === "name"
-                                  ? "200px"
-                                  : "100px"
+                                    ? "200px"
+                                    : "100px"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis"
@@ -1596,11 +1645,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 .concat(
                   columnDatacustomer
                     ? Object.keys(columnDatacustomer?.content[0] || {}).map(
-                        (key) => ({
-                          field: key,
-                          header: key,
-                        })
-                      )
+                      (key) => ({
+                        field: key,
+                        header: key,
+                      })
+                    )
                     : []
                 )
                 .map((column, index) => {
@@ -1623,8 +1672,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         padding="5px"
                         borderColor="mainBluemedium"
                         key={column.field}
-                        defaultChecked={selectedColumns.includes(column.field)}
-                        isChecked={selectedColumns.includes(column.field)}
+                        defaultChecked={tempSelectedColumns.includes(column.field)}
+                        isChecked={tempSelectedColumns.includes(column.field)}
                         onChange={() => toggleColumn(column.field)}
                       >
                         <Text

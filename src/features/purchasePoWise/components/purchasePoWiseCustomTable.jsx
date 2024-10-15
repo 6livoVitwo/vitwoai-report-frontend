@@ -42,6 +42,7 @@ import {
   PopoverCloseButton,
   PopoverAnchor,
   Tooltip,
+  position,
 } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
@@ -339,17 +340,17 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setInputValue(e.target.value);
   };
   const handleSearchClick = () => {
-    // Update filters to include search criteria
+    const filteredColumns = selectedColumns.filter(column => !column.includes('SUM'));
     const updatedFilters = {
       ...filters,
       filter: [
         ...filters.filter,
-        {
-          column: selectedColumns[5], // Assuming selectedColumns is a string or array
+        ...filteredColumns.map(column => ({
+          column: column,
           operator: "like",
           type: "string",
           value: inputValue,
-        },
+        })),
       ],
     };
     setFilters(updatedFilters);
@@ -462,11 +463,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   const formatHeader = (header) => {
     header = header.trim();
+    header = header.trim();
+    header = header.replace(/^[A-Z]+\(|\)$/g, "");
+    header = header.replace(/_/g, " ");
     const parts = header.split(".");
     const lastPart = parts.pop();
     const words = lastPart.split("_").join("");
     const spacedWords = words.replace(/([a-z])([A-Z])/g, "$1 $2");
-
     return spacedWords
       .split(" ")
       .map((word) => {
@@ -897,7 +900,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 ref={provided.innerRef}
                 variant="simple"
               >
-                <Thead>
+                <Thead
+                style={{
+                     position: "sticky",
+                     top: "0",
+                }}
+                >
                   <Tr bg="#cfd8e1">
                     {selectedColumns.map((column, index) => (
                       <Draggable
@@ -916,6 +924,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                             textTransform="capitalize"
                             fontFamily="Poppins, sans-serif"
                             color="black"
+                            
                           >
                             {formatHeader(column)}
 

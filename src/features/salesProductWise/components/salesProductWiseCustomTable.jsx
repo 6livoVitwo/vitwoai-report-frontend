@@ -83,13 +83,7 @@ import { useDispatch } from "react-redux";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import { MdFullscreen } from "react-icons/md";
 
-const CustomTable = ({
-  setPage,
-  newArray,
-  alignment,
-  filters,
-  setFilters,
-}) => {
+const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
@@ -113,12 +107,11 @@ const CustomTable = ({
   const [columns, setColumns] = useState([]);
   const [sortColumn, setSortColumn] = useState();
   const [sortOrder, setSortOrder] = useState();
-  const [currentPage, setCurrentPage] = useState(0); // Default page is 0
-  // const [applyFilter, setApplyFilter] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
-  const [fullData, setFullData] = useState([]); // Full data set for all pages
+  const [fullData, setFullData] = useState([]);
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   // const [isInitialRender, setIsInitialRender] = useState(true);
 
@@ -145,13 +138,11 @@ const CustomTable = ({
     if (filtersApplied) {
       refetch(); // Manually trigger the API call to get the latest data
     }
-  }, [filtersApplied, localFilters, refetch]); // Dependencies include localFilters and filtersApplied
-  // console.log("productDataFilter121212", productDataFilter);
+  }, [filtersApplied, localFilters, refetch]);
 
-  //api call for drop-down-data columns
+  //api call for drop-down-data columns....
   const { data: columnData, refetch: refetchColumnData } =
-  useGetSelectedColumnsproductQuery();
-  // console.log("columnData211212", columnData);
+    useGetSelectedColumnsproductQuery();
 
   // api call for sort A-Z
   const { data: productWise, refetch: refetchProductWiseSales } =
@@ -163,6 +154,7 @@ const CustomTable = ({
       },
       page: currentPage,
     });
+
 
   //.........Api call to get global search.......
   const { data: searchData } = useGetGlobalsearchProductQuery(filters, {
@@ -249,38 +241,14 @@ const CustomTable = ({
     setSelectedReport(selectedValue);
   };
 
-  // const loadMoreData = async () => {
-  //   if (!loading) {
-  //     setLoading(true);
-  //     // Fetch or generate new data
-  //     const moreData = [...newArray]; // Assuming newArray contains new data
-  //     setData((prevData) => {
-  //       const uniqueData = [...new Set([...prevData, ...moreData])];
-  //       return uniqueData;
-  //     });
-  //     setPage((prevPage) => prevPage + 1);
-  //     setLoading(false);
-  //   }
-  // };
   const loadMoreData = async () => {
     if (!loading) {
       setLoading(true);
-
-      // Fetch or generate new data (assuming newArray contains new data)
       const moreData = [...newArray];
-
       setData((prevData) => {
-        // Ensure new data is unique and not duplicated
         const uniqueData = [...new Set([...prevData, ...moreData])];
         return uniqueData;
       });
-
-      // Ensure selected columns stay the same after loading more data
-      const storedColumns = JSON.parse(localStorage.getItem("selectedColumns"));
-      if (storedColumns) {
-        setSelectedColumns(storedColumns); // Keep selected columns from localStorage
-      }
-
       setPage((prevPage) => prevPage + 1);
       setLoading(false);
     }
@@ -304,18 +272,18 @@ const CustomTable = ({
       header: key,
     }));
   }, []);
+
   // Fetching columns data from API
   useEffect(() => {
     if (columns.length) {
-      // Initialize selected columns based on fetched data or some default logic
-      setSelectedColumns(columns.map((col) => col.field)); // Example initialization
+      setSelectedColumns(columns.map((col) => col.field));
     }
   }, [columns]);
 
   const handleDragEnd = (result) => {
     if (!result.destination) {
       return;
-    } 
+    }
     const newColumnsOrder = Array.from(selectedColumns);
     const [removed] = newColumnsOrder.splice(result.source.index, 1);
     newColumnsOrder.splice(result.destination.index, 0, removed);
@@ -334,22 +302,24 @@ const CustomTable = ({
   const handleSelectAllToggle = () => {
     const allColumns = columnData
       ? Object.keys(columnData?.content[0] || {}).map((key) => ({
-          field: key,
-          listName: columnData.content[0][key]?.listName || key,
-        }))
+        field: key,
+        listName: columnData.content[0][key]?.listName || key,
+      }))
       : [];
-  
-    const uniqueColumns = Array.from(new Set(allColumns.map((col) => col.listName)));
-  
+
+    const uniqueColumns = Array.from(
+      new Set(allColumns.map((col) => col.listName))
+    );
+
     let updatedColumns;
     if (selectAll) {
-      setTempSelectedColumns([]); // Deselect all in temporary state
-      updatedColumns = defaultColumns; // Restore default columns
+      setTempSelectedColumns([]);
+      updatedColumns = defaultColumns;
     } else {
-      setTempSelectedColumns(uniqueColumns); // Select all columns in temporary state
-      updatedColumns = uniqueColumns; // Select all columns
+      setTempSelectedColumns(uniqueColumns);
+      updatedColumns = uniqueColumns;
     }
-  
+
     setSelectAll(!selectAll);
   };
   const handleModalClose = () => {
@@ -367,18 +337,19 @@ const CustomTable = ({
         })
       )
     ).filter((col) => col !== "SL No");
-  
+
     // Update filters with unique columns
     setFilters((prevFilters) => ({
       ...prevFilters,
-      data: updatedSelectedColumns, // Replace data with unique selected listNames
+      data: updatedSelectedColumns,
     }));
-  
-    const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
-  
+
+    const storedColumns =
+      JSON.parse(localStorage.getItem("selectedColumns")) || [];
+
     const columnsChanged =
       JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
-  
+
     if (!columnsChanged) {
       toast({
         title: "No changes to apply",
@@ -387,32 +358,23 @@ const CustomTable = ({
       });
       return;
     }
-  
-    // Update the final selected columns (this will trigger the table update)
     setSelectedColumns(updatedSelectedColumns);
-  
-    // Refetch data based on selected columns
     refetchColumnData({ columns: updatedSelectedColumns });
-  
-    // Close the modal
     onClose();
-  
-    // Show success toast notification
     toast({
       title: "Columns Applied Successfully",
       status: "success",
       isClosable: true,
     });
   };
-  
+
   useEffect(() => {
     if (isOpen) {
-      setTempSelectedColumns(defaultColumns); // Initialize with default columns when modal opens
+      setTempSelectedColumns(defaultColumns);
     }
   }, [isOpen]);
 
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
-
   useEffect(() => {
     return () => {
       debouncedSearchQuery.cancel();
@@ -423,17 +385,17 @@ const CustomTable = ({
     setInputValue(e.target.value);
   };
   const handleSearchClick = () => {
-    // Update filters to include search criteria
+    const filteredColumns = selectedColumns.filter(column => !column.includes('SUM'));
     const updatedFilters = {
       ...filters,
       filter: [
         ...filters.filter,
-        {
-          column: selectedColumns[1], // Assuming selectedColumns is a string or array
+        ...filteredColumns.map(column => ({
+          column: column,
           operator: "like",
           type: "string",
           value: inputValue,
-        },
+        })),
       ],
     };
     setFilters(updatedFilters);
@@ -580,7 +542,7 @@ const CustomTable = ({
         });
         return filteredItem;
       })
-      .filter((item) => Object.keys(item).length > 0);
+      .filter((item) => Object.values(item).length > 0);
   }, [
     newArray,
     searchQuery,
@@ -590,11 +552,12 @@ const CustomTable = ({
     selectedColumns,
   ]);
 
+  console.log("filteredItems", filteredItems);
+
   const formatHeader = (header) => {
     header = header.trim();
-    header = header.trim();
     header = header.replace(/^[A-Z]+\(|\)$/g, "");
-    header = header.replace(/_/g, " ");
+    header = header.replace(/_/g," ");
     const parts = header.split(".");
     const lastPart = parts.pop();
     const words = lastPart.split("_").join("");
@@ -611,24 +574,18 @@ const CustomTable = ({
       .join(" ");
   };
 
-
   let previousScrollLeft = 0;
   const handleScroll = () => {
     const { scrollTop, scrollHeight, clientHeight, scrollLeft, clientWidth } =
       tableContainerRef.current;
-    // Check if horizontal scroll has changed
     if (scrollLeft !== previousScrollLeft) {
-      // Update the previous scroll left position
       previousScrollLeft = scrollLeft;
       return;
     }
-
-    // Only trigger the API call if scrolling vertically
     if (scrollTop + clientHeight >= scrollHeight - 5 && !loading) {
-      loadMoreData(); // Load more data when scrolled to the bottom
+      loadMoreData();
     }
   };
-
   useEffect(() => {
     const container = tableContainerRef.current;
     if (container) {
@@ -676,7 +633,6 @@ const CustomTable = ({
       console.error("Filter condition or value missing");
     }
   };
-
   // const handleApplyFilters = () => {
   //   if (tempFilterCondition && tempFilterValue && activeFilterColumn) {
   //     // Create a new filter object
@@ -760,7 +716,7 @@ const CustomTable = ({
       handleApplyFiltersSUM();
       setFilters((prevFilters) => ({
         ...prevFilters,
-        size:1000, // Update size to full
+        size: 1000, // Update size to full
       }));
     }
   }, [
@@ -1257,172 +1213,176 @@ const CustomTable = ({
                           >
                             {/* A-Z Filter  */}
                             {formatHeader(column)}
-                          { column !== "SL No" &&(  
-                            <Button
-                              className="A_to_Z"
-                              bg="none"
-                              _hover={{ bg: "none" }}
-                              onClick={() => handleSort(column)}
-                            >
-                              {sortColumn === column ? (
-                                sortOrder === "asc" ? (
-                                  <FontAwesomeIcon
-                                    icon={faArrowDownShortWide}
-                                  />
-                                ) : (
-                                  <FontAwesomeIcon icon={faArrowUpWideShort} />
-                                )
-                              ) : (
-                                <FontAwesomeIcon
-                                  icon={faArrowRightArrowLeft}
-                                  rotation={90}
-                                  fontSize="13px"
-                                />
-                              )}
-                            </Button>
-                          )}
-                           { column !== "SL No" &&(  
-                            <Popover
-                              isOpen={activeFilterColumn === column}
-                              onClose={() => setActiveFilterColumn(null)}
-                            >
-                              <PopoverTrigger>
-                                <Button
-                                  bg="transparent"
-                                  onClick={() => handlePopoverClick(column)} // Set the clicked column as active
-                                >
-                                  {columnFilters[column] ? (
-                                    <i
-                                      className="pi pi-filter-slash"
-                                      style={{
-                                        color: "slateblue",
-                                        fontSize: "1.4rem",
-                                      }}
-                                    ></i>
+                            {column !== "SL No" && (
+                              <Button
+                                className="A_to_Z"
+                                bg="none"
+                                _hover={{ bg: "none" }}
+                                onClick={() => handleSort(column)}
+                              >
+                                {sortColumn === column ? (
+                                  sortOrder === "asc" ? (
+                                    <FontAwesomeIcon
+                                      icon={faArrowDownShortWide}
+                                    />
                                   ) : (
-                                    <i
-                                      className="pi pi-filter"
-                                      style={{
-                                        color: "slateblue",
-                                        fontSize: "1.4rem",
-                                      }}
-                                    ></i>
-                                  )}
-                                </Button>
-                              </PopoverTrigger>
-                              {activeFilterColumn === column && (
-                                // .........Only show popover for the active column..........
-                                <PopoverContent w="120%">
-                                  <PopoverArrow />
-                                  <PopoverCloseButton size="lg" />
-                                  <PopoverBody h="auto" maxH="300px">
-                                    <Box>
-                                      <Box key={column} mb="12px">
-                                        <Text
-                                          color="var(--chakra-colors-textBlack)"
-                                          fontWeight="500"
-                                          fontSize="14px"
-                                          mt="10px"
-                                          mb="5px"
-                                        >
-                                          {formatHeader(column)}
-                                        </Text>
-                                        <Box
-                                          display="flex"
-                                          flexDirection="column"
-                                          gap="10px"
-                                        >
-                                          <Select
-                                            placeholder="Select condition"
-                                            size="sm"
-                                            fontSize="12px"
-                                            h="35px"
-                                            // value={
-                                            //   columnFilters[column]
-                                            //     ?.condition || ""
-                                            // }
-                                            // onChange={(e) =>
-                                            //   handleTempFilterConditionChange(
-                                            //     column,
-                                            //     e.target.value
-                                            //   )
-                                            // }
-                                            onChange={
-                                              handleTempFilterConditionChange
-                                            }
+                                    <FontAwesomeIcon
+                                      icon={faArrowUpWideShort}
+                                    />
+                                  )
+                                ) : (
+                                  <FontAwesomeIcon
+                                    icon={faArrowRightArrowLeft}
+                                    rotation={90}
+                                    fontSize="13px"
+                                  />
+                                )}
+                              </Button>
+                            )}
+                            {column !== "SL No" && (
+                              <Popover
+                                isOpen={activeFilterColumn === column}
+                                onClose={() => setActiveFilterColumn(null)}
+                              >
+                                <PopoverTrigger>
+                                  <Button
+                                    bg="transparent"
+                                    onClick={() => handlePopoverClick(column)} // Set the clicked column as active
+                                  >
+                                    {columnFilters[column] ? (
+                                      <i
+                                        className="pi pi-filter-slash"
+                                        style={{
+                                          color: "slateblue",
+                                          fontSize: "1.4rem",
+                                        }}
+                                      ></i>
+                                    ) : (
+                                      <i
+                                        className="pi pi-filter"
+                                        style={{
+                                          color: "slateblue",
+                                          fontSize: "1.4rem",
+                                        }}
+                                      ></i>
+                                    )}
+                                  </Button>
+                                </PopoverTrigger>
+                                {activeFilterColumn === column && (
+                                  // .........Only show popover for the active column..........
+                                  <PopoverContent w="120%">
+                                    <PopoverArrow />
+                                    <PopoverCloseButton size="lg" />
+                                    <PopoverBody h="auto" maxH="300px">
+                                      <Box>
+                                        <Box key={column} mb="12px">
+                                          <Text
+                                            color="var(--chakra-colors-textBlack)"
+                                            fontWeight="500"
+                                            fontSize="14px"
+                                            mt="10px"
+                                            mb="5px"
                                           >
-                                            <option value="equal">Equal</option>
-                                            <option value="notEqual">
-                                              Not Equal
-                                            </option>
-                                            <option value="like">Like</option>
-                                            <option value="notLike">
-                                              Not Like
-                                            </option>
-                                            <option value="greaterThan">
-                                              Greater Than
-                                            </option>
-                                            <option value="greaterThanOrEqual">
-                                              Greater Than or Equal
-                                            </option>
-                                            <option value="lessThan">
-                                              Less Than
-                                            </option>
-                                            <option value="lessThanOrEqual">
-                                              Less Than or Equal
-                                            </option>
-                                            <option value="between">
-                                              Between
-                                            </option>
-                                          </Select>
-                                          <Input
-                                            h="35px"
-                                            fontSize="12px"
-                                            padding="6px"
-                                            // value={
-                                            //   columnFilters[column]?.value || ""
-                                            // }
-                                            // onChange={(e) =>
-                                            //   handleTempFilterValueChange(
-                                            //     column,
-                                            //     e.target.value
-                                            //   )
-                                            // }
-                                            onChange={
-                                              handleTempFilterValueChange
-                                            }
-                                            placeholder={`Filter ${column}`}
-                                          />
+                                            {formatHeader(column)}
+                                          </Text>
+                                          <Box
+                                            display="flex"
+                                            flexDirection="column"
+                                            gap="10px"
+                                          >
+                                            <Select
+                                              placeholder="Select condition"
+                                              size="sm"
+                                              fontSize="12px"
+                                              h="35px"
+                                              // value={
+                                              //   columnFilters[column]
+                                              //     ?.condition || ""
+                                              // }
+                                              // onChange={(e) =>
+                                              //   handleTempFilterConditionChange(
+                                              //     column,
+                                              //     e.target.value
+                                              //   )
+                                              // }
+                                              onChange={
+                                                handleTempFilterConditionChange
+                                              }
+                                            >
+                                              <option value="equal">
+                                                Equal
+                                              </option>
+                                              <option value="notEqual">
+                                                Not Equal
+                                              </option>
+                                              <option value="like">Like</option>
+                                              <option value="notLike">
+                                                Not Like
+                                              </option>
+                                              <option value="greaterThan">
+                                                Greater Than
+                                              </option>
+                                              <option value="greaterThanOrEqual">
+                                                Greater Than or Equal
+                                              </option>
+                                              <option value="lessThan">
+                                                Less Than
+                                              </option>
+                                              <option value="lessThanOrEqual">
+                                                Less Than or Equal
+                                              </option>
+                                              <option value="between">
+                                                Between
+                                              </option>
+                                            </Select>
+                                            <Input
+                                              h="35px"
+                                              fontSize="12px"
+                                              padding="6px"
+                                              // value={
+                                              //   columnFilters[column]?.value || ""
+                                              // }
+                                              // onChange={(e) =>
+                                              //   handleTempFilterValueChange(
+                                              //     column,
+                                              //     e.target.value
+                                              //   )
+                                              // }
+                                              onChange={
+                                                handleTempFilterValueChange
+                                              }
+                                              placeholder={`Filter ${column}`}
+                                            />
+                                          </Box>
                                         </Box>
                                       </Box>
-                                    </Box>
-                                  </PopoverBody>
-                                  <Box
-                                    display="flex"
-                                    justifyContent="flex-end"
-                                    width="90%"
-                                    ml="8px"
-                                    mb="10px"
-                                  >
-                                    <Button
-                                      bg="mainBlue"
-                                      width="58px"
-                                      color="white"
-                                      mb="5px"
-                                      outline="none"
-                                      _hover={{
-                                        color: "white",
-                                        bg: "mainBlue",
-                                      }}
-                                      onClick={handleClick}
+                                    </PopoverBody>
+                                    <Box
+                                      display="flex"
+                                      justifyContent="flex-end"
+                                      width="90%"
+                                      ml="8px"
+                                      mb="10px"
                                     >
-                                      Apply
-                                    </Button>
-                                  </Box>
-                                </PopoverContent>
-                              )}
-                            </Popover>
-                           )}
+                                      <Button
+                                        bg="mainBlue"
+                                        width="58px"
+                                        color="white"
+                                        mb="5px"
+                                        outline="none"
+                                        _hover={{
+                                          color: "white",
+                                          bg: "mainBlue",
+                                        }}
+                                        onClick={handleClick}
+                                      >
+                                        Apply
+                                      </Button>
+                                    </Box>
+                                  </PopoverContent>
+                                )}
+                              </Popover>
+                            )}
                           </Th>
                         )}
                       </Draggable>
@@ -1447,8 +1407,8 @@ const CustomTable = ({
                                 column === "description"
                                   ? "300px"
                                   : column === "name"
-                                  ? "200px"
-                                  : "100px"
+                                    ? "200px"
+                                    : "100px"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis"
@@ -1890,9 +1850,9 @@ const CustomTable = ({
                 .concat(
                   columnData
                     ? Object.keys(columnData?.content[0] || {}).map((key) => ({
-                        field: key,
-                        header: key,
-                      }))
+                      field: key,
+                      header: key,
+                    }))
                     : []
                 )
                 .map((column, index) => {
@@ -1913,7 +1873,9 @@ const CustomTable = ({
                         display="flex"
                         padding="5px"
                         borderColor="mainBluemedium"
-                        defaultChecked={tempSelectedColumns.includes(column.field)}
+                        defaultChecked={tempSelectedColumns.includes(
+                          column.field
+                        )}
                         isChecked={tempSelectedColumns.includes(column.field)}
                         onChange={() => toggleColumn(column.field)}
                       >

@@ -78,7 +78,7 @@ import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfig
 import DynamicChart from "../../nivoGraphs/chartConfigurations/DynamicChart";
 import { chartsData } from "../../nivoGraphs/data/fakeData";
 
-const CustomTable = ({ setPage, newArray, alignment,filters,setFilters}) => {
+const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const dispatch = useDispatch();
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
@@ -142,7 +142,7 @@ const CustomTable = ({ setPage, newArray, alignment,filters,setFilters}) => {
 
   //Advance data filtering
   const { data: SoWiseFilter } = useSoWiseSalesQuery(
-    { filters:localFilters},
+    { filters: localFilters },
     {
       // skip: !filtersApplied,
     }
@@ -301,9 +301,9 @@ const CustomTable = ({ setPage, newArray, alignment,filters,setFilters}) => {
         .concat(
           ColumnsData
             ? Object.keys(ColumnsData?.content[0] || {}).map((key) => ({
-                field: key,
-                header: key,
-              }))
+              field: key,
+              header: key,
+            }))
             : []
         )
         .map((column) => column.field);
@@ -338,22 +338,24 @@ const CustomTable = ({ setPage, newArray, alignment,filters,setFilters}) => {
     setInputValue(e.target.value);
   };
   const handleSearchClick = () => {
-    // Update filters to include search criteria
+    const filteredColumns = selectedColumns.filter(column => !column.includes('SUM'));
     const updatedFilters = {
       ...filters,
       filter: [
         ...filters.filter,
-        {
-          column: selectedColumns[1], // Assuming selectedColumns is a string or array
+        ...filteredColumns.map(column => ({
+          column: column,
           operator: "like",
           type: "string",
           value: inputValue,
-        },
+        })),
       ],
     };
+
     setFilters(updatedFilters);
     setSearchQuery(inputValue);
   };
+
   const clearAllFilters = () => {
     setSearchQuery("");
     setInputValue("");
@@ -387,19 +389,19 @@ const CustomTable = ({ setPage, newArray, alignment,filters,setFilters}) => {
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray];
 
-      // Apply searchData from the API
-      if (searchData && searchData.length > 0) {
-        // Assuming searchData is an array of items
-        filteredData = filteredData.filter((item) => {
-          return searchData.some((searchItem) =>
-            Object.values(searchItem).some((value) =>
-              String(value)
-                .toLowerCase()
-                .includes(String(inputValue).toLowerCase())
-            )
-          );
-        });
-      }
+    // Apply searchData from the API
+    if (searchData && searchData.length > 0) {
+      // Assuming searchData is an array of items
+      filteredData = filteredData.filter((item) => {
+        return searchData.some((searchItem) =>
+          Object.values(searchItem).some((value) =>
+            String(value)
+              .toLowerCase()
+              .includes(String(inputValue).toLowerCase())
+          )
+        );
+      });
+    }
     // Apply global filter
     Object.keys(columnFilters).forEach((field) => {
       const filter = columnFilters[field];
@@ -478,6 +480,8 @@ const CustomTable = ({ setPage, newArray, alignment,filters,setFilters}) => {
 
   const formatHeader = (header) => {
     header = header.trim();
+    header = header.replace(/^[A-Z]+\(|\)$/g, "");
+    header = header.replace(/_/g, " ");
     const parts = header.split(".");
     const lastPart = parts.pop();
     const words = lastPart.split("_").join("");
@@ -601,10 +605,10 @@ const CustomTable = ({ setPage, newArray, alignment,filters,setFilters}) => {
       columnType.includes("SUM(")
         ? handleApplyFiltersSUM()
         : handleApplyFilters();
-        setFilters((prevFilters) => ({
-          ...prevFilters,
-          size:1000, // Update size to full
-        }));
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        size: 1000, // Update size to full
+      }));
     }
   };
 
@@ -950,7 +954,7 @@ const CustomTable = ({ setPage, newArray, alignment,filters,setFilters}) => {
                 ref={provided.innerRef}
                 variant="simple"
               >
-                <Thead style={{position: "sticky",top:0}}>
+                <Thead style={{ position: "sticky", top: 0 }}>
                   <Tr bg="#cfd8e1">
                     {selectedColumns.map((column, index) => (
                       <Draggable
@@ -1138,8 +1142,8 @@ const CustomTable = ({ setPage, newArray, alignment,filters,setFilters}) => {
                                 column === "description"
                                   ? "300px"
                                   : column === "name"
-                                  ? "200px"
-                                  : "100px"
+                                    ? "200px"
+                                    : "100px"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis"
@@ -1565,9 +1569,9 @@ const CustomTable = ({ setPage, newArray, alignment,filters,setFilters}) => {
                 .concat(
                   ColumnsData
                     ? Object.keys(ColumnsData?.content[0] || {}).map((key) => ({
-                        field: key,
-                        header: key,
-                      }))
+                      field: key,
+                      header: key,
+                    }))
                     : []
                 )
                 .map((column, index) => {
