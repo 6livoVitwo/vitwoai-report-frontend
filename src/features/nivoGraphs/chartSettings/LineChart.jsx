@@ -59,7 +59,7 @@ const LineChart = ({ liveData = [], startDate = "", endDate = "", dynamicWidth =
       {liveData.length > 0 ? (
         <Line data={data} dynamicWidth={dynamicWidth} />
       ) : (
-        <Line dynamicWidth={dynamicWidth} />
+        <Line />
       )}
     </>
   );

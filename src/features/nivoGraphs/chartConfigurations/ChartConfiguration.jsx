@@ -54,6 +54,15 @@ const chartComponents = {
   pie: PieChart,
 };
 
+const graphDescriptions = {
+  bar: "The Bar chart can display multiple data series, either stacked or side by side. It supports both vertical and horizontal layouts, with negative values positioned below the respective axes. You can customize the bar item component to render any valid SVG element, receiving styles, data, and event handlers. The responsive variant is called ResponsiveBar, available in the @nivo/api package. For legend configuration, you'll need to specify the dataFrom property, which determines how to compute the legend's data using indexes or keys.",
+  pie: "This component generates a pie chart from an array of data, where each item must include an id and a value property. Keep in mind that the margin object does not account for radial labels, so you should adjust it accordingly to provide sufficient space. The responsive version of this component is called ResponsivePie.",
+  areaBump:
+    "The AreaBump chart combines ranking and values, displaying both over time on the y-axis. This makes it ideal for understanding trends in performance. If your primary interest lies in rankings alone, the Bump chart is a more streamlined option. It effectively highlights shifts in position without the added complexity of values. Choose based on your specific data needs!",
+  bump: "The Bump chart visualizes the rankings of multiple series over time. While it resembles line charts, it focuses solely on displaying rankings rather than specific measurements on the y-axis. This makes it easy to track changes in position for each series at any given moment. By highlighting only the rankings, it simplifies the analysis of competitive dynamics. It's an effective tool for showcasing shifts in standings over time.",
+  line: "This line chart supports stacking capabilities. It takes an array of data series, each with an id and a nested array of points (containing x and y properties), to compute the line for each series. Any datum with a null x or y value will be treated as a gap, resulting in skipped segments of the corresponding line.",
+};
+
 const newEndpoint = (data = "", type = "", processFlow = "") => {
   if (data === "sales-product-wise") {
     if (type === "bump" || type === "areaBump" || type === "line") {
@@ -71,7 +80,6 @@ const newEndpoint = (data = "", type = "", processFlow = "") => {
     if (type === "funnel") {
       return processFlow;
     }
-    return "/sales/graph/so-wise-flow-process";
   } else if (data === "sales-kam-wise") {
     if (type === "bump" || type === "areaBump" || type === "line") {
       return "/sales/graph/kam-wise-time-series-seq";
@@ -87,6 +95,24 @@ const newEndpoint = (data = "", type = "", processFlow = "") => {
       return "/sales/graph/region-wise-heat-density";
     } else if (type === "bar" || type === "pie") {
       return "/sales/sales-graph-two";
+    }
+  } else if (data === "purchase-product-wise") {
+    if (type === "areaBump" || type === "line" || type === "bump") {
+      return "/purchase/graph/material-wise-time-series-seq"
+    } else if (type === "bar" || type === "pie") {
+      return "/purchase/purchase-graph-two";
+    }
+  } else if (data === "purchase-vendor-wise") {
+    if (type === "areaBump" || type === "line" || type === "bump") {
+      return "/purchase/graph/vendor-wise-time-series-seq"
+    } else if (type === "bar" || type === "pie") {
+      return "/purchase/purchase-graph-two";
+    }
+  } else if (data === "purchase-po-wise") {
+    if (type === "funnel") {
+      return processFlow;
+    } else if (type === "bar" || type === "pie") {
+      return "/purchase/purchase-graph-two";
     }
   }
 };
@@ -119,7 +145,7 @@ const initialBodyWise = (
           "all_total_amt",
         ],
         groupBy: ["items.itemName"],
-        valuetype: "sum",
+        valuetype: "count",
         filter: [
           {
             column: "invoice_date",
@@ -236,6 +262,91 @@ const initialBodyWise = (
         ]
       }
     }
+  } else if (selectedWise === "purchase-product-wise") {
+    if (type === "bump" || type === "areaBump" || type === "line") {
+      return {
+        priceOrQty: `${priceOrQty}`,
+        yearFrom: split(startDate, "-")[0],
+        yearTo: split(endDate, "-")[0],
+        monthFrom: split(startDate, "-")[1],
+        monthTo: split(endDate, "-")[1],
+      };
+    } else if (type === "bar" || type === "pie") {
+      return {
+        xaxis: "items.goodName",
+        yaxis: [
+          "grnInvoice.grnSubTotal",
+          "grnInvoice.grnTotalCgst",
+          "grnInvoice.grnTotalIgst",
+          "grnInvoice.grnTotalAmount",
+        ],
+        groupBy: ["items.goodCode"],
+        valuetype: "count",
+        filter: [
+          {
+            column: "vendorDocumentDate",
+            operator: "between",
+            type: "date",
+            value: [startDate, endDate],
+          },
+        ],
+      };
+    }
+  } else if (selectedWise === "purchase-vendor-wise") {
+    if (type === "bump" || type === "areaBump" || type === "line") {
+      return {
+        yearFrom: split(startDate, "-")[0],
+        yearTo: split(endDate, "-")[0],
+        monthFrom: split(startDate, "-")[1],
+        monthTo: split(endDate, "-")[1],
+      };
+    } else if (type === "bar" || type === "pie") {
+      return {
+        "xaxis": "vendors.trade_name",
+        "yaxis": [
+          "grnInvoice.grnSubTotal",
+          "grnInvoice.grnTotalCgst",
+          "grnInvoice.grnTotalIgst",
+          "grnInvoice.grnTotalAmount"
+        ],
+        "groupBy": [
+          "vendors.vendor_code"
+        ],
+        "valuetype": "count",
+        "filter": [
+          {
+            "column": "vendorDocumentDate",
+            "operator": "between",
+            "type": "date",
+            "value": [startDate, endDate]
+          }
+        ]
+      }
+    }
+  } else if (selectedWise === "purchase-po-wise") {
+    if (type === "bar" || type === "pie") {
+      return {
+        "xaxis": "po.po_number",
+        "yaxis": [
+          "grnInvoice.grnSubTotal",
+          "grnInvoice.grnTotalCgst",
+          "grnInvoice.grnTotalIgst",
+          "grnInvoice.grnTotalAmount"
+        ],
+        "groupBy": [
+          "po.po_number"
+        ],
+        "valuetype": "count",
+        "filter": [
+          {
+            "column": "vendorDocumentDate",
+            "operator": "between",
+            "type": "date",
+            "value": [startDate, endDate]
+          }
+        ]
+      }
+    }
   }
 };
 
@@ -284,7 +395,10 @@ const ChartConfiguration = ({ configureChart }) => {
   const [regionWise, setRegionWise] = useState("pincode");
   const [startDate, setStartDate] = useState(initialStartDate(inputType, type));
   const [endDate, setEndDate] = useState(initialEndDate(inputType, type));
-  const { selectedWise } = useSelector((state) => state.graphSlice);
+  const { selectedWise, reportType } = useSelector((state) => state.graphSlice);
+  const [currentDescription, setCurrentDescription] = useState(
+    graphDescriptions[type]
+  );
   const [processFlow, setProcessFlow] = useState(
     "/sales/graph/so-wise-flow-process"
   );
@@ -400,7 +514,7 @@ const ChartConfiguration = ({ configureChart }) => {
     }));
   };
 
-  const handleDateUpdate = (dateType, data, type) => {
+  const handleDateUpdate = (dateType, data, type, reportType) => {
     let newStartDate = dateType === "from" ? data : startDate;
     let newEndDate = dateType === "to" ? data : endDate;
 
@@ -429,25 +543,51 @@ const ChartConfiguration = ({ configureChart }) => {
   };
 
   const handleFromDate = (data) => {
-    handleDateUpdate("from", data, type);
+    handleDateUpdate("from", data, type, reportType);
   };
 
   const handleToDate = (data) => {
-    handleDateUpdate("to", data, type);
+    handleDateUpdate("to", data, type, reportType);
   };
 
-  const yAxisOptions = [
-    {
-      value: "salesPgi.salesDelivery.totalAmount",
-      label: "Sales PGI Delivery Amount",
-    },
-    { value: "salesPgi.totalAmount", label: "Sales PGI Amount" },
-    { value: "quotation.totalAmount", label: "Quotation Amount" },
-    { value: "salesOrder.totalAmount", label: "Sales Order Amount" },
-    { value: "all_total_amt", label: "All Total Amount" },
-  ];
+  // const yAxisOptions = [
+  //   {
+  //     value: "salesPgi.salesDelivery.totalAmount",
+  //     label: "Sales PGI Delivery Amount",
+  //   },
+  //   { value: "salesPgi.totalAmount", label: "Sales PGI Amount" },
+  //   { value: "quotation.totalAmount", label: "Quotation Amount" },
+  //   { value: "salesOrder.totalAmount", label: "Sales Order Amount" },
+  //   { value: "all_total_amt", label: "All Total Amount" },
+  // ];
 
-  console.log("yAxisOptions", yAxisOptions);
+  // console.log("yAxisOptions", yAxisOptions);
+  
+const yAxisOptions = () => {
+  if (reportType === "sales") {
+    return [
+      {
+        value: "salesPgi.salesDelivery.totalAmount",
+        label: "Sales PGI Delivery Amount",
+      },
+      { value: "salesPgi.totalAmount", label: "Sales PGI Amount" },
+      { value: "quotation.totalAmount", label: "Quotation Amount" },
+      { value: "salesOrder.totalAmount", label: "Sales Order Amount" },
+      { value: "all_total_amt", label: "All Total Amount" },
+    ];
+  } else if (reportType === "purchase") {
+    return [
+      {
+        value: "grnInvoice.grnSubTotal",
+        label: "GRN Subtotal",
+      },
+      { value: "grnInvoice.grnTotalCgst", label: "GRN Total CGST" },
+      { value: "grnInvoice.grnTotalIgst", label: "GRN Total IGST" },
+      { value: "grnInvoice.grnTotalAmount", label: "GRN Total Amount" },
+    ];
+  }
+  return [];
+};
 
 
   const handleYAxisChange = (e) => {
@@ -668,6 +808,8 @@ const ChartConfiguration = ({ configureChart }) => {
     setProcessFlow(value);
   };
 
+  console.log('🟢🔵🔴', { selectedWise })
+
   return (
     <Card variant={"unstyled"}>
       <CardBody sx={{ minHeight: "77vh" }}>
@@ -743,7 +885,7 @@ const ChartConfiguration = ({ configureChart }) => {
                     <Heading mt={4} mb={4}>
                       Graph Info
                     </Heading>
-                    <TypingMaster />
+                    <TypingMaster text={currentDescription} />
                   </Box>
                 </Box>
               </AccordionTab>
@@ -768,26 +910,46 @@ const ChartConfiguration = ({ configureChart }) => {
                         <Text fontSize="sm" fontWeight="500">
                           Process Flow
                         </Text>
-                        <Select
-                          size="lg"
-                          value={processFlow}
-                          onChange={(e) => handleProcessFlow(e.target.value)}>
-                          <option value="/sales/graph/so-wise-flow-process">
-                            SO
-                          </option>
-                          <option value="/sales/graph/request-wise-flow-process">
-                            Request
-                          </option>
-                          <option value="/sales/graph/quotation-so-wise-flow-process">
-                            Quotation SO
-                          </option>
-                          <option value="/sales/graph/quotation-invoice-wise-flow-process">
-                            Quotation Invoice
-                          </option>
-                          <option value="/sales/graph/invoice-wise-flow-process">
-                            Invoice
-                          </option>
-                        </Select>
+                        {selectedWise !== "purchase-po-wise" ? (
+                          <Select
+                            size="lg"
+                            value={processFlow}
+                            onChange={(e) => handleProcessFlow(e.target.value)}>
+                            <option value="/sales/graph/so-wise-flow-process">
+                              SO
+                            </option>
+                            <option value="/sales/graph/request-wise-flow-process">
+                              Request
+                            </option>
+                            <option value="/sales/graph/quotation-so-wise-flow-process">
+                              Quotation SO
+                            </option>
+                            <option value="/sales/graph/quotation-invoice-wise-flow-process">
+                              Quotation Invoice
+                            </option>
+                            <option value="/sales/graph/invoice-wise-flow-process">
+                              Invoice
+                            </option>
+                          </Select>
+                        ) : (
+                          <Select
+                            size="lg"
+                            value={processFlow}
+                            onChange={(e) => handleProcessFlow(e.target.value)}>
+                            <option value="/purchase/graph/rfq-wise-flow-process">
+                              RFQ
+                            </option>
+                            <option value="/purchase/graph/po-wise-flow-process">
+                              PO
+                            </option>
+                            <option value="/purchase/graph/grn-wise-flow-process">
+                              GRN
+                            </option>
+                            <option value="/purchase/graph/grn-invoice-wise-flow-process">
+                              GRN Invoice
+                            </option>
+                          </Select>
+                        )}
                       </Stack>
                     </Grid>
                   </Box>
@@ -820,6 +982,7 @@ const ChartConfiguration = ({ configureChart }) => {
                       </Grid>
                     )}
                     {selectedWise !== "sales-customer-wise" &&
+                      selectedWise !== "purchase-vendor-wise" &&
                       type !== "bar" &&
                       type !== "pie" && (
                         <Grid templateColumns="repeat(1, 1fr)" gap={6}>
@@ -848,7 +1011,7 @@ const ChartConfiguration = ({ configureChart }) => {
                           </Text>
                           {type === "pie" ? (
                             <Select size="lg" onChange={handleYAxisChange}>
-                              {yAxisOptions.map((option) => (
+                              {yAxisOptions().map((option) => (
                                 <option key={option.value} value={option.value}>
                                   {option.label}
                                 </option>
@@ -857,7 +1020,7 @@ const ChartConfiguration = ({ configureChart }) => {
                           ) : (
                             <MultiSelect
                               display="chip"
-                              options={yAxisOptions.map((option) => ({
+                              options={yAxisOptions().map((option) => ({
                                 value: option.value,
                                 label: option.label,
                               }))}

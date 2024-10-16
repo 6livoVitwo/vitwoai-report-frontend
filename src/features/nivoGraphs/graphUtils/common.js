@@ -47,7 +47,7 @@ export const setDateRange = (data) => {
     }
 }
 
-export const createBodyWise = (data, startDate, endDate, selectData, type = "", yaxisData="") => {
+export const createBodyWise = (data, startDate, endDate, selectData, type = "", yaxisData = "") => {
     if (data === 'month') {
         return {
             "priceOrQty": `${selectData}`,
@@ -132,7 +132,7 @@ export const updateCountAndWidth = (inputType, startDate, endDate, setDynamicWid
     setDynamicWidth(200 * count);
 };
 
-export const updateBodyWise = (inputType, startDate, endDate, bodyWise, type = "") => {
+export const updateBodyWise = (inputType, startDate, endDate, bodyWise, type = "", reportType = '') => {
     if (inputType === 'month') {
         return {
             ...bodyWise,
@@ -149,16 +149,30 @@ export const updateBodyWise = (inputType, startDate, endDate, bodyWise, type = "
         };
     } else if (inputType === 'date') {
         if (type === "bar") {
-            return {
-                ...bodyWise,
-                filter: [
-                    {
-                        column: "invoice_date",
-                        operator: "between",
-                        type: "date",
-                        value: [startDate, endDate],
-                    },
-                ],
+            if (reportType === "sales") {
+                return {
+                    ...bodyWise,
+                    filter: [
+                        {
+                            column: "invoice_date",
+                            operator: "between",
+                            type: "date",
+                            value: [startDate, endDate],
+                        },
+                    ],
+                }
+            }else if (reportType === "purchase") {
+                return {
+                    ...bodyWise,
+                    filter: [
+                        {
+                            column: "vendorDocumentDate",
+                            operator: "between",
+                            type: "date",
+                            value: [startDate, endDate],
+                        },
+                    ],
+                }
             }
         }
         return {

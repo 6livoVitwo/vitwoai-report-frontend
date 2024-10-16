@@ -730,7 +730,7 @@ const CustomTable = ({
 
   const handleGraphAddDrawer = () => {
     onOpenGraphSettingDrawer();
-    dispatch(handleGraphWise("sales-region-wise"));
+    dispatch(handleGraphWise({selectedWise: "sales-region-wise", reportType: 'sales'}));
   }
 
   return (

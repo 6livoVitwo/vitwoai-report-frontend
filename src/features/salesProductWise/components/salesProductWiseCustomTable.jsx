@@ -774,7 +774,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   const handleGraphAddDrawer = () => {
     onOpenGraphSettingDrawer();
-    dispatch(handleGraphWise("sales-product-wise"));
+    dispatch(handleGraphWise({selectedWise: "sales-product-wise", reportType: 'sales'}));
   };
 
   return (

@@ -1,12 +1,23 @@
 import React, { useState } from 'react';
 import { Box, Heading, Flex, Button } from '@chakra-ui/react';
 import ReportsCards from '../dashboard/components/ReportsCards';
-import ProductWise from '../../asset/images/products-wise.png';
-import VendorWise from '../../asset/images/vendor-wise.png';
-import PoWise from '../../asset/images/po-wise.png';
 import SalesVerticalWise from '../../asset/images/sales-vertical-wise.png';
 import SalesSoWise from '../../asset/images/sales-so-wise.png';
 import loadingImg from '../../asset/imgs/Loading.json';
+// import productWise from '../../asset/imgs/Product Wise.json';
+// import vendorWise from '../../asset/imgs/Vendor Wise.json';
+// import poWise from '../../asset/imgs/PO Wise.json';
+
+//Add lotifies dummy json
+import purchaseProductWise from '../../asset/imgs/purchase-product-wise.json';
+import purchaseVendorWise from '../../asset/imgs/purchase-vendor-wise.json';
+import purchasePoWise from "../../asset/imgs/purchase-po-wise.json";
+import salesProductWise from "../../asset/imgs/sales-product-wise.json";
+import salesCustomerWise from "../../asset/imgs/sales-customer-wise.json";
+import salesVerticalWise from '../../asset/imgs/sales-vertical-wise.json';
+import salesSoWise from '../../asset/imgs/sales-so-wise.json';
+import salesKamWise from '../../asset/imgs/sales-kam-wise.json';
+import salesRegionWise from '../../asset/imgs/sales-region-wise.json';
 
 const Allreports = () => {
 	const cardsData = [
@@ -16,20 +27,26 @@ const Allreports = () => {
         {
           id: "9",
           name: "Product Wise",
-          link: "/reports/product-wise/table-view",
-          imgsrc: ProductWise,
+          link: "/reports/purchase-product-wise/table-view",
+          imgsrc: purchaseProductWise,
         },
         {
           id: "10",
           name: "Vendor Wise",
-          link: "/reports/vendor-wise/table-view",
-          imgsrc: VendorWise,
+          link: "/reports/purchase-vendor-wise/table-view",
+          imgsrc: purchaseVendorWise,
         },
         {
           id: "11",
           name: "PO Wise",
-          link: "/reports/po-wise/table-view",
-          imgsrc: PoWise,
+          link: "/reports/purchase-po-wise/table-view",
+          imgsrc: purchasePoWise,
+        },
+        {
+          id: "11",
+          name: "Functional Wise",
+          link: "/reports/purchase-po-wise/table-view",
+          imgsrc: purchasePoWise,
         },
       ],
     },
@@ -40,38 +57,38 @@ const Allreports = () => {
           id: "21",
           name: "Product Wise",
           link: "/reports/sales-product-wise/table-view",
-          imgsrc: loadingImg,
+          imgsrc: salesProductWise,
         },
         {
           id: "22",
           name: "Customer Wise",
           link: "/reports/sales-customer-wise/table-view",
-          //   imgsrc: assets.todolist_img,
+          imgsrc: salesCustomerWise,
         },
         {
           id: "23",
           name: "Vertical Wise",
           link: "/reports/sales-vertical-wise/table-view",
-          imgsrc: SalesVerticalWise,
+          imgsrc: salesVerticalWise,
         },
         {
           id: "24",
           name: "So Wise",
           link: "/reports/sales-so-wise/table-view",
-          imgsrc: SalesSoWise,
+          imgsrc: salesSoWise,
         },
         {
           id: "25",
           name: "Kam Wise",
           link: "/reports/sales-kam-wise/table-view",
-          imgsrc: SalesSoWise,
+          imgsrc: salesKamWise,
         },
-		{
-			id: "26",
-			name: "Region Wise",
-			link: "/reports/sales-region-wise/table-view",
-			imgsrc: SalesSoWise,
-		  },
+        {
+          id: "26",
+          name: "Region Wise",
+          link: "/reports/sales-region-wise/table-view",
+          imgsrc: salesRegionWise,
+        },
       ],
     },
   ];

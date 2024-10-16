@@ -90,7 +90,7 @@ const ChartConfiguration = ({ ...props }) => {
             "grnInvoice.grnTotalAmount",
           ],
           groupBy: ["items.goodsItems.goodsGroup"],
-          valuetype: "sum",
+          valuetype: "count",
           filter: [
             {
               column: "companyId",
@@ -175,7 +175,7 @@ const ChartConfiguration = ({ ...props }) => {
             "grnInvoice.grnTotalAmount",
           ],
           groupBy: ["items.goodsItems.goodsGroup"],
-          valuetype: "sum",
+          valuetype: "count",
           filter: [
             {
               column: "companyId",
@@ -260,7 +260,7 @@ const ChartConfiguration = ({ ...props }) => {
             "grnInvoice.grnTotalAmount",
           ],
           groupBy: ["items.goodsItems.goodsGroup"],
-          valuetype: "sum",
+          valuetype: "count",
           filter: [
             {
               column: "companyId",
