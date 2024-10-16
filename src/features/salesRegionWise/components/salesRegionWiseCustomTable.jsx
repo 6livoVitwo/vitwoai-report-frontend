@@ -382,8 +382,8 @@ const CustomTable = ({
 
   // Function to handle setting the active column when the popover is clicked
   const handlePopoverClick = (column) => {
-    // setActiveFilterColumn((prev) => (prev === column ? null : column)); // Toggle column
-    setActiveFilterColumn(column);
+    setActiveFilterColumn((prev) => (prev === column ? null : column)); // Toggle column
+    // setActiveFilterColumn(column);
   };
   const handleApplyChanges = () => {
     onClose();

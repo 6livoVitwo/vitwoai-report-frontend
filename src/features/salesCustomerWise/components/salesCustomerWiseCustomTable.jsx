@@ -287,7 +287,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   const handleModalClose = () => {
-    setSelectedColumns(defaultColumns);
+    setTempSelectedColumns(selectedColumns);
     onClose();
   };
 
@@ -328,6 +328,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
     // Close the modal
     onClose();
+    localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
 
     // Show success toast notification
     toast({
@@ -337,7 +338,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     });
   };
   useEffect(() => {
-    setTempSelectedColumns(defaultColumns);
+    setTempSelectedColumns(selectedColumns);
   }, [isOpen]);
 
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);

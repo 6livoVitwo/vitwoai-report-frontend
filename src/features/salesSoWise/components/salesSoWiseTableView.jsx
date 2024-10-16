@@ -76,26 +76,26 @@ const SalesSoWiseTableView = () => {
     return result;
   };
 
-  const extractFields = (data, index) => ({
-    "SL No": index + 1,
-    "customer.trade_name": data["customer.trade_name"],
-    "customer_code": data["customer.customer_code"],
-    "SO Total Amount": data["SUM(salesOrder.totalAmount)"],
-    "SD Total Amount": data["SUM(salesPgi.salesDelivery.totalAmount)"],
-    "Base Price":
-      data[
-      "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)"
-      ],
-    "invoice_no": data["invoice_no"],
-    "so_number": data["salesOrder.so_number"],
-    "invoice_date": data["invoice_date"],
-    "Item Quantity": data["SUM(items.qty)"],
-    "totalAmount": data["SUM(all_total_amt)"],
-    "Sales PGI Total Amount": data["SUM(salesPgi.totalAmount)"],
-    "Sales Quotation Amount": data["SUM(quotation.totalAmount)"],
-    "due_amount": data["SUM(due_amount)"],
-    "totalTax": data["SUM(items.totalTax)"],
-  });
+  // const extractFields = (data, index) => ({
+  //   "SL No": index + 1,
+  //   "customer.trade_name": data["customer.trade_name"],
+  //   "customer_code": data["customer.customer_code"],
+  //   "SO Total Amount": data["SUM(salesOrder.totalAmount)"],
+  //   "SD Total Amount": data["SUM(salesPgi.salesDelivery.totalAmount)"],
+  //   "Base Price":
+  //     data[
+  //     "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)"
+  //     ],
+  //   "invoice_no": data["invoice_no"],
+  //   "so_number": data["salesOrder.so_number"],
+  //   "invoice_date": data["invoice_date"],
+  //   "Item Quantity": data["SUM(items.qty)"],
+  //   "totalAmount": data["SUM(all_total_amt)"],
+  //   "Sales PGI Total Amount": data["SUM(salesPgi.totalAmount)"],
+  //   "Sales Quotation Amount": data["SUM(quotation.totalAmount)"],
+  //   "due_amount": data["SUM(due_amount)"],
+  //   "totalTax": data["SUM(items.totalTax)"],
+  // });
 
   useEffect(() => {
     if (sales?.content?.length) {

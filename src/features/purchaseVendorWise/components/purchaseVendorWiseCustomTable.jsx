@@ -184,20 +184,20 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
 
   const navigate = useNavigate();
 
-   const reportOptions = [
-     {
-       label: "Product Wise",
-       value: "/reports/purchase-product-wise/table-view",
-     },
-     {
-       label: "Vendor Wise",
-       value: "/reports/purchase-vendor-wise/table-view",
-     },
-     {
-       label: "PO Wise",
-       value: "/reports/purchase-po-wise/table-view",
-     },
-   ];
+  const reportOptions = [
+    {
+      label: "Product Wise",
+      value: "/reports/purchase-product-wise/table-view",
+    },
+    {
+      label: "Vendor Wise",
+      value: "/reports/purchase-vendor-wise/table-view",
+    },
+    {
+      label: "PO Wise",
+      value: "/reports/purchase-po-wise/table-view",
+    },
+  ];
 
   useEffect(() => {
     if (selectedReport) {
@@ -306,7 +306,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
   };
 
   const handleModalClose = () => {
-    setSelectedColumns(defaultColumns);
+    setTempSelectedColumns(selectedColumns);
     onClose();
   };
 
@@ -338,17 +338,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
       });
       return;
     }
-
-    // Update the final selected columns (this will trigger the table update)
     setSelectedColumns(updatedSelectedColumns);
-
-    // Refetch data based on selected columns
     refetchColumnvendor({ columns: updatedSelectedColumns });
-
-    // Close the modal
     onClose();
-
-    // Show success toast notification
+    // Store selected columns in local storage 
+    localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
     toast({
       title: "Columns Applied Successfully",
       status: "success",
@@ -356,8 +350,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
     });
   };
   useEffect(() => {
-    setTempSelectedColumns(defaultColumns);
-  }, [isOpen]);
+    if (isOpen) {
+      setTempSelectedColumns(selectedColumns);
+    }
+  }, [isOpen, selectedColumns]);
+
 
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
 
@@ -662,7 +659,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
 
   const handleGraphAddDrawer = () => {
     onOpenGraphAddDrawer();
-    dispatch(handleGraphWise({selectedWise: "purchase-vendor-wise", reportType: 'purchase'}));  
+    dispatch(handleGraphWise({ selectedWise: "purchase-vendor-wise", reportType: 'purchase' }));
   };
 
   return (

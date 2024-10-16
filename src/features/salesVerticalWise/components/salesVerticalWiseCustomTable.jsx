@@ -102,7 +102,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     onClose: onCloseGraphSettingDrawer,
     isOpen: isOpenGraphSettingDrawer,
   } = useDisclosure();
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
   console.log(salesCustomerWise, "salesCustomerWise1");
   const [tempFilterCondition, setTempFilterCondition] = useState("");
@@ -113,7 +113,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
-      const btnRef = React.useRef();
+  const btnRef = React.useRef();
 
 
   const generateColumnMappings = (filtersData) => {
@@ -339,7 +339,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   const handleModalClose = () => {
-    setSelectedColumns(defaultColumns);
+    setTempSelectedColumns(selectedColumns);
     onClose();
   };
 
@@ -376,6 +376,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSelectedColumns(updatedSelectedColumns);
     refetchSelectedColumns({ columns: updatedSelectedColumns });
     onClose();
+    localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
     toast({
       title: "Columns Applied Successfully",
       status: "success",
@@ -384,7 +385,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
   useEffect(() => {
     if (isOpen) {
-      setTempSelectedColumns(defaultColumns);
+      setTempSelectedColumns(selectedColumns);
     }
   }, [isOpen]);
 
@@ -717,10 +718,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     });
   };
 
-     const handleGraphAddDrawer = () => {
-       onOpenGraphSettingDrawer();
-       dispatch(handleGraphWise({selectedWise: "sales-customer-wise", reportType: 'sales'}));
-     };
+  const handleGraphAddDrawer = () => {
+    onOpenGraphSettingDrawer();
+    dispatch(handleGraphWise({ selectedWise: "sales-customer-wise", reportType: 'sales' }));
+  };
 
 
   return (

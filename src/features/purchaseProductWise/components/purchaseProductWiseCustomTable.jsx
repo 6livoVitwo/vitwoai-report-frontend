@@ -223,20 +223,20 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   const navigate = useNavigate();
 
- const reportOptions = [
-   {
-     label: "Product Wise",
-     value: "/reports/purchase-product-wise/table-view",
-   },
-   {
-     label: "Vendor Wise",
-     value: "/reports/purchase-vendor-wise/table-view",
-   },
-   {
-     label: "PO Wise",
-     value: "/reports/purchase-po-wise/table-view",
-   },
- ];
+  const reportOptions = [
+    {
+      label: "Product Wise",
+      value: "/reports/purchase-product-wise/table-view",
+    },
+    {
+      label: "Vendor Wise",
+      value: "/reports/purchase-vendor-wise/table-view",
+    },
+    {
+      label: "PO Wise",
+      value: "/reports/purchase-po-wise/table-view",
+    },
+  ];
 
   // Fetching columns data from API
   useEffect(() => {
@@ -390,13 +390,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const handleSelectAllToggle = () => {
     const allColumns = columnData
       ? Object.keys(columnData?.content[0] || {}).map((key) => ({
-          field: key,
-          listName: columnData.content[0][key]?.listName || key,
-        }))
+        field: key,
+        listName: columnData.content[0][key]?.listName || key,
+      }))
       : [];
-  
+
     const uniqueColumns = Array.from(new Set(allColumns.map((col) => col.listName)));
-  
+
     let updatedColumns;
     if (selectAll) {
       setTempSelectedColumns([]); // Deselect all in temporary state
@@ -405,13 +405,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setTempSelectedColumns(uniqueColumns); // Select all in temporary state
       updatedColumns = uniqueColumns;
     }
-  
+
     setSelectAll(!selectAll);
   };
   const handleModalClose = () => {
-    // Reset selected columns to default and close modal
-    setSelectedColumns(defaultColumns);
-    localStorage.setItem("selectedColumns", JSON.stringify(defaultColumns)); // Save default columns to localStorage
+    // setSelectedColumns(defaultColumns);
+    localStorage.setItem("selectedColumns", JSON.stringify(defaultColumns));
     onClose();
   };
   const handleApplyChanges = () => {
@@ -424,16 +423,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       )
     ).filter((col) => col !== "SL No");
 
-     // Update filters with unique columns
-     setFilters((prevFilters) => ({
+    // Update filters with unique columns
+    setFilters((prevFilters) => ({
       ...prevFilters,
       data: updatedSelectedColumns, // Replace data with unique selected listNames
     }));
-    
+
     const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
-  
+
     const columnsChanged = JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
-  
+
     if (!columnsChanged) {
       toast({
         title: "No changes to apply",
@@ -442,13 +441,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       });
       return;
     }
-  
+
     // Update the final selected columns (this will trigger the table update)
     setSelectedColumns(updatedSelectedColumns);
-  
+
     // Save to localStorage
     localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
-  
+
     // Refetch data based on selected columns
     refetchColumnData({ columns: updatedSelectedColumns });
 
@@ -589,19 +588,19 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       });
     }
 
-  // Filter data to only include selected columns 
-  if (selectedColumns.length > 0) {
-    filteredData = filteredData.map((item) => {
-      const filteredItem = {};
-      selectedColumns.forEach((column) => {
-        // Check if column exists in newArray or columnData, then map it
-        const matchingColumn =
-          columnData?.content[0]?.[column]?.listName || column;
-        filteredItem[matchingColumn] = item[column] || item[matchingColumn];
+    // Filter data to only include selected columns 
+    if (selectedColumns.length > 0) {
+      filteredData = filteredData.map((item) => {
+        const filteredItem = {};
+        selectedColumns.forEach((column) => {
+          // Check if column exists in newArray or columnData, then map it
+          const matchingColumn =
+            columnData?.content[0]?.[column]?.listName || column;
+          filteredItem[matchingColumn] = item[column] || item[matchingColumn];
+        });
+        return filteredItem;
       });
-      return filteredItem;
-    });
-  }
+    }
 
     return filteredData;
   }, [
@@ -765,7 +764,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       handleApplyFilters();
       setFilters((prevFilters) => ({
         ...prevFilters,
-        size:1000, // Update size to full
+        size: 1000, // Update size to full
       }));
     }
   }, [
@@ -821,12 +820,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setConfigureChart(filterData);
   };
 
-  const handleGraphAddDrawer = () => {    
+  const handleGraphAddDrawer = () => {
     onOpenGraphAddDrawer();
-    dispatch(handleGraphWise({selectedWise: "purchase-product-wise", reportType: 'purchase'}));
+    dispatch(handleGraphWise({ selectedWise: "purchase-product-wise", reportType: 'purchase' }));
   };
 
-  console.log('🟢',{selectedWise})
+  console.log('🟢', { selectedWise })
 
   return (
     <Box bg="white" padding="0px 10px" borderRadius="5px">

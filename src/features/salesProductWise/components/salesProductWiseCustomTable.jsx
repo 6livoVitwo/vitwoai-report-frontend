@@ -307,24 +307,21 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       }))
       : [];
 
-    const uniqueColumns = Array.from(
-      new Set(allColumns.map((col) => col.listName))
-    );
+    const uniqueColumns = Array.from(new Set(allColumns.map((col) => col.listName)));
 
     let updatedColumns;
     if (selectAll) {
-      setTempSelectedColumns([]);
+      setTempSelectedColumns([]); // Deselect all in temporary state
       updatedColumns = defaultColumns;
     } else {
-      setTempSelectedColumns(uniqueColumns);
+      setTempSelectedColumns(uniqueColumns); // Select all in temporary state
       updatedColumns = uniqueColumns;
     }
 
     setSelectAll(!selectAll);
   };
   const handleModalClose = () => {
-    setTempSelectedColumns(defaultColumns);
-    setSelectedColumns(defaultColumns);
+    setTempSelectedColumns(selectedColumns);
     onClose();
   };
 
@@ -341,14 +338,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     // Update filters with unique columns
     setFilters((prevFilters) => ({
       ...prevFilters,
-      data: updatedSelectedColumns,
+      data: updatedSelectedColumns, // Replace data with unique selected listNames
     }));
 
-    const storedColumns =
-      JSON.parse(localStorage.getItem("selectedColumns")) || [];
+    const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
 
-    const columnsChanged =
-      JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
+    const columnsChanged = JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
 
     if (!columnsChanged) {
       toast({
@@ -361,18 +356,19 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSelectedColumns(updatedSelectedColumns);
     refetchColumnData({ columns: updatedSelectedColumns });
     onClose();
+    // Store selected columns in local storage 
+    localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
     toast({
       title: "Columns Applied Successfully",
       status: "success",
       isClosable: true,
     });
   };
-
   useEffect(() => {
     if (isOpen) {
-      setTempSelectedColumns(defaultColumns);
+      setTempSelectedColumns(selectedColumns);
     }
-  }, [isOpen]);
+  }, [isOpen, selectedColumns]);
 
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
   useEffect(() => {
@@ -557,7 +553,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const formatHeader = (header) => {
     header = header.trim();
     header = header.replace(/^[A-Z]+\(|\)$/g, "");
-    header = header.replace(/_/g," ");
+    header = header.replace(/_/g, " ");
     const parts = header.split(".");
     const lastPart = parts.pop();
     const words = lastPart.split("_").join("");
@@ -774,7 +770,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   const handleGraphAddDrawer = () => {
     onOpenGraphSettingDrawer();
-    dispatch(handleGraphWise({selectedWise: "sales-product-wise", reportType: 'sales'}));
+    dispatch(handleGraphWise({ selectedWise: "sales-product-wise", reportType: 'sales' }));
   };
 
   return (

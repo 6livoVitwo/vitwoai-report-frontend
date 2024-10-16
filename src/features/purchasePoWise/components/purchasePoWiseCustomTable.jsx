@@ -79,12 +79,12 @@ import { Calendar } from "primereact/calendar";
 import DynamicChart from "../../nivoGraphs/chartConfigurations/DynamicChart";
 import { useGetGlobalsearchPoQuery } from "../slice/purchasePoWiseApi";
 import { usePoWisePurchaseQuery } from "../slice/purchasePoWiseApi";
-import {useGetSelectedColumnsPoQuery} from "../slice/purchasePoWiseApi";
+import { useGetSelectedColumnsPoQuery } from "../slice/purchasePoWiseApi";
 import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfiguration";
 
 
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
-  const {selectedWise} = useSelector((state) => state.graphSlice);
+  const { selectedWise } = useSelector((state) => state.graphSlice);
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
@@ -108,9 +108,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const [configureChart, setConfigureChart] = useState({});
   const dispatch = useDispatch();
-    const salesCustomerWise = useSelector(
-      (state) => state.salescustomer.widgets
-    );
+  const salesCustomerWise = useSelector(
+    (state) => state.salescustomer.widgets
+  );
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
 
   const handlePopoverClick = (column) => {
@@ -181,39 +181,39 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     onClose: onCloseGraphDetailsView,
   } = useDisclosure();
 
-    const btnRef = React.useRef();
+  const btnRef = React.useRef();
 
-   const removeProperty = (object) => {
-     if (!object) {
-       return {};
-     }
-     const { data, id, ...rest } = object;
-     return rest;
-   };
+  const removeProperty = (object) => {
+    if (!object) {
+      return {};
+    }
+    const { data, id, ...rest } = object;
+    return rest;
+  };
 
-   const handleConfigure = (chart) => {
-     if (!chart) {
-       return;
-     }
-     onOpenGraphSettingsModal();
-     const filterData = removeProperty(chart);
-     setConfigureChart(filterData);
-   };
+  const handleConfigure = (chart) => {
+    if (!chart) {
+      return;
+    }
+    onOpenGraphSettingsModal();
+    const filterData = removeProperty(chart);
+    setConfigureChart(filterData);
+  };
 
-   const handleView = (chart) => {
-     if (!chart) {
-       return;
-     }
-     onOpenGraphDetailsView();
-     const filterData = removeProperty(chart);
-     setConfigureChart(filterData);
-   };
+  const handleView = (chart) => {
+    if (!chart) {
+      return;
+    }
+    onOpenGraphDetailsView();
+    const filterData = removeProperty(chart);
+    setConfigureChart(filterData);
+  };
 
-   const handleGraphAddDrawer = () => {
-     onOpenGraphAddDrawer();
-     dispatch(handleGraphWise({selectedWise: "purchase-po-wise", reportType: 'purchase'}));
-   };
-   console.log('🟢', {selectedWise})
+  const handleGraphAddDrawer = () => {
+    onOpenGraphAddDrawer();
+    dispatch(handleGraphWise({ selectedWise: "purchase-po-wise", reportType: 'purchase' }));
+  };
+  console.log('🟢', { selectedWise })
 
   const getColumnStyle = (header) => ({
     textAlign: alignment[header] || "left",
@@ -330,9 +330,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const handleSelectAllToggle = () => {
     const allColumns = columnData
       ? Object.keys(columnData?.content[0] || {}).map((key) => ({
-          field: key,
-          listName: columnData.content[0][key]?.listName || key,
-        }))
+        field: key,
+        listName: columnData.content[0][key]?.listName || key,
+      }))
       : [];
 
     const uniqueColumns = Array.from(
@@ -352,8 +352,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   const handleModalClose = () => {
-    setTempSelectedColumns(defaultColumns);
-    setSelectedColumns(defaultColumns);
+    setTempSelectedColumns(selectedColumns);
     onClose();
   };
 
@@ -396,7 +395,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
     // Close the modal
     onClose();
-
+    localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
     // Show success toast notification
     toast({
       title: "Columns Applied Successfully",
@@ -405,7 +404,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     });
   };
   useEffect(() => {
-    setTempSelectedColumns(defaultColumns);
+    setTempSelectedColumns(selectedColumns);
   }, [isOpen]);
 
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
@@ -1099,18 +1098,18 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                           />
                                           {tempFilterCondition ===
                                             "between" && (
-                                            <>
-                                              <Input
-                                                h="35px"
-                                                fontSize="12px"
-                                                padding="6px"
-                                                onChange={
-                                                  handleTempFilterValueChange
-                                                }
-                                                placeholder={`Filter ${column}`}
-                                              />
-                                            </>
-                                          )}
+                                              <>
+                                                <Input
+                                                  h="35px"
+                                                  fontSize="12px"
+                                                  padding="6px"
+                                                  onChange={
+                                                    handleTempFilterValueChange
+                                                  }
+                                                  placeholder={`Filter ${column}`}
+                                                />
+                                              </>
+                                            )}
                                         </Box>
                                       </Box>
                                     </Box>
@@ -1160,8 +1159,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                 column === "description"
                                   ? "300px"
                                   : column === "name"
-                                  ? "200px"
-                                  : "100px"
+                                    ? "200px"
+                                    : "100px"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis">
@@ -1535,9 +1534,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 .concat(
                   columnData
                     ? Object.keys(columnData?.content[0] || {}).map((key) => ({
-                        field: key,
-                        header: key,
-                      }))
+                      field: key,
+                      header: key,
+                    }))
                     : []
                 )
                 .map((column, index) => {

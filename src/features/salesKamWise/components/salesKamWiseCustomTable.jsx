@@ -280,7 +280,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   const toggleColumn = (field) => {
-    if (field === "SL No") return;
+    if (field === "SL No") return
     setTempSelectedColumns((prev) =>
       prev.includes(field)
         ? prev.filter((col) => col !== field)
@@ -311,7 +311,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   const handleModalClose = () => {
-    setSelectedColumns(defaultColumns);
+   setTempSelectedColumns(selectedColumns);
     onClose();
   };
   const handleApplyChanges = () => {
@@ -345,6 +345,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSelectedColumns(updatedSelectedColumns);
     refetchColumnDatakam({ columns: updatedSelectedColumns });
     onClose();
+    localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
     // Show success toast notification
     toast({
       title: "Columns Applied Successfully",
@@ -353,7 +354,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     });
   };
   useEffect(() => {
-    setTempSelectedColumns(defaultColumns);
+    setTempSelectedColumns(selectedColumns);
   }, [isOpen]);
 
   const handlePopoverClick = (column) => {
@@ -724,7 +725,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   const handleGraphAddDrawer = () => {
     onOpenGraphSettingDrawer();
-    dispatch(handleGraphWise({selectedWise: "sales-kam-wise", reportType: 'sales'}));
+    dispatch(handleGraphWise({ selectedWise: "sales-kam-wise", reportType: 'sales' }));
   }
 
   return (
