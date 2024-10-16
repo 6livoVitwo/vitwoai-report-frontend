@@ -32,26 +32,7 @@ const PurchaseProductWiseTableView = () => {
       "SUM(grnInvoice.dueAmt)",
     ],
     groupBy: ["grnInvoice.grnPoNumber"],
-    filter: [
-      // {
-      //   column: "companyId",
-      //   operator: "equal",
-      //   type: "integer",
-      //   value: 1,
-      // },
-      // {
-      //   column: "branchId",
-      //   operator: "equal",
-      //   type: "integer",
-      //   value: 1,
-      // },
-      // {
-      //   column: "locationId",
-      //   operator: "equal",
-      //   type: "integer",
-      //   value: 1,
-      // },
-    ],
+    filter: [],
     page: 0,
     size: 20,
     sortDir: "asc",

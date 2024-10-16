@@ -107,42 +107,17 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [tempSearchQuery, setTempSearchQuery] = useState("");
   const [columns, setColumns] = useState([]);
   const [originalData, setOriginalData] = useState([]);
-  const [sortColumn, setSortColumn] = useState();
-  const [sortOrder, setSortOrder] = useState();
+  const [sortColumn, setSortColumn] = useState("items.goodName");
+  const [sortOrder, setSortOrder] = useState("asc");
   const [currentPage, setCurrentPage] = useState(0); // Default page is 0
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const dispatch = useDispatch();
 
-  // const generateColumnMappings = (filtersData) => {
-  //   const mappings = [];
-  //   filtersData.forEach((field) => {
-  //     const humanReadableName = field.split(".").pop(); // Use your own logic for mapping
-  //     mappings[humanReadableName] = field;
-  //   });
-  //   return mappings;
-  // };
-  // Dynamically generate column mappings from filters.data
-  // const columnMappings = generateColumnMappings(filters.data);
-  // console.log("🟢columnMappings", columnMappings);
-  // console.log(columnMappings["goodName"]);
-
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
   };
-  // Function to map filters dynamically
-  // const mapFilters = (filters) => {
-  //   return filters.map((filter) => ({
-  //     ...filter,
-  //     // If filter.column is a string, directly use columnMappings; otherwise, check for filter.column.key
-  //     column: columnMappings[filter.column],
-  //     // sortBy:filter.column,
-  //   }));
-  // };
-
-  // const {data: sales} = useProductWisePurchaseQuery({filters});
-  // console.log("sales_piyas1221", sales);
 
   //...Advanced Filter API CALL...
   const { data: productDataFilter, refetch: refetchProductFilter } =
@@ -150,15 +125,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       { filters: localFilters }
       // { skip: !filtersApplied }
     );
-  // console.log("productDataFilterPiyas", productDataFilter);
 
   //API Calling sorting
   const { data: ProductData, refetch: refetchProduct } =
     useProductWisePurchaseQuery({
       filters: {
         ...filters,
-        //  sortBy: sortColumn,
-        //  sortDir: sortOrder,
+           sortBy: sortColumn,
+           sortDir: sortOrder,
       },
       page: currentPage,
     });
@@ -167,13 +141,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   //Api calling for selected columns drop down
   const { data: columnData, refetch: refetchColumnData } =
     useGetSelectedColumnsPurchaseQuery();
-  console.log("columnData🔵🔵", columnData);
+
 
   // api calling from global search
   const { data: searchData } = useGetGlobalsearchPurchaseQuery(filters, {
     skip: !searchQuery,
   });
-  // console.log("piyas3333333", searchData);
+
 
   // api calling for product group....
   // const { data: productGroup } = useGetProductGroupQuery();
@@ -507,7 +481,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     if (columnData && columnData.content.length > 0) {
       combinedData = combinedData.concat(columnData.content);
     }
-    let filteredData = searchData && searchData.length > 0 ? searchData : combinedData; // Copy the combined data
+    let filteredData = searchData && searchData.length > 0 ? searchData : combinedData;
 
     // Apply searchData from the API
     if (searchData && searchData.length > 0) {

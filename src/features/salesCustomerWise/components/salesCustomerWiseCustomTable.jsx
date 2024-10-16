@@ -89,8 +89,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [configureChart, setConfigureChart] = useState({});
   const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
   const [inputValue, setInputValue] = useState("");
-  const [sortColumn, setSortColumn] = useState();
-  const [sortOrder, setSortOrder] = useState();
+  const [sortColumn, setSortColumn] = useState("customer.trade_name");
+  const [sortOrder, setSortOrder] = useState("asc");
   const [currentPage, setCurrentPage] = useState(0); // Default page is 0
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
   const [tempFilterCondition, setTempFilterCondition] = useState("");
@@ -115,8 +115,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     useCustomerWiseSalesQuery({
       filters: {
         ...filters,
-        // sortBy: sortColumn,
-        // sortDir: sortOrder,
+        sortBy: sortColumn,
+        sortDir: sortOrder,
       },
       page: currentPage,
     });

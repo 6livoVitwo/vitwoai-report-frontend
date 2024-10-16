@@ -105,8 +105,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [filterValue, setFilterValue] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [columns, setColumns] = useState([]);
-  const [sortColumn, setSortColumn] = useState();
-  const [sortOrder, setSortOrder] = useState();
+  const [sortColumn, setSortColumn] = useState("invoice_date");
+  const [sortOrder, setSortOrder] = useState("asc");
   const [currentPage, setCurrentPage] = useState(0);
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
   const [filtersApplied, setFiltersApplied] = useState(false);
@@ -149,8 +149,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     useProductWiseSalesQuery({
       filters: {
         ...filters,
-        //  sortBy: sortColumn,
-        //  sortDir: sortOrder,
+         sortBy: sortColumn,
+         sortDir: sortOrder,
       },
       page: currentPage,
     });

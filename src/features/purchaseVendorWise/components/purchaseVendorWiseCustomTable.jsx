@@ -94,8 +94,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
   const [endDate, setEndDate] = useState();
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
-  const [sortColumn, setSortColumn] = useState();
-  const [sortOrder, setSortOrder] = useState();
+  const [sortColumn, setSortColumn] = useState("grnInvoice.vendorCode");
+  const [sortOrder, setSortOrder] = useState("asc");
   const [configureChart, setConfigureChart] = useState({});
   const [currentPage, setCurrentPage] = useState(0); // Default page is 0
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
@@ -133,8 +133,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
     useVendorWisePurchaseQuery({
       filters: {
         ...filters,
-        // sortBy: sortColumn,
-        // sortDir: sortOrder,
+         sortBy: sortColumn,
+         sortDir: sortOrder,
       },
       page: currentPage,
     });

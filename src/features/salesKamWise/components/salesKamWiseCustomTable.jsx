@@ -93,8 +93,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [configureChart, setConfigureChart] = useState({});
   const dispatch = useDispatch();
   const [endDate, setEndDate] = useState();
-  const [sortColumn, setSortColumn] = useState();
-  const [sortOrder, setSortOrder] = useState();
+  const [sortColumn, setSortColumn] = useState("kam.kamName");
+  const [sortOrder, setSortOrder] = useState("asc");
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
@@ -105,35 +105,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
 
 
-  const generateColumnMappings = (filtersData) => {
-    const mappings = [];
-    filtersData.forEach((field) => {
-
-      const humanReadableName = field.split(".").pop(); // Use your own logic for mapping
-      mappings[humanReadableName] = field;
-    });
-    return mappings;
-  };
-  // Dynamically generate column mappings from filters.data
-  const columnMappings = generateColumnMappings(filters.data);
-
-  // Function to map filters dynamically
-  const mapFilters = (filters) => {
-    return filters.map((filter) => ({
-      ...filter,
-      sortBy: filter.column,
-    }));
-  };
-
-
   //API Calling sorting
   const { data: kamData, refetch: refetchKamWiseSales } = useKamWiseSalesQuery({
     filters: {
       ...filters,
-      filter: mapFilters(filters.filter), // Map filters dynamically
-      sortBy: columnMappings[sortColumn] || sortColumn,
+      sortBy: sortColumn,
       sortDir: sortOrder,
-
     },
     page: currentPage,
   });

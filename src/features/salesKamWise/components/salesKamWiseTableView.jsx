@@ -74,17 +74,17 @@ const SalesKamWiseTableView = () => {
     }
     return result;
   };
-  const extractFields = (data, index) => ({
-    "SL No": index + 1,
-    "kam.kamName": data["kam.kamName"],
-    email: data["kam.email"],
-    emp_code: data["kam.emp_code"],
-    designation: data["kam.designation"],
-    contact: data["kam.contact"],
-    invoice_no: data["invoice_no"],
-    invoice_date: data["invoice_date"],
-    due_amount: data["SUM(due_amount)"],
-  });
+  // const extractFields = (data, index) => ({
+  //   "SL No": index + 1,
+  //   "kam.kamName": data["kam.kamName"],
+  //   email: data["kam.email"],
+  //   emp_code: data["kam.emp_code"],
+  //   designation: data["kam.designation"],
+  //   contact: data["kam.contact"],
+  //   invoice_no: data["invoice_no"],
+  //   invoice_date: data["invoice_date"],
+  //   due_amount: data["SUM(due_amount)"],
+  // });
 
   useEffect(() => {
     if (sales?.content?.length) {
@@ -92,9 +92,9 @@ const SalesKamWiseTableView = () => {
         const flattenedInvoice = flattenObject(invoice);
         return invoice.items?.length
           ? invoice.items.map((item) => {
-              const flattenedItem = flattenObject(item, "item.");
-              return { ...flattenedInvoice, ...flattenedItem };
-            })
+            const flattenedItem = flattenObject(item, "item.");
+            return { ...flattenedInvoice, ...flattenedItem };
+          })
           : [flattenedInvoice];
       });
       setIndividualItems((prevItems) => [...prevItems, ...newItems]);

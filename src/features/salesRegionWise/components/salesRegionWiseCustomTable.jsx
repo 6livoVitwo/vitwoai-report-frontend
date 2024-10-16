@@ -66,7 +66,7 @@ import { useGetselectedCityWiseQuery } from "../slice/salesRegionWiseApi";
 import { useGetselectedCountryWiseQuery } from "../slice/salesRegionWiseApi";
 import { useGetselectedPincodeWiseQuery } from "../slice/salesRegionWiseApi";
 import { useGetselectedStateWiseQuery } from "../slice/salesRegionWiseApi";
-import { set } from "lodash";
+import { set, sortBy } from "lodash";
 import DynamicChart from "../../nivoGraphs/chartConfigurations/DynamicChart";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import NewMyCharts from "../../dashboardNew/nivo/NewMyCharts";
@@ -96,8 +96,8 @@ const CustomTable = ({
   const [selectedReport, setSelectedReport] = useState(null);
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
-  const [sortColumn, setSortColumn] = useState();
-  const [sortOrder, setSortOrder] = useState();
+  const [sortColumn, setSortColumn] = useState("customer.customerAddress.customer_address_pin_code");
+  const [sortOrder, setSortOrder] = useState("asc");
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
@@ -114,32 +114,13 @@ const CustomTable = ({
   const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
   const dispatch = useDispatch();
 
-  const generateColumnMappings = (filtersData) => {
-    const mappings = [];
-    filtersData.forEach((field) => {
-      const humanReadableName = field.split(".").pop(); // Use your own logic for mapping
-      mappings[humanReadableName] = field;
-    });
-    return mappings;
-  };
-  // Dynamically generate column mappings from filters.data
-  const columnMappings = generateColumnMappings(filters.data);
-
-  // Function to map filters dynamically
-  const mapFilters = (filters) => {
-    return filters.map((filter) => ({
-      ...filter,
-      // If filter.column is a string, directly use columnMappings; otherwise, check for filter.column.key
-      sortBy: filter.column,
-    }));
-  };
-
 
   //API Calling sorting
   const { data: kamData, refetch: refetchKamWiseSales } = useRegionWiseSalesQuery({
     filters: {
       ...filters,
-      filter: mapFilters(filters.filter), // Map filters dynamically
+      sortBy: sortColumn,
+      sortOrder: sortOrder,
     },
     page: currentPage,
   });
@@ -449,7 +430,7 @@ const CustomTable = ({
       },
       page: currentPage,
     });
-  }, [sortColumn, sortOrder, refetchKamWiseSales]); // Ensure dependencies are correct
+  }, [sortColumn, sortOrder, refetchKamWiseSales]); 
 
   // const handleSort = (column) => {
   //   const newSortOrder =

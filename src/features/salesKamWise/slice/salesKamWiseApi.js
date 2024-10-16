@@ -23,7 +23,6 @@ export const salesKamWiseApi = apiSlice.injectEndpoints({
     // Query to get global search
     getGlobalsearchKam: builder.query({
       query: (body) => {
-        // console.log("body_piyas",body)
         return {
           url: "/sales/global-search/kam",
           method: "POST",

@@ -98,8 +98,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [selectedReport, setSelectedReport] = useState(null);
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
-  const [sortColumn, setSortColumn] = useState();
-  const [sortOrder, setSortOrder] = useState();
+  const [sortColumn, setSortColumn] = useState("grnInvoice.grnPoNumber");
+  const [sortOrder, setSortOrder] = useState("asc");
   const [currentPage, setCurrentPage] = useState(0); // Default page is 0
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
@@ -132,15 +132,15 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   // ....api calling from drop-down data ....
   const { data: columnData, refetch: refetchColumnDatapo } =
     useGetSelectedColumnsPoQuery();
-  // console.log("01010101", columnData);
+
 
   //API Calling sorting
   const { data: ProductData, refetch: refetchProduct } = usePoWisePurchaseQuery(
     {
       filters: {
         ...filters,
-        // sortBy: sortColumn,
-        // sortDir: sortOrder,
+        sortBy: sortColumn,
+        sortDir: sortOrder,
       },
       page: currentPage,
     }

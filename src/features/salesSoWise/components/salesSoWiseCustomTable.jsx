@@ -94,8 +94,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [endDate, setEndDate] = useState();
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
-  const [sortColumn, setSortColumn] = useState();
-  const [sortOrder, setSortOrder] = useState();
+  const [sortColumn, setSortColumn] = useState("customer.trade_name");
+  const [sortOrder, setSortOrder] = useState("asc");
   const [searchQuery, setSearchQuery] = useState("");
   const [inputValue, setInputValue] = useState("");
   const [currentPage, setCurrentPage] = useState(0); // Default page is 0
@@ -103,35 +103,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
 
-
-  const generateColumnMappings = (filtersData) => {
-    const mappings = [];
-    filtersData.forEach((field) => {
-      const humanReadableName = field.split(".").pop(); // Use your own logic for mapping
-      mappings[humanReadableName] = field;
-    });
-    return mappings;
-  };
-  // Dynamically generate column mappings from filters.data
-  const columnMappings = generateColumnMappings(filters.data);
-  console.log("filter_1212", filters.data);
-  console.log("columnMappings_piyas", columnMappings);
-  // console.log(columnMappings["trade_name"]);
-
-  // Function to map filters dynamically
-  const mapFilters = (filters) => {
-    return filters.map((filter) => ({
-      ...filter,
-      column: columnMappings[filter.column] || filter.column,
-    }));
-  };
   //API Calling sorting
   const { data: SoWise, refetch: refetchSoWise } = useSoWiseSalesQuery({
     filters: {
       ...filters,
-      filter: mapFilters(filters.filter), // Map filters dynamically
-      // sortBy: columnMappings[sortColumn] || sortColumn,
-      // sortDir: sortOrder,
+      sortBy: sortColumn,
+      sortDir: sortOrder,
     },
     page: currentPage,
   });
@@ -661,7 +638,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   const handleGraphAddDrawer = () => {
     onOpenGraphSettingDrawer();
-    dispatch(handleGraphWise({selectedWise: "sales-so-wise", reportType: 'sales'}));
+    dispatch(handleGraphWise({ selectedWise: "sales-so-wise", reportType: 'sales' }));
   };
 
   return (

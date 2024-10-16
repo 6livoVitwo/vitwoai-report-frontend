@@ -107,8 +107,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   console.log(salesCustomerWise, "salesCustomerWise1");
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
-  const [sortColumn, setSortColumn] = useState();
-  const [sortOrder, setSortOrder] = useState();
+  const [sortColumn, setSortColumn] = useState("companyFunction.functionalities_name");
+  const [sortOrder, setSortOrder] = useState("asc");
   const [currentPage, setCurrentPage] = useState(0); // Default page is 0
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
   const [filtersApplied, setFiltersApplied] = useState(false);
@@ -142,31 +142,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     // { skip: !filtersApplied }
   );
 
-  const getMappedColumnName = (column) => {
-    for (const [key, value] of Object.entries(columnMappings)) {
-      if (value === column) {
-        return key; // Return the API column name when matched
-      }
-      if (key === column) {
-        return key;
-      }
-    }
-    return null; // Return null if no match found
-  };
-
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
   }
-  // console.log("Active filter column.🔵", activeFilterColumn);
-  // const handlePopoverClick = (column) => {
-  //   const apiColumnName = getMappedColumnName(column);
-  //   if (apiColumnName) {
-  //     console.log("Matched API column🟠:", apiColumnName);
-  //     setActiveFilterColumn(apiColumnName); // Set the matched API column as active
-  //   } else {
-  //     console.log("No matching column found");
-  //   }
-  // };
 
 
   //.........Api call drop down selected columns.......
@@ -183,8 +161,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     useVerticalWiseSalesQuery({
       filters: {
         ...filters,
-        // sortBy: sortColumn,
-        // sortDir: sortOrder,
+        sortBy: sortColumn,
+        sortDir: sortOrder,
       },
       page: currentPage,
     });
