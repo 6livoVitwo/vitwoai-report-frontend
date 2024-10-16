@@ -51,7 +51,7 @@ import {
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChartSimple, faChartLine } from "@fortawesome/free-solid-svg-icons";
+import { faChartSimple, faChartLine,faGear } from "@fortawesome/free-solid-svg-icons";
 import { saveAs } from "file-saver";
 import {
   faFileExcel,
@@ -688,7 +688,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   const handleGraphAddDrawer = () => {
     onOpenGraphSettingDrawer();
-    dispatch(handleGraphWise({selectedWise: "sales-customer-wise", reportType: 'sales'}));
+    dispatch(handleGraphWise({ selectedWise: "sales-customer-wise", reportType: 'sales' }));
   };
 
   return (
@@ -824,7 +824,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             }}
           >
             <FontAwesomeIcon
-              icon={faChartSimple}
+              icon={faGear}
               fontSize="16px"
               color="#8109b3"
             />

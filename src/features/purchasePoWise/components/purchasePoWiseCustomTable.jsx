@@ -57,7 +57,7 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faChartSimple,
+  faGear,
   faChartLine,
   faArrowDownShortWide,
   faArrowUpWideShort,
@@ -812,7 +812,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               bg: "mainBlue",
               color: "white",
             }}>
-            <FontAwesomeIcon icon={faChartSimple} fontSize="20px" />
+            <FontAwesomeIcon icon={faGear} fontSize="20px" />
           </Button>
           <Menu>
             <MenuButton
