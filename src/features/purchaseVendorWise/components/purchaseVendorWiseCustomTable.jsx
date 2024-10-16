@@ -184,20 +184,20 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
 
   const navigate = useNavigate();
 
-  const reportOptions = [
-    {
-      label: "Product Wise",
-      value: "/reports/product-wise/table-view",
-    },
-    {
-      label: "Vendor Wise",
-      value: "/reports/vendor-wise/table-view",
-    },
-    {
-      label: "PO Wise",
-      value: "/reports/po-wise/table-view",
-    },
-  ];
+   const reportOptions = [
+     {
+       label: "Product Wise",
+       value: "/reports/purchase-product-wise/table-view",
+     },
+     {
+       label: "Vendor Wise",
+       value: "/reports/purchase-vendor-wise/table-view",
+     },
+     {
+       label: "PO Wise",
+       value: "/reports/purchase-po-wise/table-view",
+     },
+   ];
 
   useEffect(() => {
     if (selectedReport) {
