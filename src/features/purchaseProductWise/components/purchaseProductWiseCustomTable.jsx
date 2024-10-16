@@ -103,7 +103,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [tempFilterValue2, setTempFilterValue2] = useState("");
-
+  const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const [tempSearchQuery, setTempSearchQuery] = useState("");
   const [columns, setColumns] = useState([]);
   const [originalData, setOriginalData] = useState([]);
@@ -158,13 +158,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       filters: {
         ...filters,
         //  sortBy: sortColumn,
-        // sortDir: sortOrder,
+        //  sortDir: sortOrder,
       },
       page: currentPage,
     });
   // console.log("piyas ninja", ProductData);
 
-  //Api calling for selected columns
+  //Api calling for selected columns drop down
   const { data: columnData, refetch: refetchColumnData } =
     useGetSelectedColumnsPurchaseQuery();
   console.log("columnData🔵🔵", columnData);
@@ -368,7 +368,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   // Handle column selection
   const toggleColumn = (field) => {
     if (field === "SL No") return;
-    setSelectedColumns((prev) =>
+    setTempSelectedColumns((prev) =>
       prev.includes(field)
         ? prev.filter((col) => col !== field)
         : [...prev, field]
@@ -380,77 +380,75 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     const storedColumns = JSON.parse(localStorage.getItem("selectedColumns"));
     if (storedColumns) {
       setSelectedColumns(storedColumns);
+      setTempSelectedColumns(storedColumns); // Initialize temp state with stored columns
     } else {
       setSelectedColumns(defaultColumns);
+      setTempSelectedColumns(defaultColumns); // Initialize temp state with default columns
     }
   }, [data]);
 
   const handleSelectAllToggle = () => {
-    // Get all columns from columnData
     const allColumns = columnData
       ? Object.keys(columnData?.content[0] || {}).map((key) => ({
-        field: key,
-        listName: columnData.content[0][key]?.listName || key, // Use listName or fallback to key
-      }))
+          field: key,
+          listName: columnData.content[0][key]?.listName || key,
+        }))
       : [];
-    // Remove duplicates based on listName
-    const uniqueColumns = Array.from(
-      new Set(allColumns.map((col) => col.listName)) // Convert to Set to remove duplicates
-    );
-
+  
+    const uniqueColumns = Array.from(new Set(allColumns.map((col) => col.listName)));
+  
     let updatedColumns;
     if (selectAll) {
-      setSelectedColumns([]); // Deselect all
-      updatedColumns = defaultColumns; // Reset to default columns when deselected
+      setTempSelectedColumns([]); // Deselect all in temporary state
+      updatedColumns = defaultColumns;
     } else {
-      setSelectedColumns(allColumns.map((col) => col.listName)); // Select all listNames from columnData
-      updatedColumns = allColumns.map((col) => col.listName); // Use listName from columnData
+      setTempSelectedColumns(uniqueColumns); // Select all in temporary state
+      updatedColumns = uniqueColumns;
     }
-
-    // Save the selected columns to localStorage
-    localStorage.setItem("selectedColumns", JSON.stringify(updatedColumns));
-    setSelectAll(!selectAll); // Toggle the selectAll state
+  
+    setSelectAll(!selectAll);
   };
-
   const handleModalClose = () => {
     // Reset selected columns to default and close modal
     setSelectedColumns(defaultColumns);
     localStorage.setItem("selectedColumns", JSON.stringify(defaultColumns)); // Save default columns to localStorage
     onClose();
   };
-
-  // const handleApplyChanges = () => {
-  //   // Save selected columns to localStorage and refetch data
-  //   localStorage.setItem("selectedColumns", JSON.stringify(selectedColumns));
-  //   refetchColumnData({ columns: selectedColumns });
-  //   onClose();
-
-  //   toast({
-  //     title: "Column Added Successfully",
-  //     status: "success",
-  //     isClosable: true,
-  //   });
-  // };
   const handleApplyChanges = () => {
-    // Remove duplicate selected columns based on listName
     const updatedSelectedColumns = Array.from(
       new Set(
-        selectedColumns.map((col) => {
+        tempSelectedColumns.map((col) => {
           const matchingColumn = columnData?.content[0][col];
-          return matchingColumn ? matchingColumn.listName || col : col; // Use listName if available
+          return matchingColumn ? matchingColumn.listName || col : col;
         })
       )
-    ).filter((col) => col !== "SL No"); // Optionally exclude "SL No" from the filters
+    ).filter((col) => col !== "SL No");
 
-    // Update filters with unique columns
-    setFilters((prevFilters) => ({
+     // Update filters with unique columns
+     setFilters((prevFilters) => ({
       ...prevFilters,
       data: updatedSelectedColumns, // Replace data with unique selected listNames
     }));
-
-    // Save the selected columns to localStorage
-    localStorage.setItem("selectedColumns", JSON.stringify(selectedColumns));
-
+    
+    const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
+  
+    const columnsChanged = JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
+  
+    if (!columnsChanged) {
+      toast({
+        title: "No changes to apply",
+        status: "info",
+        isClosable: true,
+      });
+      return;
+    }
+  
+    // Update the final selected columns (this will trigger the table update)
+    setSelectedColumns(updatedSelectedColumns);
+  
+    // Save to localStorage
+    localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
+  
     // Refetch data based on selected columns
     refetchColumnData({ columns: updatedSelectedColumns });
 
@@ -479,17 +477,17 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   const handleSearchClick = () => {
-    // Update filters to include search criteria
+    const filteredColumns = selectedColumns.filter(column => !column.includes('SUM'));
     const updatedFilters = {
       ...filters,
       filter: [
         ...filters.filter,
-        {
-          column: selectedColumns[1], // Assuming selectedColumns is a string or array
+        ...filteredColumns.map(column => ({
+          column: column,
           operator: "like",
           type: "string",
           value: inputValue,
-        },
+        })),
       ],
     };
     setFilters(updatedFilters);
@@ -591,16 +589,19 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       });
     }
 
-    // Filter data to only include selected columns
-    if (selectedColumns.length > 0) {
-      filteredData = filteredData.map((item) => {
-        const filteredItem = {};
-        selectedColumns.forEach((column) => {
-          filteredItem[column] = item[column];
-        });
-        return filteredItem;
+  // Filter data to only include selected columns 
+  if (selectedColumns.length > 0) {
+    filteredData = filteredData.map((item) => {
+      const filteredItem = {};
+      selectedColumns.forEach((column) => {
+        // Check if column exists in newArray or columnData, then map it
+        const matchingColumn =
+          columnData?.content[0]?.[column]?.listName || column;
+        filteredItem[matchingColumn] = item[column] || item[matchingColumn];
       });
-    }
+      return filteredItem;
+    });
+  }
 
     return filteredData;
   }, [
@@ -618,12 +619,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     selectedColumns,
     inputValue,
   ]);
-
-  // useEffect(() => {
-  //   if (applyFilter) {
-  //     setApplyFilter(false);
-  //   }
-  // }, [applyFilter]);
 
   const formatHeader = (header) => {
     header = header.trim();
@@ -664,7 +659,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       loadMoreData(); // Load more data when scrolled to the bottom
     }
   };
-
   useEffect(() => {
     const container = tableContainerRef.current;
     if (container) {
@@ -737,6 +731,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         ...localFilters,
         filter: [...localFilters.filter, newFilter],
       };
+      //update the api filters
       setColumnFilters((prevFilters) => ({
         ...prevFilters,
         [activeFilterColumn]: {
@@ -754,23 +749,31 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
+      refetchProductFilter();
     } else {
       console.error("Filter condition, value, or column is missing");
     }
   };
 
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     if (activeFilterColumn) {
-      const columnType = activeFilterColumn; // Assuming activeFilterColumn holds the column type
-      columnType.includes("SUM(")
-        ? handleApplyFiltersSUM()
-        : handleApplyFilters();
+      const columnType = activeFilterColumn;
+      if (columnType.includes("SUM(")) {
+        handleApplyFiltersSUM();
+        return;
+      }
+      handleApplyFilters();
       setFilters((prevFilters) => ({
         ...prevFilters,
-        size: 1000,
+        size:1000, // Update size to full
       }));
     }
-  };
+  }, [
+    activeFilterColumn,
+    handleApplyFiltersSUM,
+    handleApplyFilters,
+    setFilters,
+  ]);
 
   const exportToExcel = () => {
     import("xlsx").then((xlsx) => {
@@ -1776,9 +1779,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         display="flex"
                         padding="5px"
                         borderColor="mainBluemedium"
-                        defaultChecked={selectedColumns.includes(column.field)}
-                        isChecked={selectedColumns.includes(column.field)}
-                        onChange={() => toggleColumn(column.field)}>
+                        defaultChecked={tempSelectedColumns.includes(column.field)}
+                        isChecked={tempSelectedColumns.includes(column.field)}
+                        onChange={() => toggleColumn(column.field)}
+                      >
                         <Text
                           fontWeight="500"
                           ml="10px"

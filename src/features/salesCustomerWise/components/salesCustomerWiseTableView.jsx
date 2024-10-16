@@ -13,30 +13,33 @@ const SalesCustomerWiseTableView = () => {
   const [toastShown, setToastShown] = useState(false);
   const toast = useToast();
 
-  let filters = {
-    data: [
-      "customer.trade_name",
-      "customer.customer_code",
-      "customer.customer_gstin",
-      "SUM(igst)",
-      "SUM(sgst)",
-      "SUM(cgst)",
-      "SUM(due_amount)",
-      "SUM(salesPgi.salesDelivery.totalAmount)",
-      "SUM(salesPgi.totalAmount)",
-      "SUM(quotation.totalAmount)",
-      "SUM(salesOrder.totalAmount)",
-      "SUM(items.qty)",
-      "SUM(items.basePrice - items.totalDiscountAmt)",
-      "SUM(all_total_amt)",
-    ],
-    groupBy: ["customer.trade_name"],
-    filter: [],
-    page: 0,
-    size: 20,
-    sortDir: "asc",
-    sortBy: "customer.trade_name",
-  };
+  const [filters, setFilters] = useState(
+    {
+      data: [
+        "customer.trade_name",
+        "customer.customer_code",
+        "customer.customer_gstin",
+        "SUM(igst)",
+        "SUM(sgst)",
+        "SUM(cgst)",
+        "SUM(due_amount)",
+        "SUM(salesPgi.salesDelivery.totalAmount)",
+        "SUM(salesPgi.totalAmount)",
+        "SUM(quotation.totalAmount)",
+        "SUM(salesOrder.totalAmount)",
+        "SUM(items.qty)",
+        "SUM(items.basePrice - items.totalDiscountAmt)",
+        "SUM(all_total_amt)",
+      ],
+      groupBy: ["customer.trade_name"],
+      filter: [],
+      page: 0,
+      size: 20,
+      sortDir: "asc",
+      sortBy: "customer.trade_name",
+    }
+  )
+
   const {
     data: sales,
     isLoading,
@@ -98,16 +101,15 @@ const SalesCustomerWiseTableView = () => {
         const flattenedInvoice = flattenObject(invoice);
         return invoice.items?.length
           ? invoice.items.map((item) => {
-              const flattenedItem = flattenObject(item, "item.");
-              return { ...flattenedInvoice, ...flattenedItem };
-            })
+            const flattenedItem = flattenObject(item, "item.");
+            return { ...flattenedInvoice, ...flattenedItem };
+          })
           : [flattenedInvoice];
       });
       setIndividualItems((prevItems) => [...prevItems, ...newItems]);
     }
   }, [sales]);
   useEffect(() => {
-    // Show the toast only if the user has scrolled to the last page and toast hasn't been shown
     if (sales?.totalPages < page && !toastShown) {
       toast({
         title: "No More Data",
@@ -130,51 +132,41 @@ const SalesCustomerWiseTableView = () => {
       setToastShown(true); // Mark the toast as shown
     }
   }, [sales, page, toast, toastShown]);
-	if (isLoading) {
-		return (
-			<Box
-				height='calc(100vh - 75px)'
-				width='100%'
-				display='flex'
-				alignItems='center'
-				justifyContent='center'>
-				<Spinner
-					thickness='4px'
-					speed='0.65s'
-					emptyColor='gray.200'
-					color='blue.500'
-					size='xl'
-				/>
-			</Box>
-		);
-	}
-	if (error) {
-		return (
-			<Box
-				bg='white'
-				width='100%'
-				height='calc(100vh - 103px)'
-				display='flex'
-				alignItems='center'
-				justifyContent='center'>
-				<Image src={NoDataFound} alt='No Data Available' />
-			</Box>
-		);
-	}
-	if (sales?.
-		totalPages < page) {
-		toast({
-			title: 'No More Data',
-			description: 'You have reached the end of the list.',
-			status: 'warning',
-			isClosable: true,
-			duration: 800, //(5000 ms = 5 seconds)
-		})
-	}
+  if (isLoading) {
+    return (
+      <Box
+        height='calc(100vh - 75px)'
+        width='100%'
+        display='flex'
+        alignItems='center'
+        justifyContent='center'>
+        <Spinner
+          thickness='4px'
+          speed='0.65s'
+          emptyColor='gray.200'
+          color='blue.500'
+          size='xl'
+        />
+      </Box>
+    );
+  }
+  if (error) {
+    return (
+      <Box
+        bg='white'
+        width='100%'
+        height='calc(100vh - 103px)'
+        display='flex'
+        alignItems='center'
+        justifyContent='center'>
+        <Image src={NoDataFound} alt='No Data Available' />
+      </Box>
+    );
+  }
 
-  const newArray = individualItems.map((data, index) =>
-    extractFields(data, index)
-  );
+  // const newArray = individualItems.map((data, index) =>
+  //   extractFields(data, index)
+  // );
   // console.log(sales, 'main data');
   // console.log(newArray, 'newArray');
 
@@ -182,13 +174,14 @@ const SalesCustomerWiseTableView = () => {
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
       {individualItems.length > 0 && (
         <CustomTable
-          newArray={newArray}
+          newArray={individualItems}
           page={page}
           setPage={setPage}
           isFetching={isFetching}
           pageInfo={pageInfo}
           setSize={setSize}
           filters={filters}
+          setFilters={setFilters}
           alignment={{
             IGST: "right",
             SGST: "right",

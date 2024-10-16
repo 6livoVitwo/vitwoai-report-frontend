@@ -77,7 +77,7 @@ import { useDispatch } from "react-redux";
 import { MdFullscreen } from "react-icons/md";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfiguration";
-const CustomTable = ({ setPage, newArray, alignment ,filters}) => {
+const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
@@ -90,8 +90,8 @@ const CustomTable = ({ setPage, newArray, alignment ,filters}) => {
   const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
   const [startDate, setStartDate] = useState();
-    const [configureChart, setConfigureChart] = useState({});
-    const dispatch = useDispatch();
+  const [configureChart, setConfigureChart] = useState({});
+  const dispatch = useDispatch();
   const [endDate, setEndDate] = useState();
   const [sortColumn, setSortColumn] = useState();
   const [sortOrder, setSortOrder] = useState();
@@ -102,6 +102,8 @@ const CustomTable = ({ setPage, newArray, alignment ,filters}) => {
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const [currentPage, setCurrentPage] = useState(0); // Default page is 0
+  const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
+
 
   const generateColumnMappings = (filtersData) => {
     const mappings = [];
@@ -114,44 +116,39 @@ const CustomTable = ({ setPage, newArray, alignment ,filters}) => {
   };
   // Dynamically generate column mappings from filters.data
   const columnMappings = generateColumnMappings(filters.data);
-  console.log("🟢columnMappings", columnMappings);
-  console.log(columnMappings["kamCode"]);
 
   // Function to map filters dynamically
   const mapFilters = (filters) => {
-    console.log('🟠',{ filters });
     return filters.map((filter) => ({
       ...filter,
-      // If filter.column is a string, directly use columnMappings; otherwise, check for filter.column.key
       sortBy: filter.column,
     }));
   };
-  
-  
+
+
   //API Calling sorting
-  const { data:kamData, refetch: refetchKamWiseSales } = useKamWiseSalesQuery({
+  const { data: kamData, refetch: refetchKamWiseSales } = useKamWiseSalesQuery({
     filters: {
       ...filters,
       filter: mapFilters(filters.filter), // Map filters dynamically
       sortBy: columnMappings[sortColumn] || sortColumn,
       sortDir: sortOrder,
-      
+
     },
     page: currentPage,
   });
-  console.log("kamData_piyas121", kamData);
- 
 
   //......Advance Filter Api Calling.........
   const { data: kamDataFilter } = useKamWiseSalesQuery(
-    { filters:localFilters},
+    { filters: localFilters },
     // { skip: !filtersApplied }
   );
-  //  console.log("kamDataFilter1212121",kamDataFilter);
 
 
-  const { data: columnDatakam } = useGetSelectedColumnsKamQuery();
-  //console.log("piyas10101",columnDatakam);
+
+  //..........Api calling for selected columns............
+  const { data: columnDatakam, refetch: refetchColumnDatakam } = useGetSelectedColumnsKamQuery();
+
 
   //..........Api calling for search............
   const { data: searchData } = useGetGlobalsearchKamQuery(filters, {
@@ -193,7 +190,7 @@ const CustomTable = ({ setPage, newArray, alignment ,filters}) => {
     onClose: onCloseGraphDetailsView,
   } = useDisclosure();
 
-    const btnRef = React.useRef();
+  const btnRef = React.useRef();
 
   const getColumnStyle = (header) => ({
     textAlign: alignment[header] || "left",
@@ -282,43 +279,88 @@ const CustomTable = ({ setPage, newArray, alignment ,filters}) => {
     setSelectedColumns(newColumnsOrder);
   };
 
-  const toggleColumn = (columnName) => {
-    setSelectedColumns((prevSelectedColumns) =>
-      prevSelectedColumns.includes(columnName)
-        ? prevSelectedColumns.filter((col) => col !== columnName)
-        : [...prevSelectedColumns, columnName]
+  const toggleColumn = (field) => {
+    if (field === "SL No") return;
+    setTempSelectedColumns((prev) =>
+      prev.includes(field)
+        ? prev.filter((col) => col !== field)
+        : [...prev, field]
     );
   };
 
   const handleSelectAllToggle = () => {
-    const allColumnFields = getColumns(data).map(({ field }) => field);
+    const allColumns = columnDatakam
+      ? Object.keys(columnDatakam?.content[0] || {}).map((key) => ({
+        field: key,
+        listName: columnDatakam.content[0][key]?.listName || key,
+      }))
+      : [];
+
+    const uniqueColumns = Array.from(new Set(allColumns.map((col) => col.listName)));
+
+    let updatedColumns;
     if (selectAll) {
-      setSelectedColumns([]);
+      setTempSelectedColumns([]); // Deselect all in temporary state
+      updatedColumns = defaultColumns;
     } else {
-      setSelectedColumns(allColumnFields);
+      setTempSelectedColumns(uniqueColumns); // Select all in temporary state
+      updatedColumns = uniqueColumns;
     }
-    setSelectAll((prevSelectAll) => !prevSelectAll);
+
+    setSelectAll(!selectAll);
   };
 
   const handleModalClose = () => {
     setSelectedColumns(defaultColumns);
     onClose();
   };
+  const handleApplyChanges = () => {
+    const updatedSelectedColumns = Array.from(
+      new Set(
+        tempSelectedColumns.map((col) => {
+          const matchingColumn = columnDatakam?.content[0][col];
+          return matchingColumn ? matchingColumn.listName || col : col;
+        })
+      )
+    ).filter((col) => col !== "SL No");
 
-  // Function to handle setting the active column when the popover is clicked
+    // Update filters with unique columns
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      data: updatedSelectedColumns, // Replace data with unique selected listNames
+    }));
+
+    const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
+
+    const columnsChanged = JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
+
+    if (!columnsChanged) {
+      toast({
+        title: "No changes to apply",
+        status: "info",
+        isClosable: true,
+      });
+      return;
+    }
+    setSelectedColumns(updatedSelectedColumns);
+    refetchColumnDatakam({ columns: updatedSelectedColumns });
+    onClose();
+    // Show success toast notification
+    toast({
+      title: "Columns Applied Successfully",
+      status: "success",
+      isClosable: true,
+    });
+  };
+  useEffect(() => {
+    setTempSelectedColumns(defaultColumns);
+  }, [isOpen]);
+
   const handlePopoverClick = (column) => {
     // setActiveFilterColumn((prev) => (prev === column ? null : column)); // Toggle column
     setActiveFilterColumn(column);
   };
 
-  const handleApplyChanges = () => {
-    onClose();
-    toast({
-      title: "Column Added Successfully",
-      status: "success",
-      isClosable: true,
-    });
-  };
 
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 10), []);
 
@@ -332,15 +374,30 @@ const CustomTable = ({ setPage, newArray, alignment ,filters}) => {
     setInputValue(e.target.value);
   };
   const handleSearchClick = () => {
-    debouncedSearchQuery(inputValue);
+    const filteredColumns = selectedColumns.filter(column => !column.includes('SUM'));
+    const updatedFilters = {
+      ...filters,
+      filter: [
+        ...filters.filter,
+        ...filteredColumns.map(column => ({
+          column: column,
+          operator: "like",
+          type: "string",
+          value: inputValue,
+        })),
+      ],
+    };
+    setFilters(updatedFilters);
+    setSearchQuery(inputValue);
   };
 
   const clearAllFilters = () => {
-    setColumnFilters({}); //clear filters
     setSearchQuery("");
     setInputValue("");
+    setColumnFilters({});
     setSortColumn("");
-    setSortOrder("asc");
+    setTempFilterCondition({});
+    setTempFilterValue("");
   };
 
   // sort asc desc
@@ -389,6 +446,21 @@ const CustomTable = ({ setPage, newArray, alignment ,filters}) => {
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray]; // Copy the original data
 
+
+    // Apply searchData from the API
+    if (searchData && searchData.length > 0) {
+      // Assuming searchData is an array of items
+      filteredData = filteredData.filter((item) => {
+        return searchData.some((searchItem) =>
+          Object.values(searchItem).some((value) =>
+            String(value)
+              .toLowerCase()
+              .includes(String(inputValue).toLowerCase())
+          )
+        );
+      });
+    }
+    // Apply filters
     Object.keys(columnFilters).forEach((field) => {
       const filter = columnFilters[field];
       if (filter.condition && filter.value) {
@@ -472,12 +544,10 @@ const CustomTable = ({ setPage, newArray, alignment ,filters}) => {
     tempFilterCondition,
   ]);
 
-  console.log("Temp Condition:", tempFilterCondition);
-  // console.log("Temp Value:", tempFilterValue);
-  console.log("Updated Filters:", columnFilters);
-
   const formatHeader = (header) => {
     header = header.trim();
+    header = header.replace(/^[A-Z]+\(|\)$/g, "");
+    header = header.replace(/_/g, " ");
     const parts = header.split(".");
     const lastPart = parts.pop();
     const words = lastPart.split("_").join("");
@@ -494,27 +564,33 @@ const CustomTable = ({ setPage, newArray, alignment ,filters}) => {
       .join(" ");
   };
 
+  // ...Handle scroll...
+  let previousScrollLeft = 0;
   const handleScroll = () => {
-    const { scrollTop, scrollHeight, clientHeight, scrollLeft, scrollRight } =
+    const { scrollTop, scrollHeight, clientHeight, scrollLeft, clientWidth } =
       tableContainerRef.current;
 
-    if (
-      scrollRight === 0 &&
-      scrollTop + clientHeight >= scrollHeight - 5 &&
-      !loading
-    ) {
-      loadMoreData();
+    // Check if horizontal scroll has changed
+    if (scrollLeft !== previousScrollLeft) {
+      // Update the previous scroll left position
+      previousScrollLeft = scrollLeft;
+      return;
+    }
+
+    // Only trigger the API call if scrolling vertically
+    if (scrollTop + clientHeight >= scrollHeight - 5 && !loading) {
+      loadMoreData(); // Load more data when scrolled to the bottom
     }
   };
-
   useEffect(() => {
     const container = tableContainerRef.current;
     if (container) {
-      container.addEventListener("scroll", handleScroll);
-      return () => container.removeEventListener("scroll", handleScroll);
+      const debouncedHandleScroll = debounce(handleScroll, 200);
+      container.addEventListener("scroll", debouncedHandleScroll);
+      return () =>
+        container.removeEventListener("scroll", debouncedHandleScroll);
     }
   }, [loading, lastPage]);
-
   //function for filter
   const handleTempFilterConditionChange = (e) => {
     const value = e?.target?.value;
@@ -942,7 +1018,7 @@ const CustomTable = ({ setPage, newArray, alignment ,filters}) => {
                 variant="simple"
               >
                 <Thead
-                style={{position: "sticky",top:0}}
+                  style={{ position: "sticky", top: 0 }}
                 >
                   <Tr bg="#cfd8e1">
                     {selectedColumns.map((column, index) => (
@@ -1152,8 +1228,8 @@ const CustomTable = ({ setPage, newArray, alignment ,filters}) => {
                                 column === "description"
                                   ? "300px"
                                   : column === "name"
-                                  ? "200px"
-                                  : "100px"
+                                    ? "200px"
+                                    : "100px"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis"
@@ -1522,11 +1598,11 @@ const CustomTable = ({ setPage, newArray, alignment ,filters}) => {
                 .concat(
                   columnDatakam
                     ? Object.keys(columnDatakam?.content[0] || {}).map(
-                        (key) => ({
-                          field: key,
-                          header: key,
-                        })
-                      )
+                      (key) => ({
+                        field: key,
+                        header: key,
+                      })
+                    )
                     : []
                 )
                 .map((column, index) => {
@@ -1548,8 +1624,8 @@ const CustomTable = ({ setPage, newArray, alignment ,filters}) => {
                         padding="5px"
                         borderColor="mainBluemedium"
                         key={column.field}
-                        defaultChecked={selectedColumns.includes(column.field)}
-                        isChecked={selectedColumns.includes(column.field)}
+                        defaultChecked={tempSelectedColumns.includes(column.field)}
+                        isChecked={tempSelectedColumns.includes(column.field)}
                         onChange={() => toggleColumn(column.field)}
                       >
                         <Text

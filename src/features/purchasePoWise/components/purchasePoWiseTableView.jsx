@@ -13,7 +13,7 @@ const PurchaseProductWiseTableView = () => {
   const [toastShown, setToastShown] = useState(false);
   const toast = useToast();
 
-  let filters = {
+  const [filters, setFilters] = useState({
     data: [
       "grnInvoice.grnPoNumber",
       "grnInvoice.grnIvCode",
@@ -56,7 +56,8 @@ const PurchaseProductWiseTableView = () => {
     size: 20,
     sortDir: "asc",
     sortBy: "grnInvoice.grnPoNumber",
-  };
+  });
+
   const {
     data: sales,
     isLoading,
@@ -96,11 +97,11 @@ const PurchaseProductWiseTableView = () => {
 
   const extractFields = (data, index) => ({
     "SL No": index + 1,
-    "Grn Po Number": data["grnInvoice.grnPoNumber"],
-    "Grn Iv Code": data["grnInvoice.grnIvCode"],
-    "Grn Type": data["grnInvoice.grnType"],
+    "grnInvoice.grnPoNumber": data["grnInvoice.grnPoNumber"],
+    "grnInvoice.grnIvCode": data["grnInvoice.grnIvCode"],
+    "grnInvoice.grnType": data["grnInvoice.grnType"],
     "Vendor Code": data["grnInvoice.vendorCode"],
-    "Vendor Name": data["grnInvoice.vendorName"],
+    "grnInvoice.vendorName": data["grnInvoice.vendorName"],
   });
 
   useEffect(() => {
@@ -109,16 +110,15 @@ const PurchaseProductWiseTableView = () => {
         const flattenedInvoice = flattenObject(invoice);
         return invoice.items?.length
           ? invoice.items.map((item) => {
-              const flattenedItem = flattenObject(item, "item.");
-              return { ...flattenedInvoice, ...flattenedItem };
-            })
+            const flattenedItem = flattenObject(item, "item.");
+            return { ...flattenedInvoice, ...flattenedItem };
+          })
           : [flattenedInvoice];
       });
       setIndividualItems((prevItems) => [...prevItems, ...newItems]);
     }
   }, [sales]);
   useEffect(() => {
-    // Show the toast only if the user has scrolled to the last page ////
     if (sales?.totalPages < page && !toastShown) {
       toast({
         title: "No More Data",
@@ -175,21 +175,22 @@ const PurchaseProductWiseTableView = () => {
       </Box>
     );
   }
-  const newArray = individualItems.map((data, index) =>
-    extractFields(data, index)
-  );
+  // const newArray = individualItems.map((data, index) =>
+  //   extractFields(data, index)
+  // );
 
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
       {individualItems.length > 0 && (
         <CustomTable
-          newArray={newArray}
+          newArray={individualItems}
           page={page}
           setPage={setPage}
           isFetching={isFetching}
           pageInfo={pageInfo}
           setSize={setSize}
           filters={filters}
+          setFilters={setFilters}
           alignment={{
             "Total Quantity": "right",
             "Received Quantity": "right",

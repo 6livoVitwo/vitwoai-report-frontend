@@ -12,50 +12,32 @@ const SalesSoWiseTableView = () => {
   const [individualItems, setIndividualItems] = useState([]);
   const [toastShown, setToastShown] = useState(false);
   const toast = useToast();
-
-  let filters = {
-    data: [
-      "customer.trade_name",
-      "customer.customer_code",
-      "salesOrder.so_number",
-      "invoice_no",
-      "invoice_date",
-      "SUM(due_amount)",
-      "SUM(salesPgi.salesDelivery.totalAmount)",
-      "SUM(salesPgi.totalAmount)",
-      "SUM(quotation.totalAmount)",
-      "SUM(salesOrder.totalAmount)",
-      "SUM(items.qty)",
-      "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
-      "SUM(all_total_amt)",
-      "SUM(items.totalTax)",
-    ],
-    groupBy: ["salesOrder.so_id"],
-    filter: [
-      // {
-      //   column: "company_id",
-      //   operator: "equal",
-      //   type: "Integer",
-      //   value: 1,
-      // },
-      // {
-      //   column: "location_id",
-      //   operator: "equal",
-      //   type: "Integer",
-      //   value: 1,
-      // },
-      // {
-      //   column: "branch_id",
-      //   operator: "equal",
-      //   type: "Integer",
-      //   value: 1,
-      // },
-    ],
-    page: 0,
-    size: 20,
-    sortDir:"asc",
-    sortBy:"customer.trade_name",
-  };
+  const [filters, setFilters] = useState(
+    {
+      data: [
+        "customer.trade_name",
+        "customer.customer_code",
+        "salesOrder.so_number",
+        "invoice_no",
+        "invoice_date",
+        "SUM(due_amount)",
+        "SUM(salesPgi.salesDelivery.totalAmount)",
+        "SUM(salesPgi.totalAmount)",
+        "SUM(quotation.totalAmount)",
+        "SUM(salesOrder.totalAmount)",
+        "SUM(items.qty)",
+        "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
+        "SUM(all_total_amt)",
+        "SUM(items.totalTax)",
+      ],
+      groupBy: ["salesOrder.so_id"],
+      filter: [],
+      page: 0,
+      size: 20,
+      sortDir: "asc",
+      sortBy: "customer.trade_name",
+    }
+  )
 
   const {
     data: sales,
@@ -102,7 +84,7 @@ const SalesSoWiseTableView = () => {
     "SD Total Amount": data["SUM(salesPgi.salesDelivery.totalAmount)"],
     "Base Price":
       data[
-        "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)"
+      "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)"
       ],
     "invoice_no": data["invoice_no"],
     "so_number": data["salesOrder.so_number"],
@@ -121,9 +103,9 @@ const SalesSoWiseTableView = () => {
         const flattenedInvoice = flattenObject(invoice);
         return invoice.items?.length
           ? invoice.items.map((item) => {
-              const flattenedItem = flattenObject(item, "item.");
-              return { ...flattenedInvoice, ...flattenedItem };
-            })
+            const flattenedItem = flattenObject(item, "item.");
+            return { ...flattenedInvoice, ...flattenedItem };
+          })
           : [flattenedInvoice];
       });
       setIndividualItems((prevItems) => [...prevItems, ...newItems]);
@@ -187,21 +169,22 @@ const SalesSoWiseTableView = () => {
       </Box>
     );
   }
-  const newArray = individualItems.map((data, index) =>
-    extractFields(data, index)
-  );
+  // const newArray = individualItems.map((data, index) =>
+  //   extractFields(data, index)
+  // );
 
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
       {individualItems.length > 0 && (
         <CustomTable
-          newArray={newArray}
+          newArray={individualItems}
           page={page}
           setPage={setPage}
           isFetching={isFetching}
           pageInfo={pageInfo}
           setSize={setSize}
           filters={filters}
+          setFilters={setFilters}
           alignment={{
             "SO Total Amount": "right",
             "SD Total Amount": "right",

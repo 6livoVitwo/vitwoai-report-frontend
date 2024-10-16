@@ -78,7 +78,7 @@ import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfig
 import DynamicChart from "../../nivoGraphs/chartConfigurations/DynamicChart";
 import { chartsData } from "../../nivoGraphs/data/fakeData";
 
-const CustomTable = ({ setPage, newArray, alignment,filters }) => {
+const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const dispatch = useDispatch();
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
@@ -130,8 +130,8 @@ const CustomTable = ({ setPage, newArray, alignment,filters }) => {
     filters: {
       ...filters,
       filter: mapFilters(filters.filter), // Map filters dynamically
-      sortBy: columnMappings[sortColumn] || sortColumn,
-      sortDir: sortOrder,
+      // sortBy: columnMappings[sortColumn] || sortColumn,
+      // sortDir: sortOrder,
     },
     page: currentPage,
   });
@@ -142,7 +142,7 @@ const CustomTable = ({ setPage, newArray, alignment,filters }) => {
 
   //Advance data filtering
   const { data: SoWiseFilter } = useSoWiseSalesQuery(
-    { filters:localFilters},
+    { filters: localFilters },
     {
       // skip: !filtersApplied,
     }
@@ -301,9 +301,9 @@ const CustomTable = ({ setPage, newArray, alignment,filters }) => {
         .concat(
           ColumnsData
             ? Object.keys(ColumnsData?.content[0] || {}).map((key) => ({
-                field: key,
-                header: key,
-              }))
+              field: key,
+              header: key,
+            }))
             : []
         )
         .map((column) => column.field);
@@ -326,7 +326,7 @@ const CustomTable = ({ setPage, newArray, alignment,filters }) => {
     });
   };
 
-  const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 50), []);
+  const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
   // Clean up debounce on unmount
   useEffect(() => {
     return () => {
@@ -338,14 +338,31 @@ const CustomTable = ({ setPage, newArray, alignment,filters }) => {
     setInputValue(e.target.value);
   };
   const handleSearchClick = () => {
-    debouncedSearchQuery(inputValue);
+    const filteredColumns = selectedColumns.filter(column => !column.includes('SUM'));
+    const updatedFilters = {
+      ...filters,
+      filter: [
+        ...filters.filter,
+        ...filteredColumns.map(column => ({
+          column: column,
+          operator: "like",
+          type: "string",
+          value: inputValue,
+        })),
+      ],
+    };
+
+    setFilters(updatedFilters);
+    setSearchQuery(inputValue);
   };
+
   const clearAllFilters = () => {
     setSearchQuery("");
     setInputValue("");
     setColumnFilters({});
-    setSortColumn('');
-    setSortOrder("asc");
+    setSortColumn("");
+    setTempFilterCondition({});
+    setTempFilterValue("");
   };
 
   //sort asc desc
@@ -372,6 +389,20 @@ const CustomTable = ({ setPage, newArray, alignment,filters }) => {
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray];
 
+    // Apply searchData from the API
+    if (searchData && searchData.length > 0) {
+      // Assuming searchData is an array of items
+      filteredData = filteredData.filter((item) => {
+        return searchData.some((searchItem) =>
+          Object.values(searchItem).some((value) =>
+            String(value)
+              .toLowerCase()
+              .includes(String(inputValue).toLowerCase())
+          )
+        );
+      });
+    }
+    // Apply global filter
     Object.keys(columnFilters).forEach((field) => {
       const filter = columnFilters[field];
       if (filter.condition && filter.value) {
@@ -449,6 +480,8 @@ const CustomTable = ({ setPage, newArray, alignment,filters }) => {
 
   const formatHeader = (header) => {
     header = header.trim();
+    header = header.replace(/^[A-Z]+\(|\)$/g, "");
+    header = header.replace(/_/g, " ");
     const parts = header.split(".");
     const lastPart = parts.pop();
     const words = lastPart.split("_").join("");
@@ -465,21 +498,30 @@ const CustomTable = ({ setPage, newArray, alignment,filters }) => {
       .join(" ");
   };
 
+  let previousScrollLeft = 0;
   const handleScroll = () => {
-    const { scrollTop, scrollHeight, scrollleft, clientHeight } =
+    const { scrollTop, scrollHeight, clientHeight, scrollLeft, clientWidth } =
       tableContainerRef.current;
 
-    if (scrollTop + clientHeight >= scrollHeight - 5) {
-      loadMoreData();
+    // Check if horizontal scroll has changed
+    if (scrollLeft !== previousScrollLeft) {
+      // Update the previous scroll left position
+      previousScrollLeft = scrollLeft;
+      return;
+    }
+
+    // Only trigger the API call if scrolling vertically
+    if (scrollTop + clientHeight >= scrollHeight - 5 && !loading) {
+      loadMoreData(); // Load more data when scrolled to the bottom
     }
   };
-
   useEffect(() => {
     const container = tableContainerRef.current;
     if (container) {
-      container.addEventListener("scroll", handleScroll);
-      handleScroll();
-      return () => container.removeEventListener("scroll", handleScroll);
+      const debouncedHandleScroll = debounce(handleScroll, 200);
+      container.addEventListener("scroll", debouncedHandleScroll);
+      return () =>
+        container.removeEventListener("scroll", debouncedHandleScroll);
     }
   }, [loading, lastPage]);
 
@@ -563,6 +605,10 @@ const CustomTable = ({ setPage, newArray, alignment,filters }) => {
       columnType.includes("SUM(")
         ? handleApplyFiltersSUM()
         : handleApplyFilters();
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        size: 1000, // Update size to full
+      }));
     }
   };
 
@@ -908,7 +954,7 @@ const CustomTable = ({ setPage, newArray, alignment,filters }) => {
                 ref={provided.innerRef}
                 variant="simple"
               >
-                <Thead style={{position: "sticky",top:0}}>
+                <Thead style={{ position: "sticky", top: 0 }}>
                   <Tr bg="#cfd8e1">
                     {selectedColumns.map((column, index) => (
                       <Draggable
@@ -1042,7 +1088,7 @@ const CustomTable = ({ setPage, newArray, alignment,filters }) => {
                                             onChange={
                                               handleTempFilterValueChange
                                             }
-                                            placeholder={`Filter ${column}`}
+                                            placeholder="Search by value"
                                           />
                                         </Box>
                                       </Box>
@@ -1096,8 +1142,8 @@ const CustomTable = ({ setPage, newArray, alignment,filters }) => {
                                 column === "description"
                                   ? "300px"
                                   : column === "name"
-                                  ? "200px"
-                                  : "100px"
+                                    ? "200px"
+                                    : "100px"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis"
@@ -1523,9 +1569,9 @@ const CustomTable = ({ setPage, newArray, alignment,filters }) => {
                 .concat(
                   ColumnsData
                     ? Object.keys(ColumnsData?.content[0] || {}).map((key) => ({
-                        field: key,
-                        header: key,
-                      }))
+                      field: key,
+                      header: key,
+                    }))
                     : []
                 )
                 .map((column, index) => {

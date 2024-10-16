@@ -4,6 +4,7 @@ import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useProductWiseSalesQuery } from "../slice/salesProductWiseApi";
+import { useGetSelectedColumnsproductQuery } from "../slice/salesProductWiseApi";
 
 const SalesProductWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
@@ -27,11 +28,10 @@ const SalesProductWiseTableView = () => {
     groupBy: ["items.itemName"],
     filter: [],
     page: 0,
-    size: 50,
-    sortBy: "invoice_date",
+    size: 20,
     sortDir: "asc",
+    sortBy: "invoice_date",
   });
-
 
   const {
     data: sales,
@@ -44,7 +44,6 @@ const SalesProductWiseTableView = () => {
     size,
     authDetails: authData.authDetails,
   });
-
 
   const pageInfo = sales?.lastPage;
 
@@ -71,36 +70,21 @@ const SalesProductWiseTableView = () => {
     return result;
   };
 
-  const extractFields = (data, index) => ({
-    "SL No": index + 1,
-    "items.itemName": data["items.itemName"],
-    "Sales Delivery Total Amount": data["SUM(salesPgi.salesDelivery.totalAmount)"],
-    "Sales Pgi Total Amount": data["SUM(salesPgi.totalAmount)"],
-    "Invoice Date": data["invoice_date"],
-    "Quotation": data["SUM(salesPgi.totalAmount)"],
-    "Sales Order": data["SUM(salesOrder.totalAmount)"],
-    "Total Qty": data["SUM(items.qty)"],
-    "Sub Total": data["SUM(items.basePrice - items.totalDiscountAmt)"],
-    "Total Amount": data["SUM(all_total_amt)"],
-
-  });
-
   useEffect(() => {
     if (sales?.content?.length) {
       const newItems = sales.content.flatMap((invoice) => {
         const flattenedInvoice = flattenObject(invoice);
         return invoice.items?.length
           ? invoice.items.map((item) => {
-              const flattenedItem = flattenObject(item, "item.");
-              return { ...flattenedInvoice, ...flattenedItem };
-            })
+            const flattenedItem = flattenObject(item, "item.");
+            return { ...flattenedInvoice, ...flattenedItem };
+          })
           : [flattenedInvoice];
       });
       setIndividualItems((prevItems) => [...prevItems, ...newItems]);
     }
   }, [sales]);
   useEffect(() => {
-    // Show the toast only if the user has scrolled to the last page and toast hasn't been shown
     if (sales?.totalPages < page && !toastShown) {
       toast({
         title: "No More Data",
@@ -113,17 +97,16 @@ const SalesProductWiseTableView = () => {
             p={3}
             bg="orange.300"
             borderRadius="md"
-            style={{ width: "300px", height: "70px" }} // Set custom width and height
+            style={{ width: "300px", height: "70px" }}
           >
             <Box fontWeight="bold">No More Data</Box>
             <Box>You have reached the end of the list.</Box>
           </Box>
         ),
       });
-      setToastShown(true); // Mark the toast as shown
+      setToastShown(true); 
     }
   }, [sales, page, toast, toastShown]);
-
   if (isLoading) {
     return (
       <Box
@@ -158,15 +141,11 @@ const SalesProductWiseTableView = () => {
     );
   }
 
-  const newArray = individualItems.map((data, index) =>
-    extractFields(data, index)
-  );
-
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
       {individualItems.length > 0 && (
         <CustomTable
-          newArray={newArray}
+          newArray={individualItems}
           page={page}
           setPage={setPage}
           isFetching={isFetching}

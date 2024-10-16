@@ -106,6 +106,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
     (state) => state.salescustomer.widgets
   );
 
+  const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
 
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
@@ -124,7 +125,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
   // console.log("piyas3333333", searchData);
 
   // ....api calling from drop-down data ....
-  const { data: columnData } = useGetSelectedColumnsVendorQuery();
+  const { data: columnData, refetch: refetchColumnvendor } = useGetSelectedColumnsVendorQuery();
   // console.log("01010101", columnData);
 
   //API Calling sorting
@@ -273,31 +274,34 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
     setSelectedColumns(newColumnsOrder);
   };
 
-  const toggleColumn = (columnName) => {
-    setSelectedColumns((prevSelectedColumns) =>
-      prevSelectedColumns.includes(columnName)
-        ? prevSelectedColumns.filter((col) => col !== columnName)
-        : [...prevSelectedColumns, columnName]
+  const toggleColumn = (field) => {
+    if (field === "SL No") return;
+    setTempSelectedColumns((prev) =>
+      prev.includes(field)
+        ? prev.filter((col) => col !== field)
+        : [...prev, field]
     );
   };
 
   const handleSelectAllToggle = () => {
-    if (selectAll) {
-      setSelectedColumns([]); // Deselect all columns
-    } else {
-      const allColumns = getColumns(data) // Select all columns
-        .concat(
-          columnData
-            ? Object.keys(columnData?.content[0] || {}).map((key) => ({
-              field: key,
-              header: key,
-            }))
-            : []
-        )
-        .map((column) => column.field);
+    const allColumns = columnData
+      ? Object.keys(columnData?.content[0] || {}).map((key) => ({
+        field: key,
+        listName: columnData.content[0][key]?.listName || key,
+      }))
+      : [];
 
-      setSelectedColumns(allColumns);
+    const uniqueColumns = Array.from(new Set(allColumns.map((col) => col.listName)));
+
+    let updatedColumns;
+    if (selectAll) {
+      setTempSelectedColumns([]); // Deselect all in temporary state
+      updatedColumns = defaultColumns;
+    } else {
+      setTempSelectedColumns(uniqueColumns); // Select all in temporary state
+      updatedColumns = uniqueColumns;
     }
+
     setSelectAll(!selectAll);
   };
 
@@ -307,13 +311,53 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
   };
 
   const handleApplyChanges = () => {
+    const updatedSelectedColumns = Array.from(
+      new Set(
+        tempSelectedColumns.map((col) => {
+          const matchingColumn = columnData?.content[0][col];
+          return matchingColumn ? matchingColumn.listName || col : col;
+        })
+      )
+    ).filter((col) => col !== "SL No");
+
+    // Update filters with unique columns
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      data: updatedSelectedColumns, // Replace data with unique selected listNames
+    }));
+
+    const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
+
+    const columnsChanged = JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
+
+    if (!columnsChanged) {
+      toast({
+        title: "No changes to apply",
+        status: "info",
+        isClosable: true,
+      });
+      return;
+    }
+
+    // Update the final selected columns (this will trigger the table update)
+    setSelectedColumns(updatedSelectedColumns);
+
+    // Refetch data based on selected columns
+    refetchColumnvendor({ columns: updatedSelectedColumns });
+
+    // Close the modal
     onClose();
+
+    // Show success toast notification
     toast({
-      title: "Column Added Successfully",
+      title: "Columns Applied Successfully",
       status: "success",
       isClosable: true,
     });
   };
+  useEffect(() => {
+    setTempSelectedColumns(defaultColumns);
+  }, [isOpen]);
 
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
 
@@ -327,17 +371,17 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
     setInputValue(e.target.value);
   };
   const handleSearchClick = () => {
-    // Update filters to include search criteria
+    const filteredColumns = selectedColumns.filter(column => !column.includes('SUM'));
     const updatedFilters = {
       ...filters,
       filter: [
         ...filters.filter,
-        {
-          column: selectedColumns[1], // Assuming selectedColumns is a string or array
+        ...filteredColumns.map(column => ({
+          column: column,
           operator: "like",
           type: "string",
           value: inputValue,
-        },
+        })),
       ],
     };
     setFilters(updatedFilters);
@@ -445,6 +489,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
 
   const formatHeader = (header) => {
     header = header.trim();
+    header = header.trim();
+    header = header.replace(/^[A-Z]+\(|\)$/g, "");
+    header = header.replace(/_/g, " ");
     const parts = header.split(".");
     const lastPart = parts.pop();
     const words = lastPart.split("_").join("");
@@ -559,6 +606,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
       columnType.includes("SUM(")
         ? handleApplyFiltersSUM()
         : handleApplyFilters();
+
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        size: 1000, // Update size to full
+      }));
     }
   };
 
@@ -1426,31 +1478,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
           </DrawerBody>
         </DrawerContent>
       </Drawer>
-
-      {/* <Button
-				position='fixed'
-				bottom='4'
-				right='4'
-				aria-label='Graph View'
-				size='lg'
-				borderRadius='full'
-				boxShadow='lg'
-				fontSize='2xl'
-				width='50px'
-				height='50px'
-				bg='rgba(213, 232, 251, 0.5)'
-				_hover={{
-					bg: 'mainBlue',
-					color: 'white',
-				}}
-				_active={{
-					bg: 'teal.600',
-				}}
-				_focus={{
-					boxShadow: 'outline',
-				}}>
-				<FontAwesomeIcon icon={faChartSimple} size='lg' />
-			</Button> */}
       <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered>
         <ModalOverlay />
         <ModalContent minW="40%">
@@ -1514,9 +1541,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
                         padding="5px"
                         borderColor="mainBluemedium"
                         key={column.field}
-                        defaultChecked={selectedColumns.includes(column.field)}
-                        isChecked={selectedColumns.includes(column.field)}
-                        onChange={() => toggleColumn(column.field)}>
+                        defaultChecked={tempSelectedColumns.includes(column.field)}
+                        isChecked={tempSelectedColumns.includes(column.field)}
+                        onChange={() => toggleColumn(column.field)}
+                      >
                         <Text
                           fontWeight="500"
                           ml="10px"

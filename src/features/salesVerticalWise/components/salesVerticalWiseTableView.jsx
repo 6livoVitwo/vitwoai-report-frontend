@@ -12,6 +12,29 @@ const SalesVerticalWiseTableView = () => {
   const [individualItems, setIndividualItems] = useState([]);
   const [toastShown, setToastShown] = useState(false);
   const toast = useToast();
+
+  const [filters, setFilters] = useState(
+    {
+      data: [
+        "invoice_date",
+        "companyFunction.functionalities_name",
+        "SUM(salesPgi.salesDelivery.totalAmount)",
+        "SUM(salesPgi.totalAmount)",
+        "SUM(quotation.totalAmount)",
+        "SUM(salesOrder.totalAmount)",
+        "SUM(items.qty)",
+        "SUM(items.basePrice - items.totalDiscountAmt)",
+        "SUM(all_total_amt)",
+      ],
+      groupBy: ["companyFunction.functionalities_name"],
+      filter: [],
+      page: 0,
+      size: 20,
+      sortDir: "asc",
+      sortBy: "companyFunction.functionalities_name",
+    }
+  )
+
   const formatDate = (dateString) => {
     try {
       const [year, month, day] = dateString.split("-").map(Number);
@@ -24,26 +47,6 @@ const SalesVerticalWiseTableView = () => {
     } catch (error) {
       return "Invalid Date";
     }
-  };
-
-  let filters = {
-    data: [
-      "invoice_date",
-      "companyFunction.functionalities_name",
-      "SUM(salesPgi.salesDelivery.totalAmount)",
-      "SUM(salesPgi.totalAmount)",
-      "SUM(quotation.totalAmount)",
-      "SUM(salesOrder.totalAmount)",
-      "SUM(items.qty)",
-      "SUM(items.basePrice - items.totalDiscountAmt)",
-      "SUM(all_total_amt)",
-    ],
-    groupBy: ["companyFunction.functionalities_name"],
-    filter: [],
-    page: 0,
-    size: 20,
-    sortDir: "asc",
-    sortBy: "companyFunction.functionalities_name",
   };
 
   const {
@@ -83,21 +86,21 @@ const SalesVerticalWiseTableView = () => {
     return result;
   };
 
-  const extractFields = (data, index) => ({
-    "SL No": index + 1,
-    "companyFunction.functionalities_name":
-      data["companyFunction.functionalities_name"],
-    "Sales Delivery Total Amount":
-      data["SUM(salesPgi.salesDelivery.totalAmount)"],
-    "Sales Pgi Total Amount": data["SUM(salesPgi.totalAmount)"],
-    Quotation: data["SUM(salesPgi.totalAmount)"],
-    "Sales Order": data["SUM(salesOrder.totalAmount)"],
-    "Total Qty": data["SUM(items.qty)"],
-    "Sub Total": data["SUM(items.basePrice - items.totalDiscountAmt)"],
-    "Total Amount": data["SUM(all_total_amt)"],
-    "Due Amount": data["SUM(due_amount)"],
-    invoice_date: formatDate(data["invoice_date"]),
-  });
+  // const extractFields = (data, index) => ({
+  //   "SL No": index + 1,
+  //   "companyFunction.functionalities_name":
+  //     data["companyFunction.functionalities_name"],
+  //   "Sales Delivery Total Amount":
+  //     data["SUM(salesPgi.salesDelivery.totalAmount)"],
+  //   "Sales Pgi Total Amount": data["SUM(salesPgi.totalAmount)"],
+  //   Quotation: data["SUM(salesPgi.totalAmount)"],
+  //   "Sales Order": data["SUM(salesOrder.totalAmount)"],
+  //   "Total Qty": data["SUM(items.qty)"],
+  //   "Sub Total": data["SUM(items.basePrice - items.totalDiscountAmt)"],
+  //   "Total Amount": data["SUM(all_total_amt)"],
+  //   "Due Amount": data["SUM(due_amount)"],
+  //   invoice_date: formatDate(data["invoice_date"]),
+  // });
 
   useEffect(() => {
     if (sales?.content?.length) {
@@ -171,20 +174,21 @@ const SalesVerticalWiseTableView = () => {
       </Box>
     );
   }
-  const newArray = individualItems.map((data, index) =>
-    extractFields(data, index)
-  );
+  // const newArray = individualItems.map((data, index) =>
+  //   extractFields(data, index)
+  // );
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
       {individualItems.length > 0 && (
         <CustomTable
-          newArray={newArray}
+          newArray={individualItems}
           page={page}
           setPage={setPage}
           isFetching={isFetching}
           pageInfo={pageInfo}
           setSize={setSize}
           filters={filters}
+          setFilters={setFilters}
           alignment={{
             "Sales Delivery Total Amount": "right",
             "Sales Pgi Total Amount": "right",
