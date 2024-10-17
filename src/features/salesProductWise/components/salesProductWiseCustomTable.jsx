@@ -548,7 +548,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     selectedColumns,
   ]);
 
-  console.log("filteredItems", filteredItems);
 
   const formatHeader = (header) => {
     header = header.trim();

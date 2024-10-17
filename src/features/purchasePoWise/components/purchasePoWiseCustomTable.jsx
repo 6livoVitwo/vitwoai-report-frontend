@@ -560,11 +560,21 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       .join(" ");
   };
 
+  let previousScrollLeft = 0;
   const handleScroll = () => {
-    const { scrollTop, scrollHeight, clientHeight } = tableContainerRef.current;
+    const { scrollTop, scrollHeight, clientHeight, scrollLeft, clientWidth } =
+      tableContainerRef.current;
 
-    if (scrollTop + clientHeight >= scrollHeight - 5 && !loading && !lastPage) {
-      loadMoreData();
+    // Check if horizontal scroll has changed
+    if (scrollLeft !== previousScrollLeft) {
+      // Update the previous scroll left position
+      previousScrollLeft = scrollLeft;
+      return;
+    }
+
+    // Only trigger the API call if scrolling vertically
+    if (scrollTop + clientHeight >= scrollHeight - 5 && !loading) {
+      loadMoreData(); // Load more data when scrolled to the bottom
     }
   };
   useEffect(() => {

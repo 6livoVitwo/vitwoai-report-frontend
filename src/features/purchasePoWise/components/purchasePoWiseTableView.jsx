@@ -34,7 +34,7 @@ const PurchaseProductWiseTableView = () => {
     groupBy: ["grnInvoice.grnPoNumber"],
     filter: [],
     page: 0,
-    size: 20,
+    size: 50,
     sortDir: "asc",
     sortBy: "grnInvoice.grnPoNumber",
   });

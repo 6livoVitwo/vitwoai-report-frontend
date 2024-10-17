@@ -134,8 +134,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const { data: searchData } = useGetGlobalsearchQuery(filters, {
     skip: !searchQuery,
   });
-  console.log("piyas12345", filters);
-  console.log("piyas789456", searchData);
+
 
   const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
 
@@ -304,7 +303,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
-  // Clean up debounce on unmount
   useEffect(() => {
     return () => {
       debouncedSearchQuery.cancel();
@@ -328,7 +326,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         })),
       ],
     };
-
     setFilters(updatedFilters);
     setSearchQuery(inputValue);
   };

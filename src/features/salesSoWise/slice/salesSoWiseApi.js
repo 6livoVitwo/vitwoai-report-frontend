@@ -20,9 +20,6 @@ export const salesSoWiseApi = apiSlice.injectEndpoints({
     // Query to get global search
     getGlobalsearch: builder.query({
       query: (body) => {
-        // console.log("imran body", body);
-        // console.log("json body");
-        // console.log(JSON.stringify(body));
         return {
           url: "/sales/global-search/so",
           method: "POST",
