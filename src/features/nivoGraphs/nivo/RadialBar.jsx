@@ -1,6 +1,6 @@
 import { ResponsiveRadialBar } from '@nivo/radial-bar'
 import React from 'react'
-import { radialBarChartData } from '../data/chartData'
+import { radialBarChartData } from "../jsonData/chartData";
 
 const RadialBarChart = ({ data = radialBarChartData }) => {
     return (

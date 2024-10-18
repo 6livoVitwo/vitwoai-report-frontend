@@ -1,5 +1,5 @@
 import React from 'react'
-import { treeMapChartData } from '../data/chartData'
+import { treeMapChartData } from "../jsonData/chartData";
 import { ResponsiveTreeMap } from '@nivo/treemap'
 
 const TreeMap = ({ data = treeMapChartData }) => {

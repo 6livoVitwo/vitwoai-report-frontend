@@ -1,6 +1,6 @@
 import { ResponsivePie } from "@nivo/pie";
 import React from "react";
-import { pieChartData } from "../data/chartData";
+import { pieChartData } from "../jsonData/chartData";
 
 const Pie = ({ data = pieChartData, dynamicWidth}) => {
   return (

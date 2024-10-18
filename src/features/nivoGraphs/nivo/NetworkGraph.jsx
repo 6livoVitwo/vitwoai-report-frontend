@@ -1,5 +1,5 @@
 import { ResponsiveNetwork } from "@nivo/network";
-import { networkChartData } from "../data/chartData";
+import { networkChartData } from "../jsonData/chartData";
 
 import React from "react";
 

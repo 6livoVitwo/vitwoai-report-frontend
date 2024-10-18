@@ -69,7 +69,7 @@ import { Calendar } from "primereact/calendar";
 import { useDispatch } from "react-redux";
 import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfiguration";
 import DynamicChart from "../../nivoGraphs/chartConfigurations/DynamicChart";
-import { chartsData } from "../../nivoGraphs/data/fakeData";
+import { chartsData } from "../../nivoGraphs/jsonData/graphSkeleton";
 import NewMyCharts from "../../dashboardNew/nivo/NewMyCharts";
 import { useSelector } from "react-redux";
 import { FiPlus, FiSettings } from "react-icons/fi";

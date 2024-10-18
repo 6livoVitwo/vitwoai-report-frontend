@@ -1,6 +1,6 @@
 import { ResponsiveMarimekko } from '@nivo/marimekko'
 import React from 'react'
-import { marimekkoChartData } from '../data/chartData'
+import { marimekkoChartData } from "../jsonData/chartData";
 
 const Marimekko = ({ data = marimekkoChartData }) => {
     return (

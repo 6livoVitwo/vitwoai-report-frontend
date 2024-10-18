@@ -76,7 +76,7 @@ import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice
 import { useDispatch } from "react-redux";
 import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfiguration";
 import DynamicChart from "../../nivoGraphs/chartConfigurations/DynamicChart";
-import { chartsData } from "../../nivoGraphs/data/fakeData";
+import { chartsData } from "../../nivoGraphs/jsonData/graphSkeleton";
 
 const CustomTable = ({ setPage, newArray, alignment,filters }) => {
   const dispatch = useDispatch();

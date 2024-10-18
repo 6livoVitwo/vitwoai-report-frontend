@@ -1,5 +1,5 @@
 import React from 'react'
-import { waffleChartData } from '../data/chartData'
+import { waffleChartData } from "../jsonData/chartData";
 import { ResponsiveWaffle } from '@nivo/waffle'
 
 const WaffleChart = ({ data = waffleChartData }) => {

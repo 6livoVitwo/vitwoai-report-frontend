@@ -70,7 +70,7 @@ import { set } from "lodash";
 import DynamicChart from "../../nivoGraphs/chartConfigurations/DynamicChart";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import NewMyCharts from "../../dashboardNew/nivo/NewMyCharts";
-import { chartsData } from "../../nivoGraphs/data/fakeData"
+import { chartsData } from "../../nivoGraphs/jsonData/graphSkeleton"
 import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfiguration";
 import { FiPlus, FiSettings } from "react-icons/fi";
 import { useSelector } from "react-redux";

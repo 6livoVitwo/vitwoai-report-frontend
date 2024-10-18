@@ -1,6 +1,6 @@
 import { ResponsiveCalendar } from '@nivo/calendar'
 import React from 'react'
-import { calendarChartData } from '../data/chartData'
+import { calendarChartData } from "../jsonData/chartData";
 
 const Calendar = ({ data = calendarChartData }) => {
     return (

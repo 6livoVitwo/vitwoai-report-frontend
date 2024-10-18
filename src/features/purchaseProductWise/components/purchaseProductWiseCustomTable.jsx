@@ -70,7 +70,7 @@ import { Calendar } from "primereact/calendar";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfiguration";
-import { chartsData } from "../../nivoGraphs/data/fakeData";
+import { chartsData } from "../../nivoGraphs/jsonData/graphSkeleton";
 import NewMyCharts from "../../dashboardNew/nivo/NewMyCharts";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import { useGetSelectedColumnsPurchaseQuery } from "../slice/purchaseProductWiseApi";

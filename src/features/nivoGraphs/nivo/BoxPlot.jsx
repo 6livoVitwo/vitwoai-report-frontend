@@ -1,6 +1,6 @@
 import { ResponsiveBoxPlot } from '@nivo/boxplot'
 import React from 'react'
-import { boxPlotChartData } from '../data/chartData'
+import { boxPlotChartData } from "../jsonData/chartData";
 
 const BoxPlot = ({ data = boxPlotChartData }) => {
     return (

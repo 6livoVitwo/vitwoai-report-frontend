@@ -66,7 +66,7 @@ import { useDispatch } from "react-redux";
 import { faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { DownloadIcon } from "@chakra-ui/icons";
 import { useSelector } from "react-redux";
-import { chartsData } from "../../nivoGraphs/data/fakeData";
+import { chartsData } from "../../nivoGraphs/jsonData/graphSkeleton";
 import DynamicChart from "../../nivoGraphs/chartConfigurations/DynamicChart";
 import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";

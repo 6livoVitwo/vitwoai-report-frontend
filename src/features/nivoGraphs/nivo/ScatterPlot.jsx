@@ -1,6 +1,6 @@
 import { ResponsiveScatterPlot } from '@nivo/scatterplot'
 import React from 'react'
-import { scatterplotChartData } from '../data/chartData'
+import { scatterplotChartData } from "../jsonData/chartData";
 
 const ScatterPlot = ({ data = scatterplotChartData }) => {
     return (

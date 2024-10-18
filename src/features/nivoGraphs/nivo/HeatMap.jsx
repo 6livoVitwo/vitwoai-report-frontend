@@ -1,6 +1,6 @@
 import { ResponsiveHeatMap } from '@nivo/heatmap'
 import React from "react";
-import { heatmapChartData } from '../data/chartData';
+import { heatmapChartData } from "../jsonData/chartData";
 
 const HeatMap = ({ data = heatmapChartData, dynamicWidth, dynamicHeight }) => {
 
