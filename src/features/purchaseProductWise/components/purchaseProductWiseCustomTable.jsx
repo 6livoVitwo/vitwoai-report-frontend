@@ -116,7 +116,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const [dates, setDates] = useState(null);
   const dispatch = useDispatch();
-  const [tableData, setTableData] = useState([]);
+  // const [tableData, setTableData] = useState([]);
 
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
@@ -149,7 +149,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const { data: searchData } = useGetGlobalsearchPurchaseQuery(filters, {
     skip: !searchQuery,
   });
-  console.log("searchData⭕", searchData);
+
 
 
 
@@ -478,37 +478,69 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSortColumn("");
     setTempFilterCondition({});
     setTempFilterValue("");
-    setTableData([]); 
+    // setTableData([]);
   };
 
-  const filteredItems = useMemo(() => {
-    // Combine newArray and columnData.content
-    let filteredData = [...newArray];
+  // const filteredItems = useMemo(() => {
+  //   let filteredData = [...newArray];
 
-    if (searchData?.content && searchData?.content?.length > 0) {
+  //   // global search......
+  //   if (searchData?.content && searchData?.content?.length > 0) {
+  //     filteredData = searchData.content;
+  //   }
+  //   // Apply sorting
+  //   if (sortColumn) {
+  //     filteredData = [...filteredData].sort((a, b) => {
+  //       if (a[sortColumn] < b[sortColumn]) return sortOrder === "asc" ? -1 : 1;
+  //       if (a[sortColumn] > b[sortColumn]) return sortOrder === "asc" ? 1 : -1;
+  //       return 0;
+  //     });
+  //   }
+  //   // Apply advanced filters 
+  //   if (productDataFilter?.content && productDataFilter?.content.length > 0) {
+  //     filteredData = productDataFilter.content;
+  //   }
+
+
+  //   setTableData(filteredData);
+  //   return filteredData;
+  // }, [
+  //   data,
+  //   newArray,
+  //   columnData,
+  //   searchData,
+  //   searchQuery,
+  //   columnFilters,
+  //   sortColumn,
+  //   sortOrder,
+  //   filterCondition,
+  //   filterValue,
+  //   selectedColumns,
+  //   inputValue,
+  //   productDataFilter,
+  // ]);
+  const filteredItems = useMemo(() => {
+    let filteredData = [...newArray]; 
+
+    // Global search
+    if (searchData?.content && searchData?.content.length > 0) {
       filteredData = searchData.content;
     }
-
-    // Apply sorting
-    if (sortColumn) {
+    // Sorting
+    else if (sortColumn) {
       filteredData = [...filteredData].sort((a, b) => {
         if (a[sortColumn] < b[sortColumn]) return sortOrder === "asc" ? -1 : 1;
         if (a[sortColumn] > b[sortColumn]) return sortOrder === "asc" ? 1 : -1;
         return 0;
       });
     }
-
-    // Apply advanced filters.....
-    if (productDataFilter?.content && productDataFilter?.content?.length > 0) {
-      filteredData = filteredData.filter(item =>
-        productDataFilter.content.some(filterItem => filterItem.id === item.id)
-      );
+    // Advanced filters
+    else if (productDataFilter?.content && productDataFilter?.content.length > 0) {
+      filteredData = productDataFilter.content;
     }
-    // if (productDataFilter?.content && productDataFilter?.content.length > 0) {
-    //   filteredData = productDataFilter.content;
-    // }
+    
 
-    setTableData(filteredData);
+    // setTableData(filteredData);
     return filteredData;
   }, [
     data,
@@ -523,10 +555,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     filterValue,
     selectedColumns,
     inputValue,
-    productDataFilter, // Add productDataFilter to dependencies
+    productDataFilter,
   ]);
-
-
 
 
 
@@ -1291,8 +1321,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                   </Tr>
                 </Thead>
                 <Tbody>
-                  {tableData.length > 0 ? (
-                    tableData.map((item, index) => (
+                  {filteredItems.length > 0 ? (
+                    filteredItems.map((item, index) => (
                       <Tr key={index}>
                         {selectedColumns.map((column, colIndex) => (
                           <Td
