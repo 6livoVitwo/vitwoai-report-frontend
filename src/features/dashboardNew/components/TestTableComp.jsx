@@ -18,31 +18,38 @@ import { useState } from "react";
 
 const TestTableComp = () => {
   const [intervalDays, setIntervalDays] = useState(50);
-  const [bucket, setBucket] = useState(8); // Number of buckets to create
+  const [bucket, setBucket] = useState(8);
   const [allBuckets, setAllBuckets] = useState([]);
   const [selectedBucket, setSelectedBucket] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [executionTime, setExecutionTime] = useState(0);
 
   const handleBucketCreateButton = () => {
-    // Clear previous buckets
+    // Prevent triggering if already loading
+    if (isLoading) return;
+
+    setIsLoading(true);
     setAllBuckets([]);
 
-    // Create new buckets based on intervalDays and bucket number
+    const startTime = performance.now();
+
     const newBuckets = [];
     for (let i = 1; i <= bucket; i++) {
       const start = (i - 1) * intervalDays + 1;
       const end = i * intervalDays;
-
       newBuckets.push({
         value: `${start}-${end}`,
         label: `${start}-${end}`,
       });
     }
 
-    // Update allBuckets with new bucket ranges
-    setAllBuckets(newBuckets);
-  };
+    setAllBuckets(newBuckets); // Update buckets
 
-  console.log("⭕ All Buckets:", allBuckets);
+    const endTime = performance.now();
+    const timeTaken = (endTime - startTime).toFixed(2); // Calculate execution time
+    setExecutionTime(timeTaken); // Set execution time
+    setIsLoading(false); // Stop loading
+  };
 
   return (
     <>
@@ -76,7 +83,7 @@ const TestTableComp = () => {
             value={bucket}
             onChange={(e) => setBucket(parseInt(e.target.value) || 0)} // Ensure numeric value
           />
-          <Button colorScheme="green" onClick={handleBucketCreateButton}>
+          <Button colorScheme="green" onClick={handleBucketCreateButton} isLoading={isLoading}>
             Save
           </Button>
         </Stack>
@@ -89,9 +96,10 @@ const TestTableComp = () => {
         >
           <Text>Select Date Range</Text>
           <Select
-            placeholder="Select bucket"
+            placeholder={isLoading ? "Loading..." : "Select Bucket"}
             value={selectedBucket}
             onChange={(e) => setSelectedBucket(e.target.value)}
+            isDisabled={isLoading} // Disable while loading
           >
             {allBuckets.map((bucket, index) => (
               <option key={index} value={bucket.value}>
@@ -146,6 +154,9 @@ const TestTableComp = () => {
           </Tfoot>
         </Table>
       </TableContainer>
+      
+      {/* Display Execution Time */}
+      <Text mt={4}>Execution Time: {executionTime} ms</Text>
     </>
   );
 };
