@@ -20,11 +20,11 @@ const SalesVerticalWiseTableView = () => {
         "companyFunction.functionalities_name",
         "SUM(salesPgi.salesDelivery.totalAmount)",
         "SUM(salesPgi.totalAmount)",
-        "SUM(quotation.totalAmount)",
         "SUM(salesOrder.totalAmount)",
-        "SUM(items.qty)",
-        "SUM(items.basePrice - items.totalDiscountAmt)",
-        "SUM(all_total_amt)",
+        // "SUM(quotation.totalAmount)",
+        // "SUM(items.qty)",
+        // "SUM(items.basePrice - items.totalDiscountAmt)",
+        // "SUM(all_total_amt)",
       ],
       groupBy: ["companyFunction.functionalities_name"],
       filter: [],
@@ -85,23 +85,6 @@ const SalesVerticalWiseTableView = () => {
     }
     return result;
   };
-
-  // const extractFields = (data, index) => ({
-  //   "SL No": index + 1,
-  //   "companyFunction.functionalities_name":
-  //     data["companyFunction.functionalities_name"],
-  //   "Sales Delivery Total Amount":
-  //     data["SUM(salesPgi.salesDelivery.totalAmount)"],
-  //   "Sales Pgi Total Amount": data["SUM(salesPgi.totalAmount)"],
-  //   Quotation: data["SUM(salesPgi.totalAmount)"],
-  //   "Sales Order": data["SUM(salesOrder.totalAmount)"],
-  //   "Total Qty": data["SUM(items.qty)"],
-  //   "Sub Total": data["SUM(items.basePrice - items.totalDiscountAmt)"],
-  //   "Total Amount": data["SUM(all_total_amt)"],
-  //   "Due Amount": data["SUM(due_amount)"],
-  //   invoice_date: formatDate(data["invoice_date"]),
-  // });
-
   useEffect(() => {
     if (sales?.content?.length) {
       const newItems = sales.content.flatMap((invoice) => {

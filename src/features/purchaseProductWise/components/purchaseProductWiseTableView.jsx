@@ -20,6 +20,7 @@ const PurchaseProductWiseTableView = () => {
         "SUM(items.goodQty)",
         "SUM(items.receivedQty)",
         "SUM(items.totalAmount)",
+        "grnCreatedAt",
         
       ],
       groupBy: ["items.goodName"],

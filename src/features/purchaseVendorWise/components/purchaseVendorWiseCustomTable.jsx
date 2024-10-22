@@ -105,8 +105,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
   const salesCustomerWise = useSelector(
     (state) => state.salescustomer.widgets
   );
-
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
+  const [tableData, setTableData] = useState([]);
+  const [dates, setDates] = useState(null);
 
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
@@ -122,7 +123,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
   const { data: searchData } = useGetGlobalsearchVendorQuery(filters, {
     skip: !searchQuery,
   });
-  // console.log("piyas3333333", searchData);
 
   // ....api calling from drop-down data ....
   const { data: columnData, refetch: refetchColumnvendor } = useGetSelectedColumnsVendorQuery();
@@ -133,12 +133,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
     useVendorWisePurchaseQuery({
       filters: {
         ...filters,
-         sortBy: sortColumn,
-         sortDir: sortOrder,
+        sortBy: sortColumn,
+        sortDir: sortOrder,
       },
       page: currentPage,
     });
-  console.log("piyas ninja", ProductData);
+
 
   const toast = useToast();
 
@@ -389,13 +389,32 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
     setSearchQuery("");
     setInputValue("");
     setColumnFilters({});
+    // setTableData(newArray);
+    window.location.reload();
+  };
+  const FiltersTrigger = () => {
     setSortColumn("");
-    setSortOrder("asc");
   };
 
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray];
 
+    // Global search
+    if (searchData?.content && searchData?.content.length > 0) {
+      filteredData = searchData.content;
+    }
+    // // Sorting
+    if (sortColumn) {
+      filteredData = [...filteredData].sort((a, b) => {
+        if (a[sortColumn] < b[sortColumn]) return sortOrder === "asc" ? -1 : 1;
+        if (a[sortColumn] > b[sortColumn]) return sortOrder === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+    // // Advanced filters
+    else if (VendorDataFilter?.content && VendorDataFilter?.content.length > 0) {
+      filteredData = VendorDataFilter.content;
+    }
     Object.keys(columnFilters).forEach((field) => {
       const filter = columnFilters[field];
       if (filter.condition && filter.value) {
@@ -443,40 +462,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
       }
     });
 
-    
-
-    // Apply global search filter (if searchQuery exists)
-    if (searchQuery) {
-      filteredData = filteredData.filter((item) => {
-        return Object.values(item).some((value) =>
-          String(value).toLowerCase().includes(searchQuery.toLowerCase())
-        );
-      });
-    }
-
-    // Apply sorting
-    if (sortColumn) {
-      filteredData.sort((a, b) => {
-        if (a[sortColumn] < b[sortColumn]) return sortOrder === "asc" ? -1 : 1;
-        if (a[sortColumn] > b[sortColumn]) return sortOrder === "asc" ? 1 : -1;
-        return 0;
-      });
-    }
-
-    // Filter data to only include selected columns
-    if (selectedColumns.length > 0) {
-      filteredData = filteredData.map((item) => {
-        const filteredItem = {};
-        selectedColumns.forEach((column) => {
-          filteredItem[column] = item[column];
-        });
-        return filteredItem;
-      });
-    }
-
-    return filteredData;
+    setTableData(filteredData);
   }, [
-    data,
     newArray,
     searchData,
     searchQuery,
@@ -613,11 +600,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
       columnType.includes("SUM(")
         ? handleApplyFiltersSUM()
         : handleApplyFilters();
-
-      setFilters((prevFilters) => ({
-        ...prevFilters,
-        size: 1000, // Update size to full
-      }));
     }
   };
 
@@ -995,7 +977,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
                             </Button>
                             <Popover
                               isOpen={activeFilterColumn === column}
-                              onClose={() => setActiveFilterColumn(null)}>
+                              onClose={() => setActiveFilterColumn(null)}
+                              autoFocus={false} // Prevent the popover from focusing automatically
+                              closeOnBlur={false} // Prevent the popover from closing when clicking outside
+                            >
                               <PopoverTrigger>
                                 <Button
                                   bg="transparent"
@@ -1007,19 +992,20 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
                                       style={{
                                         color: "slateblue",
                                         fontSize: "1.4rem",
-                                      }}></i>
+                                      }}
+                                    ></i>
                                   ) : (
                                     <i
                                       className="pi pi-filter"
                                       style={{
                                         color: "slateblue",
                                         fontSize: "1.4rem",
-                                      }}></i>
+                                      }}
+                                    ></i>
                                   )}
                                 </Button>
                               </PopoverTrigger>
                               {activeFilterColumn === column && (
-                                // .........Only show popover for the active column..........
                                 <PopoverContent w="120%">
                                   <PopoverArrow />
                                   <PopoverCloseButton size="lg" />
@@ -1031,76 +1017,70 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
                                           fontWeight="500"
                                           fontSize="14px"
                                           mt="10px"
-                                          mb="5px">
+                                          mb="5px"
+                                        >
                                           {formatHeader(column)}
                                         </Text>
-                                        <Box
-                                          display="flex"
-                                          flexDirection="column"
-                                          gap="10px">
+                                        <Box display="flex" flexDirection="column" gap="10px">
                                           <Select
                                             placeholder="Select condition"
                                             size="sm"
                                             fontSize="12px"
                                             h="35px"
-                                            onChange={
-                                              handleTempFilterConditionChange
-                                            }>
+                                            onChange={handleTempFilterConditionChange}
+                                          >
                                             <option value="equal">Equal</option>
-                                            <option value="notEqual">
-                                              Not Equal
-                                            </option>
+                                            <option value="notEqual">Not Equal</option>
                                             <option value="like">Like</option>
-                                            <option value="notLike">
-                                              Not Like
-                                            </option>
-                                            <option value="greaterThan">
-                                              Greater Than
-                                            </option>
-                                            <option value="greaterThanOrEqual">
-                                              Greater Than or Equal
-                                            </option>
-                                            <option value="lessThan">
-                                              Less Than
-                                            </option>
-                                            <option value="lessThanOrEqual">
-                                              Less Than or Equal
-                                            </option>
-                                            <option value="between">
-                                              Between
-                                            </option>
+                                            <option value="notLike">Not Like</option>
+                                            <option value="greaterThan">Greater Than</option>
+                                            <option value="greaterThanOrEqual">Greater Than or Equal</option>
+                                            <option value="lessThan">Less Than</option>
+                                            <option value="lessThanOrEqual">Less Than or Equal</option>
+                                            <option value="between">Between</option>
                                           </Select>
-                                          <Input
-                                            h="35px"
-                                            fontSize="12px"
-                                            padding="6px"
-                                            onChange={
-                                              handleTempFilterValueChange
-                                            }
-                                            // placeholder={`Filter ${column}`}
-                                            placeholder={"Search by name"}
-                                            value={tempFilterValue}
-                                            type={
-                                              tempFilterCondition === "between"
-                                                ? "string"
-                                                : "integer"
-                                            }
-                                          />
-                                          {tempFilterCondition ===
-                                            "between" && (
-                                              <>
-                                                <Input
-                                                  className="Between"
-                                                  h="35px"
-                                                  fontSize="12px"
-                                                  padding="6px"
-                                                  onChange={
-                                                    handleTempFilterValueChange
-                                                  }
-                                                  placeholder={`Filter ${column}`}
-                                                />
-                                              </>
-                                            )}
+
+                                          {tempFilterCondition === "between" ? (
+                                            <Box display="flex" gap="10px" flexDirection="column">
+                                              <Calendar
+                                                value={dates}
+                                                placeholder=" Select date"
+                                                style={{
+                                                  width: "100%",
+                                                  height: "35px",
+                                                  border: "1px solid #dee2e6",
+                                                  borderRadius: "5px",
+                                                }}
+                                                onChange={(e) => {
+                                                  const formattedDates = e.value.map((date) => {
+                                                    if (date) {
+                                                      // Adjust for timezone by setting the time to midnight in local time
+                                                      const adjustedDate = new Date(date);
+                                                      adjustedDate.setMinutes(adjustedDate.getMinutes() - adjustedDate.getTimezoneOffset());
+                                                      return adjustedDate.toISOString().split("T")[0];
+                                                    }
+                                                    return null;
+                                                  });
+                                                  setDates(e.value); // Store the selected range
+                                                  setTempFilterValue(formattedDates); // Set the value for filtering
+                                                }}
+                                                selectionMode="range"
+                                                readOnlyInput
+                                                hideOnRangeSelection
+                                              />
+                                            </Box>
+                                          ) : (
+                                            <Input
+                                              h="35px"
+                                              fontSize="12px"
+                                              padding="6px"
+                                              onChange={handleTempFilterValueChange}
+                                              placeholder="Search by value"
+                                              value={tempFilterValue}
+                                              type={tempFilterCondition === "like" ? "string" : "integer"}
+                                            />
+                                          )}
+
                                         </Box>
                                       </Box>
                                     </Box>
@@ -1110,7 +1090,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
                                     justifyContent="flex-end"
                                     width="90%"
                                     ml="8px"
-                                    mb="10px">
+                                    mb="10px"
+                                  >
                                     <Button
                                       bg="mainBlue"
                                       width="58px"
@@ -1121,7 +1102,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
                                         color: "white",
                                         bg: "mainBlue",
                                       }}
-                                      onClick={handleClick}>
+                                      onClick={() => {
+                                        handleClick();
+                                        FiltersTrigger();
+                                        setActiveFilterColumn(null);
+                                      }}
+                                    >
                                       Apply
                                     </Button>
                                   </Box>
@@ -1135,8 +1121,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
                   </Tr>
                 </Thead>
                 <Tbody>
-                  {filteredItems.length > 0 ? (
-                    filteredItems.map((item, index) => (
+                  {tableData.length > 0 ? (
+                    tableData.map((item, index) => (
                       <Tr key={index}>
                         {selectedColumns.map((column, colIndex) => (
                           <Td

@@ -108,6 +108,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const [configureChart, setConfigureChart] = useState({});
   const dispatch = useDispatch();
+  const [dates, setDates] = useState(null);
   const salesCustomerWise = useSelector(
     (state) => state.salescustomer.widgets
   );
@@ -246,6 +247,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     const selectedValue = e.value;
     setSelectedReport(selectedValue);
   };
+  const FiltersTrigger = () => {
+    setSortColumn("");
+  };
+
   // Clear all filters
   const clearAllFilters = () => {
     setSearchQuery("");
@@ -254,6 +259,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSortColumn("");
     setTempFilterCondition({});
     setTempFilterValue("");
+    window.location.reload();
   };
   //sort asc desc
   const handleSort = (column) => {
@@ -319,7 +325,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   const toggleColumn = (field) => {
-    if (field === "SL No") return;
     setTempSelectedColumns((prev) =>
       prev.includes(field)
         ? prev.filter((col) => col !== field)
@@ -341,11 +346,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
     let updatedColumns;
     if (selectAll) {
-      setTempSelectedColumns([]); // Deselect all in temporary state
-      updatedColumns = defaultColumns; // Restore default columns
+      setTempSelectedColumns([]); 
+      updatedColumns = defaultColumns; 
     } else {
-      setTempSelectedColumns(uniqueColumns); // Select all in temporary state
-      updatedColumns = uniqueColumns; // Select all columns
+      setTempSelectedColumns(uniqueColumns); 
+      updatedColumns = uniqueColumns; 
     }
 
     setSelectAll(!selectAll);
@@ -364,9 +369,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           return matchingColumn ? matchingColumn.listName || col : col;
         })
       )
-    ).filter((col) => col !== "SL No");
+    )
 
-    // Update filters with unique columns
     setFilters((prevFilters) => ({
       ...prevFilters,
       data: updatedSelectedColumns, // Replace data with unique selected listNames
@@ -439,98 +443,71 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray];
 
-    // Apply searchData from the API
-    if (searchData && searchData.length > 0) {
-      // Assuming searchData is an array of items
-      filteredData = filteredData.filter((item) => {
-        return searchData.some((searchItem) =>
-          Object.values(searchItem).some((value) =>
-            String(value)
-              .toLowerCase()
-              .includes(String(inputValue).toLowerCase())
-          )
-        );
-      });
+    // Global search
+    if (searchData?.content && searchData?.content.length > 0) {
+      filteredData = searchData.content;
     }
-    Object.keys(columnFilters).forEach((field) => {
-      const filter = columnFilters[field];
-      if (filter.condition && filter.value) {
-        filteredData = filteredData.filter((item) => {
-          const value = item[field];
-          switch (filter.condition) {
-            case "equal":
-              return (
-                String(value).toLowerCase() ===
-                String(filter.value).toLowerCase()
-              );
-            case "notEqual":
-              return (
-                String(value).toLowerCase() !==
-                String(filter.value).toLowerCase()
-              );
-            case "like":
-              return String(value)
-                .toLowerCase()
-                .includes(String(filter.value).toLowerCase());
-            case "notLike":
-              return !String(value)
-                .toLowerCase()
-                .includes(String(filter.value).toLowerCase());
-            case "greaterThan":
-              return Number(value) > Number(filter.value);
-            case "greaterThanOrEqual":
-              return Number(value) >= Number(filter.value);
-            case "lessThan":
-              return Number(value) < Number(filter.value);
-            case "lessThanOrEqual":
-              return Number(value) <= Number(filter.value);
-            case "between":
-              if (Array.isArray(filter.value) && filter.value.length === 2) {
-                return (
-                  Number(value) >= Number(filter.value[0]) &&
-                  Number(value) <= Number(filter.value[1])
-                );
-              }
-              return false;
-            default:
-              return true;
-          }
-        });
-      }
-    });
-
-    // Apply global search filter (if searchQuery exists)
-    if (searchQuery) {
-      filteredData = filteredData.filter((item) => {
-        return Object.values(item).some((value) =>
-          String(value).toLowerCase().includes(searchQuery.toLowerCase())
-        );
-      });
-    }
-
-    // Apply sorting
-    if (sortColumn) {
-      filteredData.sort((a, b) => {
+    // Sorting
+    else if (sortColumn) {
+      filteredData = [...filteredData].sort((a, b) => {
         if (a[sortColumn] < b[sortColumn]) return sortOrder === "asc" ? -1 : 1;
         if (a[sortColumn] > b[sortColumn]) return sortOrder === "asc" ? 1 : -1;
         return 0;
       });
     }
-
-    // Filter data to only include selected columns
-    if (selectedColumns.length > 0) {
-      filteredData = filteredData.map((item) => {
-        const filteredItem = {};
-        selectedColumns.forEach((column) => {
-          filteredItem[column] = item[column];
-        });
-        return filteredItem;
-      });
+    // Advanced filters
+    else if (PoWiseDataFilter?.content && PoWiseDataFilter?.content.length > 0) {
+      filteredData = PoWiseDataFilter.content;
     }
 
+    // Object.keys(columnFilters).forEach((field) => {
+    //   const filter = columnFilters[field];
+    //   if (filter.condition && filter.value) {
+    //     filteredData = filteredData.filter((item) => {
+    //       const value = item[field];
+    //       switch (filter.condition) {
+    //         case "equal":
+    //           return (
+    //             String(value).toLowerCase() ===
+    //             String(filter.value).toLowerCase()
+    //           );
+    //         case "notEqual":
+    //           return (
+    //             String(value).toLowerCase() !==
+    //             String(filter.value).toLowerCase()
+    //           );
+    //         case "like":
+    //           return String(value)
+    //             .toLowerCase()
+    //             .includes(String(filter.value).toLowerCase());
+    //         case "notLike":
+    //           return !String(value)
+    //             .toLowerCase()
+    //             .includes(String(filter.value).toLowerCase());
+    //         case "greaterThan":
+    //           return Number(value) > Number(filter.value);
+    //         case "greaterThanOrEqual":
+    //           return Number(value) >= Number(filter.value);
+    //         case "lessThan":
+    //           return Number(value) < Number(filter.value);
+    //         case "lessThanOrEqual":
+    //           return Number(value) <= Number(filter.value);
+    //         case "between":
+    //           if (Array.isArray(filter.value) && filter.value.length === 2) {
+    //             return (
+    //               Number(value) >= Number(filter.value[0]) &&
+    //               Number(value) <= Number(filter.value[1])
+    //             );
+    //           }
+    //           return false;
+    //         default:
+    //           return true;
+    //       }
+    //     });
+    //   }
+    // });
     return filteredData;
   }, [
-    data,
     newArray,
     searchData,
     searchQuery,
@@ -538,6 +515,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     sortColumn,
     sortOrder,
     selectedColumns,
+    PoWiseDataFilter
   ]);
 
   const formatHeader = (header) => {
@@ -628,31 +606,41 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
   const handleApplyFilters = () => {
     if (tempFilterCondition && tempFilterValue && activeFilterColumn) {
+      // For the "between" operator, the value must be an array
+      const filterValue = tempFilterCondition === "between" ? tempFilterValue : tempFilterValue;
+
       // Create a new filter object
       const newFilter = {
         column: activeFilterColumn,
         operator: tempFilterCondition,
-        type: typeof tempFilterValue === "number" ? "integer" : "string",
-        value: tempFilterValue,
+        type: tempFilterCondition === "between" ? "date" : (typeof tempFilterValue === "number" ? "integer" : "string"),
+        value: filterValue,
       };
+
       // Update localFilters state
       const updatedFilters = {
         ...localFilters,
         filter: [...localFilters.filter, newFilter],
       };
+
+      // Update column filters for the UI display
       setColumnFilters((prevFilters) => ({
         ...prevFilters,
         [activeFilterColumn]: {
           condition: tempFilterCondition,
-          value: tempFilterValue,
+          value: filterValue,
           column: activeFilterColumn,
-          type: typeof tempFilterValue === "number" ? "integer" : "string",
+          type: tempFilterCondition === "between" ? "date" : (typeof tempFilterValue === "number" ? "integer" : "string"),
         },
       }));
-      console.log("Updated Filters:", updatedFilters); // Debugging line
+
+      // Log the updated filters for debugging
+      console.log("Updated Filters:", updatedFilters);
+
       // Update local filters state
       setLocalFilters(updatedFilters);
       setFiltersApplied(true);
+
       // Clear temporary values
       setTempFilterCondition(null);
       setTempFilterValue("");
@@ -664,15 +652,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
   const handleClick = () => {
     if (activeFilterColumn) {
-      const columnType = activeFilterColumn; // Assuming activeFilterColumn holds the column type
+      const columnType = activeFilterColumn;
       columnType.includes("SUM(")
         ? handleApplyFiltersSUM()
         : handleApplyFilters();
 
-      setFilters((prevFilters) => ({
-        ...prevFilters,
-        size: 1000, // Update size to full
-      }));
     }
   };
 
@@ -971,7 +955,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 {...provided.droppableProps}
                 ref={provided.innerRef}
                 variant="simple">
-                <Thead>
+                <Thead
+                  style={{ position: "sticky", top: 0 }}
+                >
                   <Tr bg="#cfd8e1">
                     {selectedColumns.map((column, index) => (
                       <Draggable
@@ -1015,7 +1001,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                             </Button>
                             <Popover
                               isOpen={activeFilterColumn === column}
-                              onClose={() => setActiveFilterColumn(null)}>
+                              onClose={() => setActiveFilterColumn(null)}
+                              autoFocus={false} // Prevent the popover from focusing automatically
+                              closeOnBlur={false} // Prevent the popover from closing when clicking outside
+                            >
                               <PopoverTrigger>
                                 <Button
                                   bg="transparent"
@@ -1027,19 +1016,20 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                       style={{
                                         color: "slateblue",
                                         fontSize: "1.4rem",
-                                      }}></i>
+                                      }}
+                                    ></i>
                                   ) : (
                                     <i
                                       className="pi pi-filter"
                                       style={{
                                         color: "slateblue",
                                         fontSize: "1.4rem",
-                                      }}></i>
+                                      }}
+                                    ></i>
                                   )}
                                 </Button>
                               </PopoverTrigger>
                               {activeFilterColumn === column && (
-                                // .........Only show popover for the active column..........
                                 <PopoverContent w="120%">
                                   <PopoverArrow />
                                   <PopoverCloseButton size="lg" />
@@ -1051,75 +1041,70 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                           fontWeight="500"
                                           fontSize="14px"
                                           mt="10px"
-                                          mb="5px">
+                                          mb="5px"
+                                        >
                                           {formatHeader(column)}
                                         </Text>
-                                        <Box
-                                          display="flex"
-                                          flexDirection="column"
-                                          gap="10px">
+                                        <Box display="flex" flexDirection="column" gap="10px">
                                           <Select
                                             placeholder="Select condition"
                                             size="sm"
                                             fontSize="12px"
                                             h="35px"
-                                            onChange={
-                                              handleTempFilterConditionChange
-                                            }>
+                                            onChange={handleTempFilterConditionChange}
+                                          >
                                             <option value="equal">Equal</option>
-                                            <option value="notEqual">
-                                              Not Equal
-                                            </option>
+                                            <option value="notEqual">Not Equal</option>
                                             <option value="like">Like</option>
-                                            <option value="notLike">
-                                              Not Like
-                                            </option>
-                                            <option value="greaterThan">
-                                              Greater Than
-                                            </option>
-                                            <option value="greaterThanOrEqual">
-                                              Greater Than or Equal
-                                            </option>
-                                            <option value="lessThan">
-                                              Less Than
-                                            </option>
-                                            <option value="lessThanOrEqual">
-                                              Less Than or Equal
-                                            </option>
-                                            <option value="between">
-                                              Between
-                                            </option>
+                                            <option value="notLike">Not Like</option>
+                                            <option value="greaterThan">Greater Than</option>
+                                            <option value="greaterThanOrEqual">Greater Than or Equal</option>
+                                            <option value="lessThan">Less Than</option>
+                                            <option value="lessThanOrEqual">Less Than or Equal</option>
+                                            <option value="between">Between</option>
                                           </Select>
-                                          <Input
-                                            h="35px"
-                                            fontSize="12px"
-                                            padding="6px"
-                                            onChange={
-                                              handleTempFilterValueChange
-                                            }
-                                            // placeholder={`Filter ${column}`}
-                                            placeholder={"Search by name"}
-                                            value={tempFilterValue}
-                                            type={
-                                              tempFilterCondition === "between"
-                                                ? "integer"
-                                                : "string"
-                                            }
-                                          />
-                                          {tempFilterCondition ===
-                                            "between" && (
-                                              <>
-                                                <Input
-                                                  h="35px"
-                                                  fontSize="12px"
-                                                  padding="6px"
-                                                  onChange={
-                                                    handleTempFilterValueChange
-                                                  }
-                                                  placeholder={`Filter ${column}`}
-                                                />
-                                              </>
-                                            )}
+
+                                          {tempFilterCondition === "between" ? (
+                                            <Box display="flex" gap="10px" flexDirection="column">
+                                              <Calendar
+                                                value={dates}
+                                                placeholder=" Select date"
+                                                style={{
+                                                  width: "100%",
+                                                  height: "35px",
+                                                  border: "1px solid #dee2e6",
+                                                  borderRadius: "5px",
+                                                }}
+                                                onChange={(e) => {
+                                                  const formattedDates = e.value.map((date) => {
+                                                    if (date) {
+                                                      // Adjust for timezone by setting the time to midnight in local time
+                                                      const adjustedDate = new Date(date);
+                                                      adjustedDate.setMinutes(adjustedDate.getMinutes() - adjustedDate.getTimezoneOffset());
+                                                      return adjustedDate.toISOString().split("T")[0];
+                                                    }
+                                                    return null;
+                                                  });
+                                                  setDates(e.value); // Store the selected range
+                                                  setTempFilterValue(formattedDates); // Set the value for filtering
+                                                }}
+                                                selectionMode="range"
+                                                readOnlyInput
+                                                hideOnRangeSelection
+                                              />
+                                            </Box>
+                                          ) : (
+                                            <Input
+                                              h="35px"
+                                              fontSize="12px"
+                                              padding="6px"
+                                              onChange={handleTempFilterValueChange}
+                                              placeholder="Search by value"
+                                              value={tempFilterValue}
+                                              type={tempFilterCondition === "like" ? "string" : "integer"}
+                                            />
+                                          )}
+
                                         </Box>
                                       </Box>
                                     </Box>
@@ -1129,7 +1114,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                     justifyContent="flex-end"
                                     width="90%"
                                     ml="8px"
-                                    mb="10px">
+                                    mb="10px"
+                                  >
                                     <Button
                                       bg="mainBlue"
                                       width="58px"
@@ -1140,7 +1126,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                         color: "white",
                                         bg: "mainBlue",
                                       }}
-                                      onClick={handleClick}>
+                                      onClick={() => {
+                                        handleClick();
+                                        FiltersTrigger();
+                                        setActiveFilterColumn(null);
+                                      }}
+                                    >
                                       Apply
                                     </Button>
                                   </Box>
