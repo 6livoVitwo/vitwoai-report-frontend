@@ -1,31 +1,74 @@
-import {
-  Box,
-  Button,
-  Input,
-  Select,
-  Stack,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Text,
-  Tfoot,
-  Th,
-  Thead,
-  Tr
-} from "@chakra-ui/react";
+import { Box, Button, Input, Select, Spinner, Stack, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr } from "@chakra-ui/react";
 import { useState } from "react";
+
+const iniTableData = [
+  {
+    name: "John",
+    age: 32,
+    address: "New York No. 1 Lake Park"
+  },
+  {
+    name: "Jane",
+    age: 42,
+    address: "London No. 1 Lake Park"
+  },
+  {
+    name: "Jim",
+    age: 32,
+    address: "Sidney No. 1 Lake Park"
+  },
+  {
+    name: "Joe",
+    age: 32,
+    address: "Sidney No. 1 Lake Park"
+  }
+]
 
 const TestTableComp = () => {
   const [intervalDays, setIntervalDays] = useState(50);
-  const [bucket, setBucket] = useState(8);
+  const [bucket, setBucket] = useState(5);
   const [allBuckets, setAllBuckets] = useState([]);
   const [selectedBucket, setSelectedBucket] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [executionTime, setExecutionTime] = useState(0);
+  const [tableData, setTableData] = useState(iniTableData);
+
+  // const handleBucketCreateButton = () => {
+  //   if (isLoading) return;
+  //   setIsLoading(true);
+  //   setAllBuckets([]);
+
+  //   const startTime = performance.now();
+
+  //   const newBuckets = [];
+  //   const maxVal = (bucket * intervalDays) - intervalDays;
+
+  //   for (let i = 0; i < bucket; i++) {
+  //     const start = i * intervalDays + (i > 0 ? 1 : 0);
+  //     const end = (i + 1) * intervalDays;
+
+  //     if (end <= maxVal) {
+  //       newBuckets.push({
+  //         value: `${start}-${end}`,
+  //         label: `${start}-${end}`,
+  //       });
+  //     } else {
+  //       newBuckets.push({
+  //         value: `>${maxVal}`,
+  //         label: `>${maxVal}`,
+  //       });
+  //       break;
+  //     }
+  //   }
+  //   setAllBuckets(newBuckets);
+
+  //   const endTime = performance.now();
+  //   const timeTaken = (endTime - startTime).toFixed(2);
+  //   setExecutionTime(timeTaken);
+  //   setIsLoading(false); // Stop loading
+  // };
 
   const handleBucketCreateButton = () => {
-    // Prevent triggering if already loading
     if (isLoading) return;
 
     setIsLoading(true);
@@ -34,23 +77,48 @@ const TestTableComp = () => {
     const startTime = performance.now();
 
     const newBuckets = [];
-    for (let i = 1; i <= bucket; i++) {
-      const start = (i - 1) * intervalDays + 1;
-      const end = i * intervalDays;
-      newBuckets.push({
-        value: `${start}-${end}`,
-        label: `${start}-${end}`,
-      });
-    }
+    const maxVal = bucket * intervalDays;
+    const maxBuckets = 1000; // Set a reasonable limit
+    const actualBuckets = Math.min(bucket, maxBuckets);
+    let randVal = Math.floor(Math.random() * maxVal);
+    const createBuckets = (i) => {
+      if (i < actualBuckets) {
+        const start = i * intervalDays + (i > 0 ? 1 : 0);
+        const end = (i + 1) * intervalDays;
 
-    setAllBuckets(newBuckets); // Update buckets
+        if (end < maxVal) {
+          newBuckets.push({
+            value: i * end + 20,
+            label: `${start}-${end}`,
+          });
+        } else {
+          newBuckets.push({
+            value: i * start,
+            label: `>${maxVal - intervalDays}`,
+          });
+          setAllBuckets(newBuckets);
+          setIsLoading(false); // Stop loading
+          const endTime = performance.now();
+          const timeTaken = (endTime - startTime).toFixed(2);
+          setExecutionTime(timeTaken);
+          return; // Stop the recursion
+        }
 
-    const endTime = performance.now();
-    const timeTaken = (endTime - startTime).toFixed(2); // Calculate execution time
-    setExecutionTime(timeTaken); // Set execution time
-    setIsLoading(false); // Stop loading
+        // Schedule the next call
+        setTimeout(() => createBuckets(i + 1), 0);
+      } else {
+        setAllBuckets(newBuckets);
+        const endTime = performance.now();
+        const timeTaken = (endTime - startTime).toFixed(2);
+        setExecutionTime(timeTaken);
+        setIsLoading(false); // Stop loading
+      }
+    };
+
+    createBuckets(0);
   };
-
+  console.log("allBuckets", allBuckets);
+const randVal = Math.floor(Math.random() * 20);
   return (
     <>
       <div>TestTableComp</div>
@@ -62,9 +130,8 @@ const TestTableComp = () => {
       >
         <Stack
           direction="column"
-          spacing={4}
           align="left"
-          my={4}
+          gap={0}
           width={"20%"}
           sx={{
             border: "1px solid #dee2e6",
@@ -73,40 +140,21 @@ const TestTableComp = () => {
           }}
         >
           <Text>Input Range</Text>
+          <Text fontSize='xs'>Interval in days</Text>
           <Input
             placeholder="Interval in days"
             value={intervalDays}
-            onChange={(e) => setIntervalDays(parseInt(e.target.value) || 0)} // Ensure numeric value
+            onChange={(e) => setIntervalDays(parseInt(e.target.value) || 0)}
           />
+          <Text fontSize='xs'>Number of Buckets</Text>
           <Input
             placeholder="Number of Buckets"
             value={bucket}
-            onChange={(e) => setBucket(parseInt(e.target.value) || 0)} // Ensure numeric value
+            onChange={(e) => setBucket(parseInt(e.target.value) || 0)}
           />
-          <Button colorScheme="green" onClick={handleBucketCreateButton} isLoading={isLoading}>
+          <Button colorScheme="green" mt={4} onClick={handleBucketCreateButton} isLoading={isLoading}>
             Save
           </Button>
-        </Stack>
-
-        {/* Select Date Range */}
-        <Stack
-          sx={{
-            width: "20%",
-          }}
-        >
-          <Text>Select Date Range</Text>
-          <Select
-            placeholder={isLoading ? "Loading..." : "Select Bucket"}
-            value={selectedBucket}
-            onChange={(e) => setSelectedBucket(e.target.value)}
-            isDisabled={isLoading} // Disable while loading
-          >
-            {allBuckets.map((bucket, index) => (
-              <option key={index} value={bucket.value}>
-                {bucket.label}
-              </option>
-            ))}
-          </Select>
         </Stack>
       </Box>
 
@@ -119,44 +167,39 @@ const TestTableComp = () => {
             borderRadius: "8px",
             borderCollapse: "separate",
             borderSpacing: "0 5px",
+            my:5
           }}
         >
-          <Thead>
+          <Thead sx={{ backgroundColor: "#f8f9fa" }} >
             <Tr>
-              <Th>To convert</Th>
-              <Th>into</Th>
-              <Th isNumeric>multiply by</Th>
+              <Th>Name</Th>
+              <Th isNumeric>Age</Th>
+              <Th>Address</Th>
+              {allBuckets.map((bucket, index) => (
+                <Th key={index}>{bucket.label}</Th>
+              ))}
             </Tr>
           </Thead>
           <Tbody>
-            <Tr>
-              <Td>inches</Td>
-              <Td>millimetres (mm)</Td>
-              <Td isNumeric>25.4</Td>
-            </Tr>
-            <Tr>
-              <Td>feet</Td>
-              <Td>centimetres (cm)</Td>
-              <Td isNumeric>30.48</Td>
-            </Tr>
-            <Tr>
-              <Td>yards</Td>
-              <Td>metres (m)</Td>
-              <Td isNumeric>0.91444</Td>
-            </Tr>
+            {tableData.map((data, index) => (
+              <Tr key={index}>
+                <Td>{data.name}</Td>
+                <Td isNumeric>{data.age}</Td>
+                <Td>{data.address}</Td>
+                {allBuckets.map((bucket, index) => (
+                  <Td key={index}>{Math.floor(Math.random() * 20) }</Td>
+                ))}
+              </Tr>
+            ))}
           </Tbody>
-          <Tfoot>
-            <Tr>
-              <Th>To convert</Th>
-              <Th>into</Th>
-              <Th isNumeric>multiply by</Th>
-            </Tr>
-          </Tfoot>
         </Table>
       </TableContainer>
-      
-      {/* Display Execution Time */}
-      <Text mt={4}>Execution Time: {executionTime} ms</Text>
+      {isLoading ? <Spinner /> :
+        <>
+          <Text>Execution Time: {(executionTime / 1000).toFixed(2)} (second)</Text>
+          <Text>Execution Time: {executionTime} (ms)</Text>
+        </>
+      }
     </>
   );
 };

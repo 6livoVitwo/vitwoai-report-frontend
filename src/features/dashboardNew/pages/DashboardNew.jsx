@@ -9,6 +9,7 @@ import DynamicChart from '../components/DynamicChart';
 import NewMyCharts from '../nivo/NewMyCharts';
 import TestComp from '../components/TestComp';
 import TestTableComp from '../components/TestTableComp';
+import TestProductTableComp from '../components/TestProductTableComp';
 
 const DashboardNew = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -40,6 +41,7 @@ const DashboardNew = () => {
         <>
         <Box>
             <TestTableComp />
+            {/* <TestProductTableComp /> */}
         </Box>
             <Box
                 sx={{
