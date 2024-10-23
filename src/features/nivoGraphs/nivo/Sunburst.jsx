@@ -1,6 +1,6 @@
 import { ResponsiveSunburst } from '@nivo/sunburst'
 import React from 'react'
-import { sunburstChartData } from '../data/chartData'
+import { sunburstChartData } from "../jsonData/chartData";
 
 const Sunburst = ({ data = sunburstChartData }) => {
     return (

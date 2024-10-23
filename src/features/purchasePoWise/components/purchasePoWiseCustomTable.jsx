@@ -67,7 +67,7 @@ import { saveAs } from "file-saver";
 import { useDispatch } from "react-redux";
 import { FiPlus, FiSettings } from "react-icons/fi";
 import NewMyCharts from "../../dashboardNew/nivo/NewMyCharts";
-import { chartsData } from "../../nivoGraphs/data/fakeData";
+import { chartsData } from "../../nivoGraphs/jsonData/graphSkeleton";
 import { useSelector } from "react-redux";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import { faFileExcel } from "@fortawesome/free-solid-svg-icons";

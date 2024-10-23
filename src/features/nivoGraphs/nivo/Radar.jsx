@@ -1,5 +1,5 @@
 import React from 'react'
-import { radarChartData } from '../data/chartData'
+import { radarChartData } from "../jsonData/chartData";
 import { ResponsiveRadar } from '@nivo/radar'
 
 const RadarChart = ({data = radarChartData}) => {

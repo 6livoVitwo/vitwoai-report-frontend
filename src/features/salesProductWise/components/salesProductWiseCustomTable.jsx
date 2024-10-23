@@ -78,7 +78,7 @@ import { useGetGlobalsearchProductQuery } from "../slice/salesProductWiseApi";
 import { all } from "axios";
 import DynamicChart from "../../nivoGraphs/chartConfigurations/DynamicChart";
 import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfiguration";
-import { chartsData } from "../../nivoGraphs/data/fakeData";
+import { chartsData } from "../../nivoGraphs/jsonData/graphSkeleton";
 import { useDispatch } from "react-redux";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import { MdFullscreen } from "react-icons/md";

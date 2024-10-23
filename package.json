@@ -70,6 +70,7 @@
     "react-scripts": "5.0.1",
     "react-simple-typewriter": "^5.0.1",
     "react-spinners": "^0.13.8",
+    "react-window": "^1.8.10",
     "recharts": "^2.12.6",
     "uuid": "^9.0.1",
     "web-vitals": "^2.1.4",

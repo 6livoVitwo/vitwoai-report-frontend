@@ -1,6 +1,6 @@
 import { ResponsiveLine } from "@nivo/line";
 import React from "react";
-import { lineChartData } from "../data/chartData";
+import { lineChartData } from "../jsonData/chartData";
 
 const Line = ({ data = lineChartData, dynamicWidth }) => {
 

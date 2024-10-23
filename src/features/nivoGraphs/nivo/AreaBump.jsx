@@ -1,6 +1,6 @@
 import React from "react";
 import { ResponsiveAreaBump } from "@nivo/bump";
-import { areaBumpData } from "../data/chartData";
+import { areaBumpData } from "../jsonData/chartData";
 
 const AreaBump = ({ data = areaBumpData, dynamicWidth }) => {
 

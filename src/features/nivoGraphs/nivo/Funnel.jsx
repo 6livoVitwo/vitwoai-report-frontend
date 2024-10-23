@@ -1,6 +1,6 @@
 import { ResponsiveFunnel } from '@nivo/funnel';
 import React from 'react';
-import { funnelChartData } from '../data/chartData';
+import { funnelChartData } from "../jsonData/chartData";
 
 const Funnel = ({ data = funnelChartData, dynamicWidth=1200 }) => {
 	return (

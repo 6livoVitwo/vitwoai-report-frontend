@@ -69,7 +69,7 @@ import NewMyCharts from "../../dashboardNew/nivo/NewMyCharts";
 import { useGetGlobalsearchCustomerQuery } from "../slice/customerWiseSalesApi";
 import { useCustomerWiseSalesQuery } from "../slice/customerWiseSalesApi";
 import { useGetSelectedColumnscustomerQuery } from "../slice/customerWiseSalesApi";
-import { chartsData } from "../../nivoGraphs/data/fakeData";
+import { chartsData } from "../../nivoGraphs/jsonData/graphSkeleton";
 import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfiguration";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import { useDispatch } from "react-redux";

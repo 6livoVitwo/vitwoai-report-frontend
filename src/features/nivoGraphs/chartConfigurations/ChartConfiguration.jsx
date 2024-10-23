@@ -1,42 +1,17 @@
 import React, { useEffect, useState } from "react";
-import {
-  Alert,
-  AlertIcon,
-  Box,
-  Button,
-  Divider,
-  Grid,
-  Heading,
-  Select,
-  Spinner,
-  Stack,
-  useToast,
-  Text,
-  Badge,
-  Card,
-  CardFooter,
-  CardBody,
-} from "@chakra-ui/react";
+import { Alert, AlertIcon, Box, Button, Divider, Grid, Heading, Select, Spinner, Stack, useToast, Text, Badge, Card, CardFooter, CardBody } from "@chakra-ui/react";
 import { capitalizeWord } from "../../../utils/common";
 import { MdRemoveRedEye, MdSave } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { Accordion, AccordionTab } from "primereact/accordion";
 import { MultiSelect } from "primereact/multiselect";
-
 import { split } from "lodash";
-
 import AreaBumpChart from "../chartSettings/AreaBumpChart";
 import BumpChart from "../chartSettings/BumpChart";
 import LineChart from "../chartSettings/LineChart";
 import FunnelChart from "../chartSettings/FunnelChart";
 import BarChart from "../chartSettings/BarChart";
-import {
-  calculateCount,
-  createBodyWise,
-  setDateRange,
-  updateBodyWise,
-  updateCountAndWidth,
-} from "../graphUtils/common";
+import { calculateCount, createBodyWise, setDateRange, updateBodyWise, updateCountAndWidth } from "../graphUtils/common";
 import TypingMaster from "../../dashboardNew/components/TypingMaster";
 import { useDynamicNewQuery } from "./graphApi";
 import { addWidget, updateWidget } from "./graphSlice";
@@ -562,32 +537,32 @@ const ChartConfiguration = ({ configureChart }) => {
   // ];
 
   // console.log("yAxisOptions", yAxisOptions);
-  
-const yAxisOptions = () => {
-  if (reportType === "sales") {
-    return [
-      {
-        value: "salesPgi.salesDelivery.totalAmount",
-        label: "Sales PGI Delivery Amount",
-      },
-      { value: "salesPgi.totalAmount", label: "Sales PGI Amount" },
-      { value: "quotation.totalAmount", label: "Quotation Amount" },
-      { value: "salesOrder.totalAmount", label: "Sales Order Amount" },
-      { value: "all_total_amt", label: "All Total Amount" },
-    ];
-  } else if (reportType === "purchase") {
-    return [
-      {
-        value: "grnInvoice.grnSubTotal",
-        label: "GRN Subtotal",
-      },
-      { value: "grnInvoice.grnTotalCgst", label: "GRN Total CGST" },
-      { value: "grnInvoice.grnTotalIgst", label: "GRN Total IGST" },
-      { value: "grnInvoice.grnTotalAmount", label: "GRN Total Amount" },
-    ];
-  }
-  return [];
-};
+
+  const yAxisOptions = () => {
+    if (reportType === "sales") {
+      return [
+        {
+          value: "salesPgi.salesDelivery.totalAmount",
+          label: "Sales PGI Delivery Amount",
+        },
+        { value: "salesPgi.totalAmount", label: "Sales PGI Amount" },
+        { value: "quotation.totalAmount", label: "Quotation Amount" },
+        { value: "salesOrder.totalAmount", label: "Sales Order Amount" },
+        { value: "all_total_amt", label: "All Total Amount" },
+      ];
+    } else if (reportType === "purchase") {
+      return [
+        {
+          value: "grnInvoice.grnSubTotal",
+          label: "GRN Subtotal",
+        },
+        { value: "grnInvoice.grnTotalCgst", label: "GRN Total CGST" },
+        { value: "grnInvoice.grnTotalIgst", label: "GRN Total IGST" },
+        { value: "grnInvoice.grnTotalAmount", label: "GRN Total Amount" },
+      ];
+    }
+    return [];
+  };
 
 
   const handleYAxisChange = (e) => {

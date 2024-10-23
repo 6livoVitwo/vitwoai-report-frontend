@@ -62,7 +62,7 @@ import {
 import { saveAs } from "file-saver";
 import { useSelector } from "react-redux";
 import { FiPlus, FiSettings } from "react-icons/fi";
-import { chartsData } from "../../nivoGraphs/data/fakeData";
+import { chartsData } from "../../nivoGraphs/jsonData/graphSkeleton";
 import { faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { DownloadIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";

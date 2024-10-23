@@ -1,6 +1,6 @@
 import { ResponsiveParallelCoordinates } from "@nivo/parallel-coordinates";
 import React from "react";
-import { parallelCoordinatesChartData } from "../data/chartData";
+import { parallelCoordinatesChartData } from "../jsonData/chartData";
 
 
 const ParallelCoordinate = ({ data = parallelCoordinatesChartData }) => {

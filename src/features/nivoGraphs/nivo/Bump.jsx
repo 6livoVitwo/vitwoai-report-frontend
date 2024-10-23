@@ -1,6 +1,6 @@
 import { ResponsiveBump } from '@nivo/bump'
 import React from 'react'
-import { bumpChartData } from '../data/chartData'
+import { bumpChartData } from "../jsonData/chartData";
 
 const Bump = ({ data = bumpChartData, dynamicWidth }) => {
 
