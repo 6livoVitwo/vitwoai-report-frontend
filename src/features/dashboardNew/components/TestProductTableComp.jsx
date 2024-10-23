@@ -6,18 +6,29 @@ import { useGetAllProductsQuery } from "../slice/graphApi";
 
 const body = {
   "data": [
-    "items.goodName",
-    "items.goodCode",
-    "SUM(items.goodQty)",
     "SUM(items.receivedQty)",
-    "SUM(items.totalAmount)"
+    "SUM(grnInvoice.grnTotalTds)",
+    "SUM(grnInvoice.grnTotalSgst)",
+    "SUM(grnInvoice.grnTotalIgst)",
+    "grnCreatedBy",
+    "grnCode",
+    "dueDate",
+    "grnCreatedAt",
+    "items.goodName",
+    "grnUpdatedAt",
+    "SUM(items.goodQty)",
+    "SUM(items.unitPrice)",
+    "SUM(grnInvoice.grnTotalCgst)",
+    "SUM(items.totalAmount)",
+    "items.goodCode",
+    "grnUpdatedBy"
   ],
   "groupBy": [
     "items.goodName"
   ],
   "filter": [],
   "page": 0,
-  "size": 50,
+  "size": 25,
   "sortDir": "asc",
   "sortBy": "items.goodName"
 }
@@ -30,7 +41,7 @@ const TestProductTableComp = () => {
     body
   });
 
-  console.log({ allProducts, isSuccess, isLoading })
+  console.log({ allProducts, isSuccess, isLoading });
 
   const keys = allProducts?.content?.length ? Object.keys(allProducts?.content[0]) : [];
 
@@ -110,13 +121,6 @@ const TestProductTableComp = () => {
               ))
             }
           </Tbody>
-          <Tfoot>
-            <Tr>
-              <Th>To convert</Th>
-              <Th>into</Th>
-              <Th isNumeric>multiply by</Th>
-            </Tr>
-          </Tfoot>
         </Table>
       </TableContainer>
     </>
