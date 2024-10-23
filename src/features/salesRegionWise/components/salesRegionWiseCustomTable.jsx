@@ -432,26 +432,6 @@ const CustomTable = ({
     });
   }, [sortColumn, sortOrder, refetchKamWiseSales]); 
 
-  // const handleSort = (column) => {
-  //   const newSortOrder =
-  //     sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
-  //   // Update sort state with the column
-  //   setSortColumn(column);
-  //   setSortOrder(newSortOrder);
-  // };
-
-  // Trigger the API call when sortColumn, sortOrder, or filters change
-  // useEffect(() => {
-  //   refetchKamWiseSales({
-  //     filters: {
-  //       ...filters,
-  //       filter: mapFilters(filters.filter), // Ensure filters are mapped dynamically
-  //       sortBy: columnMappings[sortColumn] || sortColumn, // Map sortBy dynamically
-  //       sortDir: sortOrder,
-  //     },
-  //     page: currentPage,
-  //   });
-  // }, [sortColumn, sortOrder, filters.filter, refetchKamWiseSales]);
 
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray]; // Copy the original data
@@ -1028,7 +1008,7 @@ const CustomTable = ({
                             fontFamily="Poppins, sans-serif"
                             color="black">
                             {formatHeader(column)}
-
+                            {column !== "SL No" && !column.toLowerCase().includes("sum") && (
                             <Button
                               className="A_to_Z"
                               bg="none"
@@ -1050,7 +1030,7 @@ const CustomTable = ({
                                 />
                               )}
                             </Button>
-
+                            )}
                             <Popover
                               isOpen={activeFilterColumn === column}
                               onClose={() => setActiveFilterColumn(null)}>

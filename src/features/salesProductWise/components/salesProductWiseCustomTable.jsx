@@ -405,7 +405,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
     setSortColumn(column);
     setSortOrder(newSortOrder);
-  }; 
+  };
   useEffect(() => {
     refetchProductWiseSales({
       filters: {
@@ -1072,7 +1072,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                           >
                             {/* A-Z Filter  */}
                             {formatHeader(column)}
-                            {column !== "SL No" && (
+                            {column !== "SL No" && !column.toLowerCase().includes("sum") && (
                               <Button
                                 className="A_to_Z"
                                 bg="none"

@@ -993,7 +993,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                             color="black"
                           >
                             {formatHeader(column)}
-
+                            {column !== "SL No" && !column.toLowerCase().includes("sum") && (
                             <Button
                               className="A_to_Z"
                               bg="none"
@@ -1016,6 +1016,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                 />
                               )}
                             </Button>
+                            )}
                             <Popover
                               isOpen={activeFilterColumn === column}
                               onClose={() => setActiveFilterColumn(null)}
