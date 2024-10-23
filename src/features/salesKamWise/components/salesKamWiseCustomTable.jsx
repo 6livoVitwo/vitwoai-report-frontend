@@ -419,61 +419,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     else if (kamDataFilter?.content && kamDataFilter?.content.length > 0) {
       filteredData = kamDataFilter.content;
     }
-    // Object.keys(columnFilters).forEach((field) => {
-    //   const filter = columnFilters[field];
-    //   if (filter.condition && filter.value) {
-    //     filteredData = filteredData.filter((item) => {
-    //       const value = item[field];
-    //       switch (filter.condition) {
-    //         case "equal":
-    //           return (
-    //             String(value).toLowerCase() ===
-    //             String(filter.value).toLowerCase()
-    //           );
-    //         case "notEqual":
-    //           return (
-    //             String(value).toLowerCase() !==
-    //             String(filter.value).toLowerCase()
-    //           );
-    //         case "like":
-    //           return String(value)
-    //             .toLowerCase()
-    //             .includes(String(filter.value).toLowerCase());
-    //         case "notLike":
-    //           return !String(value)
-    //             .toLowerCase()
-    //             .includes(String(filter.value).toLowerCase());
-    //         case "greaterThan":
-    //           return Number(value) > Number(filter.value);
-    //         case "greaterThanOrEqual":
-    //           return Number(value) >= Number(filter.value);
-    //         case "lessThan":
-    //           return Number(value) < Number(filter.value);
-    //         case "lessThanOrEqual":
-    //           return Number(value) <= Number(filter.value);
-    //         case "between":
-    //           if (Array.isArray(filter.value) && filter.value.length === 2) {
-    //             return (
-    //               Number(value) >= Number(filter.value[0]) &&
-    //               Number(value) <= Number(filter.value[1])
-    //             );
-    //           }
-    //           return false;
-    //         default:
-    //           return true;
-    //       }
-    //     });
-    //   }
-    // });
-
-    // if (searchQuery) {
-    //   filteredData = filteredData.filter((item) => {
-    //     return Object.values(item).some((value) =>
-    //       String(value).toLowerCase().includes(searchQuery.toLowerCase())
-    //     );
-    //   });
-    // }
-
     return filteredData;
   }, [
     newArray,
