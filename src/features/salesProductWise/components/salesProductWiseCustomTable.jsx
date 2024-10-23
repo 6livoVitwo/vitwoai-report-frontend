@@ -437,6 +437,56 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     else if (productDataFilter?.content && productDataFilter?.content.length > 0) {
       filteredData = productDataFilter.content;
     }
+    Object.keys(columnFilters).forEach((field) => {
+      const filter = columnFilters[field];
+      if (filter.condition && filter.value) {
+        filteredData = filteredData.filter((item) => {
+          const value = item[field];
+          switch (filter.condition) {
+            case "equal":
+              return (
+                String(value).toLowerCase() ===
+                String(filter.value).toLowerCase()
+              );
+            case "notEqual":
+              return (
+                String(value).toLowerCase() !==
+                String(filter.value).toLowerCase()
+              );
+            case "like":
+              return String(value)
+                .toLowerCase()
+                .includes(String(filter.value).toLowerCase());
+            case "notLike":
+              return !String(value)
+                .toLowerCase()
+                .includes(String(filter.value).toLowerCase());
+            case "greaterThan":
+              return Number(value) > Number(filter.value);
+            case "greaterThanOrEqual":
+              return Number(value) >= Number(filter.value);
+            case "lessThan":
+              return Number(value) < Number(filter.value);
+            case "lessThanOrEqual":
+              return Number(value) <= Number(filter.value);
+            case "between":
+              if (Array.isArray(filter.value) && filter.value.length === 2) {
+                const startDate = new Date(filter.value[0]);
+                const endDate = new Date(filter.value[1]);
+                const itemDate = new Date(value);
+
+                if (!isNaN(itemDate.getTime())) {
+                  return itemDate >= startDate && itemDate <= endDate;
+                }
+              }
+
+              return false;
+            default:
+              return true;
+          }
+        });
+      }
+    });
     return filteredData;
 
   }, [
@@ -581,7 +631,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       columnType.includes("SUM(")
         ? handleApplyFiltersSUM()
         : handleApplyFilters();
-
+       setFilters((prevFilters) => ({
+         ...prevFilters,
+         size: 1000,
+       }))
     }
   };
 
