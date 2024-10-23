@@ -384,7 +384,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const handleSearchChange = (e) => {
     setInputValue(e.target.value);
   };
-
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSearchClick();
+    }
+  };
   const handleSearchClick = () => {
     const filteredColumns = selectedColumns.filter(column => !column.includes('SUM'));
     const updatedFilters = {
@@ -694,6 +698,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           <Input
             onChange={handleSearchChange}
             value={inputValue}
+            onKeyDown={handleKeyDown}
             width="100%"
             bg="#dedede"
             padding="15px"

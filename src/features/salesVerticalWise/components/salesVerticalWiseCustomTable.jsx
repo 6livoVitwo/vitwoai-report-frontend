@@ -425,52 +425,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     else if (advancedFilterVertical?.content && advancedFilterVertical?.content.length > 0) {
       filteredData = advancedFilterVertical.content;
     }
-    // Object.keys(columnFilters).forEach((field) => {
-    //   const filter = columnFilters[field];
-    //   if (filter.condition && filter.value) {
-    //     filteredData = filteredData.filter((item) => {
-    //       const value = item[field];
-    //       switch (filter.condition) {
-    //         case "equal":
-    //           return (
-    //             String(value).toLowerCase() ===
-    //             String(filter.value).toLowerCase()
-    //           );
-    //         case "notEqual":
-    //           return (
-    //             String(value).toLowerCase() !==
-    //             String(filter.value).toLowerCase()
-    //           );
-    //         case "like":
-    //           return String(value)
-    //             .toLowerCase()
-    //             .includes(String(filter.value).toLowerCase());
-    //         case "notLike":
-    //           return !String(value)
-    //             .toLowerCase()
-    //             .includes(String(filter.value).toLowerCase());
-    //         case "greaterThan":
-    //           return Number(value) > Number(filter.value);
-    //         case "greaterThanOrEqual":
-    //           return Number(value) >= Number(filter.value);
-    //         case "lessThan":
-    //           return Number(value) < Number(filter.value);
-    //         case "lessThanOrEqual":
-    //           return Number(value) <= Number(filter.value);
-    //         case "between":
-    //           if (Array.isArray(filter.value) && filter.value.length === 2) {
-    //             return (
-    //               Number(value) >= Number(filter.value[0]) &&
-    //               Number(value) <= Number(filter.value[1])
-    //             );
-    //           }
-    //           return false;
-    //         default:
-    //           return true;
-    //       }
-    //     });
-    //   }
-    // });
     return filteredData;
   }, [
     newArray,
@@ -478,6 +432,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     columnFilters,
     sortColumn,
     sortOrder,
+    searchData,
     advancedFilterVertical
   ]);
 
@@ -1033,27 +988,27 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
                             {/* sort A to Z */}
                             {column !== "SL No" && !column.toLowerCase().includes("sum") && (
-                            <Button
-                              className="A_to_Z"
-                              bg="none"
-                              _hover={{ bg: "none" }}
-                              onClick={() => handleSort(column)}>
-                              {sortColumn === column ? (
-                                sortOrder === "asc" ? (
-                                  <FontAwesomeIcon
-                                    icon={faArrowDownShortWide}
-                                  />
+                              <Button
+                                className="A_to_Z"
+                                bg="none"
+                                _hover={{ bg: "none" }}
+                                onClick={() => handleSort(column)}>
+                                {sortColumn === column ? (
+                                  sortOrder === "asc" ? (
+                                    <FontAwesomeIcon
+                                      icon={faArrowDownShortWide}
+                                    />
+                                  ) : (
+                                    <FontAwesomeIcon icon={faArrowUpWideShort} />
+                                  )
                                 ) : (
-                                  <FontAwesomeIcon icon={faArrowUpWideShort} />
-                                )
-                              ) : (
-                                <FontAwesomeIcon
-                                  icon={faArrowRightArrowLeft}
-                                  rotation={90}
-                                  fontSize="13px"
-                                />
-                              )}
-                            </Button>
+                                  <FontAwesomeIcon
+                                    icon={faArrowRightArrowLeft}
+                                    rotation={90}
+                                    fontSize="13px"
+                                  />
+                                )}
+                              </Button>
                             )}
                             <Popover
                               isOpen={activeFilterColumn === column}
