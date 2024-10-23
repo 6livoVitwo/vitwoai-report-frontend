@@ -40,7 +40,7 @@ const DashboardNew = () => {
     return (
         <>
         <Box>
-            {/* <TestTableComp /> */}
+            <TestTableComp />
             <TestProductTableComp />
         </Box>
             <Box
