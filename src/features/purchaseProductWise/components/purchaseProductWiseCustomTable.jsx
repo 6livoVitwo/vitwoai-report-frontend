@@ -285,7 +285,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     newColumnsOrder.splice(result.destination.index, 0, removed);
     setSelectedColumns(newColumnsOrder);
   };
-
+  const clearPriviewColumnData = () => {
+    setPage(1);
+  }
   // Handle column selection
   const toggleColumn = (field) => {
     if (field === "SL No") return
@@ -331,7 +333,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         })
       )
     ).filter((col) => col !== "SL No");
-
+    clearPriviewColumnData();
     // Update filters with unique columns
     setFilters((prevFilters) => ({
       ...prevFilters,

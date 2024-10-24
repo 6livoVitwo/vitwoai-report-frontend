@@ -21,7 +21,7 @@ const PurchaseProductWiseTableView = () => {
       "grnCreatedAt",
       "grnInvoice.vendorCode",
       "grnInvoice.vendorName",
-      "grnInvoice.postingDate",
+      // "grnInvoice.postingDate",
       // "grnInvoice.grnType",
       // "grnInvoice.vendorDocumentDate",
       // "SUM(grnInvoice.grnSubTotal)",

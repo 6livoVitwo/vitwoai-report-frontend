@@ -323,7 +323,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     newColumnsOrder.splice(result.destination.index, 0, removed);
     setSelectedColumns(newColumnsOrder);
   };
-
+  const clearPriviewColumnData = () => {
+    setPage(1);
+  }
   const toggleColumn = (field) => {
     setTempSelectedColumns((prev) =>
       prev.includes(field)
@@ -346,11 +348,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
     let updatedColumns;
     if (selectAll) {
-      setTempSelectedColumns([]); 
-      updatedColumns = defaultColumns; 
+      setTempSelectedColumns([]);
+      updatedColumns = defaultColumns;
     } else {
-      setTempSelectedColumns(uniqueColumns); 
-      updatedColumns = uniqueColumns; 
+      setTempSelectedColumns(uniqueColumns);
+      updatedColumns = uniqueColumns;
     }
 
     setSelectAll(!selectAll);
@@ -370,7 +372,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         })
       )
     )
-
+    clearPriviewColumnData();
     setFilters((prevFilters) => ({
       ...prevFilters,
       data: updatedSelectedColumns, // Replace data with unique selected listNames
@@ -932,27 +934,27 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
                             {/* A-Z Filter  */}
                             {column !== "SL No" && !column.toLowerCase().includes("sum") && (
-                            <Button
-                              className="A_to_Z"
-                              bg="none"
-                              _hover={{ bg: "none" }}
-                              onClick={() => handleSort(column)}>
-                              {sortColumn === column ? (
-                                sortOrder === "asc" ? (
-                                  <FontAwesomeIcon
-                                    icon={faArrowDownShortWide}
-                                  />
+                              <Button
+                                className="A_to_Z"
+                                bg="none"
+                                _hover={{ bg: "none" }}
+                                onClick={() => handleSort(column)}>
+                                {sortColumn === column ? (
+                                  sortOrder === "asc" ? (
+                                    <FontAwesomeIcon
+                                      icon={faArrowDownShortWide}
+                                    />
+                                  ) : (
+                                    <FontAwesomeIcon icon={faArrowUpWideShort} />
+                                  )
                                 ) : (
-                                  <FontAwesomeIcon icon={faArrowUpWideShort} />
-                                )
-                              ) : (
-                                <FontAwesomeIcon
-                                  icon={faArrowRightArrowLeft}
-                                  rotation={90}
-                                  fontSize="13px"
-                                />
-                              )}
-                            </Button>
+                                  <FontAwesomeIcon
+                                    icon={faArrowRightArrowLeft}
+                                    rotation={90}
+                                    fontSize="13px"
+                                  />
+                                )}
+                              </Button>
                             )}
                             <Popover
                               isOpen={activeFilterColumn === column}
@@ -1115,7 +1117,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                 column === "description"
                                   ? "300px"
                                   : column === "name"
-                                    ? "200px"
+                                    ? "300px"
                                     : "100px"
                               }
                               overflow="hidden"

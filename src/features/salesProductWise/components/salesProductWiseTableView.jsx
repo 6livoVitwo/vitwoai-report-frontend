@@ -19,9 +19,10 @@ const SalesProductWiseTableView = () => {
       "items.itemName",
       "SUM(salesPgi.salesDelivery.totalAmount)",
       "SUM(salesPgi.totalAmount)",
-      "SUM(items.qty)",
+      "invoice_no",
       "invoice_date",
       "SUM(all_total_amt)",
+      // "SUM(items.qty)",
       // "SUM(quotation.totalAmount)",
       // "SUM(salesOrder.totalAmount)",
       // "SUM(items.basePrice - items.totalDiscountAmt)",
@@ -105,7 +106,7 @@ const SalesProductWiseTableView = () => {
           </Box>
         ),
       });
-      setToastShown(true); 
+      setToastShown(true);
     }
   }, [sales, page, toast, toastShown]);
   if (isLoading) {
