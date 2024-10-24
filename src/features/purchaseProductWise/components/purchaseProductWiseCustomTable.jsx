@@ -145,9 +145,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     skip: !searchQuery,
   });
 
-
-
-
   // api calling for product group....
   // const { data: productGroup } = useGetProductGroupQuery();
   // console.log("productGroup⭕", productGroup);
@@ -214,8 +211,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   // Fetching columns data from API
   useEffect(() => {
     if (columns.length) {
-      // Initialize selected columns based on fetched data or some default logic
-      setSelectedColumns(columns.map((col) => col.field)); // Example initialization
+      setSelectedColumns(columns.map((col) => col.field));
     }
   }, [columns]);
 
@@ -234,11 +230,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const handleSort = (column) => {
     const newSortOrder =
       sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
-    // Update sort state
     setSortColumn(column);
     setSortOrder(newSortOrder);
   };
-  // Trigger the API call when sortColumn or sortOrder changes
   useEffect(() => {
     refetchProduct({
       filters: {
@@ -248,13 +242,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       },
       page: currentPage,
     });
-  }, [sortColumn, sortOrder, refetchProduct]); // Ensure dependencies are correct
+  }, [sortColumn, sortOrder, refetchProduct]);
 
   const loadMoreData = async () => {
     if (!loading) {
       setLoading(true);
-      // Fetch or generate new data
-      const moreData = [...newArray]; // Assuming newArray contains new data
+      const moreData = [...newArray];
       setData((prevData) => {
         const uniqueData = [...new Set([...prevData, ...moreData])];
         return uniqueData;
@@ -315,10 +308,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
     let updatedColumns;
     if (selectAll) {
-      setTempSelectedColumns([]); // Deselect all in temporary state
+      setTempSelectedColumns([]);
       updatedColumns = defaultColumns;
     } else {
-      setTempSelectedColumns(uniqueColumns); // Select all in temporary state
+      setTempSelectedColumns(uniqueColumns);
       updatedColumns = uniqueColumns;
     }
 
@@ -342,7 +335,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     // Update filters with unique columns
     setFilters((prevFilters) => ({
       ...prevFilters,
-      data: updatedSelectedColumns, // Replace data with unique selected listNames
+      data: updatedSelectedColumns,
     }));
 
     const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
@@ -361,7 +354,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     refetchColumnData({ columns: updatedSelectedColumns });
     onClose();
     localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
-    // Show success toast notification
     toast({
       title: "Columns Applied Successfully",
       status: "success",
@@ -475,17 +467,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const handleScroll = () => {
     const { scrollTop, scrollHeight, clientHeight, scrollLeft, clientWidth } =
       tableContainerRef.current;
-
-    // Check if horizontal scroll has changed
     if (scrollLeft !== previousScrollLeft) {
-      // Update the previous scroll left position
       previousScrollLeft = scrollLeft;
       return;
     }
-
-    // Only trigger the API call if scrolling vertically
     if (scrollTop + clientHeight >= scrollHeight - 5 && !loading) {
-      loadMoreData(); // Load more data when scrolled to the bottom
+      loadMoreData();
     }
   };
   useEffect(() => {

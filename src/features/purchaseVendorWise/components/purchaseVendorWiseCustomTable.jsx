@@ -228,13 +228,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
       },
       page: currentPage,
     });
-  }, [sortColumn, sortOrder, refetchProduct]); // Ensure dependencies are correct
+  }, [sortColumn, sortOrder, refetchProduct]);
 
   const loadMoreData = async () => {
     if (!loading) {
       setLoading(true);
-      // Fetch or generate new data
-      const moreData = [...newArray]; // Assuming newArray contains new data
+      const moreData = [...newArray];
       console.log(moreData, "moreData");
       setData((prevData) => {
         const uniqueData = [...new Set([...prevData, ...moreData])];
@@ -295,10 +294,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
 
     let updatedColumns;
     if (selectAll) {
-      setTempSelectedColumns([]); // Deselect all in temporary state
+      setTempSelectedColumns([]);
       updatedColumns = defaultColumns;
     } else {
-      setTempSelectedColumns(uniqueColumns); // Select all in temporary state
+      setTempSelectedColumns(uniqueColumns);
       updatedColumns = uniqueColumns;
     }
 
@@ -320,10 +319,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
       )
     ).filter((col) => col !== "SL No");
 
-    // Update filters with unique columns
     setFilters((prevFilters) => ({
       ...prevFilters,
-      data: updatedSelectedColumns, // Replace data with unique selected listNames
+      data: updatedSelectedColumns,
     }));
 
     const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
@@ -341,7 +339,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
     setSelectedColumns(updatedSelectedColumns);
     refetchColumnvendor({ columns: updatedSelectedColumns });
     onClose();
-    // Store selected columns in local storage 
     localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
     toast({
       title: "Columns Applied Successfully",
@@ -419,11 +416,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
   }, [
     newArray,
     searchData,
-    searchQuery,
     columnFilters,
     sortColumn,
     sortOrder,
     selectedColumns,
+    VendorDataFilter,
   ]);
 
   const formatHeader = (header) => {
@@ -452,16 +449,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
     const { scrollTop, scrollHeight, clientHeight, scrollLeft, clientWidth } =
       tableContainerRef.current;
 
-    // Check if horizontal scroll has changed
     if (scrollLeft !== previousScrollLeft) {
-      // Update the previous scroll left position
       previousScrollLeft = scrollLeft;
       return;
     }
-
-    // Only trigger the API call if scrolling vertically
     if (scrollTop + clientHeight >= scrollHeight - 5 && !loading) {
-      loadMoreData(); // Load more data when scrolled to the bottom
+      loadMoreData();
     }
   };
   useEffect(() => {
@@ -475,7 +468,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
   }, [loading, lastPage]);
   //function for filter
   const handleTempFilterConditionChange = (e) => {
-    const value = e?.target?.value; // Safely accessing e.target.value
+    const value = e?.target?.value;
     if (value !== undefined) {
       setTempFilterCondition(value);
     } else {
@@ -483,7 +476,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
     }
   };
   const handleTempFilterValueChange = (e) => {
-    const value = e?.target?.value; // Safely accessing e.target.value
+    const value = e?.target?.value;
     if (value !== undefined) {
       setTempFilterValue(value);
     } else {
@@ -505,8 +498,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
-
-      // This will trigger the query
       setFiltersApplied(true);
     } else {
       console.error("Filter condition or value missing");
@@ -514,14 +505,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
   };
   const handleApplyFilters = () => {
     if (tempFilterCondition && tempFilterValue && activeFilterColumn) {
-      // Create a new filter object
+      // Create a new filter object....
       const newFilter = {
         column: activeFilterColumn,
         operator: tempFilterCondition,
         type: typeof tempFilterValue === "number" ? "integer" : "string",
         value: tempFilterValue,
       };
-      // Update localFilters state
+      // Update localFilters state....
       const updatedFilters = {
         ...localFilters,
         filter: [...localFilters.filter, newFilter],
@@ -535,11 +526,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
           type: typeof tempFilterValue === "number" ? "integer" : "string",
         },
       }));
-      console.log("Updated Filters:", updatedFilters); // Debugging line
-      // Update local filters state
       setLocalFilters(updatedFilters);
       setFiltersApplied(true);
-      // Clear temporary values
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
@@ -549,7 +537,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
   };
   const handleClick = () => {
     if (activeFilterColumn) {
-      const columnType = activeFilterColumn; // Assuming activeFilterColumn holds the column type
+      const columnType = activeFilterColumn;
       columnType.includes("SUM(")
         ? handleApplyFiltersSUM()
         : handleApplyFilters();
@@ -639,7 +627,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
             onClick={handleSearchClick}
             style={{
               position: "absolute",
-              right: "10px", // Adjust the position as needed
+              right: "10px",
               top: "50%",
               transform: "translateY(-50%)",
               border: "none",
@@ -674,7 +662,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
               w="40px"
               h="40px"
               bg="#d6eaf8"
-              // border='1px solid gray'
               _hover={{
                 bg: "mainBlue",
                 color: "white",
@@ -906,40 +893,41 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
                             fontFamily="Poppins, sans-serif"
                             color="black">
                             {formatHeader(column)}
-                            {/* A-Z Filter  */}
-                           {column !== "SL No" && !column.toLowerCase().includes("sum") && (
-                            <Button
-                              className="A_to_Z"
-                              bg="none"
-                              _hover={{ bg: "none" }}
-                              onClick={() => handleSort(column)}>
-                              {sortColumn === column ? (
-                                sortOrder === "asc" ? (
-                                  <FontAwesomeIcon
-                                    icon={faArrowDownShortWide}
-                                  />
+
+                            {/* A-to-Z sort icon */}
+                            {column !== "SL No" && !column.toLowerCase().includes("sum") && (
+                              <Button
+                                className="A_to_Z"
+                                bg="none"
+                                _hover={{ bg: "none" }}
+                                onClick={() => handleSort(column)}>
+                                {sortColumn === column ? (
+                                  sortOrder === "asc" ? (
+                                    <FontAwesomeIcon
+                                      icon={faArrowDownShortWide}
+                                    />
+                                  ) : (
+                                    <FontAwesomeIcon icon={faArrowUpWideShort} />
+                                  )
                                 ) : (
-                                  <FontAwesomeIcon icon={faArrowUpWideShort} />
-                                )
-                              ) : (
-                                <FontAwesomeIcon
-                                  icon={faArrowRightArrowLeft}
-                                  rotation={90}
-                                  fontSize="13px"
-                                />
-                              )}
-                            </Button>
-                          )}
+                                  <FontAwesomeIcon
+                                    icon={faArrowRightArrowLeft}
+                                    rotation={90}
+                                    fontSize="13px"
+                                  />
+                                )}
+                              </Button>
+                            )}
                             <Popover
                               isOpen={activeFilterColumn === column}
                               onClose={() => setActiveFilterColumn(null)}
-                              autoFocus={false} // Prevent the popover from focusing automatically
-                              closeOnBlur={false} // Prevent the popover from closing when clicking outside
+                              autoFocus={false}
+                              closeOnBlur={false}
                             >
                               <PopoverTrigger>
                                 <Button
                                   bg="transparent"
-                                  onClick={() => handlePopoverClick(column)} // Set the clicked column as active
+                                  onClick={() => handlePopoverClick(column)}
                                 >
                                   {columnFilters[column] ? (
                                     <i
@@ -1009,15 +997,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
                                                 onChange={(e) => {
                                                   const formattedDates = e.value.map((date) => {
                                                     if (date) {
-                                                      // Adjust for timezone by setting the time to midnight in local time
                                                       const adjustedDate = new Date(date);
                                                       adjustedDate.setMinutes(adjustedDate.getMinutes() - adjustedDate.getTimezoneOffset());
                                                       return adjustedDate.toISOString().split("T")[0];
                                                     }
                                                     return null;
                                                   });
-                                                  setDates(e.value); // Store the selected range
-                                                  setTempFilterValue(formattedDates); // Set the value for filtering
+                                                  setDates(e.value);
+                                                  setTempFilterValue(formattedDates);
                                                 }}
                                                 selectionMode="range"
                                                 readOnlyInput

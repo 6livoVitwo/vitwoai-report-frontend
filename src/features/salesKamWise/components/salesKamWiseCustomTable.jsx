@@ -255,6 +255,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSelectedColumns(newColumnsOrder);
   };
 
+  const clearPriviewColumnData = () => {
+    setPage(1);
+  }
   const toggleColumn = (field) => {
     if (field === "SL No") return
     setTempSelectedColumns((prev) =>
@@ -299,11 +302,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         })
       )
     ).filter((col) => col !== "SL No");
-
-    // Update filters with unique columns
+    clearPriviewColumnData();
     setFilters((prevFilters) => ({
       ...prevFilters,
-      data: updatedSelectedColumns, // Replace data with unique selected listNames
+      data: updatedSelectedColumns,
     }));
 
     const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
@@ -322,7 +324,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     refetchColumnDatakam({ columns: updatedSelectedColumns });
     onClose();
     localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
-    // Show success toast notification
     toast({
       title: "Columns Applied Successfully",
       status: "success",
@@ -334,7 +335,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   }, [isOpen]);
 
   const handlePopoverClick = (column) => {
-    // setActiveFilterColumn((prev) => (prev === column ? null : column)); // Toggle column
     setActiveFilterColumn(column);
   };
 
@@ -384,11 +384,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const handleSort = (column) => {
     const newSortOrder =
       sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
-    // Update sort state
     setSortColumn(column);
     setSortOrder(newSortOrder);
   };
-  // // Trigger the API call when sortColumn or sortOrder changes
   useEffect(() => {
     refetchKamWiseSales({
       filters: {
@@ -398,10 +396,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       },
       page: currentPage,
     });
-  }, [sortColumn, sortOrder, refetchKamWiseSales]); // Ensure dependencies are correct
+  }, [sortColumn, sortOrder, refetchKamWiseSales]);
 
   const filteredItems = useMemo(() => {
-    let filteredData = [...newArray]; // Copy the original data
+    let filteredData = [...newArray];
 
     // Global search
     if (searchData?.content && searchData?.content.length > 0) {
@@ -456,17 +454,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const handleScroll = () => {
     const { scrollTop, scrollHeight, clientHeight, scrollLeft, clientWidth } =
       tableContainerRef.current;
-
-    // Check if horizontal scroll has changed
     if (scrollLeft !== previousScrollLeft) {
-      // Update the previous scroll left position
       previousScrollLeft = scrollLeft;
       return;
     }
-
-    // Only trigger the API call if scrolling vertically
     if (scrollTop + clientHeight >= scrollHeight - 5 && !loading) {
-      loadMoreData(); // Load more data when scrolled to the bottom
+      loadMoreData();
     }
   };
   useEffect(() => {
@@ -478,6 +471,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         container.removeEventListener("scroll", debouncedHandleScroll);
     }
   }, [loading, lastPage]);
+
   //function for filter
   const handleTempFilterConditionChange = (e) => {
     const value = e?.target?.value;
@@ -510,8 +504,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
-
-      // This will trigger the query
       setFiltersApplied(true);
     } else {
       console.error("Filter condition or value missing");
@@ -519,24 +511,17 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
   const handleApplyFilters = () => {
     if (tempFilterCondition && tempFilterValue && activeFilterColumn) {
-      // For the "between" operator, the value must be an array
       const filterValue = tempFilterCondition === "between" ? tempFilterValue : tempFilterValue;
-
-      // Create a new filter object
       const newFilter = {
         column: activeFilterColumn,
         operator: tempFilterCondition,
         type: tempFilterCondition === "between" ? "date" : (typeof tempFilterValue === "number" ? "integer" : "string"),
         value: filterValue,
       };
-
-      // Update localFilters state
       const updatedFilters = {
         ...localFilters,
         filter: [...localFilters.filter, newFilter],
       };
-
-      // Update column filters for the UI display
       setColumnFilters((prevFilters) => ({
         ...prevFilters,
         [activeFilterColumn]: {
@@ -546,14 +531,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           type: tempFilterCondition === "between" ? "date" : (typeof tempFilterValue === "number" ? "integer" : "string"),
         },
       }));
-
-      // Log the updated filters for debugging
-      console.log("Updated Filters:", updatedFilters);
-
       // Update local filters state
       setLocalFilters(updatedFilters);
       setFiltersApplied(true);
-
       // Clear temporary values
       setTempFilterCondition(null);
       setTempFilterValue("");
@@ -565,7 +545,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
   const handleClick = () => {
     if (activeFilterColumn) {
-      const columnType = activeFilterColumn; // Assuming activeFilterColumn holds the column type
+      const columnType = activeFilterColumn;
       columnType.includes("SUM(")
         ? handleApplyFiltersSUM()
         : handleApplyFilters();
@@ -658,7 +638,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             onClick={handleSearchClick}
             style={{
               position: "absolute",
-              right: "10px", // Adjust the position as needed
+              right: "10px",
               top: "50%",
               transform: "translateY(-50%)",
               border: "none",
@@ -760,7 +740,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           </Button>
           <Menu>
             <MenuButton
-              // bg="mainBlue"
               border="1px solid gray"
               color="mainBlue"
               padding="5px"
@@ -939,39 +918,39 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                           >
                             {formatHeader(column)}
                             {column !== "SL No" && !column.toLowerCase().includes("sum") && (
-                            <Button
-                              className="A_to_Z"
-                              bg="none"
-                              _hover={{ bg: "none" }}
-                              onClick={() => handleSort(column)}
-                            >
-                              {sortColumn === column ? (
-                                sortOrder === "asc" ? (
-                                  <FontAwesomeIcon
-                                    icon={faArrowDownShortWide}
-                                  />
+                              <Button
+                                className="A_to_Z"
+                                bg="none"
+                                _hover={{ bg: "none" }}
+                                onClick={() => handleSort(column)}
+                              >
+                                {sortColumn === column ? (
+                                  sortOrder === "asc" ? (
+                                    <FontAwesomeIcon
+                                      icon={faArrowDownShortWide}
+                                    />
+                                  ) : (
+                                    <FontAwesomeIcon icon={faArrowUpWideShort} />
+                                  )
                                 ) : (
-                                  <FontAwesomeIcon icon={faArrowUpWideShort} />
-                                )
-                              ) : (
-                                <FontAwesomeIcon
-                                  icon={faArrowRightArrowLeft}
-                                  rotation={90}
-                                  fontSize="13px"
-                                />
-                              )}
-                            </Button>
+                                  <FontAwesomeIcon
+                                    icon={faArrowRightArrowLeft}
+                                    rotation={90}
+                                    fontSize="13px"
+                                  />
+                                )}
+                              </Button>
                             )}
                             <Popover
                               isOpen={activeFilterColumn === column}
                               onClose={() => setActiveFilterColumn(null)}
-                              autoFocus={false} // Prevent the popover from focusing automatically
-                              closeOnBlur={false} // Prevent the popover from closing when clicking outside
+                              autoFocus={false}
+                              closeOnBlur={false}
                             >
                               <PopoverTrigger>
                                 <Button
                                   bg="transparent"
-                                  onClick={() => handlePopoverClick(column)} // Set the clicked column as active
+                                  onClick={() => handlePopoverClick(column)}
                                 >
                                   {columnFilters[column] ? (
                                     <i
@@ -1041,15 +1020,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                                 onChange={(e) => {
                                                   const formattedDates = e.value.map((date) => {
                                                     if (date) {
-                                                      // Adjust for timezone by setting the time to midnight in local time
                                                       const adjustedDate = new Date(date);
                                                       adjustedDate.setMinutes(adjustedDate.getMinutes() - adjustedDate.getTimezoneOffset());
                                                       return adjustedDate.toISOString().split("T")[0];
                                                     }
                                                     return null;
                                                   });
-                                                  setDates(e.value); // Store the selected range
-                                                  setTempFilterValue(formattedDates); // Set the value for filtering
+                                                  setDates(e.value);
+                                                  setTempFilterValue(formattedDates);
                                                 }}
                                                 selectionMode="range"
                                                 readOnlyInput

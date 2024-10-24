@@ -60,7 +60,6 @@ const SalesVerticalWiseTableView = () => {
     size,
     authDetails: authData.authDetails,
   });
-  // console.log('Piyas_sales',{sales})
   const pageInfo = sales?.lastPage;
 
   const tableContainerRef = useRef(null);
@@ -100,7 +99,6 @@ const SalesVerticalWiseTableView = () => {
     }
   }, [sales]);
   useEffect(() => {
-    // Show the toast only if the user has scrolled to the last page and toast hasn't been shown
     if (sales?.totalPages < page && !toastShown) {
       toast({
         title: "No More Data",

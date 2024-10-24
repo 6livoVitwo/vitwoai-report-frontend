@@ -261,6 +261,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSelectedColumns(newColumnsOrder);
   };
 
+  const clearPreviousColumnData = () => {
+    setPage(1);
+  };
   const toggleColumn = (field) => {
     if (field === "SL No") return;
     setTempSelectedColumns((prev) =>
@@ -308,6 +311,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         })
       )
     ).filter((col) => col !== "SL No");
+
+    clearPreviousColumnData();
 
     // Update filters with unique columns
     setFilters((prevFilters) => ({
@@ -465,13 +470,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const formatHeader = (header) => {
     header = header.trim();
     header = header.replace(/^[A-Z]+\(|\)$/g, "");
-    header = header.replace(/_/g, " ");
-    const parts = header.split(".");
+    const parts = header.replace(/_/g, " ").split(".");
     const lastPart = parts.pop();
-    const words = lastPart.split("_").join("");
-    const spacedWords = words.replace(/([a-z])([A-Z])/g, "$1 $2");
-
-    return spacedWords
+    const prefix = parts.length > 0 ? parts.pop() : "";
+    const combined = prefix ? `${prefix} ${lastPart}` : lastPart;
+    const formatted = combined
       .split(" ")
       .map((word) => {
         if (word.toLowerCase() === "uom") {
@@ -480,6 +483,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
       })
       .join(" ");
+    return formatted;
   };
 
   const handleScroll = () => {

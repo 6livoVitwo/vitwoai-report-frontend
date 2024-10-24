@@ -99,7 +99,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [endDate, setEndDate] = useState(null);
   const [configureChart, setConfigureChart] = useState({});
   const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
-  // const [selectedColumn, setSelectedColumn] = useState('items.itemName');
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [filterCondition, setFilterCondition] = useState("");
   const [filterValue, setFilterValue] = useState("");
@@ -278,6 +277,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSelectedColumns(newColumnsOrder);
   };
 
+  const clearPriviewColumnData = () => {
+    setPage(1);
+  }
   const toggleColumn = (field) => {
     if (field === "SL No") return;
     setTempSelectedColumns((prev) =>
@@ -299,10 +301,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
     let updatedColumns;
     if (selectAll) {
-      setTempSelectedColumns([]); // Deselect all in temporary state
+      setTempSelectedColumns([]);
       updatedColumns = defaultColumns;
     } else {
-      setTempSelectedColumns(uniqueColumns); // Select all in temporary state
+      setTempSelectedColumns(uniqueColumns);
       updatedColumns = uniqueColumns;
     }
 
@@ -323,10 +325,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       )
     ).filter((col) => col !== "SL No");
 
-    // Update filters with unique columns
+    clearPriviewColumnData();
     setFilters((prevFilters) => ({
       ...prevFilters,
-      data: updatedSelectedColumns, // Replace data with unique selected listNames
+      data: updatedSelectedColumns,
     }));
 
     const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
@@ -344,7 +346,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSelectedColumns(updatedSelectedColumns);
     refetchColumnData({ columns: updatedSelectedColumns });
     onClose();
-    // Store selected columns in local storage 
     localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
     toast({
       title: "Columns Applied Successfully",
@@ -470,6 +471,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       .join(" ");
   };
 
+  //scroll logic
   let previousScrollLeft = 0;
   const handleScroll = () => {
     const { scrollTop, scrollHeight, clientHeight, scrollLeft, clientWidth } =
@@ -522,8 +524,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
-
-      // This will trigger the query
       setFiltersApplied(true);
     } else {
       console.error("Filter condition or value missing");
@@ -531,9 +531,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
   const handleApplyFilters = () => {
     if (tempFilterCondition && tempFilterValue && activeFilterColumn) {
-      // For the "between" operator, the value must be an array
       const filterValue = tempFilterCondition === "between" ? tempFilterValue : tempFilterValue;
-
       // Create a new filter object
       const newFilter = {
         column: activeFilterColumn,
@@ -541,13 +539,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         type: tempFilterCondition === "between" ? "date" : (typeof tempFilterValue === "number" ? "integer" : "string"),
         value: filterValue,
       };
-
       // Update localFilters state
       const updatedFilters = {
         ...localFilters,
         filter: [...localFilters.filter, newFilter],
       };
-
       // Update column filters for the UI display
       setColumnFilters((prevFilters) => ({
         ...prevFilters,
@@ -558,14 +554,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           type: tempFilterCondition === "between" ? "date" : (typeof tempFilterValue === "number" ? "integer" : "string"),
         },
       }));
-
-      // Log the updated filters for debugging
-      console.log("Updated Filters:", updatedFilters);
-
       // Update local filters state
       setLocalFilters(updatedFilters);
       setFiltersApplied(true);
-
       // Clear temporary values
       setTempFilterCondition(null);
       setTempFilterValue("");
@@ -577,7 +568,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
   const handleClick = () => {
     if (activeFilterColumn) {
-      const columnType = activeFilterColumn; // Assuming activeFilterColumn holds the column type
+      const columnType = activeFilterColumn;
       columnType.includes("SUM(")
         ? handleApplyFiltersSUM()
         : handleApplyFilters();
@@ -672,7 +663,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             onClick={handleSearchClick}
             style={{
               position: "absolute",
-              right: "10px", // Adjust the position as needed
+              right: "10px",
               top: "50%",
               transform: "translateY(-50%)",
               border: "none",
@@ -1181,15 +1172,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                                   onChange={(e) => {
                                                     const formattedDates = e.value.map((date) => {
                                                       if (date) {
-                                                        // Adjust for timezone by setting the time to midnight in local time
                                                         const adjustedDate = new Date(date);
                                                         adjustedDate.setMinutes(adjustedDate.getMinutes() - adjustedDate.getTimezoneOffset());
                                                         return adjustedDate.toISOString().split("T")[0];
                                                       }
                                                       return null;
                                                     });
-                                                    setDates(e.value); // Store the selected range
-                                                    setTempFilterValue(formattedDates); // Set the value for filtering
+                                                    setDates(e.value);
+                                                    setTempFilterValue(formattedDates);
                                                   }}
                                                   selectionMode="range"
                                                   readOnlyInput
@@ -1673,38 +1663,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 },
               }}
             >
-              {/* {getColumns(data).map((column) => {
-                const formattedHeader = formatHeader(column.field);
-
-                return (
-                  <Box
-                    key={column.field}
-                    className="columnCheckBox"
-                    padding="5px"
-                    bg="rgba(231,231,231,1)"
-                    borderRadius="5px"
-                    width="48%">
-                    <Checkbox
-                      size="lg"
-                      display="flex"
-                      padding="5px"
-                      borderColor="mainBluemedium"
-                      key={column.field}
-                      defaultChecked={selectedColumns.includes(column.field)}
-                      isChecked={selectedColumns.includes(column.field)}
-                      onChange={() => toggleColumn(column.field)}>
-                      <Text
-                        fontWeight="500"
-                        ml="10px"
-                        fontSize="12px"
-                        color="textBlackDeep">
-                        {formattedHeader}
-                      </Text>
-                    </Checkbox>
-                  </Box>
-                );
-              })} */}
-
+             
               {(getColumns(data) || [])
                 .concat(
                   columnData
