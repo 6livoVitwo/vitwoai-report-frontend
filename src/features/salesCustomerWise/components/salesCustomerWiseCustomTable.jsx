@@ -256,7 +256,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     newColumnsOrder.splice(result.destination.index, 0, removed);
     setSelectedColumns(newColumnsOrder);
   };
-
+  
+const clearPriviewColumnData = () => {
+    setPage(1);
+}
   const toggleColumn = (field) => {
     if (field === "SL No") return;
     setTempSelectedColumns((prev) =>
@@ -278,10 +281,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
     let updatedColumns;
     if (selectAll) {
-      setTempSelectedColumns([]); // Deselect all in temporary state
+      setTempSelectedColumns([]); 
       updatedColumns = defaultColumns;
     } else {
-      setTempSelectedColumns(uniqueColumns); // Select all in temporary state
+      setTempSelectedColumns(uniqueColumns);
       updatedColumns = uniqueColumns;
     }
 
@@ -302,11 +305,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         })
       )
     ).filter((col) => col !== "SL No");
-
-    // Update filters with unique columns
+     clearPriviewColumnData();
     setFilters((prevFilters) => ({
       ...prevFilters,
-      data: updatedSelectedColumns, // Replace data with unique selected listNames
+      data: updatedSelectedColumns, 
     }));
 
     const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
@@ -321,18 +323,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       });
       return;
     }
-
-    // Update the final selected columns (this will trigger the table update)
     setSelectedColumns(updatedSelectedColumns);
-
-    // Refetch data based on selected columns
     refetchcoustomer({ columns: updatedSelectedColumns });
-
-    // Close the modal
     onClose();
-    localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
-
-    // Show success toast notification
+    // localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
     toast({
       title: "Columns Applied Successfully",
       status: "success",
