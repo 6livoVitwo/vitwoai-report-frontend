@@ -339,7 +339,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
     setSelectedColumns(updatedSelectedColumns);
     refetchColumnvendor({ columns: updatedSelectedColumns });
     onClose();
-    localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
+    // localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
     toast({
       title: "Columns Applied Successfully",
       status: "success",

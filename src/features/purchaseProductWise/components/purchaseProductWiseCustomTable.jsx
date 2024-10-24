@@ -334,7 +334,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       )
     ).filter((col) => col !== "SL No");
     clearPriviewColumnData();
-    // Update filters with unique columns
     setFilters((prevFilters) => ({
       ...prevFilters,
       data: updatedSelectedColumns,
@@ -355,7 +354,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSelectedColumns(updatedSelectedColumns);
     refetchColumnData({ columns: updatedSelectedColumns });
     onClose();
-    localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
+    // localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
     toast({
       title: "Columns Applied Successfully",
       status: "success",

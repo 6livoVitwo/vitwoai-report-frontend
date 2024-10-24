@@ -326,6 +326,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const clearPriviewColumnData = () => {
     setPage(1);
   }
+
   const toggleColumn = (field) => {
     setTempSelectedColumns((prev) =>
       prev.includes(field)
@@ -375,15 +376,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     clearPriviewColumnData();
     setFilters((prevFilters) => ({
       ...prevFilters,
-      data: updatedSelectedColumns, // Replace data with unique selected listNames
+      data: updatedSelectedColumns, 
     }));
 
     const storedColumns =
       JSON.parse(localStorage.getItem("selectedColumns")) || [];
-
     const columnsChanged =
       JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
-
     if (!columnsChanged) {
       toast({
         title: "No changes to apply",
@@ -392,17 +391,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       });
       return;
     }
-
-    // Update the final selected columns (this will trigger the table update)
     setSelectedColumns(updatedSelectedColumns);
-
-    // Refetch data based on selected columns
     refetchColumnDatapo({ columns: updatedSelectedColumns });
-
-    // Close the modal
     onClose();
     localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
-    // Show success toast notification
     toast({
       title: "Columns Applied Successfully",
       status: "success",
@@ -413,8 +405,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setTempSelectedColumns(selectedColumns);
   }, [isOpen]);
 
+  //search query.....
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
-
   useEffect(() => {
     return () => {
       debouncedSearchQuery.cancel();
