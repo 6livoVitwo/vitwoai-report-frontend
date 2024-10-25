@@ -362,8 +362,15 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     });
   };
   useEffect(() => {
-    setTempSelectedColumns(selectedColumns);
-  }, [isOpen]);
+    if (isOpen) {
+      const filteredColumns = columnData?.content[0]
+        ? Object.keys(columnData.content[0]).filter((key) =>
+          selectedColumns.includes(columnData.content[0][key]?.listName)
+        )
+        : [];
+      setTempSelectedColumns(filteredColumns);
+    }
+  }, [isOpen, selectedColumns, columnData]);
 
 
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);

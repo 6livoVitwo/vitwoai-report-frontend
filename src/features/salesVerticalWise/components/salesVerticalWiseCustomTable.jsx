@@ -262,17 +262,15 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   const clearPreviousColumnData = () => {
-    // setPage(0);
+    setPage(0);
   };
   const toggleColumn = (field) => {
-    if (field === "SL No") return;
     setTempSelectedColumns((prev) =>
       prev.includes(field)
         ? prev.filter((col) => col !== field)
         : [...prev, field]
     );
   };
-
   const handleSelectAllToggle = () => {
     const allColumns = selectedColumnsData
       ? Object.keys(selectedColumnsData?.content[0] || {}).map((key) => ({
@@ -311,7 +309,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           return matchingColumn ? matchingColumn.listName || col : col;
         })
       )
-    ).filter((col) => col !== "SL No");
+    )
 
     clearPreviousColumnData();
     // Update filters with unique columns
@@ -348,17 +346,15 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     if (isOpen) {
       const filteredColumns = selectedColumnsData?.content[0]
         ? Object.keys(selectedColumnsData.content[0]).filter((key) =>
-            selectedColumns.includes(selectedColumnsData.content[0][key]?.listName)
-          )
+          selectedColumns.includes(selectedColumnsData.content[0][key]?.listName)
+        )
         : [];
-      const combinedColumns = [...new Set([...selectedColumns, ...filteredColumns])];
-      setTempSelectedColumns(combinedColumns);
+      setTempSelectedColumns(filteredColumns);
     }
   }, [isOpen, selectedColumns, selectedColumnsData]);
 
 
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
-
   useEffect(() => {
     return () => {
       debouncedSearchQuery.cancel();
@@ -445,7 +441,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     sortColumn,
     sortOrder,
     searchData,
-    advancedFilterVertical
+    advancedFilterVertical,
   ]);
 
   const removeProperty = (object) => {

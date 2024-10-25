@@ -346,7 +346,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSelectedColumns(updatedSelectedColumns);
     refetchColumnData({ columns: updatedSelectedColumns });
     onClose();
-    localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
+    // localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
     toast({
       title: "Columns Applied Successfully",
       status: "success",
@@ -355,9 +355,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
   useEffect(() => {
     if (isOpen) {
-      setTempSelectedColumns(selectedColumns);
+      const filteredColumns = columnData?.content[0]
+        ? Object.keys(columnData.content[0]).filter((key) =>
+          selectedColumns.includes(columnData.content[0][key]?.listName)
+        )
+        : [];
+      setTempSelectedColumns(filteredColumns);
     }
-  }, [isOpen, selectedColumns]);
+  }, [isOpen, selectedColumns, columnData]);
 
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
   useEffect(() => {
