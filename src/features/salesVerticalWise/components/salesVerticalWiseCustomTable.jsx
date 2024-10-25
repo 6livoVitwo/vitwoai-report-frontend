@@ -262,7 +262,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   const clearPreviousColumnData = () => {
-    setPage(0);
+
   };
   const toggleColumn = (field) => {
     setTempSelectedColumns((prev) =>
@@ -316,6 +316,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
       data: updatedSelectedColumns,
+      
     }));
 
     const storedColumns =
