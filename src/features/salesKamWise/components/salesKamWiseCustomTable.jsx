@@ -256,7 +256,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   const clearPriviewColumnData = () => {
-    setPage(1);
+    // setPage(1);
   }
   const toggleColumn = (field) => {
     if (field === "SL No") return
@@ -279,10 +279,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
     let updatedColumns;
     if (selectAll) {
-      setTempSelectedColumns([]); // Deselect all in temporary state
+      setTempSelectedColumns([]);
       updatedColumns = defaultColumns;
     } else {
-      setTempSelectedColumns(uniqueColumns); // Select all in temporary state
+      setTempSelectedColumns(uniqueColumns);
       updatedColumns = uniqueColumns;
     }
 
@@ -323,7 +323,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSelectedColumns(updatedSelectedColumns);
     refetchColumnDatakam({ columns: updatedSelectedColumns });
     onClose();
-    localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
+    // localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
     toast({
       title: "Columns Applied Successfully",
       status: "success",

@@ -262,7 +262,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   const clearPreviousColumnData = () => {
-    setPage(1);
+    // setPage(0);
   };
   const toggleColumn = (field) => {
     if (field === "SL No") return;
@@ -288,7 +288,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     let updatedColumns;
     if (selectAll) {
       setTempSelectedColumns([]);
-      updatedColumns = defaultColumns;
+      // updatedColumns = defaultColumns;
+      updatedColumns = [];
     } else {
       setTempSelectedColumns(uniqueColumns);
       updatedColumns = uniqueColumns;
@@ -313,7 +314,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     ).filter((col) => col !== "SL No");
 
     clearPreviousColumnData();
-
     // Update filters with unique columns
     setFilters((prevFilters) => ({
       ...prevFilters,
@@ -337,7 +337,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSelectedColumns(updatedSelectedColumns);
     refetchSelectedColumns({ columns: updatedSelectedColumns });
     onClose();
-    localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
+    // localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
     toast({
       title: "Columns Applied Successfully",
       status: "success",
@@ -346,9 +346,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
   useEffect(() => {
     if (isOpen) {
-      setTempSelectedColumns(selectedColumns);
+      const filteredColumns = selectedColumnsData?.content[0]
+        ? Object.keys(selectedColumnsData.content[0]).filter((key) =>
+            selectedColumns.includes(selectedColumnsData.content[0][key]?.listName)
+          )
+        : [];
+      const combinedColumns = [...new Set([...selectedColumns, ...filteredColumns])];
+      setTempSelectedColumns(combinedColumns);
     }
-  }, [isOpen]);
+  }, [isOpen, selectedColumns, selectedColumnsData]);
+
 
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
 
@@ -1180,7 +1187,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                               }
                               overflow="hidden"
                               textOverflow="ellipsis">
-                              {item[column]}
+                              {item[column] || "-"}
                             </Text>
                           </Td>
                         ))}
