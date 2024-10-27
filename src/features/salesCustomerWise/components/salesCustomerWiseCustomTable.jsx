@@ -256,12 +256,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     newColumnsOrder.splice(result.destination.index, 0, removed);
     setSelectedColumns(newColumnsOrder);
   };
-  
-const clearPriviewColumnData = () => {
+
+  const clearPriviewColumnData = () => {
     setPage(1);
-}
+  }
   const toggleColumn = (field) => {
-    if (field === "SL No") return;
     setTempSelectedColumns((prev) =>
       prev.includes(field)
         ? prev.filter((col) => col !== field)
@@ -281,8 +280,8 @@ const clearPriviewColumnData = () => {
 
     let updatedColumns;
     if (selectAll) {
-      setTempSelectedColumns([]); 
-      updatedColumns = defaultColumns;
+      setTempSelectedColumns([]);
+      // updatedColumns = defaultColumns;
     } else {
       setTempSelectedColumns(uniqueColumns);
       updatedColumns = uniqueColumns;
@@ -304,11 +303,11 @@ const clearPriviewColumnData = () => {
           return matchingColumn ? matchingColumn.listName || col : col;
         })
       )
-    ).filter((col) => col !== "SL No");
-     clearPriviewColumnData();
+    )
+    clearPriviewColumnData();
     setFilters((prevFilters) => ({
       ...prevFilters,
-      data: updatedSelectedColumns, 
+      data: updatedSelectedColumns,
     }));
 
     const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
@@ -334,8 +333,16 @@ const clearPriviewColumnData = () => {
     });
   };
   useEffect(() => {
-    setTempSelectedColumns(selectedColumns);
-  }, [isOpen]);
+    if (isOpen) {
+      const filteredColumns = columnDatacustomer?.content[0]
+        ? Object.keys(columnDatacustomer.content[0]).filter((key) =>
+          selectedColumns.includes(columnDatacustomer.content[0][key]?.listName)
+        )
+        : [];
+      setTempSelectedColumns(filteredColumns);
+    }
+  }, [isOpen, selectedColumns, columnDatacustomer]);
+
 
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
 
@@ -960,28 +967,28 @@ const clearPriviewColumnData = () => {
                           >
                             {formatHeader(column)}
                             {column !== "SL No" && !column.toLowerCase().includes("sum") && (
-                            <Button
-                              className="A_to_Z"
-                              bg="none"
-                              _hover={{ bg: "none" }}
-                              onClick={() => handleSort(column)}
-                            >
-                              {sortColumn === column ? (
-                                sortOrder === "asc" ? (
-                                  <FontAwesomeIcon
-                                    icon={faArrowDownShortWide}
-                                  />
+                              <Button
+                                className="A_to_Z"
+                                bg="none"
+                                _hover={{ bg: "none" }}
+                                onClick={() => handleSort(column)}
+                              >
+                                {sortColumn === column ? (
+                                  sortOrder === "asc" ? (
+                                    <FontAwesomeIcon
+                                      icon={faArrowDownShortWide}
+                                    />
+                                  ) : (
+                                    <FontAwesomeIcon icon={faArrowUpWideShort} />
+                                  )
                                 ) : (
-                                  <FontAwesomeIcon icon={faArrowUpWideShort} />
-                                )
-                              ) : (
-                                <FontAwesomeIcon
-                                  icon={faArrowRightArrowLeft}
-                                  rotation={90}
-                                  fontSize="13px"
-                                />
-                              )}
-                            </Button>
+                                  <FontAwesomeIcon
+                                    icon={faArrowRightArrowLeft}
+                                    rotation={90}
+                                    fontSize="13px"
+                                  />
+                                )}
+                              </Button>
                             )}
                             <Popover
                               isOpen={activeFilterColumn === column}
@@ -1573,53 +1580,46 @@ const clearPriviewColumnData = () => {
                 },
               }}
             >
-              {(getColumns(data) || [])
-                .concat(
-                  columnDatacustomer
-                    ? Object.keys(columnDatacustomer?.content[0] || {}).map(
-                      (key) => ({
-                        field: key,
-                        header: key,
-                      })
-                    )
-                    : []
-                )
-                .map((column, index) => {
-                  const formattedHeader = formatHeader(
-                    column.field || column.header
-                  );
+              {columnDatacustomer?.content && columnDatacustomer.content.length > 0
+                ? Object.keys(columnDatacustomer.content[0]).map((key) => ({
+                  field: key,
+                  header: key,
+                }))
+                  .map((column) => {
+                    const formattedHeader = formatHeader(column.field || column.header);
 
-                  return (
-                    <Box
-                      key={column.field}
-                      className="columnCheckBox"
-                      padding="5px"
-                      bg="rgba(231,231,231,1)"
-                      borderRadius="5px"
-                      width="48%"
-                    >
-                      <Checkbox
-                        size="lg"
-                        display="flex"
-                        padding="5px"
-                        borderColor="mainBluemedium"
+                    return (
+                      <Box
                         key={column.field}
-                        defaultChecked={tempSelectedColumns.includes(column.field)}
-                        isChecked={tempSelectedColumns.includes(column.field)}
-                        onChange={() => toggleColumn(column.field)}
+                        className="columnCheckBox"
+                        padding="5px"
+                        bg="rgba(231,231,231,1)"
+                        borderRadius="5px"
+                        width="48%"
                       >
-                        <Text
-                          fontWeight="500"
-                          ml="10px"
-                          fontSize="12px"
-                          color="textBlackDeep"
+                        <Checkbox
+                          size="lg"
+                          display="flex"
+                          padding="5px"
+                          borderColor="mainBluemedium"
+                          key={column.field}
+                          defaultChecked={tempSelectedColumns.includes(column.field)}
+                          isChecked={tempSelectedColumns.includes(column.field)}
+                          onChange={() => toggleColumn(column.field)}
                         >
-                          {formattedHeader}
-                        </Text>
-                      </Checkbox>
-                    </Box>
-                  );
-                })}
+                          <Text
+                            fontWeight="500"
+                            ml="10px"
+                            fontSize="12px"
+                            color="textBlackDeep"
+                          >
+                            {formattedHeader}
+                          </Text>
+                        </Checkbox>
+                      </Box>
+                    );
+                  })
+                : null}
             </Box>
           </ModalBody>
           <ModalFooter>

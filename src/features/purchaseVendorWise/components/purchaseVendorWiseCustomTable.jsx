@@ -274,7 +274,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
   };
 
   const toggleColumn = (field) => {
-    if (field === "SL No") return;
     setTempSelectedColumns((prev) =>
       prev.includes(field)
         ? prev.filter((col) => col !== field)
@@ -317,7 +316,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
           return matchingColumn ? matchingColumn.listName || col : col;
         })
       )
-    ).filter((col) => col !== "SL No");
+    )
 
     setFilters((prevFilters) => ({
       ...prevFilters,
@@ -348,9 +347,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
   };
   useEffect(() => {
     if (isOpen) {
-      setTempSelectedColumns(selectedColumns);
+      const filteredColumns = columnData?.content[0]
+        ? Object.keys(columnData.content[0]).filter((key) =>
+          selectedColumns.includes(columnData.content[0][key]?.listName)
+        )
+        : [];
+      setTempSelectedColumns(filteredColumns);
     }
-  }, [isOpen, selectedColumns]);
+  }, [isOpen, selectedColumns, columnData]);
 
 
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
@@ -1448,49 +1452,44 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
                   bg: "borderGrayLight",
                 },
               }}>
-              {(getColumns(data) || [])
-                .concat(
-                  columnData
-                    ? Object.keys(columnData?.content[0] || {}).map((key) => ({
-                      field: key,
-                      header: key,
-                    }))
-                    : []
-                )
-                .map((column, index) => {
-                  const formattedHeader = formatHeader(
-                    column.field || column.header
-                  );
 
-                  return (
-                    <Box
-                      key={column.field}
-                      className="columnCheckBox"
-                      padding="5px"
-                      bg="rgba(231,231,231,1)"
-                      borderRadius="5px"
-                      width="48%">
-                      <Checkbox
-                        size="lg"
-                        display="flex"
-                        padding="5px"
-                        borderColor="mainBluemedium"
+              {columnData?.content && columnData.content.length > 0
+                ? Object.keys(columnData.content[0]).map((key) => ({
+                  field: key,
+                  header: key,
+                }))
+                  .map((column) => {
+                    const formattedHeader = formatHeader(column.field || column.header);
+                    return (
+                      <Box
                         key={column.field}
-                        defaultChecked={tempSelectedColumns.includes(column.field)}
-                        isChecked={tempSelectedColumns.includes(column.field)}
-                        onChange={() => toggleColumn(column.field)}
-                      >
-                        <Text
-                          fontWeight="500"
-                          ml="10px"
-                          fontSize="12px"
-                          color="textBlackDeep">
-                          {formattedHeader}
-                        </Text>
-                      </Checkbox>
-                    </Box>
-                  );
-                })}
+                        className="columnCheckBox"
+                        padding="5px"
+                        bg="rgba(231,231,231,1)"
+                        borderRadius="5px"
+                        width="48%">
+                        <Checkbox
+                          size="lg"
+                          display="flex"
+                          padding="5px"
+                          borderColor="mainBluemedium"
+                          key={column.field}
+                          defaultChecked={tempSelectedColumns.includes(column.field)}
+                          isChecked={tempSelectedColumns.includes(column.field)}
+                          onChange={() => toggleColumn(column.field)}
+                        >
+                          <Text
+                            fontWeight="500"
+                            ml="10px"
+                            fontSize="12px"
+                            color="textBlackDeep">
+                            {formattedHeader}
+                          </Text>
+                        </Checkbox>
+                      </Box>
+                    );
+                  })
+                : null}
             </Box>
           </ModalBody>
           <ModalFooter>

@@ -1668,52 +1668,46 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 },
               }}
             >
-             
-              {(getColumns(data) || [])
-                .concat(
-                  columnData
-                    ? Object.keys(columnData?.content[0] || {}).map((key) => ({
-                      field: key,
-                      header: key,
-                    }))
-                    : []
-                )
-                .map((column, index) => {
-                  const formattedHeader = formatHeader(
-                    column.field || column.header
-                  );
-                  return (
-                    <Box
-                      key={`${column.field || column.header}-${index}`}
-                      className="columnCheckBox"
-                      padding="5px"
-                      bg="rgba(231,231,231,1)"
-                      borderRadius="5px"
-                      width="48%"
-                    >
-                      <Checkbox
-                        size="lg"
-                        display="flex"
+              {columnData?.content && columnData.content.length > 0
+                ? Object.keys(columnData.content[0]).map((key) => ({
+                  field: key,
+                  header: key,
+                }))
+                  .map((column) => {
+                    const formattedHeader = formatHeader(column.field || column.header);
+                    return (
+                      <Box
+                        key={column.field}
+                        className="columnCheckBox"
                         padding="5px"
-                        borderColor="mainBluemedium"
-                        defaultChecked={tempSelectedColumns.includes(
-                          column.field
-                        )}
-                        isChecked={tempSelectedColumns.includes(column.field)}
-                        onChange={() => toggleColumn(column.field)}
+                        bg="rgba(231,231,231,1)"
+                        borderRadius="5px"
+                        width="48%"
                       >
-                        <Text
-                          fontWeight="500"
-                          ml="10px"
-                          fontSize="12px"
-                          color="textBlackDeep"
+                        <Checkbox
+                          size="lg"
+                          display="flex"
+                          padding="5px"
+                          borderColor="mainBluemedium"
+                          defaultChecked={tempSelectedColumns.includes(
+                            column.field
+                          )}
+                          isChecked={tempSelectedColumns.includes(column.field)}
+                          onChange={() => toggleColumn(column.field)}
                         >
-                          {formattedHeader}
-                        </Text>
-                      </Checkbox>
-                    </Box>
-                  );
-                })}
+                          <Text
+                            fontWeight="500"
+                            ml="10px"
+                            fontSize="12px"
+                            color="textBlackDeep"
+                          >
+                            {formattedHeader}
+                          </Text>
+                        </Checkbox>
+                      </Box>
+                    );
+                  })
+                : null}
             </Box>
           </ModalBody>
           <ModalFooter>

@@ -290,7 +290,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   }
   // Handle column selection
   const toggleColumn = (field) => {
-    if (field === "SL No") return
     setTempSelectedColumns((prev) =>
       prev.includes(field)
         ? prev.filter((col) => col !== field)
@@ -332,7 +331,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           return matchingColumn ? matchingColumn.listName || col : col;
         })
       )
-    ).filter((col) => col !== "SL No");
+    )
     clearPriviewColumnData();
     setFilters((prevFilters) => ({
       ...prevFilters,
@@ -1598,22 +1597,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                   bg: "borderGrayLight",
                 },
               }}>
-              {(getColumns(data) || [])
-                .concat(
-                  columnData
-                    ? Object.keys(columnData?.content[0] || {}).map((key) => ({
-                      field: key,
-                      header: key,
-                    }))
-                    : []
-                )
-                .map((column, index) => {
-                  const formattedHeader = formatHeader(
-                    column.field || column.header
-                  );
+             {columnData?.content && columnData.content.length > 0
+                ? Object.keys(columnData.content[0]).map((key) => ({
+                  field: key,
+                  header: key,
+                }))
+                  .map((column) => {
+                    const formattedHeader = formatHeader(column.field || column.header);
                   return (
                     <Box
-                      key={column.field || index}
+                      key={column.field}
                       className="columnCheckBox"
                       padding="5px"
                       bg="rgba(231,231,231,1)"
@@ -1638,7 +1631,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                       </Checkbox>
                     </Box>
                   );
-                })}
+                })
+                : null}
             </Box>
           </ModalBody>
           <ModalFooter>

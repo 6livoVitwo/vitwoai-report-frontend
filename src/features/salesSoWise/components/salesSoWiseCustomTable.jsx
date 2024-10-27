@@ -337,9 +337,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
   useEffect(() => {
     if (isOpen) {
-      setTempSelectedColumns(selectedColumns);
+      const filteredColumns = ColumnsData?.content[0]
+        ? Object.keys(ColumnsData.content[0]).filter((key) =>
+          selectedColumns.includes(ColumnsData.content[0][key]?.listName)
+        )
+        : [];
+      setTempSelectedColumns(filteredColumns);
     }
-  }, [isOpen, selectedColumns]);
+  }, [isOpen, selectedColumns, ColumnsData]);
 
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
   useEffect(() => {
@@ -985,28 +990,28 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                             {formatHeader(column)}
                             {/* sort A to Z */}
                             {column !== "SL No" && !column.toLowerCase().includes("sum") && (
-                            <Button
-                              className="A_to_Z"
-                              bg="none"
-                              _hover={{ bg: "none" }}
-                              onClick={() => handleSort(column)}
-                            >
-                              {sortColumn === column ? (
-                                sortOrder === "asc" ? (
-                                  <FontAwesomeIcon
-                                    icon={faArrowDownShortWide}
-                                  />
+                              <Button
+                                className="A_to_Z"
+                                bg="none"
+                                _hover={{ bg: "none" }}
+                                onClick={() => handleSort(column)}
+                              >
+                                {sortColumn === column ? (
+                                  sortOrder === "asc" ? (
+                                    <FontAwesomeIcon
+                                      icon={faArrowDownShortWide}
+                                    />
+                                  ) : (
+                                    <FontAwesomeIcon icon={faArrowUpWideShort} />
+                                  )
                                 ) : (
-                                  <FontAwesomeIcon icon={faArrowUpWideShort} />
-                                )
-                              ) : (
-                                <FontAwesomeIcon
-                                  icon={faArrowRightArrowLeft}
-                                  rotation={90}
-                                  fontSize="13px"
-                                />
-                              )}
-                            </Button>
+                                  <FontAwesomeIcon
+                                    icon={faArrowRightArrowLeft}
+                                    rotation={90}
+                                    fontSize="13px"
+                                  />
+                                )}
+                              </Button>
                             )}
                             <Popover
                               isOpen={activeFilterColumn === column}
@@ -1593,50 +1598,45 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 },
               }}
             >
-              {(getColumns(data) || [])
-                .concat(
-                  ColumnsData
-                    ? Object.keys(ColumnsData?.content[0] || {}).map((key) => ({
-                      field: key,
-                      header: key,
-                    }))
-                    : []
-                )
-                .map((column, index) => {
-                  const formattedHeader = formatHeader(
-                    column.field || column.header
-                  );
-                  return (
-                    <Box
-                      key={column.field}
-                      className="columnCheckBox"
-                      padding="5px"
-                      bg="rgba(231,231,231,1)"
-                      borderRadius="5px"
-                      width="48%"
-                    >
-                      <Checkbox
-                        size="lg"
-                        display="flex"
-                        padding="5px"
-                        borderColor="mainBluemedium"
+              {ColumnsData?.content && ColumnsData.content.length > 0
+                ? Object.keys(ColumnsData.content[0]).map((key) => ({
+                  field: key,
+                  header: key,
+                }))
+                  .map((column) => {
+                    const formattedHeader = formatHeader(column.field || column.header);
+                    return (
+                      <Box
                         key={column.field}
-                        defaultChecked={tempSelectedColumns.includes(column.field)}
-                        isChecked={tempSelectedColumns.includes(column.field)}
-                        onChange={() => toggleColumn(column.field)}
+                        className="columnCheckBox"
+                        padding="5px"
+                        bg="rgba(231,231,231,1)"
+                        borderRadius="5px"
+                        width="48%"
                       >
-                        <Text
-                          fontWeight="500"
-                          ml="10px"
-                          fontSize="12px"
-                          color="textBlackDeep"
+                        <Checkbox
+                          size="lg"
+                          display="flex"
+                          padding="5px"
+                          borderColor="mainBluemedium"
+                          key={column.field}
+                          defaultChecked={tempSelectedColumns.includes(column.field)}
+                          isChecked={tempSelectedColumns.includes(column.field)}
+                          onChange={() => toggleColumn(column.field)}
                         >
-                          {formattedHeader}
-                        </Text>
-                      </Checkbox>
-                    </Box>
-                  );
-                })}
+                          <Text
+                            fontWeight="500"
+                            ml="10px"
+                            fontSize="12px"
+                            color="textBlackDeep"
+                          >
+                            {formattedHeader}
+                          </Text>
+                        </Checkbox>
+                      </Box>
+                    );
+                  })
+                : null}
             </Box>
           </ModalBody>
           <ModalFooter>

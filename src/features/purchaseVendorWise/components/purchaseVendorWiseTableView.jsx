@@ -15,8 +15,8 @@ const PurchaseVendorWiseTableView = () => {
   const [filters, setFilters] = useState(
     {
       data: [
-        "grnInvoice.vendorCode",
-        "grnInvoice.vendorName",
+        "vendors.trade_name",
+        "vendors.vendor_code",
         "SUM(grnInvoice.grnSubTotal)",
         "SUM(grnInvoice.grnTotalCgst)",
         "SUM(grnInvoice.grnTotalSgst)",

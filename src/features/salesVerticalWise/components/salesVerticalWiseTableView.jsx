@@ -17,9 +17,10 @@ const SalesVerticalWiseTableView = () => {
     {
       data: [
         "invoice_date",
-        "companyFunction.functionalities_name",
         "SUM(quotation.totalAmount)",
-        "SUM(items.qty)",
+        "SUM(salesOrder.totalAmount)"
+        // "companyFunction.functionalities_name",
+        // "SUM(items.qty)",
         // "SUM(salesPgi.salesDelivery.totalAmount)",
         // "SUM(salesPgi.totalAmount)",
         // "SUM(quotation.totalAmount)",
@@ -90,9 +91,9 @@ const SalesVerticalWiseTableView = () => {
         const flattenedInvoice = flattenObject(invoice);
         return invoice.items?.length
           ? invoice.items.map((item) => {
-              const flattenedItem = flattenObject(item, "item.");
-              return { ...flattenedInvoice, ...flattenedItem };
-            })
+            const flattenedItem = flattenObject(item, "item.");
+            return { ...flattenedInvoice, ...flattenedItem };
+          })
           : [flattenedInvoice];
       });
       setIndividualItems((prevItems) => [...prevItems, ...newItems]);
