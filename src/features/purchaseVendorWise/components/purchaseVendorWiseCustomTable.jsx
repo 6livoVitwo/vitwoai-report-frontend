@@ -397,6 +397,29 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
     setSortColumn("");
   };
 
+  const clearsingleFilter = (column) => {
+    console.log('Clearing filter for column:', column);
+    setLocalFilters((prevFilters) => {
+      const updatedFilters = {
+        ...prevFilters,
+        filter: prevFilters.filter.filter((filter) => filter.column !== column),
+      };
+      if (updatedFilters.filter.length === 0) {
+        window.location.reload();
+      }
+      return updatedFilters;
+    });
+    setColumnFilters((prevFilters) => {
+      const newFilters = { ...prevFilters };
+      delete newFilters[column];
+      return newFilters;
+    });
+    setTempFilterCondition(null);
+    setTempFilterValue("");
+    setActiveFilterColumn(null);
+    refetchProduct();
+  };
+
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray];
 
@@ -929,29 +952,36 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
                               closeOnBlur={false}
                             >
                               <PopoverTrigger>
-                                <Button
-                                  bg="transparent"
-                                  onClick={() => handlePopoverClick(column)}
-                                >
                                   {columnFilters[column] ? (
-                                    <i
-                                      className="pi pi-filter-slash"
-                                      style={{
-                                        color: "slateblue",
-                                        fontSize: "1.4rem",
+                                    <Button
+                                      bg="transparent"
+                                      onClick={() => {
+                                        clearsingleFilter(column);
                                       }}
-                                    ></i>
+                                    >
+                                      <i
+                                        className="pi pi-filter-slash"
+                                        style={{
+                                          color: "slateblue",
+                                          fontSize: "1.4rem",
+                                        }}
+                                      ></i>
+                                    </Button>
                                   ) : (
-                                    <i
-                                      className="pi pi-filter"
-                                      style={{
-                                        color: "slateblue",
-                                        fontSize: "1.4rem",
-                                      }}
-                                    ></i>
+                                    <Button
+                                      bg="transparent"
+                                      onClick={() => handlePopoverClick(column)}
+                                    >
+                                      <i
+                                        className="pi pi-filter"
+                                        style={{
+                                          color: "slateblue",
+                                          fontSize: "1.4rem",
+                                        }}
+                                      ></i>
+                                    </Button>
                                   )}
-                                </Button>
-                              </PopoverTrigger>
+                                </PopoverTrigger>
                               {activeFilterColumn === column && (
                                 <PopoverContent w="120%">
                                   <PopoverArrow />

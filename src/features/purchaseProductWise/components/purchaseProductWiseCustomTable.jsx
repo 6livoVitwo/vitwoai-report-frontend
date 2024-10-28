@@ -420,6 +420,30 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     window.location.reload();
   };
 
+  // Clear single filter active column.... 
+  const clearsingleFilter = (column) => {
+    console.log('Clearing filter for column:', column);
+    setLocalFilters((prevFilters) => {
+      const updatedFilters = {
+        ...prevFilters,
+        filter: prevFilters.filter.filter((filter) => filter.column !== column),
+      };
+      if (updatedFilters.filter.length === 0) {
+        window.location.reload();
+      }
+      return updatedFilters;
+    });
+    setColumnFilters((prevFilters) => {
+      const newFilters = { ...prevFilters };
+      delete newFilters[column];
+      return newFilters;
+    });
+    setTempFilterCondition(null);
+    setTempFilterValue("");
+    setActiveFilterColumn(null);
+    refetchProductFilter();
+  };
+
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray];
     // Global search
@@ -1060,15 +1084,17 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                               <Popover
                                 isOpen={activeFilterColumn === column}
                                 onClose={() => setActiveFilterColumn(null)}
-                                autoFocus={false} // Prevent the popover from focusing automatically
-                                closeOnBlur={false} // Prevent the popover from closing when clicking outside
+                                autoFocus={false}
+                                closeOnBlur={false}
                               >
                                 <PopoverTrigger>
-                                  <Button
-                                    bg="transparent"
-                                    onClick={() => handlePopoverClick(column)} // Set the clicked column as active
-                                  >
-                                    {columnFilters[column] ? (
+                                  {columnFilters[column] ? (
+                                    <Button
+                                      bg="transparent"
+                                      onClick={() => {
+                                        clearsingleFilter(column);
+                                      }}
+                                    >
                                       <i
                                         className="pi pi-filter-slash"
                                         style={{
@@ -1076,7 +1102,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                           fontSize: "1.4rem",
                                         }}
                                       ></i>
-                                    ) : (
+                                    </Button>
+                                  ) : (
+                                    <Button
+                                      bg="transparent"
+                                      onClick={() => handlePopoverClick(column)}
+                                    >
                                       <i
                                         className="pi pi-filter"
                                         style={{
@@ -1084,8 +1115,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                           fontSize: "1.4rem",
                                         }}
                                       ></i>
-                                    )}
-                                  </Button>
+                                    </Button>
+                                  )}
                                 </PopoverTrigger>
                                 {activeFilterColumn === column && (
                                   <PopoverContent w="120%">
@@ -1136,15 +1167,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                                   onChange={(e) => {
                                                     const formattedDates = e.value.map((date) => {
                                                       if (date) {
-                                                        // Adjust for timezone by setting the time to midnight in local time
                                                         const adjustedDate = new Date(date);
                                                         adjustedDate.setMinutes(adjustedDate.getMinutes() - adjustedDate.getTimezoneOffset());
                                                         return adjustedDate.toISOString().split("T")[0];
                                                       }
                                                       return null;
                                                     });
-                                                    setDates(e.value); // Store the selected range
-                                                    setTempFilterValue(formattedDates); // Set the value for filtering
+                                                    setDates(e.value);
+                                                    setTempFilterValue(formattedDates);
                                                   }}
                                                   selectionMode="range"
                                                   readOnlyInput
@@ -1219,8 +1249,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                 column === "description"
                                   ? "300px"
                                   : column === "name"
-                                    ? "200px"
-                                    : "100px"
+                                    ? "300px"
+                                    : "250px"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis">
@@ -1597,41 +1627,41 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                   bg: "borderGrayLight",
                 },
               }}>
-             {columnData?.content && columnData.content.length > 0
+              {columnData?.content && columnData.content.length > 0
                 ? Object.keys(columnData.content[0]).map((key) => ({
                   field: key,
                   header: key,
                 }))
                   .map((column) => {
                     const formattedHeader = formatHeader(column.field || column.header);
-                  return (
-                    <Box
-                      key={column.field}
-                      className="columnCheckBox"
-                      padding="5px"
-                      bg="rgba(231,231,231,1)"
-                      borderRadius="5px"
-                      width="48%">
-                      <Checkbox
-                        size="lg"
-                        display="flex"
+                    return (
+                      <Box
+                        key={column.field}
+                        className="columnCheckBox"
                         padding="5px"
-                        borderColor="mainBluemedium"
-                        defaultChecked={tempSelectedColumns.includes(column.field)}
-                        isChecked={tempSelectedColumns.includes(column.field)}
-                        onChange={() => toggleColumn(column.field)}
-                      >
-                        <Text
-                          fontWeight="500"
-                          ml="10px"
-                          fontSize="12px"
-                          color="textBlackDeep">
-                          {formattedHeader}
-                        </Text>
-                      </Checkbox>
-                    </Box>
-                  );
-                })
+                        bg="rgba(231,231,231,1)"
+                        borderRadius="5px"
+                        width="48%">
+                        <Checkbox
+                          size="lg"
+                          display="flex"
+                          padding="5px"
+                          borderColor="mainBluemedium"
+                          defaultChecked={tempSelectedColumns.includes(column.field)}
+                          isChecked={tempSelectedColumns.includes(column.field)}
+                          onChange={() => toggleColumn(column.field)}
+                        >
+                          <Text
+                            fontWeight="500"
+                            ml="10px"
+                            fontSize="12px"
+                            color="textBlackDeep">
+                            {formattedHeader}
+                          </Text>
+                        </Checkbox>
+                      </Box>
+                    );
+                  })
                 : null}
             </Box>
           </ModalBody>

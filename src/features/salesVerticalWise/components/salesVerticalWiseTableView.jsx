@@ -17,6 +17,7 @@ const SalesVerticalWiseTableView = () => {
     {
       data: [
         "invoice_date",
+        "companyFunction.functionalities_name",
         "SUM(quotation.totalAmount)",
         "SUM(salesOrder.totalAmount)"
         // "companyFunction.functionalities_name",

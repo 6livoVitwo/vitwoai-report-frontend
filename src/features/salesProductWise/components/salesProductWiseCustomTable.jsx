@@ -405,6 +405,30 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     window.location.reload();
   };
 
+  // Clear single filter active column.... 
+  const clearsingleFilter = (column) => {
+    console.log('Clearing filter for column:', column);
+    setLocalFilters((prevFilters) => {
+      const updatedFilters = {
+        ...prevFilters,
+        filter: prevFilters.filter.filter((filter) => filter.column !== column),
+      };
+      if (updatedFilters.filter.length === 0) {
+        window.location.reload();
+      }
+      return updatedFilters;
+    });
+    setColumnFilters((prevFilters) => {
+      const newFilters = { ...prevFilters };
+      delete newFilters[column];
+      return newFilters;
+    });
+    setTempFilterCondition(null);
+    setTempFilterValue("");
+    setActiveFilterColumn(null);
+    refetchsalesproductdata();
+  };
+
   // Sorting logic
   const handleSort = (column) => {
     const newSortOrder =
@@ -1101,15 +1125,17 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                               <Popover
                                 isOpen={activeFilterColumn === column}
                                 onClose={() => setActiveFilterColumn(null)}
-                                autoFocus={false} // Prevent the popover from focusing automatically
-                                closeOnBlur={false} // Prevent the popover from closing when clicking outside
+                                autoFocus={false} 
+                                closeOnBlur={false} 
                               >
                                 <PopoverTrigger>
-                                  <Button
-                                    bg="transparent"
-                                    onClick={() => handlePopoverClick(column)} // Set the clicked column as active
-                                  >
-                                    {columnFilters[column] ? (
+                                  {columnFilters[column] ? (
+                                    <Button
+                                      bg="transparent"
+                                      onClick={() => {
+                                        clearsingleFilter(column);
+                                      }}
+                                    >
                                       <i
                                         className="pi pi-filter-slash"
                                         style={{
@@ -1117,7 +1143,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                           fontSize: "1.4rem",
                                         }}
                                       ></i>
-                                    ) : (
+                                    </Button>
+                                  ) : (
+                                    <Button
+                                      bg="transparent"
+                                      onClick={() => handlePopoverClick(column)}
+                                    >
                                       <i
                                         className="pi pi-filter"
                                         style={{
@@ -1125,8 +1156,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                           fontSize: "1.4rem",
                                         }}
                                       ></i>
-                                    )}
-                                  </Button>
+                                    </Button>
+                                  )}
                                 </PopoverTrigger>
                                 {activeFilterColumn === column && (
                                   <PopoverContent w="120%">
