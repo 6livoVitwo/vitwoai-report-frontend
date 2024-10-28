@@ -1113,7 +1113,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
                                   ? "300px"
                                   : column === "name"
                                     ? "200px"
-                                    : "100px"
+                                    : "250px"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis">

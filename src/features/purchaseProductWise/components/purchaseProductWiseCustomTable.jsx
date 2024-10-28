@@ -286,8 +286,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSelectedColumns(newColumnsOrder);
   };
   const clearPriviewColumnData = () => {
-    setPage(1);
+    setPage(0);
   }
+
   // Handle column selection
   const toggleColumn = (field) => {
     setTempSelectedColumns((prev) =>
@@ -333,6 +334,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       )
     )
     clearPriviewColumnData();
+
     setFilters((prevFilters) => ({
       ...prevFilters,
       data: updatedSelectedColumns,
@@ -372,7 +374,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   }, [isOpen, selectedColumns, columnData]);
 
 
-  const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
+  const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 200), []);
 
   useEffect(() => {
     return () => {
@@ -416,7 +418,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSearchQuery("");
     setInputValue("");
     setColumnFilters({});
-    // setTableData(newArray);
     window.location.reload();
   };
 
@@ -1255,13 +1256,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                               overflow="hidden"
                               textOverflow="ellipsis">
                               {/* Check if column exists in the productDataFilter */}
-                              {item[column] !== undefined &&
-                                typeof item[column] === "object" &&
-                                item[column] !== null
-                                ? item[column].listName || item[column].index
-                                : item[column] !== undefined
-                                  ? item[column]
-                                  : "-"}
+                              {item[column] || "-"}
                             </Text>
                           </Td>
                         ))}
