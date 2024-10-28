@@ -113,7 +113,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [dates, setDates] = useState(null);
   const dispatch = useDispatch();
   const [tableData, setTableData] = useState([]);
-
+  const [calendarVisible, setCalendarVisible] = useState(false);
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
   };
@@ -635,14 +635,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     const seconds = String(date.getSeconds()).padStart(2, '0');
 
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-  };
-
-  const handleCalendarChange = (e) => {
-    const selectedDate = e.value; // `e.value` should return a Date object.
-    if (selectedDate) {
-      setTempFilterValue(formatDate(selectedDate)); // Format the date
-      setDates([selectedDate]); // Assuming you're using the date range feature
-    }
   };
 
 
@@ -1176,10 +1168,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                                     });
                                                     setDates(e.value);
                                                     setTempFilterValue(formattedDates);
+
+                                                    if (e.value[0] && e.value[1]) {
+                                                      setCalendarVisible(false);
+                                                    }
                                                   }}
                                                   selectionMode="range"
                                                   readOnlyInput
                                                   hideOnRangeSelection
+                                                  visible={calendarVisible}
+                                                  onVisibleChange={(e) => setCalendarVisible(e.visible)}
                                                 />
                                               </Box>
                                             ) : (

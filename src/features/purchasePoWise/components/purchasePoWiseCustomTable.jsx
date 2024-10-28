@@ -113,6 +113,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     (state) => state.salescustomer.widgets
   );
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
+  const [calendarVisible, setCalendarVisible] = useState(false);
+
 
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
@@ -1065,19 +1067,23 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                                 onChange={(e) => {
                                                   const formattedDates = e.value.map((date) => {
                                                     if (date) {
-                                                      // Adjust for timezone by setting the time to midnight in local time
                                                       const adjustedDate = new Date(date);
                                                       adjustedDate.setMinutes(adjustedDate.getMinutes() - adjustedDate.getTimezoneOffset());
                                                       return adjustedDate.toISOString().split("T")[0];
                                                     }
                                                     return null;
                                                   });
-                                                  setDates(e.value); // Store the selected range
-                                                  setTempFilterValue(formattedDates); // Set the value for filtering
+                                                  setDates(e.value);
+                                                  setTempFilterValue(formattedDates);
+                                                  if (e.value[0] && e.value[1]) {
+                                                    setCalendarVisible(false);
+                                                  }
                                                 }}
                                                 selectionMode="range"
                                                 readOnlyInput
                                                 hideOnRangeSelection
+                                                visible={calendarVisible}
+                                                onVisibleChange={(e) => setCalendarVisible(e.visible)}
                                               />
                                             </Box>
                                           ) : (

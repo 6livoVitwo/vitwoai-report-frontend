@@ -113,6 +113,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [fullData, setFullData] = useState([]);
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const [dates, setDates] = useState(null);
+  const [calendarVisible, setCalendarVisible] = useState(false);
+
 
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
@@ -1125,8 +1127,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                               <Popover
                                 isOpen={activeFilterColumn === column}
                                 onClose={() => setActiveFilterColumn(null)}
-                                autoFocus={false} 
-                                closeOnBlur={false} 
+                                autoFocus={false}
+                                closeOnBlur={false}
                               >
                                 <PopoverTrigger>
                                   {columnFilters[column] ? (
@@ -1216,10 +1218,15 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                                     });
                                                     setDates(e.value);
                                                     setTempFilterValue(formattedDates);
+                                                    if (e.value[0] && e.value[1]) {
+                                                      setCalendarVisible(false);
+                                                    }
                                                   }}
                                                   selectionMode="range"
                                                   readOnlyInput
                                                   hideOnRangeSelection
+                                                  visible={calendarVisible}
+                                                  onVisibleChange={(e) => setCalendarVisible(e.visible)}
                                                 />
                                               </Box>
                                             ) : (

@@ -103,6 +103,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [currentPage, setCurrentPage] = useState(0); // Default page is 0
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const [dates, setDates] = useState(null);
+  const [calendarVisible, setCalendarVisible] = useState(false);
+
 
 
   //API Calling sorting
@@ -1064,10 +1066,15 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                                   });
                                                   setDates(e.value);
                                                   setTempFilterValue(formattedDates);
+                                                  if (e.value[0] && e.value[1]) {
+                                                    setCalendarVisible(false);
+                                                  }
                                                 }}
                                                 selectionMode="range"
                                                 readOnlyInput
                                                 hideOnRangeSelection
+                                                visible={calendarVisible}
+                                                onVisibleChange={(e) => setCalendarVisible(e.visible)}
                                               />
                                             </Box>
                                           ) : (
