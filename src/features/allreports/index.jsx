@@ -91,6 +91,17 @@ const Allreports = () => {
         },
       ],
     },
+	{
+		"card catagory": "Receivable",
+		cards: [
+		  {
+			id: "27",
+			name: "Receivable Customer",
+			link: "/reports/receivable-customer/table-view",
+			imgsrc: purchaseProductWise,
+		  },
+		],
+	  },
   ];
 
 	// *****************scrollbar types button**********************

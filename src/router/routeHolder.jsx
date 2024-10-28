@@ -22,7 +22,10 @@ import SalesVerticalWiseTableView from "../features/salesVerticalWise/components
 import SalesSoWise from "../features/salesSoWise/components/index";
 import SalesSoWiseTableView from "../features/salesSoWise/components/salesSoWiseTableView";
 import SalesRegionWise from "../features/salesRegionWise/components/index";
+// import SalesRegionWiseTableView from "../features/salesRegionWise/cormponents/salesRegionWiseTableView";
 import SalesRegionWiseTableView from "../features/salesRegionWise/components/salesRegionWiseTableView";
+import ReceivableCustomer from "../features/receivableCustomer/components/index";
+import ReceivableCustomerTableView from "../features/receivableCustomer/components/receivableCustomerTableView";
 import GlobalCss from "../features/global/css";
 import { setAuthDetails } from "./slice";
 import Allreports from "../features/allreports";
@@ -186,6 +189,29 @@ const AllRoutes = () => {
                   globalLayout={globalStaticFragmennt}
                   portalId={commonPortalRef}>
                   <PurchaseProductWiseTableView
+                    globalLayout={setGlobalStaticFragmennt}
+                  />
+                </PortalForLayout>
+              }
+            />
+          </Route>
+
+          <Route
+            path="/reports/receivable-customer"
+            element={
+              <PortalForLayout
+                globalLayout={globalStaticFragmennt}
+                portalId={commonPortalRef}>
+                <ReceivableCustomer globalLayout={setGlobalStaticFragmennt} />
+              </PortalForLayout>
+            }>
+            <Route
+              path="/reports/receivable-customer/table-view"
+              element={
+                <PortalForLayout
+                  globalLayout={globalStaticFragmennt}
+                  portalId={commonPortalRef}>
+                  <ReceivableCustomerTableView
                     globalLayout={setGlobalStaticFragmennt}
                   />
                 </PortalForLayout>
