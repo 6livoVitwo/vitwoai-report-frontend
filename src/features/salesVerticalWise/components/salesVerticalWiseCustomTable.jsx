@@ -495,23 +495,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setConfigureChart(filterData);
   };
 
-  const formatHeader = (header) => {
-    header = header.trim();
-    header = header.replace(/^[A-Z]+\(|\)$/g, "");
-    const parts = header.replace(/_/g, " ").split(".");
-    const lastPart = parts.pop();
-    const prefix = parts.length > 0 ? parts.pop() : "";
-    const combined = prefix ? `${prefix} ${lastPart}` : lastPart;
-    const formatted = combined
-      .split(" ")
-      .map((word) => {
-        if (word.toLowerCase() === "uom") {
-          return "Uom";
+  const formatHeader = (column) => {
+    if (selectedColumnsData && selectedColumnsData.content) {
+      const apiContent = selectedColumnsData.content[0];
+      for (const key in apiContent) {
+        if (apiContent[key].listName === column) {
+          return key;
         }
-        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-      })
-      .join(" ");
-    return formatted;
+      }
+    }
+    return column;
   };
 
   const handleScroll = () => {

@@ -133,7 +133,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       },
       page: currentPage,
     });
-  // console.log("piyas ninja", ProductData);
 
   //Api calling for selected columns drop down
   const { data: columnData, refetch: refetchColumnData } =
@@ -473,25 +472,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   ]);
 
 
-  const formatHeader = (header) => {
-    header = header.trim();
-    header = header.trim();
-    header = header.replace(/^[A-Z]+\(|\)$/g, "");
-    header = header.replace(/_/g, " ");
-    const parts = header.split(".");
-    const lastPart = parts.pop();
-    const words = lastPart.split("_").join("");
-    const spacedWords = words.replace(/([a-z])([A-Z])/g, "$1 $2");
-
-    return spacedWords
-      .split(" ")
-      .map((word) => {
-        if (word.toLowerCase() === "uom") {
-          return "Uom";
+  const formatHeader = (column) => {
+    if (columnData && columnData.content) {
+      const apiContent = columnData.content[0];
+      for (const key in apiContent) {
+        if (apiContent[key].listName === column) {
+          return key;
         }
-        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-      })
-      .join(" ");
+      }
+    }
+    return column;
   };
 
   // ...Handle scroll...

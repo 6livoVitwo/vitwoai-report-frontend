@@ -49,13 +49,13 @@ const PurchaseProductWiseTableView = () => {
   const tableContainerRef = useRef(null);
 
  // Create a mapping of API fields to display names
-  const fieldMapping = {
-    "items.goodName": "items.goodName",
-    "items.goodCode": "items.goodCode",
-    "SUM(items.goodQty)": "SUM(items.goodQty)",
-    "SUM(items.receivedQty)": "SUM(items.receivedQty)",
-    "SUM(items.totalAmount)": "SUM(items.totalAmount)",
-  };
+  // const fieldMapping = {
+  //   "items.goodName": "items.goodName",
+  //   "items.goodCode": "items.goodCode",
+  //   "SUM(items.goodQty)": "SUM(items.goodQty)",
+  //   "SUM(items.receivedQty)": "SUM(items.receivedQty)",
+  //   "SUM(items.totalAmount)": "SUM(items.totalAmount)",
+  // };
 
   const flattenObject = (obj, prefix = "") => {
     let result = {};
@@ -75,16 +75,16 @@ const PurchaseProductWiseTableView = () => {
     return result;
   };
 
-  const extractFields = (data, index) => {
-    const extractedFields = {
-      "SL No": index + 1,
-      ...Object.keys(fieldMapping).reduce((acc, apiField) => {
-        acc[fieldMapping[apiField]] = data[apiField];
-        return acc;
-      }, {}),
-    };
-    return extractedFields;
-  };
+  // const extractFields = (data, index) => {
+  //   const extractedFields = {
+  //     "SL No": index + 1,
+  //     ...Object.keys(fieldMapping).reduce((acc, apiField) => {
+  //       acc[fieldMapping[apiField]] = data[apiField];
+  //       return acc;
+  //     }, {}),
+  //   };
+  //   return extractedFields;
+  // };
 
   useEffect(() => {
     if (sales?.content?.length) {
@@ -179,7 +179,7 @@ const PurchaseProductWiseTableView = () => {
           setSize={setSize}
           filters={filters}
           setFilters={setFilters}
-          extractFields={extractFields}
+          // extractFields={extractFields}
           alignment={{
             "Total Quantity": "right",
             "Received Quantity": "right",
