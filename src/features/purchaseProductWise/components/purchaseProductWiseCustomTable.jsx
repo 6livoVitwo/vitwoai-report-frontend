@@ -305,15 +305,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       }))
       : [];
 
-    const uniqueColumns = Array.from(new Set(allColumns.map((col) => col.listName)));
+    // const uniqueColumns = Array.from(new Set(allColumns.map((col) => col.listName)));
+    const uniqueColumns = allColumns.map((col) => col.field);
 
-    let updatedColumns;
     if (selectAll) {
       setTempSelectedColumns([]);
-      updatedColumns = defaultColumns;
     } else {
       setTempSelectedColumns(uniqueColumns);
-      updatedColumns = uniqueColumns;
     }
 
     setSelectAll(!selectAll);
@@ -1638,7 +1636,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                           display="flex"
                           padding="5px"
                           borderColor="mainBluemedium"
-                          defaultChecked={tempSelectedColumns.includes(column.field)}
                           isChecked={tempSelectedColumns.includes(column.field)}
                           onChange={() => toggleColumn(column.field)}
                         >

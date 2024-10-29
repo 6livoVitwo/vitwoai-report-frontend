@@ -299,15 +299,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       }))
       : [];
 
-    const uniqueColumns = Array.from(new Set(allColumns.map((col) => col.listName)));
+    // const uniqueColumns = Array.from(new Set(allColumns.map((col) => col.listName)));
+    const uniqueColumns = allColumns.map((col) => col.field);
 
-    let updatedColumns;
     if (selectAll) {
       setTempSelectedColumns([]);
-      updatedColumns = defaultColumns;
     } else {
       setTempSelectedColumns(uniqueColumns);
-      updatedColumns = uniqueColumns;
     }
 
     setSelectAll(!selectAll);
