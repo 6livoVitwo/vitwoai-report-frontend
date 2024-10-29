@@ -1076,7 +1076,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                             {column !== "SL No" && (
                               <Popover
                                 isOpen={activeFilterColumn === column}
-                                onClose={() => setActiveFilterColumn(null)}
+                                onClose={() => {
+                                  setActiveFilterColumn(null)
+                                }}
                                 autoFocus={false}
                                 closeOnBlur={false}
                               >
@@ -1114,7 +1116,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                 {activeFilterColumn === column && (
                                   <PopoverContent w="120%">
                                     <PopoverArrow />
-                                    <PopoverCloseButton size="lg" />
+                                    <PopoverCloseButton size="lg"
+                                      onClick={() => {
+                                        setTempFilterCondition("");
+                                        setTempFilterValue("");
+                                        setDates([]);
+                                      }}
+                                    />
                                     <PopoverBody h="auto" maxH="300px">
                                       <Box>
                                         <Box key={column} mb="12px">
@@ -1685,7 +1693,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </Box>
+    </Box >
   );
 };
 
