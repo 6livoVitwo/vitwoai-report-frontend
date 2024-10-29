@@ -41,7 +41,7 @@ const DashboardNew = () => {
         <>
         <Box>
             <TestTableComp />
-            <TestProductTableComp />
+            {/* <TestProductTableComp /> */}
         </Box>
             <Box
                 sx={{
