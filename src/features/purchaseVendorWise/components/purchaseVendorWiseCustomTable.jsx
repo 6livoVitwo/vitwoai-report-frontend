@@ -952,40 +952,46 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
                               closeOnBlur={false}
                             >
                               <PopoverTrigger>
-                                  {columnFilters[column] ? (
-                                    <Button
-                                      bg="transparent"
-                                      onClick={() => {
-                                        clearsingleFilter(column);
+                                {columnFilters[column] ? (
+                                  <Button
+                                    bg="transparent"
+                                    onClick={() => {
+                                      clearsingleFilter(column);
+                                    }}
+                                  >
+                                    <i
+                                      className="pi pi-filter-slash"
+                                      style={{
+                                        color: "slateblue",
+                                        fontSize: "1.4rem",
                                       }}
-                                    >
-                                      <i
-                                        className="pi pi-filter-slash"
-                                        style={{
-                                          color: "slateblue",
-                                          fontSize: "1.4rem",
-                                        }}
-                                      ></i>
-                                    </Button>
-                                  ) : (
-                                    <Button
-                                      bg="transparent"
-                                      onClick={() => handlePopoverClick(column)}
-                                    >
-                                      <i
-                                        className="pi pi-filter"
-                                        style={{
-                                          color: "slateblue",
-                                          fontSize: "1.4rem",
-                                        }}
-                                      ></i>
-                                    </Button>
-                                  )}
-                                </PopoverTrigger>
+                                    ></i>
+                                  </Button>
+                                ) : (
+                                  <Button
+                                    bg="transparent"
+                                    onClick={() => handlePopoverClick(column)}
+                                  >
+                                    <i
+                                      className="pi pi-filter"
+                                      style={{
+                                        color: "slateblue",
+                                        fontSize: "1.4rem",
+                                      }}
+                                    ></i>
+                                  </Button>
+                                )}
+                              </PopoverTrigger>
                               {activeFilterColumn === column && (
                                 <PopoverContent w="120%">
                                   <PopoverArrow />
-                                  <PopoverCloseButton size="lg" />
+                                  <PopoverCloseButton size="lg"
+                                    onClick={() => {
+                                      setTempFilterCondition("");
+                                      setTempFilterValue("");
+                                      setDates([]);
+                                    }}
+                                  />
                                   <PopoverBody h="auto" maxH="300px">
                                     <Box>
                                       <Box key={column} mb="12px">

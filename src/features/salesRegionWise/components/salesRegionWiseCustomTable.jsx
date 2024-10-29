@@ -430,7 +430,7 @@ const CustomTable = ({
       },
       page: currentPage,
     });
-  }, [sortColumn, sortOrder, refetchKamWiseSales]); 
+  }, [sortColumn, sortOrder, refetchKamWiseSales]);
 
 
   const filteredItems = useMemo(() => {
@@ -691,7 +691,7 @@ const CustomTable = ({
 
   const handleGraphAddDrawer = () => {
     onOpenGraphSettingDrawer();
-    dispatch(handleGraphWise({selectedWise: "sales-region-wise", reportType: 'sales'}));
+    dispatch(handleGraphWise({ selectedWise: "sales-region-wise", reportType: 'sales' }));
   }
 
   return (
@@ -985,10 +985,10 @@ const CustomTable = ({
                 ref={provided.innerRef}
                 variant="simple">
                 <Thead
-                style={{
-                  position: "sticky",
-                  top:0,
-                }}
+                  style={{
+                    position: "sticky",
+                    top: 0,
+                  }}
                 >
                   <Tr bg="#cfd8e1">
                     {selectedColumns.map((column, index) => (
@@ -1009,27 +1009,27 @@ const CustomTable = ({
                             color="black">
                             {formatHeader(column)}
                             {column !== "SL No" && !column.toLowerCase().includes("sum") && (
-                            <Button
-                              className="A_to_Z"
-                              bg="none"
-                              _hover={{ bg: "none" }}
-                              onClick={() => handleSort(column)}>
-                              {sortColumn === column ? (
-                                sortOrder === "asc" ? (
-                                  <FontAwesomeIcon
-                                    icon={faArrowDownShortWide}
-                                  />
+                              <Button
+                                className="A_to_Z"
+                                bg="none"
+                                _hover={{ bg: "none" }}
+                                onClick={() => handleSort(column)}>
+                                {sortColumn === column ? (
+                                  sortOrder === "asc" ? (
+                                    <FontAwesomeIcon
+                                      icon={faArrowDownShortWide}
+                                    />
+                                  ) : (
+                                    <FontAwesomeIcon icon={faArrowUpWideShort} />
+                                  )
                                 ) : (
-                                  <FontAwesomeIcon icon={faArrowUpWideShort} />
-                                )
-                              ) : (
-                                <FontAwesomeIcon
-                                  icon={faArrowRightArrowLeft}
-                                  rotation={90}
-                                  fontSize="13px"
-                                />
-                              )}
-                            </Button>
+                                  <FontAwesomeIcon
+                                    icon={faArrowRightArrowLeft}
+                                    rotation={90}
+                                    fontSize="13px"
+                                  />
+                                )}
+                              </Button>
                             )}
                             <Popover
                               isOpen={activeFilterColumn === column}
