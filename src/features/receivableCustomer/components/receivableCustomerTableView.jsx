@@ -58,11 +58,13 @@ const ReceivableCustomerTableView = () => {
     });
   };
 
-  const { data } = useReceivableCustomerQuery({
+  const { data, isSuccess } = useReceivableCustomerQuery({
     endpoint: "receivable/customer",
     method: "POST",
     body,
   });
+
+  console.log('💚', { data, isSuccess })
 
   const receivableData = data?.content || [];
 
@@ -145,7 +147,13 @@ const ReceivableCustomerTableView = () => {
                 <Input
                   placeholder="Number of Buckets"
                   value={bucket}
-                  onChange={(e) => setBucket(parseInt(e.target.value) || 0)}
+                  type="number"
+                  min={0}
+                  max={10}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value) || 0;
+                    setBucket(value > 10 ? 10 : value || 0);
+                  }}
                 />
                 <MenuItem
                   mt={4}
