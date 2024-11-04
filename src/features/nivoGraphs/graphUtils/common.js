@@ -132,7 +132,8 @@ export const updateCountAndWidth = (inputType, startDate, endDate, setDynamicWid
     setDynamicWidth(200 * count);
 };
 
-export const updateBodyWise = (inputType, startDate, endDate, bodyWise, type = "", reportType = '') => {
+export const updateBodyWise = (inputType, startDate, endDate, bodyWise, type = "", reportType = '', selectedWise = '') => {
+    console.log('hey -> 💚', {inputType, startDate, endDate, bodyWise, type, reportType, selectedWise})
     if (inputType === 'month') {
         return {
             ...bodyWise,
