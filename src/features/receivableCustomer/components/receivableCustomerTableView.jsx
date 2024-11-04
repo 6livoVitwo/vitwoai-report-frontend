@@ -21,7 +21,7 @@ const ReceivableCustomerTableView = () => {
     interval: 20,
     bucketNo: 5,
     page: 0,
-    size: 10,
+    size: 1000,
     asOnDate: asOnDate
   });
 
@@ -207,16 +207,18 @@ const ReceivableCustomerTableView = () => {
           <Tbody>
             {receivableData.map((data, index) => (
               <Tr key={index}>
-                {columns.map((column, idx) => (
-                  <Td key={idx}>{data[column]}</Td>
-                ))}
+                {columns.map((column, idx) => {
+                  return (
+                    <Td sx={{ textAlign: column === "customerName" ? "left" : "right"}} key={idx}>{data[column]}</Td>
+                  )
+                })}
                 {Object.keys(data.dueAmounts || {}).map((bucket, idx) => (
-                  <Td bg={"green.50"} key={`due-value-${idx}`}>
+                  <Td sx={{ textAlign: "right"}} bg={"green.50"} key={`due-value-${idx}`}>
                     {data.dueAmounts?.[bucket] || "-"}
                   </Td>
                 ))}
                 {Object.keys(data.onAccountAmounts || {}).map((bucket, idx) => (
-                  <Td bg={"red.50"} key={`account-value-${idx}`}>
+                  <Td sx={{ textAlign: "right"}} bg={"red.50"} key={`account-value-${idx}`}>
                     {data.onAccountAmounts?.[bucket] || "-"}
                   </Td>
                 ))}
