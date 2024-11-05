@@ -499,7 +499,9 @@ const ChartConfiguration = ({ configureChart }) => {
       newStartDate,
       newEndDate,
       bodyWise,
-      type
+      type,
+      reportType,
+      selectedWise
     );
 
     // Set state updates
@@ -661,11 +663,11 @@ const ChartConfiguration = ({ configureChart }) => {
     { skip: !endpoint }
   );
 
-  let finalData = graphData?.data;
+  let finalData = graphData?.data || [];
   if (type === "funnel") {
-    finalData = graphData?.steps;
+    finalData = graphData?.steps || [];
   } else if (type === "bar" || type === "pie") {
-    finalData = graphData?.content;
+    finalData = graphData?.content || [];
   }
   useEffect(() => {
     if (type === "heatmap") {
@@ -683,7 +685,6 @@ const ChartConfiguration = ({ configureChart }) => {
     let isMounted = false;
     if (finalData) {
       let processedData = [];
-      // let newArr = [];
 
       if (type === "pie") {
         processedData = finalData.map((product, index) => {
@@ -727,7 +728,7 @@ const ChartConfiguration = ({ configureChart }) => {
       <>
         <Alert status="error">
           <AlertIcon />
-          Error: {error?.data || "An error occurred"}
+          Error: {error?.data.message || "An error occurred"}
         </Alert>
       </>
     );
@@ -759,7 +760,7 @@ const ChartConfiguration = ({ configureChart }) => {
       group: "distributionComparison",
       pinned: true,
       description: `This is ${type} Chart`,
-      data: chartDataApi,
+      data: chartDataApi || [],
     };
 
     if (widgetIndex === -1) {
@@ -782,8 +783,6 @@ const ChartConfiguration = ({ configureChart }) => {
   const handleProcessFlow = (value) => {
     setProcessFlow(value);
   };
-
-  console.log('🟢🔵🔴', { selectedWise })
 
   return (
     <Card variant={"unstyled"}>
@@ -822,14 +821,16 @@ const ChartConfiguration = ({ configureChart }) => {
                 </Badge>
               </Box>
               <Box sx={{ height: "350px", width: "100%", overflowX: "auto" }}>
-                <ChartComponent
+                {error && <Alert status="error">{error?.data?.message}</Alert>}
+
+                {!error && <ChartComponent
                   liveData={chartDataApi}
                   startDate={startDate}
                   endDate={endDate}
                   dynamicWidth={dynamicWidth}
                   dynamicHeight={dynamicHeight}
                   inputType={inputType}
-                />
+                />}
               </Box>
             </Box>
           </Box>

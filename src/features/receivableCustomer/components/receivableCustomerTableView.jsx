@@ -21,7 +21,7 @@ const ReceivableCustomerTableView = () => {
     interval: 20,
     bucketNo: 5,
     page: 0,
-    size: 10,
+    size: 1000,
     asOnDate: asOnDate
   });
 
@@ -58,11 +58,13 @@ const ReceivableCustomerTableView = () => {
     });
   };
 
-  const { data } = useReceivableCustomerQuery({
-    endpoint: "receivable/",
+  const { data, isSuccess } = useReceivableCustomerQuery({
+    endpoint: "receivable/customer",
     method: "POST",
     body,
   });
+
+  console.log('💚', { data, isSuccess })
 
   const receivableData = data?.content || [];
 
@@ -145,7 +147,13 @@ const ReceivableCustomerTableView = () => {
                 <Input
                   placeholder="Number of Buckets"
                   value={bucket}
-                  onChange={(e) => setBucket(parseInt(e.target.value) || 0)}
+                  type="number"
+                  min={0}
+                  max={10}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value) || 0;
+                    setBucket(value > 10 ? 10 : value || 0);
+                  }}
                 />
                 <MenuItem
                   mt={4}
@@ -199,16 +207,18 @@ const ReceivableCustomerTableView = () => {
           <Tbody>
             {receivableData.map((data, index) => (
               <Tr key={index}>
-                {columns.map((column, idx) => (
-                  <Td key={idx}>{data[column]}</Td>
-                ))}
+                {columns.map((column, idx) => {
+                  return (
+                    <Td sx={{ textAlign: column === "customerName" ? "left" : "right"}} key={idx}>{data[column]}</Td>
+                  )
+                })}
                 {Object.keys(data.dueAmounts || {}).map((bucket, idx) => (
-                  <Td bg={"green.50"} key={`due-value-${idx}`}>
+                  <Td sx={{ textAlign: "right"}} bg={"green.50"} key={`due-value-${idx}`}>
                     {data.dueAmounts?.[bucket] || "-"}
                   </Td>
                 ))}
                 {Object.keys(data.onAccountAmounts || {}).map((bucket, idx) => (
-                  <Td bg={"red.50"} key={`account-value-${idx}`}>
+                  <Td sx={{ textAlign: "right"}} bg={"red.50"} key={`account-value-${idx}`}>
                     {data.onAccountAmounts?.[bucket] || "-"}
                   </Td>
                 ))}
