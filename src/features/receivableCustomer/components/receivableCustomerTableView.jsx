@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { Tbody, Tr, Td, Th, Thead, Table, TableContainer, Button, Input, Text, Stack, Box, MenuItem, MenuList, MenuButton, Menu } from "@chakra-ui/react";
 import { useReceivableCustomerQuery } from "../slice/receivableCustomerApi";
 import { ChevronDownIcon } from "@chakra-ui/icons";
+import Pagination from "../../global/components/Pagination";
 
 const ReceivableCustomerTableView = () => {
   const [intervalDays, setIntervalDays] = useState(20);
@@ -21,7 +22,7 @@ const ReceivableCustomerTableView = () => {
     interval: 20,
     bucketNo: 5,
     page: 0,
-    size: 1000,
+    size: 10,
     asOnDate: asOnDate
   });
 
@@ -209,16 +210,16 @@ const ReceivableCustomerTableView = () => {
               <Tr key={index}>
                 {columns.map((column, idx) => {
                   return (
-                    <Td sx={{ textAlign: column === "customerName" ? "left" : "right"}} key={idx}>{data[column]}</Td>
+                    <Td sx={{ textAlign: column === "customerName" ? "left" : "right" }} key={idx}>{data[column]}</Td>
                   )
                 })}
                 {Object.keys(data.dueAmounts || {}).map((bucket, idx) => (
-                  <Td sx={{ textAlign: "right"}} bg={"green.50"} key={`due-value-${idx}`}>
+                  <Td sx={{ textAlign: "right" }} bg={"green.50"} key={`due-value-${idx}`}>
                     {data.dueAmounts?.[bucket] || "-"}
                   </Td>
                 ))}
                 {Object.keys(data.onAccountAmounts || {}).map((bucket, idx) => (
-                  <Td sx={{ textAlign: "right"}} bg={"red.50"} key={`account-value-${idx}`}>
+                  <Td sx={{ textAlign: "right" }} bg={"red.50"} key={`account-value-${idx}`}>
                     {data.onAccountAmounts?.[bucket] || "-"}
                   </Td>
                 ))}
@@ -228,7 +229,18 @@ const ReceivableCustomerTableView = () => {
         </Table>
       </TableContainer>
 
-      <Text mt={4}>Execution Time: {executionTime} ms</Text>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          w: "95%",
+          mb: 5,
+        }}
+      >
+        <Text mt={4}>Execution Time: {executionTime} ms</Text>
+        <Pagination />
+      </Box>
     </>
   );
 };
