@@ -23,9 +23,9 @@ const ReceivableCustomerTableView = () => {
   const [body, setBody] = useState({
     interval: 20,
     bucketNo: 5,
-    page: first / rows,
-    size: rows,
-    asOnDate: asOnDate
+    page: first / rows, // Initial page
+    size: rows,         // Initial rows per page
+    asOnDate: asOnDate,
   });
 
   const handleBucketCreateButton = () => {
@@ -61,15 +61,17 @@ const ReceivableCustomerTableView = () => {
     });
   };
 
+  // Fetch data based on updated `body` state
   const { data, isSuccess } = useReceivableCustomerQuery({
     endpoint: "receivable/customer",
     method: "POST",
     body,
   });
 
+  console.log('💚', { data, isSuccess });
+
   const receivableData = data?.content || [];
   const totalRecords = data?.totalElements || 0;
-
   // Memoize columns based on the response structure
   const columns = useMemo(() => {
     if (receivableData.length > 0) {
@@ -84,27 +86,22 @@ const ReceivableCustomerTableView = () => {
     setBody({
       ...body,
       asOnDate
-    })
-  }
+    });
+  };
 
+  // Update pagination state when `onPageChange` is triggered
   const handlePageChange = (event) => {
     onPageChange(event);
     setBody((prevBody) => ({
       ...prevBody,
       page: event.first / event.rows,
       size: event.rows,
-    }))
-  }
+    }));
+  };
 
   return (
     <>
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        w={"95%"}
-        mb={5}
-      >
+      <Box display="flex" justifyContent="space-between" alignItems="center" w={"95%"} mb={5}>
         <Text>Execution Time: {executionTime} ms</Text>
         <Stack direction="row">
           <Menu>
@@ -121,10 +118,7 @@ const ReceivableCustomerTableView = () => {
                 isLoading={isLoading}
                 loadingText="Creating Buckets..."
               >
-                <Button
-                  colorScheme="green"
-                  width={"100%"}
-                >
+                <Button colorScheme="green" width={"100%"}>
                   Save
                 </Button>
               </MenuItem>
@@ -135,18 +129,7 @@ const ReceivableCustomerTableView = () => {
               Actions
             </MenuButton>
             <MenuList>
-              {/* <MenuItem>Download</MenuItem> */}
-              <Stack
-                direction="column"
-                align="left"
-                gap={0}
-                width={"100%"}
-                sx={{
-                  border: "1px solid #dee2e6",
-                  borderRadius: "8px",
-                  padding: "10px",
-                }}
-              >
+              <Stack direction="column" align="left" gap={0} width={"100%"} sx={{ border: "1px solid #dee2e6", borderRadius: "8px", padding: "10px" }}>
                 <Text>Input Range</Text>
                 <Text fontSize="xs">Interval in days</Text>
                 <Input
@@ -166,17 +149,8 @@ const ReceivableCustomerTableView = () => {
                     setBucket(value > 10 ? 10 : value || 0);
                   }}
                 />
-                <MenuItem
-                  mt={4}
-                  onClick={handleBucketCreateButton}
-                  disabled={isLoading}
-                  isLoading={isLoading}
-                  loadingText="Creating Buckets..."
-                >
-                  <Button
-                    colorScheme="green"
-                    width={"100%"}
-                  >
+                <MenuItem mt={4} onClick={handleBucketCreateButton} disabled={isLoading} isLoading={isLoading} loadingText="Creating Buckets...">
+                  <Button colorScheme="green" width={"100%"}>
                     Save
                   </Button>
                 </MenuItem>
@@ -185,19 +159,9 @@ const ReceivableCustomerTableView = () => {
           </Menu>
         </Stack>
       </Box>
-      <TableContainer
-        sx={{ border: "1px solid #dee2e6", borderRadius: "8px", padding: "10px", width: "95%" }}
-      >
-        <Table
-          size="lg"
-          sx={{
-            border: "1px solid #dee2e6",
-            borderRadius: "8px",
-            borderCollapse: "separate",
-            borderSpacing: "0 5px",
-            my: 5,
-          }}
-        >
+
+      <TableContainer sx={{ border: "1px solid #dee2e6", borderRadius: "8px", padding: "10px", width: "95%" }}>
+        <Table size="lg" sx={{ border: "1px solid #dee2e6", borderRadius: "8px", borderCollapse: "separate", borderSpacing: "0 5px", my: 5 }}>
           <Thead sx={{ backgroundColor: "#f8f9fa" }}>
             <Tr>
               {columns.map((column, index) => (
@@ -218,11 +182,9 @@ const ReceivableCustomerTableView = () => {
           <Tbody>
             {receivableData.map((data, index) => (
               <Tr key={index}>
-                {columns.map((column, idx) => {
-                  return (
-                    <Td sx={{ textAlign: column === "customerName" ? "left" : "right" }} key={idx}>{data[column]}</Td>
-                  )
-                })}
+                {columns.map((column, idx) => (
+                  <Td sx={{ textAlign: column === "customerName" ? "left" : "right" }} key={idx}>{data[column]}</Td>
+                ))}
                 {Object.keys(data.dueAmounts || {}).map((bucket, idx) => (
                   <Td sx={{ textAlign: "right" }} bg={"green.50"} key={`due-value-${idx}`}>
                     {data.dueAmounts?.[bucket] || "-"}
@@ -239,21 +201,13 @@ const ReceivableCustomerTableView = () => {
         </Table>
       </TableContainer>
 
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          w: "95%",
-          mb: 5,
-        }}
-      >
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", w: "95%", mb: 5 }}>
         <Text mt={4}>Execution Time: {executionTime} ms</Text>
         <Pagination
           first={first}
           totalRecords={totalRecords}
           rows={rows}
-          rowsPerPageOptions={[10, 25, 50, 100, 200, 500]}
+          rowsPerPageOptions={[25, 50, 100, 200, 500]}
           onPageChange={handlePageChange}
         />
       </Box>
