@@ -105,7 +105,7 @@ const CustomTable = ({
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const [currentPage, setCurrentPage] = useState(0); // Default page is 0
-  const [selectedRegion, setSelectedRegion] = useState(""); // Track selected region
+  const [selectedRegion, setSelectedRegion] = useState(" "); // Track selected region
   const [placeholder, setPlaceholder] = useState("District");
   const [columns, setColumns] = useState([]);
   const [tableData, setTableData] = useState([]); // Store the fetched table data
@@ -113,6 +113,8 @@ const CustomTable = ({
   const [configureChart, setConfigureChart] = useState({});
   const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
   const dispatch = useDispatch();
+  const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
+
 
 
   //API Calling sorting
@@ -228,6 +230,7 @@ const CustomTable = ({
   const { data: StateWiseData, refetch: refetchstate } =
     useGetselectedStateWiseQuery(filters);
 
+  const [activeRegionData, setActiveRegionData] = useState(StateWiseData);
 
   const RerionType = [
     { label: "State", value: "state" },
@@ -236,37 +239,51 @@ const CustomTable = ({
     { label: "Country", value: "country" },
     { label: "Pincode", value: "pin_code" },
   ];
+
   //...Handle dropdown region-type change....
   const handleRegionChange = (e) => {
     const selectedValue = e.value;
-    const selectedLable = e.originalEvent.target.innerText;
-    setPlaceholder(selectedLable);
-
-    // Update the filters object based on the selected region type
+    const selectedLabel = e.originalEvent.target.innerText;
+    setPlaceholder(selectedLabel);
     const updatedFilters = {
       ...filters,
       data: filters.data.map((key) => {
         if (key.includes("customer.customerAddress.customer_address_")) {
-          // Replace the existing address key with the new one based on the selection
           return `customer.customerAddress.customer_address_${selectedValue}`;
         }
-        return key; // Keep other keys unchanged
+        return key;
       }),
       groupBy: filters.groupBy.map((group) => {
         if (group.includes("customer.customerAddress.customer_address_")) {
           return `customer.customerAddress.customer_address_${selectedValue}`;
         }
-        return group; // Keep other groupBy keys unchanged
+        return group;
       }),
-      sortBy: `customer.customerAddress.customer_address_${selectedValue}`, // Update sortBy field
+      sortBy: `customer.customerAddress.customer_address_${selectedValue}`,
     };
-    //....Update the filters state....
+
     setFilters(updatedFilters);
     setSelectedRegion(selectedValue);
     setIsUpdated(true);
-    // Show custom toast notification
+
+    switch (selectedValue) {
+      case 'district':
+        setActiveRegionData(DistrictWiseData);
+        break;
+      case 'city':
+        setActiveRegionData(CityWiseData);
+        break;
+      case 'country':
+        setActiveRegionData(CountryWiseData);
+        break;
+      case 'pin_code':
+        setActiveRegionData(PincodeWiseData);
+        break;
+      default:
+        setActiveRegionData(StateWiseData);
+    }
     toast({
-      title: `Region changed to ${selectedLable}`,
+      title: `Region changed to ${selectedLabel}`,
       description: "Your filter has been updated.",
       status: "success",
       duration: 2000,
@@ -277,29 +294,12 @@ const CustomTable = ({
       },
     });
   };
-  // useEffect for refetching data
-  useEffect(() => {
-    refetchcity();
-    refetchDistrict();
-    refetchcountry();
-    refetchpincode();
-    refetchstate();
-    setIsUpdated(false);
-  }, [
-    filters,
-    refetchcity,
-    refetchDistrict,
-    refetchcountry,
-    refetchpincode,
-    refetchstate,
-    setIsUpdated,
-  ]);
 
   const loadMoreData = async () => {
     if (!loading) {
       setLoading(true);
       // Fetch or generate new data
-      const moreData = [...newArray]; // Assuming newArray contains new data
+      const moreData = [...newArray];
       setData((prevData) => {
         const uniqueData = [...new Set([...prevData, ...moreData])];
         return uniqueData;
@@ -337,42 +337,163 @@ const CustomTable = ({
     newColumnsOrder.splice(result.destination.index, 0, removed);
     setSelectedColumns(newColumnsOrder);
   };
-
-  const toggleColumn = (columnName) => {
-    setSelectedColumns((prevSelectedColumns) =>
-      prevSelectedColumns.includes(columnName)
-        ? prevSelectedColumns.filter((col) => col !== columnName)
-        : [...prevSelectedColumns, columnName]
+  // Handle column selection
+  const toggleColumn = (field) => {
+    setTempSelectedColumns((prev) =>
+      prev.includes(field)
+        ? prev.filter((col) => col !== field)
+        : [...prev, field]
     );
   };
-
   const handleSelectAllToggle = () => {
-    const allColumnFields = getColumns(data).map(({ field }) => field);
+    const regionData = {
+      state: StateWiseData,
+      district: DistrictWiseData,
+      city: CityWiseData,
+      country: CountryWiseData,
+      pin_code: PincodeWiseData,
+    }[selectedRegion];
+
+    const allColumns = regionData
+      ? Object.keys(regionData?.content[0] || {}).map((key) => ({
+        field: key,
+        listName: regionData.content[0][key]?.listName || key,
+      }))
+      : [];
+
+    const uniqueColumns = allColumns.map((col) => col.field);
+
+    // Toggle selection based on the selectAll state
     if (selectAll) {
-      setSelectedColumns([]);
+      setTempSelectedColumns([]);
     } else {
-      setSelectedColumns(allColumnFields);
+      setTempSelectedColumns(uniqueColumns);
     }
-    setSelectAll((prevSelectAll) => !prevSelectAll);
+    setSelectAll(!selectAll);
   };
+  // Updated useEffect to refetch data when filters or region type changes
+  useEffect(() => {
+    refetchcity();
+    refetchDistrict();
+    refetchcountry();
+    refetchpincode();
+    refetchstate();
+    setIsUpdated(false);
+  }, [filters, selectedRegion, refetchcity, refetchDistrict, refetchcountry, refetchpincode, refetchstate]);
 
   const handleModalClose = () => {
-    setSelectedColumns(defaultColumns);
+    setTempSelectedColumns(selectedColumns);
     onClose();
   };
+  // const handleApplyChanges = () => {
+  //   const regionData = {
+  //     state: StateWiseData,
+  //     district: DistrictWiseData,
+  //     city: CityWiseData,
+  //     country: CountryWiseData,
+  //     pin_code: PincodeWiseData,
+  //   }[selectedRegion];
 
-  // Function to handle setting the active column when the popover is clicked
-  const handlePopoverClick = (column) => {
-    setActiveFilterColumn((prev) => (prev === column ? null : column)); // Toggle column
-    // setActiveFilterColumn(column);
-  };
+  //   const updatedSelectedColumns = Array.from(
+  //     new Set(
+  //       tempSelectedColumns.map((col) => {
+  //         const matchingColumn = regionData?.content[0][col];
+  //         return matchingColumn ? matchingColumn.listName || col : col;
+  //       })
+  //     )
+  //   );
+  //   // Remove "Customer State" if it exists in updatedSelectedColumns
+  //   updatedSelectedColumns = updatedSelectedColumns.filter((col) => col !== "Customer State");
+
+  //   setFilters((prevFilters) => ({
+  //     ...prevFilters,
+  //     data: updatedSelectedColumns,
+  //   }));
+
+  //   const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
+
+  //   const columnsChanged = JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
+
+  //   if (!columnsChanged) {
+  //     toast({
+  //       title: "No changes to apply",
+  //       status: "info",
+  //       isClosable: true,
+  //     });
+  //     return;
+  //   }
+  //   setSelectedColumns(updatedSelectedColumns);
+  //   // refetchstate({ columns: updatedSelectedColumns });
+  //   onClose();
+  //   // localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
+  //   toast({
+  //     title: "Columns Applied Successfully",
+  //     status: "success",
+  //     isClosable: true,
+  //   });
+  // };
   const handleApplyChanges = () => {
+    const regionData = {
+      state: StateWiseData,
+      district: DistrictWiseData,
+      city: CityWiseData,
+      country: CountryWiseData,
+      pin_code: PincodeWiseData,
+    }[selectedRegion];
+
+    let updatedSelectedColumns = Array.from(
+      new Set(
+        tempSelectedColumns.map((col) => {
+          const matchingColumn = regionData?.content[0][col];
+          return matchingColumn ? matchingColumn.listName || col : col;
+        })
+      )
+    );
+
+    // Remove "Customer State" if it exists in updatedSelectedColumns
+    updatedSelectedColumns = updatedSelectedColumns.filter((col) => col !== "Customer State");
+
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      data: updatedSelectedColumns,
+    }));
+
+    const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
+    const columnsChanged = JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
+
+    if (!columnsChanged) {
+      toast({
+        title: "No changes to apply",
+        status: "info",
+        isClosable: true,
+      });
+      return;
+    }
+
+    setSelectedColumns(updatedSelectedColumns);
     onClose();
     toast({
-      title: "Column Added Successfully",
+      title: "Columns Applied Successfully",
       status: "success",
       isClosable: true,
     });
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      const filteredColumns = StateWiseData?.content[0]
+        ? Object.keys(StateWiseData.content[0]).filter((key) =>
+          selectedColumns.includes(StateWiseData.content[0][key]?.listName)
+        )
+        : [];
+      setTempSelectedColumns(filteredColumns);
+    }
+  }, [isOpen, selectedColumns, StateWiseData]);
+
+
+  const handlePopoverClick = (column) => {
+    setActiveFilterColumn((prev) => (prev === column ? null : column)); // Toggle column
+    // setActiveFilterColumn(column);
   };
 
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 10), []);
@@ -410,6 +531,7 @@ const CustomTable = ({
     setInputValue("");
     setSortColumn("");
     setSortOrder("asc");
+    // window.location.reload();
   };
 
   // sort asc desc
@@ -520,23 +642,20 @@ const CustomTable = ({
     tempFilterCondition,
   ]);
 
-  const formatHeader = (header) => {
-    header = header.trim();
-    header = header.replace(/^[A-Z]+\(|\)$/g, "");
-    const parts = header.split(".");
-    const lastPart = parts.pop();
-    const words = lastPart.split("_").join("");
-    const spacedWords = words.replace(/([a-z])([A-Z])/g, "$1 $2");
+  const formatHeader = (column) => {
+    const dataSources = [StateWiseData, DistrictWiseData, CityWiseData, CountryWiseData, PincodeWiseData];
 
-    return spacedWords
-      .split(" ")
-      .map((word) => {
-        if (word.toLowerCase() === "uom") {
-          return "Uom";
+    for (const dataSource of dataSources) {
+      if (dataSource && dataSource.content && dataSource.content[0]) {
+        const apiContent = dataSource.content[0];
+        for (const key in apiContent) {
+          if (apiContent[key].listName === column) {
+            return key;
+          }
         }
-        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-      })
-      .join(" ");
+      }
+    }
+    return column;
   };
 
   const handleScroll = () => {
@@ -1578,52 +1697,42 @@ const CustomTable = ({
                   bg: "borderGrayLight",
                 },
               }}>
-              {/* {(getColumns(data) || [])
-                  .concat(
-                    columnDatakam
-                      ? Object.keys(columnDatakam?.content[0] || {}).map(
-                          (key) => ({
-                            field: key,
-                            header: key,
-                          })
-                        )
-                      : []
-                  )
-                  .map((column, index) => {
-                    const formattedHeader = formatHeader(
-                      column.field || column.header
-                    ); */}
-              {getColumns(data).map((column) => {
-                const formattedHeader = formatHeader(column.field);
-                return (
-                  <Box
-                    // key={`${column.field || column.header}-${index}`}
-                    key={column.field}
-                    className="columnCheckBox"
-                    padding="5px"
-                    bg="rgba(231,231,231,1)"
-                    borderRadius="5px"
-                    width="48%">
-                    <Checkbox
-                      size="lg"
-                      display="flex"
-                      padding="5px"
-                      borderColor="mainBluemedium"
-                      key={column.field}
-                      defaultChecked={selectedColumns.includes(column.field)}
-                      isChecked={selectedColumns.includes(column.field)}
-                      onChange={() => toggleColumn(column.field)}>
-                      <Text
-                        fontWeight="500"
-                        ml="10px"
-                        fontSize="12px"
-                        color="textBlackDeep">
-                        {formattedHeader}
-                      </Text>
-                    </Checkbox>
-                  </Box>
-                );
-              })}
+              {activeRegionData?.content && activeRegionData.content.length > 0
+                ? Object.keys(activeRegionData.content[0]).map((key) => ({
+                  field: key,
+                  header: key,
+                }))
+                  .map((column) => {
+                    const formattedHeader = formatHeader(column.field || column.header);
+                    return (
+                      <Box
+                        // key={`${column.field || column.header}-${index}`}
+                        key={column.field}
+                        className="columnCheckBox"
+                        padding="5px"
+                        bg="rgba(231,231,231,1)"
+                        borderRadius="5px"
+                        width="48%">
+                        <Checkbox
+                          size="lg"
+                          display="flex"
+                          padding="5px"
+                          borderColor="mainBluemedium"
+                          key={column.field}
+                          isChecked={tempSelectedColumns.includes(column.field)}
+                          onChange={() => toggleColumn(column.field)}>
+                          <Text
+                            fontWeight="500"
+                            ml="10px"
+                            fontSize="12px"
+                            color="textBlackDeep">
+                            {formattedHeader}
+                          </Text>
+                        </Checkbox>
+                      </Box>
+                    );
+                  })
+                : null}
             </Box>
           </ModalBody>
           <ModalFooter>
