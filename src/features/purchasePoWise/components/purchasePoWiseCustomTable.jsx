@@ -294,7 +294,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSortColumn(column);
     setSortOrder(newSortOrder);
   };
-  // Trigger the API call when sortColumn or sortOrder changes
   useEffect(() => {
     refetchProduct({
       filters: {
@@ -304,13 +303,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       },
       page: currentPage,
     });
-  }, [sortColumn, sortOrder, refetchProduct]); // Ensure dependencies are correct
+  }, [sortColumn, sortOrder, refetchProduct]);
 
   const loadMoreData = async () => {
     if (!loading) {
       setLoading(true);
-      // Fetch or generate new data
-      const moreData = [...newArray]; // Assuming newArray contains new data
+      const moreData = [...newArray];
       setData((prevData) => {
         const uniqueData = [...new Set([...prevData, ...moreData])];
         return uniqueData;
@@ -322,7 +320,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   useEffect(() => {
     const initialColumns = getColumns(data)
-      .slice(0, 8)
+      .slice(0, 6)
       .map((column) => column.field);
     setDefaultColumns(initialColumns);
     setSelectedColumns(initialColumns);

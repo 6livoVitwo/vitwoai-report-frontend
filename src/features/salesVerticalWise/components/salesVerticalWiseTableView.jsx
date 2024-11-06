@@ -19,14 +19,13 @@ const SalesVerticalWiseTableView = () => {
         "invoice_date",
         "companyFunction.functionalities_name",
         "SUM(quotation.totalAmount)",
-        "SUM(salesOrder.totalAmount)"
-        // "companyFunction.functionalities_name",
-        // "SUM(items.qty)",
-        // "SUM(salesPgi.salesDelivery.totalAmount)",
-        // "SUM(salesPgi.totalAmount)",
-        // "SUM(quotation.totalAmount)",
-        // "SUM(items.basePrice - items.totalDiscountAmt)",
-        // "SUM(all_total_amt)",
+        "SUM(salesOrder.totalAmount)",
+        "SUM(items.qty)",
+        "SUM(salesPgi.salesDelivery.totalAmount)",
+        "SUM(salesPgi.totalAmount)",
+        "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
+        "SUM(all_total_amt)",
+        "SUM(items.totalTax)",
       ],
       groupBy: ["companyFunction.functionalities_name"],
       filter: [],
@@ -113,7 +112,7 @@ const SalesVerticalWiseTableView = () => {
             p={3}
             bg="orange.300"
             borderRadius="md"
-            style={{ width: "300px", height: "70px" }} // Set custom width and height
+            style={{ width: "300px", height: "70px" }}
           >
             <Box fontWeight="bold">No More Data</Box>
             <Box>You have reached the end of the list.</Box>
@@ -157,10 +156,7 @@ const SalesVerticalWiseTableView = () => {
       </Box>
     );
   }
-  // const newArray = individualItems.map((data, index) =>
-  //   extractFields(data, index)
-  // );
-  const mainData = sales?.content;
+   const mainData = sales?.content;
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
       {individualItems.length > 0 && (

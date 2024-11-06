@@ -75,6 +75,7 @@ import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfig
 import { FiPlus, FiSettings } from "react-icons/fi";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
+import { useGetGlobalsearchStateQuery } from "../slice/salesRegionWiseApi";
 
 const CustomTable = ({
   setPage,
@@ -205,6 +206,11 @@ const CustomTable = ({
     const selectedValue = e.value;
     setSelectedReport(selectedValue);
   };
+
+
+  //global search....
+  const { data: GlobalSearch, refetch: refetchSearchState } = useGetGlobalsearchStateQuery(filters)
+
 
   //..........Api calling for dropdown for district-wise ............
   const { data: DistrictWiseData, refetch: refetchDistrict } =
@@ -566,35 +572,21 @@ const CustomTable = ({
         });
       }
     });
-    // Apply global search filter (if searchQuery exists)
-    if (searchQuery) {
-      filteredData = filteredData.filter((item) => {
-        return Object.values(item).some((value) =>
-          String(value).toLowerCase().includes(searchQuery.toLowerCase())
-        );
-      });
+    // Global search
+    if (GlobalSearch?.content && GlobalSearch?.content.length > 0) {
+      filteredData = GlobalSearch.content;
     }
     // Apply sorting
-    if (sortColumn) {
-      filteredData.sort((a, b) => {
+    else if (sortColumn) {
+      filteredData = [...filteredData].sort((a, b) => {
         if (a[sortColumn] < b[sortColumn]) return sortOrder === "asc" ? -1 : 1;
         if (a[sortColumn] > b[sortColumn]) return sortOrder === "asc" ? 1 : -1;
         return 0;
       });
     }
-    // Return only selected columns
-    return filteredData.map((item) => {
-      const filteredItem = {};
-      selectedColumns.forEach((col) => {
-        filteredItem[col] = item[col];
-      });
-      return filteredItem;
-    });
-    // return filteredData;
+    return filteredData;
   }, [
-    data,
     searchQuery,
-    //   searchData,
     newArray,
     columnFilters,
     sortColumn,

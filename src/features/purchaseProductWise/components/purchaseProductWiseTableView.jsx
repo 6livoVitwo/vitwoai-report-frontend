@@ -21,6 +21,18 @@ const PurchaseProductWiseTableView = () => {
         "SUM(items.receivedQty)",
         "SUM(items.totalAmount)",
         "grnCreatedAt",
+        "SUM(grnInvoice.grnTotalTds)",
+        "SUM(grnInvoice.grnTotalSgst)",
+        "SUM(grnInvoice.grnTotalIgst)",
+        "grnCreatedBy",
+        "grnCode",
+        "dueDate",
+        "grnUpdatedAt",
+        "grnUpdatedBy",
+        "SUM(grnInvoice.grnTotalCgst)",
+        "SUM(items.unitPrice)",
+        "items.goodsItems.stockSummary.movingWeightedPrice",
+
 
       ],
       groupBy: ["items.goodName"],

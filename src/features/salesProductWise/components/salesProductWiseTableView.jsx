@@ -4,6 +4,7 @@ import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useProductWiseSalesQuery } from "../slice/salesProductWiseApi";
+import { set } from "lodash";
 
 
 const SalesProductWiseTableView = () => {
@@ -19,13 +20,17 @@ const SalesProductWiseTableView = () => {
       "items.itemName",
       "SUM(salesPgi.salesDelivery.totalAmount)",
       "SUM(salesPgi.totalAmount)",
-      "invoice_no",
       "invoice_date",
       "SUM(all_total_amt)",
-      // "SUM(items.qty)",
-      // "SUM(quotation.totalAmount)",
-      // "SUM(salesOrder.totalAmount)",
-      // "SUM(items.basePrice - items.totalDiscountAmt)",
+      "SUM(quotation.totalAmount)",
+      "SUM(items.qty)",
+      "invoice_no",
+      "items.itemCode",
+      "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
+      "SUM(salesOrder.totalAmount)",
+      "SUM(items.totalPrice)",
+      "SUM(due_amount)",
+      "SUM(items.totalTax)",
     ],
     groupBy: ["items.itemName"],
     filter: [],
