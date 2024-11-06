@@ -22,9 +22,9 @@ const SalesRegionWiseTableView = () => {
       // "customer.customerAddress.customer_address_state",
       // "SUM(due_amount)",
       // "SUM(quotation.totalAmount)",
-      // "SUM(salesOrder.totalAmount)",
-      // "SUM(items.qty)",
-      // "SUM(all_total_amt)"
+      "SUM(salesOrder.totalAmount)",
+      "SUM(items.qty)",
+      "SUM(all_total_amt)"
     ],
     "groupBy": [
       "customer.customerAddress.customer_address_state"

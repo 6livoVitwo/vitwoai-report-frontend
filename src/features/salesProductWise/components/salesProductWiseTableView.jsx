@@ -83,9 +83,10 @@ const SalesProductWiseTableView = () => {
           })
           : [flattenedInvoice];
       });
-      setIndividualItems((prevItems) => [...prevItems, ...newItems]);
+      setIndividualItems((prevItems) => [...prevItems,...(sales.content ? newItems : []), ]);
     }
   }, [sales]);
+
   useEffect(() => {
     if (sales?.totalPages < page && !toastShown) {
       toast({

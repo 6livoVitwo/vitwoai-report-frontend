@@ -105,7 +105,7 @@ const CustomTable = ({
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const [currentPage, setCurrentPage] = useState(0); // Default page is 0
-  const [selectedRegion, setSelectedRegion] = useState(" "); // Track selected region
+  const [selectedRegion, setSelectedRegion] = useState("state"); // Track selected region
   const [placeholder, setPlaceholder] = useState("District");
   const [columns, setColumns] = useState([]);
   const [tableData, setTableData] = useState([]); // Store the fetched table data
@@ -230,7 +230,7 @@ const CustomTable = ({
   const { data: StateWiseData, refetch: refetchstate } =
     useGetselectedStateWiseQuery(filters);
 
-  const [activeRegionData, setActiveRegionData] = useState(StateWiseData);
+  const [activeRegionData, setActiveRegionData] = useState(null);
 
   const RerionType = [
     { label: "State", value: "state" },
@@ -239,12 +239,12 @@ const CustomTable = ({
     { label: "Country", value: "country" },
     { label: "Pincode", value: "pin_code" },
   ];
-
   //...Handle dropdown region-type change....
   const handleRegionChange = (e) => {
     const selectedValue = e.value;
-    const selectedLabel = e.originalEvent.target.innerText;
+    const selectedLabel = RerionType.find(item => item.value === selectedValue)?.label || "State";
     setPlaceholder(selectedLabel);
+
     const updatedFilters = {
       ...filters,
       data: filters.data.map((key) => {
@@ -294,11 +294,15 @@ const CustomTable = ({
       },
     });
   };
+  useEffect(() => {
+    setActiveRegionData(StateWiseData);
+  }, [ ]);
+  
+
 
   const loadMoreData = async () => {
     if (!loading) {
       setLoading(true);
-      // Fetch or generate new data
       const moreData = [...newArray];
       setData((prevData) => {
         const uniqueData = [...new Set([...prevData, ...moreData])];
@@ -385,53 +389,6 @@ const CustomTable = ({
     setTempSelectedColumns(selectedColumns);
     onClose();
   };
-  // const handleApplyChanges = () => {
-  //   const regionData = {
-  //     state: StateWiseData,
-  //     district: DistrictWiseData,
-  //     city: CityWiseData,
-  //     country: CountryWiseData,
-  //     pin_code: PincodeWiseData,
-  //   }[selectedRegion];
-
-  //   const updatedSelectedColumns = Array.from(
-  //     new Set(
-  //       tempSelectedColumns.map((col) => {
-  //         const matchingColumn = regionData?.content[0][col];
-  //         return matchingColumn ? matchingColumn.listName || col : col;
-  //       })
-  //     )
-  //   );
-  //   // Remove "Customer State" if it exists in updatedSelectedColumns
-  //   updatedSelectedColumns = updatedSelectedColumns.filter((col) => col !== "Customer State");
-
-  //   setFilters((prevFilters) => ({
-  //     ...prevFilters,
-  //     data: updatedSelectedColumns,
-  //   }));
-
-  //   const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
-
-  //   const columnsChanged = JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
-
-  //   if (!columnsChanged) {
-  //     toast({
-  //       title: "No changes to apply",
-  //       status: "info",
-  //       isClosable: true,
-  //     });
-  //     return;
-  //   }
-  //   setSelectedColumns(updatedSelectedColumns);
-  //   // refetchstate({ columns: updatedSelectedColumns });
-  //   onClose();
-  //   // localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
-  //   toast({
-  //     title: "Columns Applied Successfully",
-  //     status: "success",
-  //     isClosable: true,
-  //   });
-  // };
   const handleApplyChanges = () => {
     const regionData = {
       state: StateWiseData,
@@ -526,12 +483,12 @@ const CustomTable = ({
   };
 
   const clearAllFilters = () => {
-    setColumnFilters({}); //clear filters
+    setColumnFilters({});
     setSearchQuery("");
     setInputValue("");
     setSortColumn("");
     setSortOrder("asc");
-    // window.location.reload();
+    window.location.reload();
   };
 
   // sort asc desc
@@ -556,7 +513,7 @@ const CustomTable = ({
 
 
   const filteredItems = useMemo(() => {
-    let filteredData = [...newArray]; // Copy the original data
+    let filteredData = [...newArray];
 
     // Apply filters
     Object.keys(columnFilters).forEach((field) => {
@@ -1253,7 +1210,8 @@ const CustomTable = ({
                                             onChange={
                                               handleTempFilterValueChange
                                             }
-                                            placeholder={`Filter ${column}`}
+                                            // placeholder={`Filter ${column}`}
+                                            placeholder=" Search by value"
                                           />
                                         </Box>
                                       </Box>
