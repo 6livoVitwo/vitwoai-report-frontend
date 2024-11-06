@@ -294,10 +294,14 @@ const CustomTable = ({
       },
     });
   };
+  // useEffect(() => {
+  //   setActiveRegionData(StateWiseData);
+  // }, [StateWiseData]);
   useEffect(() => {
-    setActiveRegionData(StateWiseData);
-  }, [ ]);
-  
+    if (selectedRegion === "state" && StateWiseData) {
+      setActiveRegionData(StateWiseData);
+    }
+  }, [StateWiseData]);
 
 
   const loadMoreData = async () => {
