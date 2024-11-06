@@ -131,6 +131,13 @@ const initialBodyWise = (
         ],
       };
     }
+  } else if (selectedWise === "sales-so-wise") {
+    if (type === "funnel") {
+      return {
+        "startDate": "2024-01-01",
+        "endDate": "2024-10-01"
+      }
+    }
   } else if (selectedWise === "sales-customer-wise") {
     if (type === "bump" || type === "areaBump" || type === "line") {
       return {
@@ -173,8 +180,12 @@ const initialBodyWise = (
       };
     } else if (type === "heatmap") {
       return {
-        priceOrQty: `${priceOrQty}`,
-      };
+        "priceOrQty": `${priceOrQty}`,
+        "monthFrom": "3",
+        "monthTo": "7",
+        "yearFrom": 2024,
+        "yearTo": 2024
+      }
     } else if (type === "bar" || type === "pie") {
       return {
         "xaxis": "kam.kamName",
@@ -210,8 +221,12 @@ const initialBodyWise = (
       };
     } else if (type === "heatmap") {
       return {
-        wise: `${regionWise}`,
-      };
+        "wise": `${regionWise}`,
+        "yearFrom": 2024,
+        "yearTo": 2024,
+        "monthFrom": 1,
+        "monthTo": 5
+      }
     } else if (type === "bar" || type === "pie") {
       return {
         "xaxis": "customer.customerAddress.customer_address_state",
@@ -321,6 +336,14 @@ const initialBodyWise = (
           }
         ]
       }
+    } else if( type === "funnel") {
+      return {
+          "wise": `${regionWise}`,
+          "yearFrom": 2024,
+          "yearTo": 2024,
+          "monthFrom": 1,
+          "monthTo": 5
+        }
     }
   }
 };
@@ -353,6 +376,14 @@ const initialEndDate = (inputType, type) => {
   }
 };
 
+const newProcessFlow = (selectedWise = "") => {
+  if (selectedWise === "purchase-po-wise") {
+    return "/purchase/graph/po-wise-flow-process"
+  } else {
+    return "/sales/graph/so-wise-flow-process"
+  }
+}
+
 const ChartConfiguration = ({ configureChart }) => {
   const { type } = configureChart;
   const toast = useToast();
@@ -374,9 +405,7 @@ const ChartConfiguration = ({ configureChart }) => {
   const [currentDescription, setCurrentDescription] = useState(
     graphDescriptions[type]
   );
-  const [processFlow, setProcessFlow] = useState(
-    "/sales/graph/so-wise-flow-process"
-  );
+  const [processFlow, setProcessFlow] = useState(newProcessFlow(selectedWise));
   const [dynamicHeight, setDynamicHeight] = useState(4000);
 
   const [bodyWise, setBodyWise] = useState(
@@ -417,7 +446,7 @@ const ChartConfiguration = ({ configureChart }) => {
     funnel: [
       {
         wise: "sales",
-        method: "GET",
+        method: "POST",
         endpoint: newEndpoint(selectedWise, type, processFlow),
         body: bodyWise,
       },
@@ -615,7 +644,7 @@ const ChartConfiguration = ({ configureChart }) => {
       funnel: [
         {
           wise: "sales",
-          method: "GET",
+          method: "POST",
           endpoint: newEndpoint(selectedWise, type, processFlow),
           body: bodyWise,
         },
@@ -724,11 +753,12 @@ const ChartConfiguration = ({ configureChart }) => {
   if (isLoading) return <Spinner />;
 
   if (isError) {
+    console.log('imranali59059', { error });
     return (
       <>
         <Alert status="error">
           <AlertIcon />
-          Error: {error?.data.message || "An error occurred"}
+          Error: {error?.error || "An error occurred"}
         </Alert>
       </>
     );
@@ -821,7 +851,7 @@ const ChartConfiguration = ({ configureChart }) => {
                 </Badge>
               </Box>
               <Box sx={{ height: "350px", width: "100%", overflowX: "auto" }}>
-                {error && <Alert status="error">{error?.data?.message}</Alert>}
+                {error && <Alert status="error">{error?.error}</Alert>}
 
                 {!error && <ChartComponent
                   liveData={chartDataApi}

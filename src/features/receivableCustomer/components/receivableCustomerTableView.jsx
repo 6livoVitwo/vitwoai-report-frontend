@@ -17,7 +17,7 @@ const ReceivableCustomerTableView = () => {
     { value: 61, label: "61-80" },
     { value: 81, label: ">80" },
   ]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [executionTime, setExecutionTime] = useState(0);
 
   const [body, setBody] = useState({
@@ -29,9 +29,9 @@ const ReceivableCustomerTableView = () => {
   });
 
   const handleBucketCreateButton = () => {
-    if (isLoading) return;
+    if (loading) return;
 
-    setIsLoading(true);
+    setLoading(true);
     const startTime = performance.now();
     const newBuckets = [];
     const maxVal = bucket * intervalDays;
@@ -50,7 +50,7 @@ const ReceivableCustomerTableView = () => {
     }
 
     setAllBuckets(newBuckets);
-    setIsLoading(false);
+    setLoading(false);
     setExecutionTime((performance.now() - startTime).toFixed(2));
 
     // Update the API body to reflect new interval and bucket count
@@ -61,11 +61,13 @@ const ReceivableCustomerTableView = () => {
     });
   };
 
-  const { data, isSuccess } = useReceivableCustomerQuery({
-    endpoint: "receivable/customer",
+  const { data, isLoading } = useReceivableCustomerQuery({
+    endpoint: "receivable/",
     method: "POST",
     body,
   });
+
+  console.log(isLoading, {isLoading})
 
   const receivableData = data?.content || [];
   const totalRecords = data?.totalElements || 0;
@@ -117,8 +119,8 @@ const ReceivableCustomerTableView = () => {
               <MenuItem
                 mt={4}
                 onClick={handleAsOnDateButton}
-                disabled={isLoading}
-                isLoading={isLoading}
+                disabled={loading}
+                isLoading={loading}
                 loadingText="Creating Buckets..."
               >
                 <Button
@@ -169,8 +171,8 @@ const ReceivableCustomerTableView = () => {
                 <MenuItem
                   mt={4}
                   onClick={handleBucketCreateButton}
-                  disabled={isLoading}
-                  isLoading={isLoading}
+                  disabled={loading}
+                  isLoading={loading}
                   loadingText="Creating Buckets..."
                 >
                   <Button
@@ -188,7 +190,7 @@ const ReceivableCustomerTableView = () => {
       <TableContainer
         sx={{ border: "1px solid #dee2e6", borderRadius: "8px", padding: "10px", width: "95%" }}
       >
-        <Table
+        {isLoading ? <Text>Loading...</Text> : <Table
           size="lg"
           sx={{
             border: "1px solid #dee2e6",
@@ -236,7 +238,7 @@ const ReceivableCustomerTableView = () => {
               </Tr>
             ))}
           </Tbody>
-        </Table>
+        </Table>}
       </TableContainer>
 
       <Box
