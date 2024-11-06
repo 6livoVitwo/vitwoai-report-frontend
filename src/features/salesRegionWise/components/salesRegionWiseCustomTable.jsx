@@ -488,10 +488,10 @@ const CustomTable = ({
 
   const clearAllFilters = () => {
     setColumnFilters({});
-    setSearchQuery("");
-    setInputValue("");
-    setSortColumn("");
-    setSortOrder("asc");
+    // setSearchQuery("");
+    // setInputValue("");
+    // setSortColumn("");
+    // setSortOrder("asc");
     window.location.reload();
   };
 
