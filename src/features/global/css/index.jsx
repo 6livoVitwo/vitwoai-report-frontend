@@ -10,7 +10,6 @@ const GlobalCss = () => {
                 overflow-y:auto;
                 background:white;
                 scroll-behavior: smooth;
-                font-family: 'Montserrat', sans-serif;
                 // user-select: none; 
                 // -webkit-user-select: none;
                 scroll-behavior: smooth;
@@ -18,7 +17,6 @@ const GlobalCss = () => {
             body, body.chakra-ui-light {
                 background:white;
                 scroll-behavior: smooth;
-                font-family: 'Montserrat', sans-serif;
                 margin-right:0 !important;
                 padding:0 !important;
                 // -webkit-user-select: none; 
@@ -31,9 +29,6 @@ const GlobalCss = () => {
             }
             a.chakra-link:focus {
                 box-shadow:none;
-            }
-            h1, h2, h3, h4, h5, h6 {
-                font-family: 'Montserrat', sans-serif;
             }
             ::-webkit-scrollbar {
               width: 5px;

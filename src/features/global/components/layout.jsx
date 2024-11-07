@@ -618,8 +618,8 @@ const Layout = ({ portalId }) => {
             ref={portalId}
             w="100%"
             p={{
-              base: "80px 15px 40px",
-              lg: "10px",
+              base: "0",
+              lg: "0",
             }}
             height="calc(100vh - 55px)"
             overflow="auto"

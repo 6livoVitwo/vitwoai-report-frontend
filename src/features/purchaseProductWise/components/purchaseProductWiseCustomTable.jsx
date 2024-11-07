@@ -54,6 +54,7 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Calendar } from 'primereact/calendar';
+import styled from "@emotion/styled";
 import {
   faChartLine,
   faArrowDownShortWide,
@@ -77,6 +78,20 @@ import { useGetSelectedColumnsPurchaseQuery } from "../slice/purchaseProductWise
 import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { useGetGlobalsearchPurchaseQuery } from "../slice/purchaseProductWiseApi";
 import DynamicChart from "../../nivoGraphs/chartConfigurations/DynamicChart";
+import { color } from "framer-motion";
+
+const CssWrapper = styled.div`
+  .p-dropdown .p-dropdown-label.p-placeholder {
+    color: #c5c5c5cc;
+    font-size: 1.2rem;
+    font-weight: normal;
+    font-family: "Poppins", sans-serif;
+  }
+  .p-dropdown-items-wrapper li.p-dropdown-item {
+    font-size: 1.2rem; /* Option font size */
+    color: green; /* Option text color */
+  }
+`;
 
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const { selectedWise } = useSelector((state) => state.graphSlice);
@@ -679,33 +694,48 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
 
   return (
-    <Box bg="white" padding="0px 10px" borderRadius="5px">
+    <Box bg="white">
       <Box
         display="flex"
-        borderRadius="5px"
         alignItems="center"
-        justifyContent="space-between"
+        justifyContent="flex-end"
+        gap="10px"
         padding="10px"
         marginBottom="10px"
-        boxShadow="1px 2px 15px 2px #00000012"
+        borderTop="1px solid #cccccc5c"
         sx={{
           "& input:placeholder": {
             color: "white",
           },
         }}>
-        <Box display="flex" alignItems="center" w="20%" position="relative">
+        <Box display="flex" alignItems="center" w="175px" position="relative">
           <Input
             onChange={handleSearchChange}
             value={inputValue}
             onKeyDown={handleKeyDown}
             width="100%"
-            bg="#dedede"
+            bg="#fff"
             padding="15px"
-            h="36px"
+            h="31px"
             borderRadius="5px"
+            borderColor="#cccccc61"
             placeholder="Search Global Data"
             pr="40px"
             zIndex="1"
+            fontSize="1.2rem"
+            color="#000"
+            sx={{
+              "&::placeholder": {
+                color: "#ccc",
+              },
+              "&:focus": {
+                outline: "none",
+                borderColor: "#cccccc61",
+                boxShadow: "none",e: "none",
+                boxShadow: "none",
+                borderColor: "#cccccc61",
+              },
+            }}
           />
           <button
             onClick={handleSearchClick}
@@ -722,13 +752,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             }}>
             <i
               className="pi pi-search"
-              style={{ fontSize: "2rem", opacity: "0.8" }}></i>
+              style={{ fontSize: "1.7rem", opacity: "0.2" }}></i>
           </button>
         </Box>
         <Box
           display="flex"
-          justifyContent="space-between"
+          justifyContent="flex-end"
           gap="10px"
+          alignItems="center"
           sx={{
             "& .react-datepicker-wrapper input": {
               bg: "#dedede",
@@ -739,23 +770,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               outline: "none",
             },
           }}>
-          <Tooltip label="Clear All" hasArrow>
-            <Button
-              onClick={clearAllFiltersbutton}
-              borderRadius="5px"
-              w="40px"
-              h="40px"
-              bg="#d6eaf8"
-              _hover={{
-                bg: "mainBlue",
-                color: "white",
-              }}>
-              <i
-                className="pi pi-filter-slash"
-                style={{ fontSize: "1.5rem" }}></i>
-            </Button>
-          </Tooltip>
-
+         
+         <CssWrapper>
           <Dropdown
             value={selectedReport}
             options={reportOptions}
@@ -763,14 +779,38 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               handleReportChange(e);
             }}
             optionLabel="label"
+            placeholder="Search Sales Type"
             fontSize="1.2rem"
-            placeholder="Select Sales Type"
+            
             style={{
-              width: "200px",
-              // background: '#dedede',
+              width: "175px",
               border: "1px solid gray ",
+              display: "flex",
+              alignItems: "center",
+              height: "32px",
+              borderColor: "#dedede",
             }}
+
+            sx={{
+              "& .p-dropdown-label": {
+                color: "blue",      // Customize the selected label's color
+                fontSize: "1.2rem", // Customize the selected label's font size
+              },
+              "&:focus": {
+                outline: "none",
+                borderColor: "#cccccc61",
+                boxShadow: "none",
+              },
+              "& .p-dropdown-trigger": {
+                color: "gray", // Custom color for dropdown arrow icon
+              },
+              "& .p-dropdown .p-dropdown-label.p-placeholder": {
+                color: "red",
+              },
+            }}
+           
           />
+          </CssWrapper>
           <Popover>
             {/* <PopoverTrigger>
               <Button
@@ -818,16 +858,34 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               </PopoverBody>
             </PopoverContent>
           </Popover>
+          <Tooltip label="Clear All" hasArrow>
+            <Button
+              onClick={clearAllFiltersbutton}
+              borderRadius="5px"
+              w="30px"
+              h="30px"
+              // bg="#d6eaf8"
+              bg="transparent"
+              _hover={{
+                bg: "mainBlue",
+                color: "white",
+              }}>
+              <i
+                className="pi pi-filter-slash"
+                style={{ fontSize: "1.5rem" }}></i>
+            </Button>
+          </Tooltip>
+
           {/* Graph view  */}
           <Tooltip label="Graph View" hasArrow>
             <Button
               onClick={handleGraphAddDrawer}
               aria-label="Graph View"
               borderRadius="30px"
-              width="40px"
-              height="40px"
+              width="30px"
+              height="30px"
               bg="transparent"
-              border="1px solid gray"
+              // border="1px solid gray"
               _hover={{
                 bg: "mainBlue",
                 color: "white",
@@ -838,26 +896,26 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               _focus={{
                 boxShadow: "outline",
               }}>
-              <FontAwesomeIcon icon={faChartLine} fontSize="20px" />
+              <FontAwesomeIcon icon={faChartLine} fontSize="1.8rem" />
             </Button>
           </Tooltip>
 
           <Tooltip label="Select Columns to Show" hasArrow>
             <Button
               onClick={onOpen}
-              padding="15px"
-              height="40px"
+              fontSize="0.9rem"
+              height="30px"
               color="mainBlue"
-              width="40px"
+              width="30px"
               borderRadius="30px"
               bg="transparent"
-              border="1px solid gray"
+              // border="1px solid gray"
               _hover={{
                 bg: "mainBlue",
                 color: "white",
               }}>
               {/* <FontAwesomeIcon icon={faChartSimple} fontSize="20px" /> */}
-              <FontAwesomeIcon icon={faGear} fontSize="20px" />
+              <FontAwesomeIcon icon={faGear} fontSize="1.8rem" />
             </Button>
           </Tooltip>
 
@@ -865,11 +923,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             <Tooltip label="Export" hasArrow>
               <MenuButton
                 color="mainBlue"
-                height="40px"
-                width="40px"
+                height="30px"
+                width="30px"
                 padding="5px"
                 borderRadius="30px"
-                border="1px solid gray"
+                // border="1px solid gray"
                 _hover={{
                   color: "white",
                   bg: "mainBlue",
@@ -881,14 +939,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                     justifyContent: "center",
                   },
                 }}>
-                <DownloadIcon fontSize="20px" />
+                <DownloadIcon fontSize="1.8rem" />
               </MenuButton>
             </Tooltip>
             <MenuList>
               <MenuItem
                 onClick={exportToExcel}
-                fontSize="13px"
-                fontWeight="600"
+                fontSize="1.2rem"
                 height="35px">
                 <Box minW="25px">
                   <FontAwesomeIcon icon={faFileExcel} />
@@ -896,8 +953,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 <Box as="span">Export Report</Box>
               </MenuItem>
               <MenuItem
-                fontSize="13px"
-                fontWeight="600"
+                fontSize="1.2rem"
                 height="35px"
                 onClick={onOpenDownloadReportModal}>
                 <Box minW="25px">
@@ -913,11 +969,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 <ModalOverlay />
                 <ModalContent>
                   <ModalHeader
-                    fontWeight="600"
                     bg="mainBlue"
                     color="white"
-                    fontSize="16px"
-                    padding="12px">
+                    fontSize="1.2rem"
+                    padding="5px">
                     Select Date Range
                   </ModalHeader>
                   <ModalCloseButton mt="5px" color="white" size="lg" />
@@ -1001,8 +1056,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         ref={tableContainerRef}
         className="table-tableContainerRef"
         overflowY="auto"
+        margin="0 auto"
         height="calc(100vh - 195px)"
-        width="calc(100vw - 115px)">
+        width="calc(100vw - 100px)">
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="droppable" direction="horizontal">
             {(provided) => (

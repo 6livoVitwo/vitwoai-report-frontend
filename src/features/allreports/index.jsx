@@ -183,8 +183,7 @@ const Allreports = () => {
 								marginBottom='10px'
 								fontSize='12px'
 								color='rgb(184 182 182)'
-								paddingBottom='5px'
-								fontFamily='Montserrat, sans-serif'>
+								paddingBottom='5px'>
 								{data['card catagory']}
 							</Heading>
 						</Box>
