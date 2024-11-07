@@ -62,7 +62,7 @@ const ReceivableCustomerTableView = () => {
   };
 
   const { data, isLoading } = useReceivableCustomerQuery({
-    endpoint: "receivable/",
+    endpoint: "receivable/customer",
     method: "POST",
     body,
   });
