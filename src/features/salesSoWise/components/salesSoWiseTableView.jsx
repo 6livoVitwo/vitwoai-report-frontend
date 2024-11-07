@@ -22,16 +22,19 @@ const SalesSoWiseTableView = () => {
         "invoice_no",
         "invoice_date",
         "SUM(due_amount)",
+        "SUM(cgst)",
+        "SUM(sgst)",
+        "SUM(igst)",
         "SUM(quotation.totalAmount)",
         "SUM(salesPgi.salesDelivery.totalAmount)",
         "SUM(items.totalTax)",
-        // "SUM(salesPgi.totalAmount)",
-        // "SUM(quotation.totalAmount)",
-        // "SUM(salesOrder.totalAmount)",
-        // "SUM(items.qty)",
-        // "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
-        // "SUM(all_total_amt)",
-        // "SUM(items.totalTax)",
+        "SUM(salesPgi.totalAmount)",
+        "SUM(salesOrder.totalAmount)",
+        "SUM(items.qty)",
+        "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
+        "SUM(all_total_amt)",
+        "customer.customer_gstin",
+
       ],
       groupBy: ["salesOrder.so_id"],
       filter: [],
@@ -94,7 +97,6 @@ const SalesSoWiseTableView = () => {
     }
   }, [sales]);
   useEffect(() => {
-    // Show the toast only if the user has scrolled to the last page and toast hasn't been shown
     if (sales?.totalPages < page && !toastShown) {
       toast({
         title: "No More Data",
@@ -107,14 +109,14 @@ const SalesSoWiseTableView = () => {
             p={3}
             bg="orange.300"
             borderRadius="md"
-            style={{ width: "300px", height: "70px" }} // Set custom width and height
+            style={{ width: "300px", height: "70px" }}
           >
             <Box fontWeight="bold">No More Data</Box>
             <Box>You have reached the end of the list.</Box>
           </Box>
         ),
       });
-      setToastShown(true); // Mark the toast as shown
+      setToastShown(true);
     }
   }, [sales, page, toast, toastShown]);
 

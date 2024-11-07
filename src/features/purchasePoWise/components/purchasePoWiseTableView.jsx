@@ -15,13 +15,12 @@ const PurchaseProductWiseTableView = () => {
 
   const [filters, setFilters] = useState({
     data: [
+      "vendorCode",
+      "vendorName",
       "grnInvoice.grnPoNumber",
       "SUM(items.tds)",
       "grnCode",
-      "vendorName",
-      "vendorCode",
       "grnCreatedAt",
-      // "po.po_number",
       "grnType",
       "postingDate",
       "vendorDocumentDate",

@@ -320,7 +320,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   useEffect(() => {
     const initialColumns = getColumns(data)
-      .slice(0, 6)
+      .slice(0, 8)
       .map((column) => column.field);
     setDefaultColumns(initialColumns);
     setSelectedColumns(initialColumns);

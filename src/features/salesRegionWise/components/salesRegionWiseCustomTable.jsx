@@ -106,11 +106,11 @@ const CustomTable = ({
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const [currentPage, setCurrentPage] = useState(0); // Default page is 0
-  const [selectedRegion, setSelectedRegion] = useState("state"); // Track selected region
+  const [selectedRegion, setSelectedRegion] = useState("state");
   const [placeholder, setPlaceholder] = useState("District");
   const [columns, setColumns] = useState([]);
-  const [tableData, setTableData] = useState([]); // Store the fetched table data
-  const [isUpdated, setIsUpdated] = useState(false); // Force re-render when needed
+  const [tableData, setTableData] = useState([]);
+  const [isUpdated, setIsUpdated] = useState(false);
   const [configureChart, setConfigureChart] = useState({});
   const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
   const dispatch = useDispatch();
@@ -250,6 +250,8 @@ const CustomTable = ({
     const selectedValue = e.value;
     const selectedLabel = RerionType.find(item => item.value === selectedValue)?.label || "State";
     setPlaceholder(selectedLabel);
+    // open the modal delected columns
+    onOpen();
 
     const updatedFilters = {
       ...filters,
@@ -459,12 +461,11 @@ const CustomTable = ({
 
 
   const handlePopoverClick = (column) => {
-    setActiveFilterColumn((prev) => (prev === column ? null : column)); // Toggle column
+    setActiveFilterColumn((prev) => (prev === column ? null : column));
     // setActiveFilterColumn(column);
   };
 
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 10), []);
-
   useEffect(() => {
     return () => {
       debouncedSearchQuery.cancel();
@@ -494,10 +495,8 @@ const CustomTable = ({
 
   const clearAllFilters = () => {
     setColumnFilters({});
-    // setSearchQuery("");
-    // setInputValue("");
-    // setSortColumn("");
-    // setSortOrder("asc");
+    setSearchQuery("");
+    setInputValue("");
     window.location.reload();
   };
 
@@ -586,7 +585,7 @@ const CustomTable = ({
     }
     return filteredData;
   }, [
-    searchQuery,
+    GlobalSearch,
     newArray,
     columnFilters,
     sortColumn,
@@ -905,9 +904,9 @@ const CustomTable = ({
               bg: "mainBlue",
               color: "white",
             }}>
-            {/* <FontAwesomeIcon icon={faChartSimple} fontSize="20px" /> */}
             <FontAwesomeIcon icon={faGear} fontSize="20px" />
           </Button>
+
           <Menu>
             <MenuButton
               // bg="mainBlue"
