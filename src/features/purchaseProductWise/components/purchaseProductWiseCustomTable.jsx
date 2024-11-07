@@ -287,7 +287,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const clearPriviewColumnData = () => {
     setPage(0);
   }
-
   // Handle column selection
   const toggleColumn = (field) => {
     setTempSelectedColumns((prev) =>
@@ -296,7 +295,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         : [...prev, field]
     );
   };
-
   const handleSelectAllToggle = () => {
     const allColumns = columnData
       ? Object.keys(columnData?.content[0] || {}).map((key) => ({
@@ -304,16 +302,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         listName: columnData.content[0][key]?.listName || key,
       }))
       : [];
-
-    // const uniqueColumns = Array.from(new Set(allColumns.map((col) => col.listName)));
     const uniqueColumns = allColumns.map((col) => col.field);
-
     if (selectAll) {
       setTempSelectedColumns([]);
     } else {
       setTempSelectedColumns(uniqueColumns);
     }
-
     setSelectAll(!selectAll);
   };
 
@@ -331,24 +325,21 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       )
     )
     clearPriviewColumnData();
-
     setFilters((prevFilters) => ({
       ...prevFilters,
       data: updatedSelectedColumns,
     }));
 
-    const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
-
-    const columnsChanged = JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
-
-    if (!columnsChanged) {
-      toast({
-        title: "No changes to apply",
-        status: "info",
-        isClosable: true,
-      });
-      return;
-    }
+    // const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
+    // const columnsChanged = JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
+    // if (!columnsChanged) {
+    //   toast({
+    //     title: "No changes to apply",
+    //     status: "info",
+    //     isClosable: true,
+    //   });
+    //   return;
+    // }
     setSelectedColumns(updatedSelectedColumns);
     refetchColumnData({ columns: updatedSelectedColumns });
     onClose();
@@ -370,9 +361,95 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     }
   }, [isOpen, selectedColumns, columnData]);
 
+  // const toggleColumn = (field) => {
+  //   setTempSelectedColumns((prev) =>
+  //     prev.includes(field)
+  //       ? prev.filter((col) => col !== field)
+  //       : [...prev, field]
+  //   );
+  // };
+  // useEffect(() => {
+  //   const storedColumns = JSON.parse(localStorage.getItem("selectedColumns"));
+  //   if (storedColumns) {
+  //     setSelectedColumns(storedColumns);
+  //     setTempSelectedColumns(storedColumns);
+  //   } else {
+  //     setSelectedColumns(defaultColumns);
+  //     setTempSelectedColumns(defaultColumns);
+  //   }
+  // }, [data]);
 
-  const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 200), []);
+  // const handleSelectAllToggle = () => {
+  //   const allColumns = columnData
+  //     ? Object.keys(columnData?.content[0] || {}).map((key) => ({
+  //       field: key,
+  //       listName: columnData.content[0][key]?.listName || key,
+  //     }))
+  //     : [];
+  //   const uniqueColumns = allColumns.map((col) => col.field);
+  //   let updatedColumns;
+  //   if (selectAll) {
+  //     setTempSelectedColumns([]);
+  //   } else {
+  //     setTempSelectedColumns(uniqueColumns);
+  //   }
 
+  //   setSelectAll(!selectAll);
+  // };
+  // const handleModalClose = () => {
+  //   setSelectedColumns(defaultColumns);
+  //   localStorage.setItem("selectedColumns", JSON.stringify(defaultColumns));
+  //   onClose();
+  // };
+  // const handleApplyChanges = () => {
+  //   const updatedSelectedColumns = Array.from(
+  //     new Set(
+  //       tempSelectedColumns.map((col) => {
+  //         const matchingColumn = columnData?.content[0][col];
+  //         return matchingColumn ? matchingColumn.listName || col : col;
+  //       })
+  //     )
+  //   ).filter((col) => col !== "SL No");
+
+  //   setFilters((prevFilters) => ({
+  //     ...prevFilters,
+  //     data: updatedSelectedColumns,
+  //   }));
+
+  //   const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
+
+  //   const columnsChanged = JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
+
+  //   if (!columnsChanged) {
+  //     toast({
+  //       title: "No changes to apply",
+  //       status: "info",
+  //       isClosable: true,
+  //     });
+  //     return;
+  //   }
+  //   setSelectedColumns(updatedSelectedColumns);
+  //   localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
+  //   refetchColumnData({ columns: updatedSelectedColumns });
+  //   onClose();
+  //   toast({
+  //     title: "Columns Applied Successfully",
+  //     status: "success",
+  //     isClosable: true,
+  //   });
+  // };
+  // useEffect(() => {
+  //   if (isOpen) {
+  //     const filteredColumns = columnData?.content[0]
+  //       ? Object.keys(columnData.content[0]).filter((key) =>
+  //         selectedColumns.includes(columnData.content[0][key]?.listName)
+  //       )
+  //       : [];
+  //     setTempSelectedColumns(filteredColumns);
+  //   }
+  // }, [isOpen, selectedColumns, columnData]);
+
+  const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
   useEffect(() => {
     return () => {
       debouncedSearchQuery.cancel();
@@ -1248,9 +1325,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                     : "250px"
                               }
                               overflow="hidden"
-                              textOverflow="ellipsis">
+                              textOverflow="ellipsis"
+                            >
                               {/* Check if column exists in the productDataFilter */}
-                              {item[column] || "-"}
+                              {item[column]}
                             </Text>
                           </Td>
                         ))}

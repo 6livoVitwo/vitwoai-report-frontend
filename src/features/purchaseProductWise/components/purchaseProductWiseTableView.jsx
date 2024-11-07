@@ -4,7 +4,7 @@ import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
- 
+
 const PurchaseProductWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
   const [page, setPage] = useState(0);
@@ -21,16 +21,28 @@ const PurchaseProductWiseTableView = () => {
         "SUM(items.receivedQty)",
         "SUM(items.totalAmount)",
         "grnCreatedAt",
-        
+        "SUM(grnInvoice.grnTotalTds)",
+        "SUM(grnInvoice.grnTotalSgst)",
+        "SUM(grnInvoice.grnTotalIgst)",
+        "grnCreatedBy",
+        "grnCode",
+        "dueDate",
+        "grnUpdatedAt",
+        "grnUpdatedBy",
+        "SUM(grnInvoice.grnTotalCgst)",
+        "SUM(items.unitPrice)",
+        "items.goodsItems.stockSummary.movingWeightedPrice",
+
+
       ],
       groupBy: ["items.goodName"],
       filter: [],
       page: 0,
-      size: 50,
+      size:50,
       sortDir: "asc",
       sortBy: "items.goodName",
     }
-   );
+  );
 
   const toast = useToast();
   const {
@@ -47,15 +59,6 @@ const PurchaseProductWiseTableView = () => {
 
   const pageInfo = sales?.lastPage;
   const tableContainerRef = useRef(null);
-
- // Create a mapping of API fields to display names
-  // const fieldMapping = {
-  //   "items.goodName": "items.goodName",
-  //   "items.goodCode": "items.goodCode",
-  //   "SUM(items.goodQty)": "SUM(items.goodQty)",
-  //   "SUM(items.receivedQty)": "SUM(items.receivedQty)",
-  //   "SUM(items.totalAmount)": "SUM(items.totalAmount)",
-  // };
 
   const flattenObject = (obj, prefix = "") => {
     let result = {};
@@ -75,26 +78,15 @@ const PurchaseProductWiseTableView = () => {
     return result;
   };
 
-  // const extractFields = (data, index) => {
-  //   const extractedFields = {
-  //     "SL No": index + 1,
-  //     ...Object.keys(fieldMapping).reduce((acc, apiField) => {
-  //       acc[fieldMapping[apiField]] = data[apiField];
-  //       return acc;
-  //     }, {}),
-  //   };
-  //   return extractedFields;
-  // };
-
   useEffect(() => {
     if (sales?.content?.length) {
       const newItems = sales.content.flatMap((invoice) => {
         const flattenedInvoice = flattenObject(invoice);
         return invoice.items?.length
           ? invoice.items.map((item) => {
-              const flattenedItem = flattenObject(item, "item.");
-              return { ...flattenedInvoice, ...flattenedItem };
-            })
+            const flattenedItem = flattenObject(item, "item.");
+            return { ...flattenedInvoice, ...flattenedItem };
+          })
           : [flattenedInvoice];
       });
       setIndividualItems((prevItems) => [...prevItems, ...newItems]);
@@ -122,7 +114,7 @@ const PurchaseProductWiseTableView = () => {
           </Box>
         ),
       });
-      setToastShown(true); // Mark the toast as shown
+      setToastShown(true);
     }
   }, [sales, page, toast, toastShown]);
 
@@ -170,7 +162,7 @@ const PurchaseProductWiseTableView = () => {
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
       {individualItems.length > 0 && (
         <CustomTable
-          newArray={individualItems} 
+          newArray={individualItems}
           page={page}
           setPage={setPage}
           isFetching={isFetching}

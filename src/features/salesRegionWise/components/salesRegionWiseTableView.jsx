@@ -14,29 +14,28 @@ const SalesRegionWiseTableView = () => {
   const toast = useToast();
   const [filters, setFilters] = useState({
     data: [
-      "customer.customerAddress.customer_address_district",
       "SUM(igst)",
       "SUM(sgst)",
       "SUM(cgst)",
-      "SUM(due_amount)",
       "SUM(salesPgi.salesDelivery.totalAmount)",
       "SUM(salesPgi.totalAmount)",
-      "SUM(quotation.totalAmount)",
+      // "customer.customerAddress.customer_address_state",
+      // "SUM(due_amount)",
+      // "SUM(quotation.totalAmount)",
       "SUM(salesOrder.totalAmount)",
       "SUM(items.qty)",
-      "SUM(items.basePrice - items.totalDiscountAmt)",
       "SUM(all_total_amt)"
-  ],
-  "groupBy": [
-      "customer.customerAddress.customer_address_pin_code"
-  ],
-  "filter": [
-  ],
-  "page":0,
-  "size":50,
-  "sortBy": "customer.customerAddress.customer_address_pin_code",
-  "sortDir": "asc"
-});
+    ],
+    "groupBy": [
+      "customer.customerAddress.customer_address_state"
+    ],
+    "filter": [
+    ],
+    "page": 0,
+    "size": 50,
+    "sortBy": "customer.customerAddress.customer_address_state",
+    "sortDir": "asc"
+  });
 
   const {
     data: sales,
@@ -93,9 +92,9 @@ const SalesRegionWiseTableView = () => {
         const flattenedInvoice = flattenObject(invoice);
         return invoice.items?.length
           ? invoice.items.map((item) => {
-              const flattenedItem = flattenObject(item, "items.");
-              return { ...flattenedInvoice, ...flattenedItem };
-            })
+            const flattenedItem = flattenObject(item, "items.");
+            return { ...flattenedInvoice, ...flattenedItem };
+          })
           : [flattenedInvoice];
       });
       setIndividualItems((prevItems) => [...prevItems, ...newItems]);
@@ -159,9 +158,9 @@ const SalesRegionWiseTableView = () => {
       </Box>
     );
   }
-  const newArray = individualItems.map((data, index) =>
-    extractFields(data, index)
-  );
+  // const newArray = individualItems.map((data, index) =>
+  //   extractFields(data, index)
+  // );
   const mainData = sales?.content;
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">

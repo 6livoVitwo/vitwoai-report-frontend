@@ -280,7 +280,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   const clearPriviewColumnData = () => {
-    setPage(1);
   }
   const toggleColumn = (field) => {
     if (field === "SL No") return;
