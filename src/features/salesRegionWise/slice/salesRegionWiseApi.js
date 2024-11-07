@@ -58,6 +58,16 @@ export const salesRegionWiseApi = apiSlice.injectEndpoints({
         };
       },
     }),
+    getGlobalsearchState: builder.query({
+      query: (body) => {
+        ;
+        return {
+          url: "/sales/global-search/region/state",
+          method: "POST",
+          body: JSON.stringify(body),
+        };
+      },
+    }),
   }),
 });
 
@@ -68,4 +78,5 @@ export const {
   useGetselectedCountryWiseQuery,
   useGetselectedPincodeWiseQuery,
   useGetselectedStateWiseQuery,
+  useGetGlobalsearchStateQuery,
 } = salesRegionWiseApi;
