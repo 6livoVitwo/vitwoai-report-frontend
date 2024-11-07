@@ -67,8 +67,6 @@ const ReceivableCustomerTableView = () => {
     body,
   });
 
-  console.log(isLoading, {isLoading})
-
   const receivableData = data?.content || [];
   const totalRecords = data?.totalElements || 0;
 
