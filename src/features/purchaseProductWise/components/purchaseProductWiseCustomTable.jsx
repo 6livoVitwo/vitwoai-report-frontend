@@ -711,7 +711,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             onClick={handleSearchClick}
             style={{
               position: "absolute",
-              right: "10px", // Adjust the position as needed
+              right: "10px",
               top: "50%",
               transform: "translateY(-50%)",
               border: "none",
@@ -763,6 +763,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               handleReportChange(e);
             }}
             optionLabel="label"
+            fontSize="1.2rem"
             placeholder="Select Sales Type"
             style={{
               width: "200px",
