@@ -330,18 +330,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       data: updatedSelectedColumns,
     }));
 
-    const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
-
-    const columnsChanged = JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
-
-    if (!columnsChanged) {
-      toast({
-        title: "No changes to apply",
-        status: "info",
-        isClosable: true,
-      });
-      return;
-    }
+    // const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
+    // const columnsChanged = JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
+    // if (!columnsChanged) {
+    //   toast({
+    //     title: "No changes to apply",
+    //     status: "info",
+    //     isClosable: true,
+    //   });
+    //   return;
+    // }
     setSelectedColumns(updatedSelectedColumns);
     refetchColumnData({ columns: updatedSelectedColumns });
     onClose();

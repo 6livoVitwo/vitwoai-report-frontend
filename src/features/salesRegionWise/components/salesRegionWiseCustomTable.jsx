@@ -290,21 +290,18 @@ const CustomTable = ({
       default:
         setActiveRegionData(StateWiseData);
     }
-    toast({
-      title: `Region changed to ${selectedLabel}`,
-      description: "Your filter has been updated.",
-      status: "success",
-      duration: 2000,
-      isClosable: true,
-      containerStyle: {
-        width: "400px",
-        height: "100px",
-      },
-    });
+    // toast({
+    //   title: `Region changed to ${selectedLabel}`,
+    //   description: "Your filter has been updated.",
+    //   status: "success",
+    //   duration: 2000,
+    //   isClosable: true,
+    //   containerStyle: {
+    //     width: "400px",
+    //     height: "100px",
+    //   },
+    // });
   };
-  // useEffect(() => {
-  //   setActiveRegionData(StateWiseData);
-  // }, [StateWiseData]);
   useEffect(() => {
     if (selectedRegion === "state" && StateWiseData) {
       setActiveRegionData(StateWiseData);
@@ -1185,9 +1182,9 @@ const CustomTable = ({
                                             <option value="lessThanOrEqual">
                                               Less Than or Equal
                                             </option>
-                                            <option value="between">
+                                            {/* <option value="between">
                                               Between
-                                            </option>
+                                            </option> */}
                                           </Select>
                                           <Input
                                             h="35px"

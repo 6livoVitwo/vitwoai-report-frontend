@@ -422,8 +422,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       },
       page: currentPage,
     });
-  }, [sortColumn, sortOrder, refetchSoWise]); // Ensure dependencies are correct
-
+  }, [sortColumn, sortOrder, refetchSoWise]);
 
 
   const filteredItems = useMemo(() => {
@@ -444,7 +443,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     else if (SoWiseFilter?.content && SoWiseFilter?.content.length > 0) {
       filteredData = SoWiseFilter.content;
     }
-
     // Object.keys(columnFilters).forEach((field) => {
     //   const filter = columnFilters[field];
     //   if (filter.condition && filter.value) {
