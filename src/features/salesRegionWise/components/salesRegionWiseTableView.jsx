@@ -20,8 +20,6 @@ const SalesRegionWiseTableView = () => {
       "SUM(salesPgi.salesDelivery.totalAmount)",
       "SUM(salesPgi.totalAmount)",
       // "customer.customerAddress.customer_address_state",
-      // "SUM(due_amount)",
-      // "SUM(quotation.totalAmount)",
       "SUM(salesOrder.totalAmount)",
       "SUM(items.qty)",
       "SUM(all_total_amt)"
@@ -74,18 +72,6 @@ const SalesRegionWiseTableView = () => {
     return result;
   };
 
-  const extractFields = (data, index) => ({
-    "SL No": index + 1,
-    // kamName: data["kam.kamName"],
-    // email: data["kam.email"],
-    // emp_code: data["kam.emp_code"],
-    // designation: data["kam.designation"],
-    // contact: data["kam.contact"],
-    // invoice_no: data["invoice_no"],
-    // invoice_date: data["invoice_date"],
-    // due_amount: data["SUM(due_amount)"],
-  });
-
   useEffect(() => {
     if (sales?.content?.length) {
       const newItems = sales.content.flatMap((invoice) => {
@@ -101,7 +87,6 @@ const SalesRegionWiseTableView = () => {
     }
   }, [sales]);
   useEffect(() => {
-    // Show the toast only if the user has scrolled to the last page and toast hasn't been shown
     if (sales?.totalPages < page && !toastShown) {
       toast({
         title: "No More Data",
@@ -114,14 +99,14 @@ const SalesRegionWiseTableView = () => {
             p={3}
             bg="orange.300"
             borderRadius="md"
-            style={{ width: "300px", height: "70px" }} // Set custom width and height
+            style={{ width: "300px", height: "70px" }}
           >
             <Box fontWeight="bold">No More Data</Box>
             <Box>You have reached the end of the list.</Box>
           </Box>
         ),
       });
-      setToastShown(true); // Mark the toast as shown
+      setToastShown(true);
     }
   }, [sales, page, toast, toastShown]);
 
@@ -158,9 +143,7 @@ const SalesRegionWiseTableView = () => {
       </Box>
     );
   }
-  // const newArray = individualItems.map((data, index) =>
-  //   extractFields(data, index)
-  // );
+
   const mainData = sales?.content;
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">

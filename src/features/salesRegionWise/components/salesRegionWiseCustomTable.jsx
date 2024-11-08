@@ -35,9 +35,7 @@ import {
   Popover,
   PopoverTrigger,
   PopoverContent,
-  PopoverHeader,
   PopoverBody,
-  PopoverFooter,
   PopoverArrow,
   PopoverCloseButton,
   Tooltip,
@@ -60,7 +58,6 @@ import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
-import { useRegionWiseSalesQuery } from "../slice/salesRegionWiseApi";
 import { useGetselectedDistWiseQuery } from "../slice/salesRegionWiseApi";
 import { useGetselectedCityWiseQuery } from "../slice/salesRegionWiseApi";
 import { useGetselectedCountryWiseQuery } from "../slice/salesRegionWiseApi";
@@ -75,7 +72,8 @@ import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfig
 import { FiPlus, FiSettings } from "react-icons/fi";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { useGetGlobalsearchStateQuery } from "../slice/salesRegionWiseApi";
+import { useGetGlobalsearchStateQuery, useGetGlobalsearchPincodeQuery, useGetGlobalsearchDistQuery, useGetGlobalsearchCountryQuery, useGetGlobalsearchCityQuery } from "../slice/salesRegionWiseApi";
+
 
 const CustomTable = ({
   setPage,
@@ -105,7 +103,7 @@ const CustomTable = ({
   const [appliedFilters, setAppliedFilters] = useState({});
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
-  const [currentPage, setCurrentPage] = useState(0); // Default page is 0
+  const [currentPage, setCurrentPage] = useState(0); 
   const [selectedRegion, setSelectedRegion] = useState("state");
   const [placeholder, setPlaceholder] = useState("District");
   const [columns, setColumns] = useState([]);
@@ -115,18 +113,17 @@ const CustomTable = ({
   const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
   const dispatch = useDispatch();
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
+  const [skipDistrict, setSkipDistrict] = useState(true);
+  const [skipCity, setSkipCity] = useState(true);
+  const [skipCountry, setSkipCountry] = useState(true);
+  const [skipPincode, setSkipPincode] = useState(true);
+  const [skipGlobalSearch, setSkipGlobalSearch] = useState(true);
+  const [skipGlobalSearchPincode, setSkipGlobalSearchPincode] = useState(true);
+  const [skipGlobalSearchDist, setSkipGlobalSearchDist] = useState(true);
+  const [skipGlobalSearchCountry, setSkipGlobalSearchCountry] = useState(true);
+  const [skipGlobalSearchCity, setSkipGlobalSearchCity] = useState(true);
 
 
-
-  //API Calling sorting
-  const { data: kamData, refetch: refetchKamWiseSales } = useRegionWiseSalesQuery({
-    filters: {
-      ...filters,
-      sortBy: sortColumn,
-      sortOrder: sortOrder,
-    },
-    page: currentPage,
-  });
 
   const toast = useToast();
   const tableContainerRef = useRef(null);
@@ -209,32 +206,53 @@ const CustomTable = ({
 
 
   //global search....
-  const { data: GlobalSearch, refetch: refetchSearchState } = useGetGlobalsearchStateQuery(filters)
+  const { data: GlobalSearch, refetch: refetchSearchState } =
+    useGetGlobalsearchStateQuery(filters, { skip: skipGlobalSearch })
+
+  const { data: GlobalSearchPincode, refetch: refetchSearchPincode } = useGetGlobalsearchPincodeQuery
+    (filters, { skip: skipGlobalSearchPincode })
+
+  const { data: GlobalSearchDist, refetch: refetchSearchDist } = useGetGlobalsearchDistQuery
+    (filters, { skip: skipGlobalSearchDist })
+
+  const { data: GlobalSearchCountry, refetch: refetchSearchCountry } = useGetGlobalsearchCountryQuery
+    (filters, { skip: skipGlobalSearchCountry })
+
+  const { data: GlobalSearchCity, refetch: refetchSearchCity } = useGetGlobalsearchCityQuery
+    (filters, { skip: skipGlobalSearchCity })
+
+
+
+
+
+
+
 
 
   //..........Api calling for dropdown for district-wise ............
   const { data: DistrictWiseData, refetch: refetchDistrict } =
-    useGetselectedDistWiseQuery(filters);
+    useGetselectedDistWiseQuery(filters, { skip: skipDistrict });
 
 
   //..........Api calling for dropdown for city-wise ............
   const { data: CityWiseData, refetch: refetchcity } =
-    useGetselectedCityWiseQuery(filters);
+    useGetselectedCityWiseQuery(filters, { skip: skipCity });
 
 
   //..........Api calling for dropdown for pincode-wise ............
   const { data: CountryWiseData, refetch: refetchcountry } =
-    useGetselectedCountryWiseQuery(filters);
+    useGetselectedCountryWiseQuery(filters, { skip: skipCountry });
 
 
   //..........Api calling for dropdown for pincode-wise ............
   const { data: PincodeWiseData, refetch: refetchpincode } =
-    useGetselectedPincodeWiseQuery(filters);
+    useGetselectedPincodeWiseQuery(filters, { skip: skipPincode });
 
 
   //..........Api calling for dropdown for state-wise ............
   const { data: StateWiseData, refetch: refetchstate } =
     useGetselectedStateWiseQuery(filters);
+
 
   const [activeRegionData, setActiveRegionData] = useState(null);
 
@@ -250,7 +268,6 @@ const CustomTable = ({
     const selectedValue = e.value;
     const selectedLabel = RerionType.find(item => item.value === selectedValue)?.label || "State";
     setPlaceholder(selectedLabel);
-    // open the modal delected columns
     onOpen();
 
     const updatedFilters = {
@@ -273,40 +290,59 @@ const CustomTable = ({
     setFilters(updatedFilters);
     setSelectedRegion(selectedValue);
     setIsUpdated(true);
+    setSkipDistrict(true);
+    setSkipCity(true);
+    setSkipCountry(true);
+    setSkipPincode(true);
+    setSkipGlobalSearch(true);
+    setSkipGlobalSearchPincode(true);
+    setSkipGlobalSearchDist(true);
+    setSkipGlobalSearchCountry(true);
+    setSkipGlobalSearchCity(true);
 
     switch (selectedValue) {
       case 'district':
+        setSkipDistrict(false);
         setActiveRegionData(DistrictWiseData);
         break;
       case 'city':
+        setSkipCity(false);
         setActiveRegionData(CityWiseData);
         break;
       case 'country':
+        setSkipCountry(false);
         setActiveRegionData(CountryWiseData);
         break;
       case 'pin_code':
+        setSkipPincode(false);
         setActiveRegionData(PincodeWiseData);
         break;
       default:
         setActiveRegionData(StateWiseData);
     }
-    // toast({
-    //   title: `Region changed to ${selectedLabel}`,
-    //   description: "Your filter has been updated.",
-    //   status: "success",
-    //   duration: 2000,
-    //   isClosable: true,
-    //   containerStyle: {
-    //     width: "400px",
-    //     height: "100px",
-    //   },
-    // });
   };
   useEffect(() => {
-    if (selectedRegion === "state" && StateWiseData) {
-      setActiveRegionData(StateWiseData);
+    switch (selectedRegion) {
+      case "state":
+        if (StateWiseData) setActiveRegionData(StateWiseData);
+        break;
+      case "district":
+        if (DistrictWiseData) setActiveRegionData(DistrictWiseData);
+        break;
+      case "city":
+        if (CityWiseData) setActiveRegionData(CityWiseData);
+        break;
+      case "country":
+        if (CountryWiseData) setActiveRegionData(CountryWiseData);
+        break;
+      case "pin_code":
+        if (PincodeWiseData) setActiveRegionData(PincodeWiseData);
+        break;
+      default:
+        setActiveRegionData(null);
     }
-  }, [StateWiseData]);
+  }, [selectedRegion, StateWiseData, DistrictWiseData, CityWiseData, CountryWiseData, PincodeWiseData]);
+
 
 
   const loadMoreData = async () => {
@@ -350,6 +386,7 @@ const CustomTable = ({
     newColumnsOrder.splice(result.destination.index, 0, removed);
     setSelectedColumns(newColumnsOrder);
   };
+
   // Handle column selection
   const toggleColumn = (field) => {
     setTempSelectedColumns((prev) =>
@@ -376,7 +413,6 @@ const CustomTable = ({
 
     const uniqueColumns = allColumns.map((col) => col.field);
 
-    // Toggle selection based on the selectAll state
     if (selectAll) {
       setTempSelectedColumns([]);
     } else {
@@ -384,15 +420,6 @@ const CustomTable = ({
     }
     setSelectAll(!selectAll);
   };
-  // Updated useEffect to refetch data when filters or region type changes
-  useEffect(() => {
-    refetchcity();
-    refetchDistrict();
-    refetchcountry();
-    refetchpincode();
-    refetchstate();
-    setIsUpdated(false);
-  }, [filters, selectedRegion, refetchcity, refetchDistrict, refetchcountry, refetchpincode, refetchstate]);
 
   const handleModalClose = () => {
     setTempSelectedColumns(selectedColumns);
@@ -488,6 +515,24 @@ const CustomTable = ({
     };
     setFilters(updatedFilters);
     setSearchQuery(inputValue);
+
+    switch (selectedRegion) {
+      case 'pin_code':
+        setSkipGlobalSearchPincode(false);
+        break;
+      case 'country':
+        setSkipGlobalSearchCountry(false);
+        break;
+      case 'city':
+        setSkipGlobalSearchCity(false);
+        break;
+      case 'district':
+        setSkipGlobalSearchDist(false);
+        break;
+      default:
+        setSkipGlobalSearch(false);
+    }
+
   };
 
   const clearAllFilters = () => {
@@ -505,18 +550,6 @@ const CustomTable = ({
     setSortColumn(column);
     setSortOrder(newSortOrder);
   };
-  // // Trigger the API call when sortColumn or sortOrder changes
-  useEffect(() => {
-    refetchKamWiseSales({
-      filters: {
-        ...filters,
-        sortBy: sortColumn,
-        sortDir: sortOrder,
-      },
-      page: currentPage,
-    });
-  }, [sortColumn, sortOrder, refetchKamWiseSales]);
-
 
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray];

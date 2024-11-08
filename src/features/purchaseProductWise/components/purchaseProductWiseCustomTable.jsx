@@ -329,7 +329,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       ...prevFilters,
       data: updatedSelectedColumns,
     }));
-
     // const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
     // const columnsChanged = JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
     // if (!columnsChanged) {
@@ -575,7 +574,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   useEffect(() => {
     const container = tableContainerRef.current;
     if (container) {
-      const debouncedHandleScroll = debounce(handleScroll, 200);
+      const debouncedHandleScroll = debounce(handleScroll,5);
       container.addEventListener("scroll", debouncedHandleScroll);
       return () =>
         container.removeEventListener("scroll", debouncedHandleScroll);
