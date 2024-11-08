@@ -33,13 +33,15 @@ const GlobalCss = () => {
             ::-webkit-scrollbar {
               width: 5px;
               height: 10px;
+              margin-left: 10px;
             }
             ::-webkit-scrollbar-track {
-              box-shadow: inset 0 0 5px grey; 
+              box-shadow: inset 0 0 5px gray-300; 
+              border-radius: 15px;
        
             }
             ::-webkit-scrollbar-thumb {
-              background: var(--chakra-colors-mainBlue); 
+              background: var(--chakra-colors-gray-500); 
               border-radius: 10px;
             }
             ::-webkit-scrollbar-thumb:hover {

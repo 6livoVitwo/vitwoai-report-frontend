@@ -909,7 +909,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               w="30px"
               h="30px"
               // bg="#d6eaf8"
-              bg="transparent"
+              bg="#0d3a6833"
               _hover={{
                 bg: "mainBlue",
                 color: "white",
@@ -939,7 +939,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               borderRadius="5px"
               width="30px"
               height="30px"
-              bg="transparent"
+              bg="#0d3a6833"
               // border="1px solid gray"
               _hover={{
                 bg: "mainBlue",
@@ -973,7 +973,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               color="mainBlue"
               width="30px"
               borderRadius="5px"
-              bg="transparent"
+              bg="#0d3a6833"
               // border="1px solid gray"
               _hover={{
                 bg: "mainBlue",
@@ -1003,6 +1003,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 padding="5px"
                 borderRadius="5px"
                 // border="1px solid gray"
+                bg="#0d3a6833"
                 _hover={{
                   color: "white",
                   bg: "mainBlue",
@@ -1138,8 +1139,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         className="table-tableContainerRef"
         overflowY="auto"
         margin="0 auto"
-        height="calc(100vh - 195px)"
+        height="calc(100vh - 130px)"
         width="calc(100vw - 100px)"
+        border="1px solid #ebebeb"
+        borderRadius="15px"
       >
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="droppable" direction="horizontal">
@@ -1167,12 +1170,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
-                            padding="15px 10px"
-                            fontSize="13px"
+                            padding="7px 15px"
+                            fontSize="1.2rem"
                             fontWeight="500"
                             textTransform="capitalize"
                             fontFamily="Poppins, sans-serif"
                             color="black"
+                            background="#cfd8e1a6"
+                            letterSpacing="0"
                           >
                             {formatHeader(column)}
 
@@ -1185,6 +1190,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                   _hover={{ bg: "none" }}
                                   onClick={() => handleSort(column)}
                                   ref={sortButtonRef}
+                                  position="relative"
+                                  top="-2px"
+                                  fontSize="1.2rem"
+                                  color="#003060"
+                                  marginLeft="10px"
                                 >
                                   {sortColumn === column ? (
                                     sortOrder === "asc" ? (
@@ -1225,8 +1235,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                       <i
                                         className="pi pi-filter-slash"
                                         style={{
-                                          color: "slateblue",
-                                          fontSize: "1.4rem",
+                                          color: "003060",
+                                          fontSize: "1.3rem",
                                         }}
                                       ></i>
                                     </Button>
@@ -1238,8 +1248,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                       <i
                                         className="pi pi-filter"
                                         style={{
-                                          color: "slateblue",
-                                          fontSize: "1.4rem",
+                                          color: "#003060",
+                                          fontWeight: "bold",
+                                          fontSize: "1.3rem",
+                                          position: "relative",
+                                          top: "-2px",
                                         }}
                                       ></i>
                                     </Button>
@@ -1428,18 +1441,29 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         {selectedColumns.map((column, colIndex) => (
                           <Td
                             key={colIndex}
-                            padding="10px"
+                            padding="12px 15px"
+                            borderBottom="1px solid #e1e1e1"
+                            borderTop="1px solid #e1e1e1"
                             style={getColumnStyle(column)}
                           >
                             <Text
-                              fontSize="13px"
+                              fontSize="1.2rem"
+                              fontWeight="400"
+                              color="#4e4e4e"
                               whiteSpace="nowrap"
+                              // width={
+                              //   column === "description"
+                              //     ? "300px"
+                              //     : "auto" ?column === "name"
+                              //     ? "300px"
+                              //     : "auto"
+                              // }
                               width={
                                 column === "description"
                                   ? "300px"
                                   : column === "name"
-                                  ? "300px"
-                                  : "250px"
+                                  ? "200px"
+                                  : "auto"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis"

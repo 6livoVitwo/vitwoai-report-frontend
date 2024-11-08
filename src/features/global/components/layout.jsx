@@ -622,7 +622,7 @@ const Layout = ({ portalId }) => {
               lg: "0",
             }}
             height="calc(100vh - 55px)"
-            overflow="auto"
+            overflow="hidden"
             pos={{ base: "", lg: "sticky" }}
             top="60px"
             bg="white"
