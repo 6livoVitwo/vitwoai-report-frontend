@@ -539,7 +539,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           type: typeof tempFilterValue === "number" ? "integer" : "string",
         },
       }));
-
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
@@ -551,19 +550,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const handleApplyFilters = () => {
     if (tempFilterCondition && tempFilterValue && activeFilterColumn) {
       const filterValue = tempFilterCondition === "between" ? tempFilterValue : tempFilterValue;
-      // Create a new filter object
       const newFilter = {
         column: activeFilterColumn,
         operator: tempFilterCondition,
         type: tempFilterCondition === "between" ? "date" : (typeof tempFilterValue === "number" ? "integer" : "string"),
         value: filterValue,
       };
-      // Update localFilters state
       const updatedFilters = {
         ...localFilters,
         filter: [...localFilters.filter, newFilter],
       };
-      // Update column filters for the UI display
       setColumnFilters((prevFilters) => ({
         ...prevFilters,
         [activeFilterColumn]: {
@@ -573,10 +569,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           type: tempFilterCondition === "between" ? "date" : (typeof tempFilterValue === "number" ? "integer" : "string"),
         },
       }));
-      // Update local filters state
       setLocalFilters(updatedFilters);
       setFiltersApplied(true);
-      // Clear temporary values
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
