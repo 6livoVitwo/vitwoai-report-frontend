@@ -90,7 +90,7 @@ const CssWrapper = styled.div`
   }
 
   .p-dropdown .p-dropdown-label.p-placeholder {
-    color: #c5c5c5cc;
+    color: #00000061;
     font-size: 1.2rem;
     font-weight: normal;
     font-family: "Poppins", sans-serif;
@@ -142,6 +142,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
   };
+
+
+  const rightAlignColumns = ["SUM(items.totalAmount)"];
 
   //...Advanced Filter API CALL...
   const { data: productDataFilter, refetch: refetchProductFilter } =
@@ -741,7 +744,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             Purchase Product Table View
           </Heading>
         </Box>
-        <Box
+        <Box 
           display="flex"
           justifyContent="flex-end"
           gap="10px"
@@ -767,7 +770,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               padding="15px"
               h="31px"
               borderRadius="5px"
-              borderColor="#cccccc61"
+              borderColor="#00000061"
               placeholder="Search Global Data"
               pr="40px"
               zIndex="1"
@@ -775,15 +778,17 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               color="#000"
               sx={{
                 "&::placeholder": {
-                  color: "#ccc",
+                  color: "#00000061",
+                },
+                "&:hover": {
+                  borderColor: "#00000061",
                 },
                 "&:focus": {
                   outline: "none",
-                  borderColor: "#cccccc61",
+                  borderColor: "#00000061",
                   boxShadow: "none",
                   e: "none",
                   boxShadow: "none",
-                  borderColor: "#cccccc61",
                 },
               }}
             />
@@ -803,8 +808,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             >
               <i
                 className="pi pi-search"
-                style={{ fontSize: "1.7rem", opacity: "0.2" }}
-              ></i>
+                style={{ fontSize: "1.7rem", opacity: "0.5" }}
+              >
+              </i>
             </button>
           </Box>
           <CssWrapper>
@@ -819,7 +825,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               panelStyle={{ margin: "0", padding: "0.75rem 1.25rem" }}
               style={{
                 width: "175px",
-                border: "1px solid gray ",
+                border: "1px solid #00000061 ",
                 display: "flex",
                 alignItems: "center",
                 height: "32px",
@@ -827,8 +833,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               }}
               sx={{
                 "& .p-dropdown-label": {
-                  color: "blue", // Customize the selected label's color
-                  fontSize: "1.2rem", // Customize the selected label's font size
+                  color: "blue", 
+                  fontSize: "1.2rem", 
                 },
                 "&:focus": {
                   outline: "none",
@@ -836,7 +842,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                   boxShadow: "none",
                 },
                 "& .p-dropdown-trigger": {
-                  color: "gray", // Custom color for dropdown arrow icon
+                  color: "#00000061", 
                 },
                 "& .p-dropdown .p-dropdown-label.p-placeholder": {
                   color: "red",
@@ -1171,7 +1177,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
                             padding="7px 15px"
-                            fontSize="1.2rem"
+                            fontSize="1.35rem"
                             fontWeight="500"
                             textTransform="capitalize"
                             fontFamily="Poppins, sans-serif"
@@ -1434,11 +1440,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                     ))}
                   </Tr>
                 </Thead>
+                
                 <Tbody>
                   {tableData.length > 0 ? (
                     tableData.map((item, index) => (
                       <Tr key={index}>
                         {selectedColumns.map((column, colIndex) => (
+                          console.log(column),
                           <Td
                             key={colIndex}
                             padding="12px 15px"
@@ -1446,29 +1454,24 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                             borderTop="1px solid #e1e1e1"
                             style={getColumnStyle(column)}
                           >
+                            
                             <Text
-                              fontSize="1.2rem"
-                              fontWeight="400"
+                              fontSize="1.4rem"
+                              fontWeight={column === "items.goodName" ? "600" : "400"}
                               color="#4e4e4e"
                               whiteSpace="nowrap"
-                              // width={
-                              //   column === "description"
-                              //     ? "300px"
-                              //     : "auto" ?column === "name"
-                              //     ? "300px"
-                              //     : "auto"
-                              // }
                               width={
-                                column === "description"
-                                  ? "300px"
-                                  : column === "name"
-                                  ? "200px"
+                                column === "description" 
+                                  ? "300px" 
+                                  : column === "items.goodName"
+                                  ? "250px" 
                                   : "auto"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis"
+                              title={column === "items.goodName" ? item[column] : undefined}
+                              textAlign={rightAlignColumns.includes(column) ? "right" : "left"}
                             >
-                              {/* Check if column exists in the productDataFilter */}
                               {item[column] || "-"}
                             </Text>
                           </Td>

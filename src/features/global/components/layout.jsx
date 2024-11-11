@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
-import styled from '@emotion/styled';
-import { useLocation } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import React, { useEffect } from "react";
+import styled from "@emotion/styled";
+import { useLocation } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import {
   Flex,
   Wrap,
@@ -18,216 +18,240 @@ import {
   Breadcrumb,
 } from "@chakra-ui/react";
 
-import Navigation from './navigation';
-import { setDarkMode } from '../slice';
-import logoDark from '../../../asset/images/vitwo-logo-dark.png';
+import Navigation from "./navigation";
+import { setDarkMode } from "../slice";
+import logoDark from "../../../asset/images/vitwo-logo-dark.png";
 const CssWrapper = styled.div`
-	.nav-collapse .sidebar nav {
-		padding: 20px 13px 20px 8px;
-	}
+  .nav-collapse .sidebar nav {
+    padding: 20px 13px 20px 8px;
+  }
 
-	.nav-collapse li.nav-item svg {
-		margin: 0 auto;
-		display: inline-block;
-	}
-	.nav-collapse li.nav-item:hover > a {
-		background: var(--chakra-colors-mainBlue);
-	}
+  .nav-collapse li.nav-item svg {
+    margin: 0 auto;
+    display: inline-block;
+  }
+  .nav-collapse li.nav-item:hover > a {
+    background: var(--chakra-colors-mainBlue);
+  }
 
-	.nav-collapse li.nav-item:hover span {
-		visibility: visible;
-		opacity: 1;
-	}
-	.nav-collapse .logo-img {
-		clip: rect(0px, 32px, 45px, 0px);
-	}
+  .nav-collapse li.nav-item:hover span {
+    visibility: visible;
+    opacity: 1;
+  }
+  .nav-collapse .logo-img {
+    clip: rect(0px, 32px, 45px, 0px);
+  }
 
-	.nav-collapse li.nav-item a[aria-current='page'] {
-		border-radius: 8px;
-	}
+  .nav-collapse li.nav-item a[aria-current="page"] {
+    border-radius: 8px;
+  }
 
-	.nav-collapse li.nav-item button[aria-expanded='false'] {
-		width: 48px;
-		border-radius: 8px;
-		position: relative;
-	}
+  .nav-collapse li.nav-item button[aria-expanded="false"] {
+    width: 48px;
+    border-radius: 8px;
+    position: relative;
+  }
 
-	.nav-collapse li.nav-item button strong {
-		text-align: center;
-	}
-	.chakra-accordion__panel {
-		padding: 0px;
-	}
-	.nav-collapse li.nav-item .chakra-accordion__panel {
-		padding: 5px 0px;
-	}
-	.nav-collapse .chakra-wrap__list .chakra-wrap__listitem > a > span {
-		display: none;
-	}
-	.nav-collapse .chakra-accordion__button {
-		width: 100%;
-		flex-direction: column;
-		align-items: start;
-	}
-	.nav-collapse .chakra-accordion__button > div {
-		padding: 10px 15px 0px;
-	}
-	.nav-collapse .chakra-accordion__button > a {
-		padding: 10px 15px 0px;
-		border-right: none !important;
-		border-bottom: 1px solid;
-		border-color: #f1f7fd;
-	}
-	.nav-collapse .chakra-accordion__button span {
-		display: none;
-		transition: all 0.4s ease-in-out;
-		opacity: 0;
-	}
+  .nav-collapse li.nav-item button strong {
+    text-align: center;
+  }
+  .chakra-accordion__panel {
+    padding: 0px;
+  }
+  .nav-collapse li.nav-item .chakra-accordion__panel {
+    padding: 5px 0px;
+  }
+  .nav-collapse .chakra-wrap__list .chakra-wrap__listitem > a > span {
+    display: none;
+  }
+  .nav-collapse .chakra-accordion__button {
+    width: 100%;
+    flex-direction: column;
+    align-items: start;
+  }
+  .nav-collapse .chakra-accordion__button > div {
+    padding: 10px 15px 0px;
+  }
+  .nav-collapse .chakra-accordion__button > a {
+    padding: 10px 15px 0px;
+    border-right: none !important;
+    border-bottom: 1px solid;
+    border-color: #f1f7fd;
+  }
+  .nav-collapse .chakra-accordion__button span {
+    display: none;
+    transition: all 0.4s ease-in-out;
+    opacity: 0;
+  }
 
-	.nav-collapse .chakra-wrap__listitem .chakra-accordion button + svg {
-		position: absolute;
-		right: 15px;
-		top: 28px;
-		// transition: opacity 0.4s ease 0s;
-	}
-	.nav-collapse
-		.chakra-collapse
-		.chakra-accordion__panel
-		.chakra-wrap__listitem {
-		width: 100%;
-	}
-	.nav-collapse .chakra-collapse .chakra-accordion__panel {
-		padding: 0px;
-	}
-	.nav-collapse
-		.chakra-collapse
-		.chakra-accordion__panel
-		.chakra-wrap__listitem
-		> a
-		> span {
-		display: none;
-	}
-	.nav-collapse .chakra-accordion__button[aria-expanded='true'] {
-		width: 100%;
-	}
-	.nav-collapse .navHolder .chakra-wrap__list .chakra-wrap__listitem {
-		width: 190px;
-	}
-	.chakra-collapse
-		.chakra-wrap__listitem
-		.chakra-collapse
-		.chakra-accordion__panel
-		.chakra-wrap__list
-		> a
-		> span {
-		display: none;
-	}
-	.navigation .sidebar .chakra-button .bottom-menu {
-		display: block;
-		transition: 0.4s ease all;
-	}
-	.nav-collapse .navigation .sidebar .chakra-button .bottom-menu {
-		display: none;
-		transition: 0.4s ease all;
-	}
-	.chakra-wrap__listitem
-		.chakra-accordion__button
-		.chakra-icon.chakra-accordion__icon {
-		width: 19px;
-		height: 19px;
-		margin: 0px 0px 0px -55px;
-	}
-	.chakra-wrap__listitem .chakra-accordion__button a + svg {
-		width: 22px !important;
-		height: 19px !important;
-	}
+  .nav-collapse .chakra-wrap__listitem .chakra-accordion button + svg {
+    position: absolute;
+    right: 15px;
+    top: 28px;
+    // transition: opacity 0.4s ease 0s;
+  }
+  .nav-collapse
+    .chakra-collapse
+    .chakra-accordion__panel
+    .chakra-wrap__listitem {
+    width: 100%;
+  }
+  .nav-collapse .chakra-collapse .chakra-accordion__panel {
+    padding: 0px;
+  }
+  .nav-collapse
+    .chakra-collapse
+    .chakra-accordion__panel
+    .chakra-wrap__listitem
+    > a
+    > span {
+    display: none;
+  }
+  .nav-collapse .chakra-accordion__button[aria-expanded="true"] {
+    width: 100%;
+  }
+  .nav-collapse .navHolder .chakra-wrap__list .chakra-wrap__listitem {
+    width: 190px;
+  }
+  .chakra-collapse
+    .chakra-wrap__listitem
+    .chakra-collapse
+    .chakra-accordion__panel
+    .chakra-wrap__list
+    > a
+    > span {
+    display: none;
+  }
+  .navigation .sidebar .chakra-button .bottom-menu {
+    display: block;
+    transition: 0.4s ease all;
+  }
+  .nav-collapse .navigation .sidebar .chakra-button .bottom-menu {
+    display: none;
+    transition: 0.4s ease all;
+  }
+  .chakra-wrap__listitem
+    .chakra-accordion__button
+    .chakra-icon.chakra-accordion__icon {
+    width: 19px;
+    height: 19px;
+    margin: 0px 0px 0px -55px;
+  }
+  .chakra-wrap__listitem .chakra-accordion__button a + svg {
+    width: 22px !important;
+    height: 19px !important;
+  }
 
-	@media only screen and (max-width: 1023px) {
-		.navigation {
-			z-index: 111;
-		}
-		.logo-img {
-			transition: 0.4s ease all;
-		}
+  /* For the nav-expand state (navigation open) */
+  .commonContainer.nav-expand.css-91bgu5 .css-1ugabim {
+    transform: translateX(-120px);
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smooth cubic-bezier easing */
+  }
 
-		.nav-collapse li.nav-item button[aria-expanded='true'] {
-			width: 100%;
-		}
-		.nav-collapse li.nav-item button[aria-expanded='false'] {
-			width: 100%;
-		}
-		.nav-collapse li.nav-item a {
-			width: 100%;
-		}
-		.nav-collapse li.nav-item span {
-			opacity: 1;
-		}
-		.nav-collapse li.nav-item button strong > svg.on-expanded {
-			opacity: 1;
-			visibility: visible;
-		}
-		.nav-collapse li.nav-item button strong > svg.on-collapse {
-			opacity: 0;
-			visibility: hidden;
-			bottom: 0px;
-		}
-		.nav-collapse .bottom-menu {
-			opacity: 1;
-		}
-		.nav-collapse .logo-img {
-			clip: unset;
-		}
+  /* For the nav-collapse state (navigation closed) */
+  .commonContainer.nav-collapse.css-91bgu5 .css-1ugabim {
+    transform: translateX(0px);
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smooth cubic-bezier easing */
+  }
 
-		.nav-collapse .chakra-wrap__list .chakra-wrap__listitem > a > span {
-			display: block;
-		}
-		.nav-collapse .chakra-accordion__button {
-			width: 100%;
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-		}
-		.nav-collapse .chakra-accordion__button span {
-			display: block;
-			transition: all 0.4s ease-in-out;
-			opacity: 1;
-		}
-		.nav-collapse
-			.chakra-collapse
-			.chakra-accordion__panel
-			.chakra-wrap__listitem
-			> a
-			> span {
-			display: block;
-		}
-		.nav-collapse .chakra-wrap__listitem .chakra-accordion button + svg {
-			position: absolute;
-			right: 15px;
-			top: 15px;
-		}
-		.chakra-collapse
-			.chakra-wrap__listitem
-			.chakra-collapse
-			.chakra-accordion__panel
-			.chakra-wrap__list
-			> a
-			> span {
-			display: block;
-		}
-		.nav-collapse .chakra-accordion__button > div {
-			padding: 10px 15px;
-		}
-		button.chakra-button.responsive_Btn {
-			height: 30px;
-			width: 30px;
-			padding: 0;
-		}
-	}
+  /* For the table container */
+  .commonContainer.nav-expand.css-91bgu5 .table-tableContainerRef {
+    transform: scale(0.9) translate(-70px, -30px);
+    transition: transform 0.3s ease-out; /* Ease-out for smooth movement */
+  }
 
-	@media (min-width: 768px) and (max-width: 1023px) {
-	}
-	@media (min-width: 980px) and (max-width: 1023px) {
-	}
+  /* When the navigation is collapsed */
+  .commonContainer.nav-collapse.css-91bgu5 .table-tableContainerRef {
+    transform: scale(1) translate(0px, 0px);
+    transition: transform 0.3s ease-out; /* Ease-out for smooth movement */
+  }
+
+  @media only screen and (max-width: 1023px) {
+    .navigation {
+      z-index: 111;
+    }
+    .logo-img {
+      transition: 0.4s ease all;
+    }
+
+    .nav-collapse li.nav-item button[aria-expanded="true"] {
+      width: 100%;
+    }
+    .nav-collapse li.nav-item button[aria-expanded="false"] {
+      width: 100%;
+    }
+    .nav-collapse li.nav-item a {
+      width: 100%;
+    }
+    .nav-collapse li.nav-item span {
+      opacity: 1;
+    }
+    .nav-collapse li.nav-item button strong > svg.on-expanded {
+      opacity: 1;
+      visibility: visible;
+    }
+    .nav-collapse li.nav-item button strong > svg.on-collapse {
+      opacity: 0;
+      visibility: hidden;
+      bottom: 0px;
+    }
+    .nav-collapse .bottom-menu {
+      opacity: 1;
+    }
+    .nav-collapse .logo-img {
+      clip: unset;
+    }
+
+    .nav-collapse .chakra-wrap__list .chakra-wrap__listitem > a > span {
+      display: block;
+    }
+    .nav-collapse .chakra-accordion__button {
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+    .nav-collapse .chakra-accordion__button span {
+      display: block;
+      transition: all 0.4s ease-in-out;
+      opacity: 1;
+    }
+    .nav-collapse
+      .chakra-collapse
+      .chakra-accordion__panel
+      .chakra-wrap__listitem
+      > a
+      > span {
+      display: block;
+    }
+    .nav-collapse .chakra-wrap__listitem .chakra-accordion button + svg {
+      position: absolute;
+      right: 15px;
+      top: 15px;
+    }
+    .chakra-collapse
+      .chakra-wrap__listitem
+      .chakra-collapse
+      .chakra-accordion__panel
+      .chakra-wrap__list
+      > a
+      > span {
+      display: block;
+    }
+    .nav-collapse .chakra-accordion__button > div {
+      padding: 10px 15px;
+    }
+    button.chakra-button.responsive_Btn {
+      height: 30px;
+      width: 30px;
+      padding: 0;
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+  }
+  @media (min-width: 980px) and (max-width: 1023px) {
+  }
 `;
 
 const Layout = ({ portalId }) => {
@@ -274,7 +298,7 @@ const Layout = ({ portalId }) => {
     .split("/")
     .filter(Boolean)
     .map((part, index, array) => {
-    //   const href = `/${array.slice(0, index + 1).join("/")}`;
+      //   const href = `/${array.slice(0, index + 1).join("/")}`;
       return {
         label: part.replace(/-/g, " "),
         // href: href,
@@ -291,10 +315,13 @@ const Layout = ({ portalId }) => {
         h="100vh"
         justify="left"
         align="top"
-        className={`commonContainer ${menuCollapse ? "nav-collapse" : ""}`}
+        className={`commonContainer ${
+          menuCollapse ? "nav-collapse" : "nav-expand"
+        }`}
         alignSelf="flex-start"
         position="relative"
-        bg="mainLightModeBackgroundColor">
+        bg="mainLightModeBackgroundColor"
+      >
         <Box
           position="fixed"
           bg="rgba(0,0,0,0.5)"
@@ -307,7 +334,8 @@ const Layout = ({ portalId }) => {
           }}
           onClick={setmenuCollapse.toggle}
           // transition={{ base: '0.5s ease', lg: 'unset' }}
-          zIndex="111">
+          zIndex="111"
+        >
           Overlay
         </Box>
 
@@ -324,7 +352,8 @@ const Layout = ({ portalId }) => {
           background="lfgLightBlue"
           overflow={menuCollapse ? "visible" : "hidden"}
           transition="0.5s ease all"
-          borderRight="1px solid var(--chakra-colors-veryLightBlueColor)">
+          borderRight="1px solid var(--chakra-colors-veryLightBlueColor)"
+        >
           <Box
             pos="relative"
             as="aside"
@@ -336,12 +365,14 @@ const Layout = ({ portalId }) => {
             boxShadow={
               isLessThan1023px ? "rgb(0 0 0 / 15%) 7.4px 7.4px 7.2px" : ""
             }
-            bg="#003060">
+            bg="#003060"
+          >
             <Box
               h={{ base: "55px", lg: "60px" }}
               boxShadow="-3px 3px 16px var(--chakra-colors-boxShadowLightBlackColor)"
               bg="white"
-              borderBottom="1px solid var(--chakra-colors-veryLightBlueColor)">
+              borderBottom="1px solid var(--chakra-colors-veryLightBlueColor)"
+            >
               <Box
                 className="logo"
                 p={{
@@ -349,7 +380,8 @@ const Layout = ({ portalId }) => {
                   lg: "57px 12px 0px 15px",
                 }}
                 transition="all 0.4s ease-in-out"
-                pos="relative">
+                pos="relative"
+              >
                 <Image
                   srcSet={logoDark}
                   alt="logo"
@@ -501,7 +533,8 @@ const Layout = ({ portalId }) => {
                     overflowX: "hidden",
                   },
                 },
-              }}>
+              }}
+            >
               <Navigation
                 menuCollapse={menuCollapse}
                 setmenuCollapse={setmenuCollapse}
@@ -516,7 +549,8 @@ const Layout = ({ portalId }) => {
           }}
           width="100%"
           transition="margin 0.5s ease"
-          overflow={{ base: "scroll", lg: "unset" }}>
+          overflow={{ base: "scroll", lg: "unset" }}
+        >
           <Box
             className="header"
             h={{ base: "55px", lg: "60px" }}
@@ -535,7 +569,8 @@ const Layout = ({ portalId }) => {
               lg: `${
                 menuCollapse ? "calc(100% - 60px)" : "calc(100% - 210px)"
               }`,
-            }}>
+            }}
+          >
             <Box
               pos="relative"
               h={{ base: "55px", lg: "60px" }}
@@ -549,7 +584,8 @@ const Layout = ({ portalId }) => {
                 "& > .progressBar": {
                   bg: "var(--chakra-colors-gray-100)",
                 },
-              }}>
+              }}
+            >
               <Box
                 pos="absolute"
                 left="20px"
@@ -559,12 +595,14 @@ const Layout = ({ portalId }) => {
                 h="38px"
                 textAlign="center"
                 color="mainBlue"
-                onClick={setmenuCollapse.toggle}>
+                onClick={setmenuCollapse.toggle}
+              >
                 <svg
                   className="icon"
                   width="20px"
                   height="21px"
-                  display="inline-block">
+                  display="inline-block"
+                >
                   <use xlinkHref="/icon/icons.svg#icon-navmenu-collapse" />
                 </svg>
               </Box>
@@ -572,20 +610,28 @@ const Layout = ({ portalId }) => {
               <Box
                 p="0 0 0 38px"
                 display={{ base: "none", lg: "flex" }}
-                alignItems="center">
+                alignItems="center"
+                marginLeft="auto"
+                marginRight="4rem"
+              >
                 <Heading
                   as="h1"
                   fontSize="2rem"
                   fontWeight="600"
                   color="mainBlue"
-                  textTransform="capitalize">
+                  textTransform="capitalize"
+                >
                   {/* {pathname.split("/")[1].split("-").join(" ").trim()} */}
                   <Breadcrumb fontSize="lg" spacing="8px">
                     {breadcrumbItems.map((item, index) => (
                       <BreadcrumbItem
                         key={index}
-                        isCurrentPage={item.isCurrentPage}>
+                        isCurrentPage={item.isCurrentPage}
+                      >
                         <BreadcrumbLink
+                          color={item.isCurrentPage ? "#003060.500" : "gray.500"} 
+                          fontWeight={item.isCurrentPage ? "bold" : "normal"} 
+                          fontSize={item.isCurrentPage ? "1.4rem" : "1.4rem"}
                         >
                           {item.label}
                         </BreadcrumbLink>
@@ -607,7 +653,8 @@ const Layout = ({ portalId }) => {
                 _hover={{
                   animation: `${animation}`,
                   transformOrigin: "top",
-                }}>
+                }}
+              >
                 <svg className="icon" width="20px" height="21px">
                   <use xlinkHref="/icon/icons.svg#icon-notification" />
                 </svg>
@@ -622,7 +669,7 @@ const Layout = ({ portalId }) => {
               lg: "0",
             }}
             height="calc(100vh - 55px)"
-            overflow="hidden"
+            overflow="auto"
             pos={{ base: "", lg: "sticky" }}
             top="60px"
             bg="white"
@@ -648,12 +695,14 @@ const Layout = ({ portalId }) => {
             lineHeight="3.3rem"
             justifyContent="space-between"
             p="0 20px"
-            zIndex="99">
+            zIndex="99"
+          >
             <Box
               color="mainBlue"
               fontSize="1.3rem"
               fontWeight="400"
-              flex="0 0 50%">
+              flex="0 0 50%"
+            >
               &copy; Copyright {new Date().getFullYear()}{" "}
               <Text as="strong" color="mainBlue" fontWeight="500">
                 6 livo Technology Pvt Ltd.
