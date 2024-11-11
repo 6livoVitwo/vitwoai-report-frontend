@@ -103,7 +103,7 @@ const CustomTable = ({
   const [appliedFilters, setAppliedFilters] = useState({});
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
-  const [currentPage, setCurrentPage] = useState(0); 
+  const [currentPage, setCurrentPage] = useState(0);
   const [selectedRegion, setSelectedRegion] = useState("state");
   const [placeholder, setPlaceholder] = useState("District");
   const [columns, setColumns] = useState([]);
@@ -268,7 +268,8 @@ const CustomTable = ({
     const selectedValue = e.value;
     const selectedLabel = RerionType.find(item => item.value === selectedValue)?.label || "State";
     setPlaceholder(selectedLabel);
-    onOpen();
+    setSelectedColumns([...defaultColumns]);
+
 
     const updatedFilters = {
       ...filters,

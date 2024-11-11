@@ -114,13 +114,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const dispatch = useDispatch();
   const [tableData, setTableData] = useState([]);
   const [calendarVisible, setCalendarVisible] = useState(false);
+  const [triggerFilter, setTriggerFilter] = useState(false);
+  const [triggerSort, setTriggerSort] = useState(false);
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
   };
 
   //...Advanced Filter API CALL...
   const { data: productDataFilter, refetch: refetchProductFilter } = useProductWisePurchaseQuery(
-    { filters: localFilters }
+    { filters: localFilters },
+    { skip: !triggerFilter }
   );
 
   //API Calling sorting
@@ -132,7 +135,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         sortDir: sortOrder,
       },
       page: currentPage,
-    });
+    }, { skip: !triggerSort });
 
   //Api calling for selected columns drop down
   const { data: columnData, refetch: refetchColumnData } =
@@ -231,18 +234,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
     setSortColumn(column);
     setSortOrder(newSortOrder);
+    setTriggerSort(true);
   };
-  useEffect(() => {
-    refetchProduct({
-      filters: {
-        ...filters,
-        sortBy: sortColumn,
-        sortDir: sortOrder,
-      },
-      page: currentPage,
-    });
-  }, [sortColumn, sortOrder, refetchProduct]);
-
   const loadMoreData = async () => {
     if (!loading) {
       setLoading(true);
@@ -329,16 +322,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       ...prevFilters,
       data: updatedSelectedColumns,
     }));
-    // const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
-    // const columnsChanged = JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
-    // if (!columnsChanged) {
-    //   toast({
-    //     title: "No changes to apply",
-    //     status: "info",
-    //     isClosable: true,
-    //   });
-    //   return;
-    // }
     setSelectedColumns(updatedSelectedColumns);
     refetchColumnData({ columns: updatedSelectedColumns });
     onClose();
@@ -574,7 +557,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   useEffect(() => {
     const container = tableContainerRef.current;
     if (container) {
-      const debouncedHandleScroll = debounce(handleScroll,5);
+      const debouncedHandleScroll = debounce(handleScroll, 5);
       container.addEventListener("scroll", debouncedHandleScroll);
       return () =>
         container.removeEventListener("scroll", debouncedHandleScroll);
@@ -618,7 +601,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
-
       // This will trigger the query
       setFiltersApplied(true);
     } else {
@@ -667,7 +649,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
-      refetchProductFilter();
+      // refetchProductFilter();
     } else {
       console.error("Filter condition, value, or column is missing");
     }
@@ -683,24 +665,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       }
       handleApplyFilters();
     }
+    setTriggerFilter(true);
   }, [
     activeFilterColumn,
     handleApplyFiltersSUM,
     handleApplyFilters,
     setFilters,
   ]);
-  const formatDate = (date) => {
-    if (!date) return '';
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-  };
-
 
   const exportToExcel = () => {
     import("xlsx").then((xlsx) => {
