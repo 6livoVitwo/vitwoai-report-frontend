@@ -159,7 +159,7 @@ const PurchaseProductWiseTableView = () => {
   // );
 
   return (
-    <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
+    <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="hidden">
       {individualItems.length > 0 && (
         <CustomTable
           newArray={individualItems}
