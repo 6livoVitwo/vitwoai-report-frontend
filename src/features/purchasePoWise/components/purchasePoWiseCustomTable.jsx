@@ -218,7 +218,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     onOpenGraphAddDrawer();
     dispatch(handleGraphWise({ selectedWise: "purchase-po-wise", reportType: 'purchase' }));
   };
-  console.log('🟢', { selectedWise })
 
   const getColumnStyle = (header) => ({
     textAlign: alignment[header] || "left",
