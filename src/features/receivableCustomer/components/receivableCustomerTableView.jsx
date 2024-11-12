@@ -261,6 +261,7 @@ const ReceivableCustomerTableView = () => {
         }}
       >
         <Text mt={4}>Execution Time: {executionTime} ms</Text>
+        <Text mt={4}>Total Records: {totalRecords}</Text>
         <Pagination
           first={first}
           totalRecords={totalRecords}
