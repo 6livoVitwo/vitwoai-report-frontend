@@ -144,7 +144,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
 
-  const rightAlignColumns = ["SUM(items.totalAmount)"];
+  const rightAlignColumns = ["SUM(items.totalAmount)", "SUM(grnInvoice.grnTotalTds)", "SUM(grnInvoice.grnTotalSgst)", "SUM(grnInvoice.grnTotalIgst)", "SUM(grnInvoice.grnTotalCgst)", "SUM(items.unitPrice)", "items.goodsItems.stockSummary.movingWeightedPrice"];
 
   //...Advanced Filter API CALL...
   const { data: productDataFilter, refetch: refetchProductFilter } =
