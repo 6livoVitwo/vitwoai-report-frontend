@@ -520,6 +520,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       filteredData = productDataFilter.content;
     }
     setTableData(filteredData);
+    return filteredData;
+
   }, [
     newArray,
     searchData,

@@ -427,6 +427,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
       filteredData = VendorDataFilter.content;
     }
     setTableData(filteredData);
+    return filteredData;
   }, [
     newArray,
     searchData,
