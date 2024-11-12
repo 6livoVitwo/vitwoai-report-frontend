@@ -726,7 +726,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         gap="10px"
         padding="10px 20px"
         marginBottom="10px"
-        borderTop="1px solid #cccccc5c"
         sx={{
           "& input:placeholder": {
             color: "white",
@@ -1148,7 +1147,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         height="calc(100vh - 130px)"
         width="calc(100vw - 100px)"
         border="1px solid #ebebeb"
-        borderRadius="15px"
       >
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="droppable" direction="horizontal">

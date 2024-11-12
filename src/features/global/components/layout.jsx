@@ -553,7 +553,7 @@ const Layout = ({ portalId }) => {
         >
           <Box
             className="header"
-            h={{ base: "55px", lg: "60px" }}
+            h={{ base: "55px", lg: "50px" }}
             bg="white"
             pos="fixed"
             top="0"
@@ -573,7 +573,7 @@ const Layout = ({ portalId }) => {
           >
             <Box
               pos="relative"
-              h={{ base: "55px", lg: "60px" }}
+              h={{ base: "55px", lg: "50px" }}
               bg="white"
               p={{ base: "7px 20px", lg: "15px 20px" }}
               borderBottom="1px solid var(--chakra-colors-veryLightBlueColor)"
@@ -589,7 +589,7 @@ const Layout = ({ portalId }) => {
               <Box
                 pos="absolute"
                 left="20px"
-                top={{ base: "17px", lg: "22px" }}
+                top={{ base: "17px", lg: "14px" }}
                 cursor="pointer"
                 w="38px"
                 h="38px"
@@ -629,8 +629,10 @@ const Layout = ({ portalId }) => {
                         isCurrentPage={item.isCurrentPage}
                       >
                         <BreadcrumbLink
-                          color={item.isCurrentPage ? "#003060.500" : "gray.500"} 
-                          fontWeight={item.isCurrentPage ? "bold" : "normal"} 
+                          color={
+                            item.isCurrentPage ? "#003060.500" : "gray.500"
+                          }
+                          fontWeight={item.isCurrentPage ? "bold" : "normal"}
                           fontSize={item.isCurrentPage ? "1.4rem" : "1.4rem"}
                         >
                           {item.label}
@@ -648,7 +650,7 @@ const Layout = ({ portalId }) => {
                 pos="absolute"
                 color="mainBlue"
                 right={{ base: "135px", lg: "20px" }}
-                bottom={{ base: "15px", lg: "22px" }}
+                bottom={{ base: "15px", lg: "14px" }}
                 cursor="pointer"
                 _hover={{
                   animation: `${animation}`,
@@ -668,12 +670,14 @@ const Layout = ({ portalId }) => {
               base: "0",
               lg: "0",
             }}
-            height="calc(100vh - 55px)"
+            height="calc(100vh - 90px)"
             overflow="auto"
             pos={{ base: "", lg: "sticky" }}
             top="60px"
             bg="white"
             zIndex="111"
+            transform="scale(0.97)"
+            borderRadius="15px"
           />
           <Flex
             display={{ base: "none", lg: "flex" }}

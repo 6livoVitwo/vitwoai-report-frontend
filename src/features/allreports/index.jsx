@@ -125,6 +125,7 @@ const Allreports = () => {
 					direction='row'
 					align='center'
 					maxW='800px'
+					margin='2rem 0rem'
 					overflowX='auto'>
 					{cardsData.map((data, index) => (
 						<Button
@@ -174,6 +175,7 @@ const Allreports = () => {
 						color='mainBlue'
 						mb='50px'
 						mt='20px'
+						paddingLeft='10px'
 						key={index}
 						id={data['card catagory']}>
 						<Box mb='15px'>
@@ -183,7 +185,8 @@ const Allreports = () => {
 								marginBottom='10px'
 								fontSize='12px'
 								color='rgb(184 182 182)'
-								paddingBottom='5px'>
+								paddingBottom='5px'
+								paddingLeft='2rem'>
 								{data['card catagory']}
 							</Heading>
 						</Box>
