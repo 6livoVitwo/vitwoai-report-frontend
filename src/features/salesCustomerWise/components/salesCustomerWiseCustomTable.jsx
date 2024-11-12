@@ -101,12 +101,15 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const [dates, setDates] = useState(null);
   const [calendarVisible, setCalendarVisible] = useState(false);
+  const [triggerFilter, setTriggerFilter] = useState(false);
+  const [triggerSort, setTriggerSort] = useState(false);
 
 
   //........Api calling for advanced filter...........
   const { data: advancedFiltercustomer, refetch: refetchFiltercoustomer } = useCustomerWiseSalesQuery(
-    { filters: localFilters }
-    // { skip: !filtersApplied }
+    { filters: localFilters },
+    { skip: !triggerFilter }
+
   );
 
   //..........Api calling for global search............
@@ -123,6 +126,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         sortDir: sortOrder,
       },
       page: currentPage,
+    }, {
+      skip: !triggerSort
     });
   console.log(salesCustomerWise, "salesCustomerWise1");
   const { selectedWise } = useSelector((state) => state.graphSlice);
@@ -232,7 +237,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   useEffect(() => {
     const initialColumns = getColumns(data)
-      .slice(0, 10)
+      .slice(0, 8)
       .map((column) => column.field);
     setDefaultColumns(initialColumns);
     setSelectedColumns(initialColumns);
@@ -259,9 +264,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSelectedColumns(newColumnsOrder);
   };
 
-  const clearPriviewColumnData = () => {
-    setPage(1);
-  }
   const toggleColumn = (field) => {
     setTempSelectedColumns((prev) =>
       prev.includes(field)
@@ -304,7 +306,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         })
       )
     )
-    clearPriviewColumnData();
     setFilters((prevFilters) => ({
       ...prevFilters,
       data: updatedSelectedColumns,
@@ -405,7 +406,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setTempFilterCondition(null);
     setTempFilterValue("");
     setActiveFilterColumn(null);
-    refetchFiltercoustomer();
+    // refetchFiltercoustomer();
   };
 
   //sort asc desc
@@ -415,18 +416,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     // Update sort state
     setSortColumn(column);
     setSortOrder(newSortOrder);
+    setTriggerSort(true);
   };
-  // Trigger the API call when sortColumn or sortOrder changes
-  useEffect(() => {
-    refetchCustomerWise({
-      filters: {
-        ...filters,
-        sortBy: sortColumn,
-        sortDir: sortOrder,
-      },
-      page: currentPage,
-    });
-  }, [sortColumn, sortOrder, refetchCustomerWise]);
+
 
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray];
@@ -532,8 +524,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
-
-      // This will trigger the query
       setFiltersApplied(true);
     } else {
       console.error("Filter condition or value missing");
@@ -541,7 +531,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
   const handleApplyFilters = () => {
     if (tempFilterCondition && tempFilterValue && activeFilterColumn) {
-      // For the "between" operator, the value must be an array
       const filterValue = tempFilterCondition === "between" ? tempFilterValue : tempFilterValue;
 
       // Create a new filter object
@@ -558,7 +547,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         filter: [...localFilters.filter, newFilter],
       };
 
-      // Update column filters for the UI display
       setColumnFilters((prevFilters) => ({
         ...prevFilters,
         [activeFilterColumn]: {
@@ -575,24 +563,23 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       // Update local filters state
       setLocalFilters(updatedFilters);
       setFiltersApplied(true);
-
-      // Clear temporary values
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
-      refetchFiltercoustomer();
+      // refetchFiltercoustomer();
     } else {
       console.error("Filter condition, value, or column is missing");
     }
   };
   const handleClick = () => {
     if (activeFilterColumn) {
-      const columnType = activeFilterColumn; // Assuming activeFilterColumn holds the column type
+      const columnType = activeFilterColumn;
       columnType.includes("SUM(")
         ? handleApplyFiltersSUM()
         : handleApplyFilters();
 
     }
+    setTriggerFilter(true);
   };
   const exportToExcel = () => {
     import("xlsx").then((xlsx) => {

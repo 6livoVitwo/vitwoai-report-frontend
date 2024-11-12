@@ -82,6 +82,7 @@ import { chartsData } from "../../nivoGraphs/jsonData/graphSkeleton";
 import { useDispatch } from "react-redux";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import { MdFullscreen } from "react-icons/md";
+import { set } from "lodash";
 
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [data, setData] = useState([...newArray]);
@@ -114,6 +115,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const [dates, setDates] = useState(null);
   const [calendarVisible, setCalendarVisible] = useState(false);
+  const [triggerFilter, setTriggerFilter] = useState(false);
+  const [triggerSort, setTriggerSort] = useState(false);
 
 
   const handlePopoverClick = (column) => {
@@ -125,7 +128,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   //......Advanced Filtering....
   const { data: productDataFilter, refetch: refetchsalesproductdata } = useProductWiseSalesQuery(
-    { filters: localFilters }
+    { filters: localFilters },
+    {
+      skip: !triggerFilter,
+    }
   );
 
 
@@ -142,6 +148,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         sortDir: sortOrder,
       },
       page: currentPage,
+    }, {
+      skip: !triggerSort,
     });
 
 
@@ -434,17 +442,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
     setSortColumn(column);
     setSortOrder(newSortOrder);
+    setTriggerSort(true);
   };
-  useEffect(() => {
-    refetchProductWiseSales({
-      filters: {
-        ...filters,
-        sortBy: sortColumn,
-        sortDir: sortOrder,
-      },
-      page: currentPage,
-    });
-  }, [sortColumn, sortOrder, refetchProductWiseSales]);
 
 
   const filteredItems = useMemo(() => {
@@ -539,7 +538,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           type: typeof tempFilterValue === "number" ? "integer" : "string",
         },
       }));
-
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
@@ -551,19 +549,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const handleApplyFilters = () => {
     if (tempFilterCondition && tempFilterValue && activeFilterColumn) {
       const filterValue = tempFilterCondition === "between" ? tempFilterValue : tempFilterValue;
-      // Create a new filter object
       const newFilter = {
         column: activeFilterColumn,
         operator: tempFilterCondition,
         type: tempFilterCondition === "between" ? "date" : (typeof tempFilterValue === "number" ? "integer" : "string"),
         value: filterValue,
       };
-      // Update localFilters state
       const updatedFilters = {
         ...localFilters,
         filter: [...localFilters.filter, newFilter],
       };
-      // Update column filters for the UI display
       setColumnFilters((prevFilters) => ({
         ...prevFilters,
         [activeFilterColumn]: {
@@ -573,14 +568,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           type: tempFilterCondition === "between" ? "date" : (typeof tempFilterValue === "number" ? "integer" : "string"),
         },
       }));
-      // Update local filters state
       setLocalFilters(updatedFilters);
       setFiltersApplied(true);
-      // Clear temporary values
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
-      refetchsalesproductdata();
+      // refetchsalesproductdata();
     } else {
       console.error("Filter condition, value, or column is missing");
     }
@@ -591,11 +584,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       columnType.includes("SUM(")
         ? handleApplyFiltersSUM()
         : handleApplyFilters();
-      setFilters((prevFilters) => ({
-        ...prevFilters,
-        size: 1000,
-      }))
     }
+    setTriggerFilter(true);
   };
 
   const exportToExcel = () => {
