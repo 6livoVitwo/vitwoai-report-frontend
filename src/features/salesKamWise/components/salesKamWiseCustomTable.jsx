@@ -572,7 +572,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   const exportToExcel = () => {
     import("xlsx").then((xlsx) => {
-      const worksheet = xlsx.utils.json_to_sheet(filteredItems);
+      const formattedData = filteredItems.map((item) => {
+        const formattedItem = {};
+        for (const key in item) {
+          formattedItem[formatHeader(key)] = item[key];
+        }
+        return formattedItem;
+      })
+      const worksheet = xlsx.utils.json_to_sheet(formattedData);
       const workbook = {
         Sheets: { data: worksheet },
         SheetNames: ["data"],
