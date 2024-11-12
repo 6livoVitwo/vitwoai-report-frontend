@@ -148,11 +148,12 @@ const SalesKamWiseTableView = () => {
   // const newArray = individualItems.map((data, index) =>
   //   extractFields(data, index)
   // );
+  const mainData = sales?.content;
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
       {individualItems.length > 0 && (
         <CustomTable
-          newArray={individualItems}
+          newArray={mainData}
           page={page}
           setPage={setPage}
           isFetching={isFetching}

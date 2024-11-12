@@ -4,6 +4,7 @@ import { useReceivableCustomerQuery } from "../slice/receivableCustomerApi";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import Pagination from "../../global/components/Pagination";
 import { usePagination } from "../../global/hooks/usePagination";
+import { exportToExcel, exportToImage, exportToPDF } from "../utils";
 
 const ReceivableCustomerTableView = () => {
   const { first, rows, onPageChange } = usePagination(10);
@@ -62,12 +63,10 @@ const ReceivableCustomerTableView = () => {
   };
 
   const { data, isLoading } = useReceivableCustomerQuery({
-    endpoint: "receivable/",
+    endpoint: "receivable/customer",
     method: "POST",
     body,
   });
-
-  console.log(isLoading, {isLoading})
 
   const receivableData = data?.content || [];
   const totalRecords = data?.totalElements || 0;
@@ -107,6 +106,16 @@ const ReceivableCustomerTableView = () => {
         w={"95%"}
         mb={5}
       >
+        <Menu>
+          <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+            Export
+          </MenuButton>
+          <MenuList>
+            <MenuItem onClick={exportToExcel}>Export to Excel</MenuItem>
+            <MenuItem onClick={exportToPDF}>Export to PDF</MenuItem>
+            <MenuItem onClick={exportToImage}>Export as Image</MenuItem>
+          </MenuList>
+        </Menu>
         <Text>Execution Time: {executionTime} ms</Text>
         <Stack direction="row">
           <Menu>
@@ -188,6 +197,7 @@ const ReceivableCustomerTableView = () => {
         </Stack>
       </Box>
       <TableContainer
+        id="receivable-table"
         sx={{ border: "1px solid #dee2e6", borderRadius: "8px", padding: "10px", width: "95%" }}
       >
         {isLoading ? <Text>Loading...</Text> : <Table
@@ -251,6 +261,7 @@ const ReceivableCustomerTableView = () => {
         }}
       >
         <Text mt={4}>Execution Time: {executionTime} ms</Text>
+        <Text mt={4}>Total Records: {totalRecords}</Text>
         <Pagination
           first={first}
           totalRecords={totalRecords}

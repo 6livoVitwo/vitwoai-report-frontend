@@ -280,7 +280,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
         : [...prev, field]
     );
   };
-
   const handleSelectAllToggle = () => {
     const allColumns = columnData
       ? Object.keys(columnData?.content[0] || {}).map((key) => ({
@@ -288,8 +287,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
         listName: columnData.content[0][key]?.listName || key,
       }))
       : [];
-
-    // const uniqueColumns = Array.from(new Set(allColumns.map((col) => col.listName)));
     const uniqueColumns = allColumns.map((col) => col.field);
 
     if (selectAll) {

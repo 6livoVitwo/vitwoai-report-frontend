@@ -22,10 +22,7 @@ export const salesProductWiseApi = apiSlice.injectEndpoints({
 
     // Query to get global search
     getGlobalsearchProduct: builder.query({
-      query: (body) => {
-        // console.log("imran body", body);
-        // console.log("json body");
-        // console.log(JSON.stringify(body));
+      query: (body) => {;
         return {
           url: "/sales/global-search/product",
           method: "POST",
