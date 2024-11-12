@@ -108,6 +108,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const [tableData, setTableData] = useState([]);
   const [dates, setDates] = useState(null);
+  const [triggerFilter, setTriggerFilter] = useState(false);
+  const [triggerSort, setTriggerSort] = useState(false);
 
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
@@ -115,8 +117,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
 
   //......Advanced Filter API Calling......
   const { data: VendorDataFilter } = useVendorWisePurchaseQuery(
-    { filters: localFilters }
-    // { skip: !filtersApplied }
+    { filters: localFilters },
+    { skip: !triggerFilter }
   );
 
   // api calling from global search
@@ -126,7 +128,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
 
   // ....api calling from drop-down data ....
   const { data: columnData, refetch: refetchColumnvendor } = useGetSelectedColumnsVendorQuery();
-  // console.log("01010101", columnData);
 
   //API Calling sorting
   const { data: ProductData, refetch: refetchProduct } =
@@ -137,7 +138,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
         sortDir: sortOrder,
       },
       page: currentPage,
-    });
+    }, {
+      skip: !triggerSort,
+    }
+    );
 
 
   const toast = useToast();
@@ -214,22 +218,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
   const handleSort = (column) => {
     const newSortOrder =
       sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
-    // Update sort state
     setSortColumn(column);
     setSortOrder(newSortOrder);
+    setTriggerSort(true);
   };
-  // Trigger the API call when sortColumn or sortOrder changes
-  useEffect(() => {
-    refetchProduct({
-      filters: {
-        ...filters,
-        sortBy: sortColumn,
-        sortDir: sortOrder,
-      },
-      page: currentPage,
-    });
-  }, [sortColumn, sortOrder, refetchProduct]);
-
   const loadMoreData = async () => {
     if (!loading) {
       setLoading(true);
@@ -555,6 +547,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
         ? handleApplyFiltersSUM()
         : handleApplyFilters();
     }
+    setTriggerFilter(true);
   };
 
   const exportToExcel = () => {

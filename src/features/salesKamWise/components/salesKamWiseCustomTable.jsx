@@ -104,6 +104,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const [dates, setDates] = useState(null);
   const [calendarVisible, setCalendarVisible] = useState(false);
+  const [triggerFilter, setTriggerFilter] = useState(false);
+  const [triggerSort, setTriggerSort] = useState(false);
 
 
 
@@ -115,11 +117,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       sortDir: sortOrder,
     },
     page: currentPage,
+  }, {
+    skip: !triggerSort,
   });
 
   //......Advance Filter Api Calling.........
   const { data: kamDataFilter, refetch: refetchKamWiseSalesFilter } = useKamWiseSalesQuery(
     { filters: localFilters },
+    { skip: !triggerFilter }
   );
 
 
@@ -405,7 +410,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setTempFilterCondition(null);
     setTempFilterValue("");
     setActiveFilterColumn(null);
-    refetchKamWiseSalesFilter();
+    // refetchKamWiseSalesFilter();
   };
 
   // sort asc desc
@@ -414,17 +419,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
     setSortColumn(column);
     setSortOrder(newSortOrder);
+    setTriggerSort(true);
   };
-  useEffect(() => {
-    refetchKamWiseSales({
-      filters: {
-        ...filters,
-        sortBy: sortColumn,
-        sortDir: sortOrder,
-      },
-      page: currentPage,
-    });
-  }, [sortColumn, sortOrder, refetchKamWiseSales]);
 
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray];
@@ -558,7 +554,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
-      refetchKamWiseSalesFilter();
+      // refetchKamWiseSalesFilter();
     } else {
       console.error("Filter condition, value, or column is missing");
     }
@@ -571,6 +567,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         : handleApplyFilters();
 
     }
+    setTriggerFilter(true);
   };
 
   const exportToExcel = () => {
