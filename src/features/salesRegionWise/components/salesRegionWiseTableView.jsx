@@ -46,6 +46,8 @@ const SalesRegionWiseTableView = () => {
     authDetails: authData.authDetails,
   });
 
+
+
   const pageInfo = sales?.lastPage;
 
   const tableContainerRef = useRef(null);

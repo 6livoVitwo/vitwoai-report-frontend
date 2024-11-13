@@ -90,7 +90,6 @@ const PurchaseProductWiseTableView = () => {
           : [flattenedInvoice];
       });
       setIndividualItems((prevItems) => [...prevItems, ...newItems]);
-
     }
   }, [sales]);
 
@@ -107,7 +106,7 @@ const PurchaseProductWiseTableView = () => {
             p={3}
             bg="orange.300"
             borderRadius="md"
-            style={{ width: "300px", height: "70px" }} // Set custom width and height
+            style={{ width: "300px", height: "70px" }} 
           >
             <Box fontWeight="bold">No More Data</Box>
             <Box>You have reached the end of the list.</Box>
@@ -137,7 +136,7 @@ const PurchaseProductWiseTableView = () => {
       </Box>
     );
   }
-  if (error) {
+  if (error ) {
     return (
       <Box
         bg="white"
@@ -151,13 +150,7 @@ const PurchaseProductWiseTableView = () => {
       </Box>
     );
   }
-
-  const mainData = sales?.content;
-
-  // const newArray = individualItems.map((data, index) =>
-  //   extractFields(data, index)
-  // );
-
+    
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="hidden">
       {individualItems.length > 0 && (
@@ -171,7 +164,6 @@ const PurchaseProductWiseTableView = () => {
           setSize={setSize}
           filters={filters}
           setFilters={setFilters}
-          // extractFields={extractFields}
           alignment={{
             "Total Quantity": "right",
             "Received Quantity": "right",

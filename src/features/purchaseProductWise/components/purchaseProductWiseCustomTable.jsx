@@ -141,6 +141,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [triggerFilter, setTriggerFilter] = useState(false);
   const [triggerSort, setTriggerSort] = useState(false);
+  const toast = useToast();
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
   };
@@ -177,11 +178,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     }
   );
 
-  // api calling for product group....
-  // const { data: productGroup } = useGetProductGroupQuery();
-  // console.log("productGroup⭕", productGroup);
-
-  const toast = useToast();
 
   const tableContainerRef = useRef(null);
   const {
@@ -496,6 +492,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setFilters(updatedFilters);
     setSearchQuery(inputValue);
   };
+
+
   const FiltersTrigger = () => {
     setSortColumn("");
   };
@@ -511,7 +509,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   // Clear single filter active column....
   const clearsingleFilter = (column) => {
-    console.log("Clearing filter for column:", column);
     setLocalFilters((prevFilters) => {
       const updatedFilters = {
         ...prevFilters,
@@ -564,6 +561,29 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     sortOrder,
     productDataFilter,
   ]);
+  useEffect(() => {
+    if (productDataFilter?.content && productDataFilter.content.length === 0) {
+      toast({
+        title: " No Results Found ",
+        description: "You search did not match any data.",
+        status: "warning",
+        isClosable: true,
+        duration: 4000,
+        render: () => (
+          <Box
+            p={3}
+            bg="orange.300"
+            borderRadius="md"
+            style={{ width: "300px", height: "70px" }}
+          >
+            <Box fontWeight="bold">No Results Found</Box>
+            <Box>You search did not match any data.</Box>
+          </Box>
+        ),
+      });
+    }
+  }, [productDataFilter, toast]);
+
 
 
   const formatHeader = (column) => {

@@ -437,6 +437,28 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters, refetc
     selectedColumns,
     VendorDataFilter,
   ]);
+  useEffect(() => {
+    if (VendorDataFilter?.content && VendorDataFilter.content.length === 0) {
+      toast({
+        title: " No Results Found ",
+        description: "You search did not match any data.",
+        status: "warning",
+        isClosable: true,
+        duration: 4000,
+        render: () => (
+          <Box
+            p={3}
+            bg="orange.300"
+            borderRadius="md"
+            style={{ width: "300px", height: "70px" }}
+          >
+            <Box fontWeight="bold">No Results Found</Box>
+            <Box>You search did not match any data.</Box>
+          </Box>
+        ),
+      });
+    }
+  }, [VendorDataFilter, toast]);
 
   const formatHeader = (column) => {
     if (columnData && columnData.content) {
