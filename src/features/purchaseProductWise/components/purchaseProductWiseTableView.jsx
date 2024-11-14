@@ -13,6 +13,8 @@ const PurchaseProductWiseTableView = () => {
   const [toastShown, setToastShown] = useState(false);
   const [individualItems, setIndividualItems] = useState([]);
 
+
+
   const [filters, setFilters] = useState(
     {
       data: [
@@ -154,27 +156,31 @@ const PurchaseProductWiseTableView = () => {
   // );
 
   return (
-    <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="hidden">
-      {individualItems.length > 0 && (
-        <CustomTable
-          newArray={individualItems}
-          page={page}
-          setPage={setPage}
-          isFetching={isFetching}
-          sales={sales}
-          pageInfo={pageInfo}
-          setSize={setSize}
-          filters={filters}
-          setFilters={setFilters}
-          // extractFields={extractFields}
-          alignment={{
-            "Total Quantity": "right",
-            "Received Quantity": "right",
-            "Total Amount": "right",
-          }}
-        />
-      )}
-    </Box>
+    <Box
+  ref={tableContainerRef}
+  height="calc(100vh - 75px)"
+  overflowY="hidden"
+  className="table-tableContainerRefSacled"
+>
+  {individualItems.length > 0 && (
+    <CustomTable
+      newArray={individualItems}
+      page={page}
+      setPage={setPage}
+      isFetching={isFetching}
+      sales={sales}
+      pageInfo={pageInfo}
+      setSize={setSize}
+      filters={filters}
+      setFilters={setFilters}
+      alignment={{
+        "Total Quantity": "right",
+        "Received Quantity": "right",
+        "Total Amount": "right",
+      }}
+    />
+  )}
+</Box>
   );
 };
 

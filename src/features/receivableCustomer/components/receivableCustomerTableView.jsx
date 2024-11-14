@@ -116,7 +116,6 @@ const ReceivableCustomerTableView = () => {
             <MenuItem onClick={exportToImage}>Export as Image</MenuItem>
           </MenuList>
         </Menu>
-        <Text>Execution Time: {executionTime} ms</Text>
         <Stack direction="row">
           <Menu>
             <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>

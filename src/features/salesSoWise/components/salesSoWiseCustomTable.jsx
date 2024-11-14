@@ -105,6 +105,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const [dates, setDates] = useState(null);
   const [calendarVisible, setCalendarVisible] = useState(false);
+  const [triggerFilter, setTriggerFilter] = useState(false);
+  const [triggerSort, setTriggerSort] = useState(false);
 
 
 
@@ -116,7 +118,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       sortDir: sortOrder,
     },
     page: currentPage,
-  });
+  },{skip: !triggerSort});
 
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
@@ -125,6 +127,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   //Advance data filtering
   const { data: SoWiseFilter, refetch: refetchSoWiseFilter } = useSoWiseSalesQuery(
     { filters: localFilters },
+    {skip:!triggerFilter}
   );
 
   //.......Api call to get selected columns......
@@ -402,7 +405,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setTempFilterCondition(null);
     setTempFilterValue("");
     setActiveFilterColumn(null);
-    refetchSoWiseFilter();
+    // refetchSoWiseFilter();
   };
 
   //sort asc desc
@@ -411,20 +414,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     // Update sort state
     setSortColumn(column);
     setSortOrder(newSortOrder);
+    setTriggerSort(true);
   };
-  // Trigger the API call when sortColumn or sortOrder changes
-  useEffect(() => {
-    refetchSoWise({
-      filters: {
-        ...filters,
-        sortBy: sortColumn,
-        sortDir: sortOrder,
-      },
-      page: currentPage,
-    });
-  }, [sortColumn, sortOrder, refetchSoWise]);
-
-
+  
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray];
     // Global search
@@ -615,7 +607,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
-      refetchColumnData();
+      // refetchColumnData();
     } else {
       console.error("Filter condition, value, or column is missing");
     }
@@ -628,6 +620,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         : handleApplyFilters();
 
     }
+    setTriggerFilter(true);
   };
 
   //function for export

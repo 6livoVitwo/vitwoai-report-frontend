@@ -83,8 +83,6 @@ import DynamicChart from "../../nivoGraphs/chartConfigurations/DynamicChart";
 import { color } from "framer-motion";
 
 const CssWrapper = styled.div`
-
-
   .p-component {
     font-size: 1.2rem;
   }
@@ -101,8 +99,8 @@ const CssWrapper = styled.div`
     font-size: 1rem;
     padding: 2px 8px;
   }
-`;
 
+`;
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const { selectedWise } = useSelector((state) => state.graphSlice);
   const sortButtonRef = useRef(null);
@@ -137,8 +135,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const [dates, setDates] = useState(null);
   const dispatch = useDispatch();
+  const [isBodyScaled, setIsBodyScaled] = useState(false);
   const [tableData, setTableData] = useState([]);
   const [calendarVisible, setCalendarVisible] = useState(false);
+  const [triggerFilter, setTriggerFilter] = useState(false);
+  const [triggerSort, setTriggerSort] = useState(false);
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
   };
@@ -147,8 +148,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const rightAlignColumns = ["SUM(items.totalAmount)", "SUM(grnInvoice.grnTotalTds)", "SUM(grnInvoice.grnTotalSgst)", "SUM(grnInvoice.grnTotalIgst)", "SUM(grnInvoice.grnTotalCgst)", "SUM(items.unitPrice)", "items.goodsItems.stockSummary.movingWeightedPrice"];
 
   //...Advanced Filter API CALL...
-  const { data: productDataFilter, refetch: refetchProductFilter } =
-    useProductWisePurchaseQuery({ filters: localFilters });
+  const { data: productDataFilter, refetch: refetchProductFilter } = useProductWisePurchaseQuery(
+    { filters: localFilters },
+    { skip: !triggerFilter }
+  );
 
   //API Calling sorting
   const { data: ProductData, refetch: refetchProduct } =
@@ -159,7 +162,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         sortDir: sortOrder,
       },
       page: currentPage,
-    });
+    }, { skip: !triggerSort });
 
   //Api calling for selected columns drop down
   const { data: columnData, refetch: refetchColumnData } =
@@ -260,18 +263,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
     setSortColumn(column);
     setSortOrder(newSortOrder);
+    setTriggerSort(true);
   };
-  useEffect(() => {
-    refetchProduct({
-      filters: {
-        ...filters,
-        sortBy: sortColumn,
-        sortDir: sortOrder,
-      },
-      page: currentPage,
-    });
-  }, [sortColumn, sortOrder, refetchProduct]);
-
   const loadMoreData = async () => {
     if (!loading) {
       setLoading(true);
@@ -359,17 +352,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       ...prevFilters,
       data: updatedSelectedColumns,
     }));
-
-    // const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
-    // const columnsChanged = JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
-    // if (!columnsChanged) {
-    //   toast({
-    //     title: "No changes to apply",
-    //     status: "info",
-    //     isClosable: true,
-    //   });
-    //   return;
-    // }
     setSelectedColumns(updatedSelectedColumns);
     refetchColumnData({ columns: updatedSelectedColumns });
     onClose();
@@ -602,7 +584,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   useEffect(() => {
     const container = tableContainerRef.current;
     if (container) {
-      const debouncedHandleScroll = debounce(handleScroll, 200);
+      const debouncedHandleScroll = debounce(handleScroll, 5);
       container.addEventListener("scroll", debouncedHandleScroll);
       return () =>
         container.removeEventListener("scroll", debouncedHandleScroll);
@@ -645,7 +627,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
-
       // This will trigger the query
       setFiltersApplied(true);
     } else {
@@ -705,7 +686,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
-      refetchProductFilter();
+      // refetchProductFilter();
     } else {
       console.error("Filter condition, value, or column is missing");
     }
@@ -720,23 +701,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       }
       handleApplyFilters();
     }
+    setTriggerFilter(true);
   }, [
     activeFilterColumn,
     handleApplyFiltersSUM,
     handleApplyFilters,
     setFilters,
   ]);
-  const formatDate = (date) => {
-    if (!date) return "";
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    const seconds = String(date.getSeconds()).padStart(2, "0");
-
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-  };
 
   const exportToExcel = () => {
     import("xlsx").then((xlsx) => {
@@ -785,6 +756,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   const handleGraphAddDrawer = () => {
+    setIsBodyScaled(true); 
     onOpenGraphAddDrawer();
     dispatch(
       handleGraphWise({
@@ -793,6 +765,21 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       })
     );
   };
+
+
+   const handleDrawerClose = () => {
+    setIsBodyScaled(false);
+    onCloseGraphAddDrawer();
+  };
+
+  //  useEffect(() => {
+  //   document.body.style.transition = "transform 0.3s ease-in-out";
+  //   document.body.style.transform = isBodyScaled ? "scale(0.98)" : "scale(1)";
+  //   return () => {
+  //     document.body.style.transform = "scale(1)"; // Reset on unmount
+  //   };
+  // }, [isBodyScaled]);
+  
 
   return (
     <Box bg="white">
@@ -803,6 +790,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         gap="10px"
         padding="10px 20px"
         marginBottom="10px"
+        position="relative"
+        zIndex="999"
         sx={{
           "& input:placeholder": {
             color: "white",
@@ -1067,7 +1056,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             </Button>
           </Tooltip>
 
-          <Menu>
+          <Menu zIndex="1000">
             <Tooltip
               className="action-tooltip"
               label="Export"
@@ -1101,7 +1090,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 <DownloadIcon fontSize="1.8rem" />
               </MenuButton>
             </Tooltip>
-            <MenuList padding="8px" borderRadius="7px" borderColor="#e4e4e499" boxShadow="rgba(0, 0, 0, 0.15) 0px 14px 34px -14px;">
+            <MenuList padding="8px" borderRadius="7px" borderColor="#e4e4e499" boxShadow="rgba(0, 0, 0, 0.15) 0px 14px 34px -14px;" position="relative" zIndex="999">
               <MenuItem onClick={exportToExcel} fontSize="1.2rem" height="35px" padding="10px" borderRadius="7px">
                 <Box minW="25px" margin="3px 7px" display="flex" alignItems="center" justifyContent="flex-start">
                   <FontAwesomeIcon icon={faFileExcel} fontSize="1.8rem" color="#003a73c9"/>
@@ -1214,11 +1203,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               </Modal>
             </MenuList>
           </Menu>
+
         </Box>
       </Box>
+
+
       <TableContainer
         ref={tableContainerRef}
-        className="table-tableContainerRef"
+        className={`table-tableContainerRef ${isOpenGraphAddDrawer ? 'table-tableContainerRef-scaled' : ''}`}
         overflowY="auto"
         margin="0 auto"
         height="calc(100vh - 130px)"
@@ -1568,13 +1560,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       </TableContainer>
 
       <Drawer
-        isOpen={isOpenGraphAddDrawer}
-        placement="right"
-        onClose={onCloseGraphAddDrawer}
-        finalFocusRef={btnRef}
+       isOpen={isOpenGraphAddDrawer} placement="right" onClose={handleDrawerClose} finalFocusRef={btnRef}
       >
         <DrawerOverlay />
-        <DrawerContent maxW="88vw">
+        <DrawerContent maxW="75vw">
           <DrawerCloseButton style={{ color: "white" }} />
           <DrawerHeader
             style={{
@@ -1904,7 +1893,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         </DrawerContent>
       </Drawer>
 
-      <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered>
+      <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered className="{`column-selectScaled ${isOpenGraphAddDrawer ? 'column-selectScaled-scaled' : ''}`}">
         <ModalOverlay />
         <ModalContent minW="40%">
           <ModalHeader

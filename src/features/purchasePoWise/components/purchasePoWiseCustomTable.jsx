@@ -114,6 +114,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   );
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const [calendarVisible, setCalendarVisible] = useState(false);
+  const [triggerSort, setTriggerSort] = useState(false);
+
 
 
   const handlePopoverClick = (column) => {
@@ -123,7 +125,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   //....Advance Filter Api Calling.........
   const { data: PoWiseDataFilter, refetch: refetchPoWiseDataFilter } =
     usePoWisePurchaseQuery(
-      { filters: localFilters }
+      { filters: localFilters },
     );
 
   // api calling from global search
@@ -145,7 +147,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         sortDir: sortOrder,
       },
       page: currentPage,
-    }
+    },
+    { skip: !triggerSort }
   );
 
   const toast = useToast();
@@ -215,7 +218,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     onOpenGraphAddDrawer();
     dispatch(handleGraphWise({ selectedWise: "purchase-po-wise", reportType: 'purchase' }));
   };
-  console.log('🟢', { selectedWise })
 
   const getColumnStyle = (header) => ({
     textAlign: alignment[header] || "left",
@@ -293,18 +295,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     // Update sort state
     setSortColumn(column);
     setSortOrder(newSortOrder);
+    setTriggerSort(true);
   };
-  useEffect(() => {
-    refetchProduct({
-      filters: {
-        ...filters,
-        sortBy: sortColumn,
-        sortDir: sortOrder,
-      },
-      page: currentPage,
-    });
-  }, [sortColumn, sortOrder, refetchProduct]);
-
   const loadMoreData = async () => {
     if (!loading) {
       setLoading(true);
@@ -574,7 +566,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
   const handleApplyFilters = () => {
     if (tempFilterCondition && tempFilterValue && activeFilterColumn) {
-      // For the "between" operator, the value must be an array
       const filterValue = tempFilterCondition === "between" ? tempFilterValue : tempFilterValue;
 
       // Create a new filter object
@@ -601,15 +592,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           type: tempFilterCondition === "between" ? "date" : (typeof tempFilterValue === "number" ? "integer" : "string"),
         },
       }));
-
-      // Log the updated filters for debugging
-      console.log("Updated Filters:", updatedFilters);
-
-      // Update local filters state
       setLocalFilters(updatedFilters);
       setFiltersApplied(true);
-
-      // Clear temporary values
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
@@ -1091,7 +1075,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                               type={tempFilterCondition === "like" ? "string" : "integer"}
                                             />
                                           )}
-
                                         </Box>
                                       </Box>
                                     </Box>
