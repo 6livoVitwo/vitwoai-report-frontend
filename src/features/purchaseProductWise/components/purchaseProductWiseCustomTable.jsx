@@ -101,9 +101,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const tableContainerRef = useRef(null);
 
   const { onOpen: onOpenDownloadReportModal, onClose: onCloseDownloadReportModal, isOpen: isOpenDownloadReportModal } = useDisclosure();
-  const { onOpen: onOpenGraphAddDrawer, onClose: onCloseGraphAddDrawer, isOpen: isOpenGraphAddDrawer } = useDisclosure();
-  const { onOpen: onOpenGraphSettingsModal } = useDisclosure();
-  const { onOpen: onOpenGraphDetailsView } = useDisclosure();
+  const { onOpen: onOpenGraphAddDrawer, onClose: onCloseGraphAddDrawer, isOpen: isOpenGraphAddDrawer } = useDisclosure();  
 
   const getColumnStyle = (header) => ({
     textAlign: alignment[header] || "left",

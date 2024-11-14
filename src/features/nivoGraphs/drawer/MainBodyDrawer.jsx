@@ -40,9 +40,9 @@ const MainBodyDrawer = (props) => {
     };
 
     const handleConfigure = (chart) => {
-        if (!chart) {
-            return;
-        }
+        console.log('clicked...')
+        if (!chart) return;
+        
         onOpenGraphSettingsModal();
         const filterData = removeProperty(chart);
         setConfigureChart(filterData);
@@ -190,7 +190,7 @@ const MainBodyDrawer = (props) => {
                                                         color: "black",
                                                     }}
                                                 >
-                                                    <Button
+                                                    {/* <Button
                                                         variant="outline"
                                                         style={{
                                                             padding: "15px 10px",
@@ -202,6 +202,23 @@ const MainBodyDrawer = (props) => {
                                                     >
                                                         <FiSettings style={{ marginRight: "6px" }} />{" "}
                                                         Configure
+                                                    </Button> */}
+
+                                                    <Button
+                                                        type="button"
+                                                        variant="outlined"
+                                                        style={{
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            gap: 1,
+                                                            _hover: {
+                                                                color: "white",
+                                                            },
+                                                        }}
+                                                        onClick={() => handleConfigure(chart)}
+                                                    >
+                                                        <FiSettings sx={{ mr: "6px" }} />
+                                                        Select
                                                     </Button>
 
                                                     <Button
@@ -326,11 +343,7 @@ const MainBodyDrawer = (props) => {
                                                             }}
                                                             onClick={() => handleConfigure(chart)}
                                                         >
-                                                            <FiSettings
-                                                                sx={{
-                                                                    mr: "6px",
-                                                                }}
-                                                            />
+                                                            <FiSettings sx={{ mr: "6px" }} />
                                                             Select
                                                         </Button>
                                                     </Box>
