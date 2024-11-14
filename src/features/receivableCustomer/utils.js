@@ -8,8 +8,8 @@ export const exportToExcel = () => {
 
     // Optional: Temporarily apply styling to ensure content fits
     const originalStyles = table.style.cssText;
-    table.style.width = 'auto'; // Adjust table width automatically
-    table.style.overflow = 'visible'; // Ensure that content is not hidden
+    table.style.width = 'auto';
+    table.style.overflow = 'visible';
 
     // Capture the table's rows and columns
     const rows = table.querySelectorAll('tr');
@@ -51,7 +51,7 @@ export const exportToPDF = () => {
         const rowData = [];
         const cells = row.querySelectorAll('th, td');
         cells.forEach(cell => {
-            rowData.push(cell.innerText); // Collect cell content
+            rowData.push(cell.innerText);
         });
         tableData.push(rowData);
     });
@@ -60,17 +60,17 @@ export const exportToPDF = () => {
     const doc = new jsPDF();
 
     // Define table columns and headers
-    const columns = tableData[0].map(header => header); // The first row should be the headers
-    const data = tableData.slice(1); // Data rows start from the second row
+    const columns = tableData[0].map(header => header);
+    const data = tableData.slice(1);
 
     // Use jsPDF autoTable to create the table in the PDF
     doc.autoTable({
-        head: [columns],  // Define headers
-        body: data,      // Define data rows
-        startY: 20,      // Start drawing table from 20 pixels below the top
-        theme: 'grid',    // Use a grid style for table borders
-        headStyles: { fillColor: [0, 100, 255] }, // Optional: Set header background color
-        margin: { top: 20 }, // Optional: Set margin
+        head: [columns],
+        body: data,
+        startY: 20,
+        theme: 'grid',
+        headStyles: { fillColor: [0, 100, 255] },
+        margin: { top: 20 }
     });
 
     // Save the PDF with the specified file name
@@ -88,12 +88,12 @@ export const exportToImage = () => {
 
     // Use html2canvas to capture the entire table
     html2canvas(table, {
-        scale: 2, // Increase scale for better resolution
-        useCORS: true, // Enables cross-origin images if needed
-        scrollX: 0, // Prevent any scrolling issues
+        scale: 2,
+        useCORS: true,
+        scrollX: 0,
         scrollY: 0,
-        windowWidth: table.scrollWidth, // Set to full content width
-        windowHeight: table.scrollHeight, // Set to full content height
+        windowWidth: table.scrollWidth,
+        windowHeight: table.scrollHeight,
     })
         .then((canvas) => {
             const dataUrl = canvas.toDataURL('image/png');
@@ -107,6 +107,6 @@ export const exportToImage = () => {
         })
         .catch((error) => {
             console.error('Error capturing image:', error);
-            table.style.cssText = originalStyles; // Restore on error
+            table.style.cssText = originalStyles;
         });
 };

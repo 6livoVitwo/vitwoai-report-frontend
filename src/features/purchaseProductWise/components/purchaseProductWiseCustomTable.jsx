@@ -1,86 +1,25 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-  useRef,
-} from "react";
-import {
-  Box,
-  Button,
-  useDisclosure,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  TableContainer,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  Checkbox,
-  Input,
-  Text,
-  Select,
-  useToast,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverHeader,
-  PopoverBody,
-  PopoverArrow,
-  PopoverCloseButton,
-  Tooltip,
-  Drawer,
-  DrawerCloseButton,
-  DrawerHeader,
-  DrawerOverlay,
-  DrawerContent,
-  DrawerBody,
-  Alert,
-  Badge,
-  Divider,
-  Heading,
-  Header,
-} from "@chakra-ui/react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { Box, Button, useDisclosure, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Checkbox, Input, Text, Select, useToast, Menu, MenuButton, MenuList, MenuItem, Popover, PopoverTrigger, PopoverContent, PopoverHeader, PopoverBody, PopoverArrow, PopoverCloseButton, Tooltip, Heading } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Calendar } from "primereact/calendar";
 import styled from "@emotion/styled";
-import {
-  faChartLine,
-  faArrowDownShortWide,
-  faArrowUpWideShort,
-  faArrowRightArrowLeft,
-} from "@fortawesome/free-solid-svg-icons";
+import { faChartLine, faArrowDownShortWide, faArrowUpWideShort, faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { saveAs } from "file-saver";
 import { faFileExcel, faGear, faDownload } from "@fortawesome/free-solid-svg-icons";
 import { DownloadIcon } from "@chakra-ui/icons";
-import { FiPlus, FiSettings } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfiguration";
-import { chartsData } from "../../nivoGraphs/jsonData/graphSkeleton";
-import NewMyCharts from "../../dashboardNew/nivo/NewMyCharts";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import { useGetSelectedColumnsPurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { useGetGlobalsearchPurchaseQuery } from "../slice/purchaseProductWiseApi";
-import DynamicChart from "../../nivoGraphs/chartConfigurations/DynamicChart";
-import { color } from "framer-motion";
+
+import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
 
 const CssWrapper = styled.div`
   .p-component {
@@ -102,7 +41,6 @@ const CssWrapper = styled.div`
 
 `;
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
-  const { selectedWise } = useSelector((state) => state.graphSlice);
   const sortButtonRef = useRef(null);
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
@@ -117,14 +55,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [selectedReport, setSelectedReport] = useState(null);
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
-  const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
   const [configureChart, setConfigureChart] = useState({});
-  const [filterCondition, setFilterCondition] = useState("");
-  const [filterValue, setFilterValue] = useState("");
-  const [applyFilter, setApplyFilter] = useState(false);
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
-  const [tempFilterValue2, setTempFilterValue2] = useState("");
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const [columns, setColumns] = useState([]);
   const [sortColumn, setSortColumn] = useState("items.goodName");
@@ -144,7 +77,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setActiveFilterColumn(column);
   };
 
-
   const rightAlignColumns = ["SUM(items.totalAmount)", "SUM(grnInvoice.grnTotalTds)", "SUM(grnInvoice.grnTotalSgst)", "SUM(grnInvoice.grnTotalIgst)", "SUM(grnInvoice.grnTotalCgst)", "SUM(items.unitPrice)", "items.goodsItems.stockSummary.movingWeightedPrice"];
 
   //...Advanced Filter API CALL...
@@ -153,70 +85,26 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     { skip: !triggerFilter }
   );
 
-  //API Calling sorting
-  const { data: ProductData, refetch: refetchProduct } =
-    useProductWisePurchaseQuery({
-      filters: {
-        ...filters,
-        sortBy: sortColumn,
-        sortDir: sortOrder,
-      },
-      page: currentPage,
-    }, { skip: !triggerSort });
-
   //Api calling for selected columns drop down
   const { data: columnData, refetch: refetchColumnData } =
     useGetSelectedColumnsPurchaseQuery();
 
   // api calling from global search
-  const { data: searchData, refetch } = useGetGlobalsearchPurchaseQuery(
+  const { data: searchData } = useGetGlobalsearchPurchaseQuery(
     filters,
     {
       skip: !searchQuery,
     }
   );
 
-  // api calling for product group....
-  // const { data: productGroup } = useGetProductGroupQuery();
-  // console.log("productGroup⭕", productGroup);
-
   const toast = useToast();
 
   const tableContainerRef = useRef(null);
-  const {
-    onOpen: onOpenFilterModal,
-    onClose: onCloseFilterModal,
-    isOpen: isOpenFilterModal,
-  } = useDisclosure();
-  const {
-    onOpen: onOpenDownloadReportModal,
-    onClose: onCloseDownloadReportModal,
-    isOpen: isOpenDownloadReportModal,
-  } = useDisclosure();
-  const {
-    onOpen: onOpenGraphAddDrawer,
-    onClose: onCloseGraphAddDrawer,
-    isOpen: isOpenGraphAddDrawer,
-  } = useDisclosure();
-  const {
-    onOpen: onOpenGraphSettingDrawer,
-    onClose: onCloseGraphSettingDrawer,
-    isOpen: isOpenGraphSettingDrawer,
-  } = useDisclosure();
 
-  const {
-    isOpen: isOpenGraphSettingsModal,
-    onOpen: onOpenGraphSettingsModal,
-    onClose: onCloseGraphSettingsModal,
-  } = useDisclosure();
-
-  const {
-    isOpen: isOpenGraphDetailsView,
-    onOpen: onOpenGraphDetailsView,
-    onClose: onCloseGraphDetailsView,
-  } = useDisclosure();
-
-  const btnRef = React.useRef();
+  const { onOpen: onOpenDownloadReportModal, onClose: onCloseDownloadReportModal, isOpen: isOpenDownloadReportModal } = useDisclosure();
+  const { onOpen: onOpenGraphAddDrawer, onClose: onCloseGraphAddDrawer, isOpen: isOpenGraphAddDrawer } = useDisclosure();
+  const { onOpen: onOpenGraphSettingsModal } = useDisclosure();
+  const { onOpen: onOpenGraphDetailsView } = useDisclosure();
 
   const getColumnStyle = (header) => ({
     textAlign: alignment[header] || "left",
@@ -321,9 +209,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const handleSelectAllToggle = () => {
     const allColumns = columnData
       ? Object.keys(columnData?.content[0] || {}).map((key) => ({
-          field: key,
-          listName: columnData.content[0][key]?.listName || key,
-        }))
+        field: key,
+        listName: columnData.content[0][key]?.listName || key,
+      }))
       : [];
     const uniqueColumns = allColumns.map((col) => col.field);
     if (selectAll) {
@@ -355,7 +243,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSelectedColumns(updatedSelectedColumns);
     refetchColumnData({ columns: updatedSelectedColumns });
     onClose();
-    // localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
     toast({
       title: "Columns Applied Successfully",
       status: "success",
@@ -366,100 +253,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     if (isOpen) {
       const filteredColumns = columnData?.content[0]
         ? Object.keys(columnData.content[0]).filter((key) =>
-            selectedColumns.includes(columnData.content[0][key]?.listName)
-          )
+          selectedColumns.includes(columnData.content[0][key]?.listName)
+        )
         : [];
       setTempSelectedColumns(filteredColumns);
     }
   }, [isOpen, selectedColumns, columnData]);
-
-  // const toggleColumn = (field) => {
-  //   setTempSelectedColumns((prev) =>
-  //     prev.includes(field)
-  //       ? prev.filter((col) => col !== field)
-  //       : [...prev, field]
-  //   );
-  // };
-  // useEffect(() => {
-  //   const storedColumns = JSON.parse(localStorage.getItem("selectedColumns"));
-  //   if (storedColumns) {
-  //     setSelectedColumns(storedColumns);
-  //     setTempSelectedColumns(storedColumns);
-  //   } else {
-  //     setSelectedColumns(defaultColumns);
-  //     setTempSelectedColumns(defaultColumns);
-  //   }
-  // }, [data]);
-
-  // const handleSelectAllToggle = () => {
-  //   const allColumns = columnData
-  //     ? Object.keys(columnData?.content[0] || {}).map((key) => ({
-  //       field: key,
-  //       listName: columnData.content[0][key]?.listName || key,
-  //     }))
-  //     : [];
-  //   const uniqueColumns = allColumns.map((col) => col.field);
-  //   let updatedColumns;
-  //   if (selectAll) {
-  //     setTempSelectedColumns([]);
-  //   } else {
-  //     setTempSelectedColumns(uniqueColumns);
-  //   }
-
-  //   setSelectAll(!selectAll);
-  // };
-  // const handleModalClose = () => {
-  //   setSelectedColumns(defaultColumns);
-  //   localStorage.setItem("selectedColumns", JSON.stringify(defaultColumns));
-  //   onClose();
-  // };
-  // const handleApplyChanges = () => {
-  //   const updatedSelectedColumns = Array.from(
-  //     new Set(
-  //       tempSelectedColumns.map((col) => {
-  //         const matchingColumn = columnData?.content[0][col];
-  //         return matchingColumn ? matchingColumn.listName || col : col;
-  //       })
-  //     )
-  //   ).filter((col) => col !== "SL No");
-
-  //   setFilters((prevFilters) => ({
-  //     ...prevFilters,
-  //     data: updatedSelectedColumns,
-  //   }));
-
-  //   const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
-
-  //   const columnsChanged = JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
-
-  //   if (!columnsChanged) {
-  //     toast({
-  //       title: "No changes to apply",
-  //       status: "info",
-  //       isClosable: true,
-  //     });
-  //     return;
-  //   }
-  //   setSelectedColumns(updatedSelectedColumns);
-  //   localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
-  //   refetchColumnData({ columns: updatedSelectedColumns });
-  //   onClose();
-  //   toast({
-  //     title: "Columns Applied Successfully",
-  //     status: "success",
-  //     isClosable: true,
-  //   });
-  // };
-  // useEffect(() => {
-  //   if (isOpen) {
-  //     const filteredColumns = columnData?.content[0]
-  //       ? Object.keys(columnData.content[0]).filter((key) =>
-  //         selectedColumns.includes(columnData.content[0][key]?.listName)
-  //       )
-  //       : [];
-  //     setTempSelectedColumns(filteredColumns);
-  //   }
-  // }, [isOpen, selectedColumns, columnData]);
 
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
   useEffect(() => {
@@ -648,8 +447,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           tempFilterCondition === "between"
             ? "date"
             : typeof tempFilterValue === "number"
-            ? "integer"
-            : "string",
+              ? "integer"
+              : "string",
         value: filterValue,
       };
 
@@ -670,8 +469,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             tempFilterCondition === "between"
               ? "date"
               : typeof tempFilterValue === "number"
-              ? "integer"
-              : "string",
+                ? "integer"
+                : "string",
         },
       }));
 
@@ -729,32 +528,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     });
   };
 
-  const removeProperty = (object) => {
-    if (!object) {
-      return {};
-    }
-    const { data, id, ...rest } = object;
-    return rest;
-  };
-
-  const handleConfigure = (chart) => {
-    if (!chart) {
-      return;
-    }
-    onOpenGraphSettingsModal();
-    const filterData = removeProperty(chart);
-    setConfigureChart(filterData);
-  };
-
-  const handleView = (chart) => {
-    if (!chart) {
-      return;
-    }
-    onOpenGraphDetailsView();
-    const filterData = removeProperty(chart);
-    setConfigureChart(filterData);
-  };
-
   const handleGraphAddDrawer = () => {
     setIsBodyScaled(true); 
     onOpenGraphAddDrawer();
@@ -809,7 +582,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             Purchase Product Table View
           </Heading>
         </Box>
-        <Box 
+        <Box
           display="flex"
           justifyContent="flex-end"
           gap="10px"
@@ -898,8 +671,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               }}
               sx={{
                 "& .p-dropdown-label": {
-                  color: "blue", 
-                  fontSize: "1.2rem", 
+                  color: "blue",
+                  fontSize: "1.2rem",
                 },
                 "&:focus": {
                   outline: "none",
@@ -907,7 +680,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                   boxShadow: "none",
                 },
                 "& .p-dropdown-trigger": {
-                  color: "#00000061", 
+                  color: "#00000061",
                 },
                 "& .p-dropdown .p-dropdown-label.p-placeholder": {
                   color: "red",
@@ -916,20 +689,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             />
           </CssWrapper>
           <Popover>
-            {/* <PopoverTrigger>
-              <Button
-                rounded="full"
-                w="40px"
-                h="40px"
-                bg="none"
-                border="1px solid #1b4f72 "
-                _hover={{
-                  bg: "mainBlue",
-                  color: "white",
-                }}>
-                Goods
-              </Button>
-            </PopoverTrigger> */}
             <PopoverContent>
               {/* <PopoverArrow /> */}
               <PopoverCloseButton />
@@ -1093,7 +852,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             <MenuList padding="8px" borderRadius="7px" borderColor="#e4e4e499" boxShadow="rgba(0, 0, 0, 0.15) 0px 14px 34px -14px;" position="relative" zIndex="999">
               <MenuItem onClick={exportToExcel} fontSize="1.2rem" height="35px" padding="10px" borderRadius="7px">
                 <Box minW="25px" margin="3px 7px" display="flex" alignItems="center" justifyContent="flex-start">
-                  <FontAwesomeIcon icon={faFileExcel} fontSize="1.8rem" color="#003a73c9"/>
+                  <FontAwesomeIcon icon={faFileExcel} fontSize="1.8rem" color="#003a73c9" />
                 </Box>
                 <Box as="span">Export Report</Box>
               </MenuItem>
@@ -1104,7 +863,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 onClick={onOpenDownloadReportModal}
               >
                 <Box minW="25px" margin="3px 7px" display="flex" alignItems="center" justifyContent="flex-start">
-                <FontAwesomeIcon icon={faDownload} fontSize="1.8rem" color="#003a73c9"/>
+                  <FontAwesomeIcon icon={faDownload} fontSize="1.8rem" color="#003a73c9" />
                 </Box>
                 <Box as="span">Download Report</Box>
               </MenuItem>
@@ -1396,7 +1155,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                             </Select>
 
                                             {tempFilterCondition ===
-                                            "between" ? (
+                                              "between" ? (
                                               <Box
                                                 display="flex"
                                                 gap="10px"
@@ -1419,7 +1178,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                                             new Date(date);
                                                           adjustedDate.setMinutes(
                                                             adjustedDate.getMinutes() -
-                                                              adjustedDate.getTimezoneOffset()
+                                                            adjustedDate.getTimezoneOffset()
                                                           );
                                                           return adjustedDate
                                                             .toISOString()
@@ -1507,13 +1266,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                     ))}
                   </Tr>
                 </Thead>
-                
+
                 <Tbody>
                   {tableData.length > 0 ? (
                     tableData.map((item, index) => (
                       <Tr key={index}>
                         {selectedColumns.map((column, colIndex) => (
-                          console.log(column),
                           <Td
                             key={colIndex}
                             padding="12px 15px"
@@ -1521,18 +1279,18 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                             borderTop="1px solid #e1e1e1"
                             style={getColumnStyle(column)}
                           >
-                            
+
                             <Text
                               fontSize="1.4rem"
                               fontWeight={column === "items.goodName" ? "600" : "400"}
                               color="#4e4e4e"
                               whiteSpace="nowrap"
                               width={
-                                column === "description" 
-                                  ? "300px" 
+                                column === "description"
+                                  ? "300px"
                                   : column === "items.goodName"
-                                  ? "250px" 
-                                  : "auto"
+                                    ? "250px"
+                                    : "auto"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis"
@@ -1559,6 +1317,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         </DragDropContext>
       </TableContainer>
 
+<<<<<<< HEAD
       <Drawer
        isOpen={isOpenGraphAddDrawer} placement="right" onClose={handleDrawerClose} finalFocusRef={btnRef}
       >
@@ -1892,6 +1651,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           </DrawerBody>
         </DrawerContent>
       </Drawer>
+=======
+      {/* Main drawer */}
+      <MainBodyDrawer
+        isOpenGraphAddDrawer={isOpenGraphAddDrawer}
+        onCloseGraphAddDrawer={onCloseGraphAddDrawer}
+      />
+>>>>>>> 48e8ac45053736cbf637bc243a5a8bf76268c2dc
 
       <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered className="{`column-selectScaled ${isOpenGraphAddDrawer ? 'column-selectScaled-scaled' : ''}`}">
         <ModalOverlay />
@@ -1933,45 +1699,45 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             >
               {columnData?.content && columnData.content.length > 0
                 ? Object.keys(columnData.content[0])
-                    .map((key) => ({
-                      field: key,
-                      header: key,
-                    }))
-                    .map((column) => {
-                      const formattedHeader = formatHeader(
-                        column.field || column.header
-                      );
-                      return (
-                        <Box
-                          key={column.field}
-                          className="columnCheckBox"
+                  .map((key) => ({
+                    field: key,
+                    header: key,
+                  }))
+                  .map((column) => {
+                    const formattedHeader = formatHeader(
+                      column.field || column.header
+                    );
+                    return (
+                      <Box
+                        key={column.field}
+                        className="columnCheckBox"
+                        padding="5px"
+                        bg="rgba(231,231,231,1)"
+                        borderRadius="5px"
+                        width="48%"
+                      >
+                        <Checkbox
+                          size="lg"
+                          display="flex"
                           padding="5px"
-                          bg="rgba(231,231,231,1)"
-                          borderRadius="5px"
-                          width="48%"
+                          borderColor="mainBluemedium"
+                          isChecked={tempSelectedColumns.includes(
+                            column.field
+                          )}
+                          onChange={() => toggleColumn(column.field)}
                         >
-                          <Checkbox
-                            size="lg"
-                            display="flex"
-                            padding="5px"
-                            borderColor="mainBluemedium"
-                            isChecked={tempSelectedColumns.includes(
-                              column.field
-                            )}
-                            onChange={() => toggleColumn(column.field)}
+                          <Text
+                            fontWeight="500"
+                            ml="10px"
+                            fontSize="12px"
+                            color="textBlackDeep"
                           >
-                            <Text
-                              fontWeight="500"
-                              ml="10px"
-                              fontSize="12px"
-                              color="textBlackDeep"
-                            >
-                              {formattedHeader}
-                            </Text>
-                          </Checkbox>
-                        </Box>
-                      );
-                    })
+                            {formattedHeader}
+                          </Text>
+                        </Checkbox>
+                      </Box>
+                    );
+                  })
                 : null}
             </Box>
           </ModalBody>
