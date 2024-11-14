@@ -13,7 +13,9 @@ const MainBodyDrawer = (props) => {
         isOpenGraphAddDrawer,
         onCloseGraphAddDrawer
     } = props;
+   
     const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
+    console.log('Widgets data: ', {salesCustomerWise})
     const { selectedWise, reportType } = useSelector((state) => state.graphSlice);
 
     const btnRef = React.useRef();
@@ -190,7 +192,7 @@ const MainBodyDrawer = (props) => {
                                                         color: "black",
                                                     }}
                                                 >
-                                                    {/* <Button
+                                                    <Button
                                                         variant="outline"
                                                         style={{
                                                             padding: "15px 10px",
@@ -202,23 +204,6 @@ const MainBodyDrawer = (props) => {
                                                     >
                                                         <FiSettings style={{ marginRight: "6px" }} />{" "}
                                                         Configure
-                                                    </Button> */}
-
-                                                    <Button
-                                                        type="button"
-                                                        variant="outlined"
-                                                        style={{
-                                                            display: "flex",
-                                                            alignItems: "center",
-                                                            gap: 1,
-                                                            _hover: {
-                                                                color: "white",
-                                                            },
-                                                        }}
-                                                        onClick={() => handleConfigure(chart)}
-                                                    >
-                                                        <FiSettings sx={{ mr: "6px" }} />
-                                                        Select
                                                     </Button>
 
                                                     <Button
