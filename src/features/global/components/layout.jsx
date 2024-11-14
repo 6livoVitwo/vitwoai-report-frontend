@@ -166,6 +166,21 @@ const CssWrapper = styled.div`
     transition: transform 0.3s ease-out; /* Ease-out for smooth movement */
   }
 
+  .table-tableContainerRef, .column-selectScaled {
+    transition: transform 0.3s ease-in-out;
+  }
+  .table-tableContainerRef.table-tableContainerRef-scaled {
+    transform: scale(0.95) !important;
+  }
+
+  ..column-selectScaled.column-selectScaled-scaled {
+    transform: scale(0.95) !important;
+  }
+
+  
+
+
+
   @media only screen and (max-width: 1023px) {
     .navigation {
       z-index: 111;
@@ -670,13 +685,13 @@ const Layout = ({ portalId }) => {
               base: "0",
               lg: "0",
             }}
-            height="calc(100vh - 90px)"
+            height="calc(100vh - 100px)"
             overflow="auto"
             pos={{ base: "", lg: "sticky" }}
             top="60px"
             bg="white"
             zIndex="111"
-            transform="scale(0.97)"
+            // transform="scale(0.99)"
             borderRadius="15px"
           />
           <Flex
