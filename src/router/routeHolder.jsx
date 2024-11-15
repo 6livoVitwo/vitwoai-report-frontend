@@ -58,9 +58,11 @@ const AllRoutes = () => {
   useEffect(() => {
     const getTokenFromURL = () => {
       const url = window.location.href;
+      
       const tokenIndex = url.indexOf("token=");
       if (tokenIndex !== -1) {
         const token = url.substring(tokenIndex + 6);
+        console.log(token);
         return token;
       } else {
         return null;

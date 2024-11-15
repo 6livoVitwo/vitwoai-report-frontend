@@ -73,6 +73,7 @@
     "react-window": "^1.8.10",
     "recharts": "^2.12.6",
     "uuid": "^9.0.1",
+    "vitwo-reports": "file:",
     "web-vitals": "^2.1.4",
     "xlsx": "^0.17.1"
   },

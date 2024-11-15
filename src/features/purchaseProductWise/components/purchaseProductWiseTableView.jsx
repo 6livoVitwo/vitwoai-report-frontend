@@ -58,6 +58,7 @@ const PurchaseProductWiseTableView = () => {
   });
 
   const pageInfo = sales?.lastPage;
+  
   const tableContainerRef = useRef(null);
 
   const flattenObject = (obj, prefix = "") => {

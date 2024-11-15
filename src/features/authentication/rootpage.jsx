@@ -6,6 +6,7 @@ import { Outlet } from 'react-router-dom';
 const Rootpage = ({ globalLayout }) => {
 	const [refresh, setRefresh] = useState(false);
 	const globalState = useSelector((state) => state.GlobalLoader);
+	
 	useEffect(() => {
 		setRefresh(!refresh);
 	}, []);
