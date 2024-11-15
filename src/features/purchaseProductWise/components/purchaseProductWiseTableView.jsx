@@ -4,6 +4,7 @@ import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
+import Loader from "../../analyticloader/components/Loader";
 
 const PurchaseProductWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
@@ -11,6 +12,8 @@ const PurchaseProductWiseTableView = () => {
   const [size, setSize] = useState(50);
   const [toastShown, setToastShown] = useState(false);
   const [individualItems, setIndividualItems] = useState([]);
+
+
 
   const [filters, setFilters] = useState(
     {
@@ -91,7 +94,6 @@ const PurchaseProductWiseTableView = () => {
           : [flattenedInvoice];
       });
       setIndividualItems((prevItems) => [...prevItems, ...newItems]);
-
     }
   }, [sales]);
 
@@ -108,7 +110,7 @@ const PurchaseProductWiseTableView = () => {
             p={3}
             bg="orange.300"
             borderRadius="md"
-            style={{ width: "300px", height: "70px" }} // Set custom width and height
+            style={{ width: "300px", height: "70px" }} 
           >
             <Box fontWeight="bold">No More Data</Box>
             <Box>You have reached the end of the list.</Box>
@@ -128,17 +130,11 @@ const PurchaseProductWiseTableView = () => {
         alignItems="center"
         justifyContent="center"
       >
-        <Spinner
-          thickness="4px"
-          speed="0.65s"
-          emptyColor="gray.200"
-          color="blue.500"
-          size="xl"
-        />
+        <Loader width={100} height={100} objectFit="contain" /> 
       </Box>
     );
   }
-  if (error) {
+  if (error ) {
     return (
       <Box
         bg="white"
@@ -152,35 +148,33 @@ const PurchaseProductWiseTableView = () => {
       </Box>
     );
   }
-
-  const mainData = sales?.content;
-
-  // const newArray = individualItems.map((data, index) =>
-  //   extractFields(data, index)
-  // );
-
+    
   return (
-    <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
-      {individualItems.length > 0 && (
-        <CustomTable
-          newArray={individualItems}
-          page={page}
-          setPage={setPage}
-          isFetching={isFetching}
-          sales={sales}
-          pageInfo={pageInfo}
-          setSize={setSize}
-          filters={filters}
-          setFilters={setFilters}
-          // extractFields={extractFields}
-          alignment={{
-            "Total Quantity": "right",
-            "Received Quantity": "right",
-            "Total Amount": "right",
-          }}
-        />
-      )}
-    </Box>
+    <Box
+  ref={tableContainerRef}
+  height="calc(100vh - 75px)"
+  overflowY="hidden"
+  className="table-tableContainerRefSacled"
+>
+  {individualItems.length > 0 && (
+    <CustomTable
+      newArray={individualItems}
+      page={page}
+      setPage={setPage}
+      isFetching={isFetching}
+      sales={sales}
+      pageInfo={pageInfo}
+      setSize={setSize}
+      filters={filters}
+      setFilters={setFilters}
+      alignment={{
+        "Total Quantity": "right",
+        "Received Quantity": "right",
+        "Total Amount": "right",
+      }}
+    />
+  )}
+</Box>
   );
 };
 

@@ -93,7 +93,6 @@ const ExtendedTheme = extendTheme({
 			fontWeight: 'semibold',
 		},
 		button: {
-			fontFamily: 'Montserrat, sans-serif',
 			fontSize: '1.5rem',
 			transition: 'all 0.4s ease-in-out',
 			border: '1px solid transparent',

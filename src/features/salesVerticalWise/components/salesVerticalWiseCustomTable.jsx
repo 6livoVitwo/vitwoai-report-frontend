@@ -79,6 +79,7 @@ import { Calendar } from "primereact/calendar";
 import { useGetSelectedColumnsVerticalQuery } from "../slice/salesVerticalWiseApi";
 import { useGetGlobalsearchVerticalQuery } from "../slice/salesVerticalWiseApi";
 import { useVerticalWiseSalesQuery } from "../slice/salesVerticalWiseApi";
+import { set } from "lodash";
 
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [data, setData] = useState([...newArray]);
@@ -114,12 +115,15 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const [dates, setDates] = useState(null);
   const [calendarVisible, setCalendarVisible] = useState(false);
+  const [triggerFilter, setTriggerFilter] = useState(false);
+  const [triggerSort, setTriggerSort] = useState(false);
 
   const btnRef = React.useRef();
 
   //......Advanced Filtering....
   const { data: advancedFilterVertical, refetch: refetchVerticalfilter } = useVerticalWiseSalesQuery(
     { filters: localFilters },
+    { skip: !triggerFilter }
   );
 
   const handlePopoverClick = (column) => {
@@ -145,7 +149,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         sortDir: sortOrder,
       },
       page: currentPage,
-    });
+    }, { skip: !triggerSort });
 
   const toast = useToast();
   const tableContainerRef = useRef(null);
@@ -412,7 +416,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setTempFilterCondition(null);
     setTempFilterValue("");
     setActiveFilterColumn(null);
-    refetchVerticalfilter();
+    // refetchVerticalfilter();
   };
 
   //sort asc desc
@@ -422,18 +426,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     // Update sort state
     setSortColumn(column);
     setSortOrder(newSortOrder);
+    setTriggerSort(true);
   };
-  // Trigger the API call when sortColumn or sortOrder changes
-  useEffect(() => {
-    refetchVertical({
-      filters: {
-        ...filters,
-        sortBy: sortColumn,
-        sortDir: sortOrder,
-      },
-      page: currentPage,
-    });
-  }, [sortColumn, sortOrder, refetchVertical]);
 
 
   const filteredItems = useMemo(() => {
@@ -558,8 +552,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
-
-      // This will trigger the query
       setFiltersApplied(true);
     } else {
       console.error("Filter condition or value missing");
@@ -606,7 +598,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
-      refetchVerticalfilter();
+      // refetchVerticalfilter();
     } else {
       console.error("Filter condition, value, or column is missing");
     }
@@ -619,12 +611,20 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         : handleApplyFilters();
 
     }
+    setTriggerFilter(true);
   };
 
 
   const exportToExcel = () => {
     import("xlsx").then((xlsx) => {
-      const worksheet = xlsx.utils.json_to_sheet(filteredItems);
+      const formattedData = filteredItems.map((item) => {
+        const formattedItem = {};
+        for (const key in item) {
+          formattedItem[formatHeader(key)] = item[key];
+        }
+        return formattedItem;
+      })
+      const worksheet = xlsx.utils.json_to_sheet(formattedData);
       const workbook = {
         Sheets: { data: worksheet },
         SheetNames: ["data"],

@@ -3,7 +3,8 @@ import { Box, Heading, Flex, Button } from '@chakra-ui/react';
 import ReportsCards from '../dashboard/components/ReportsCards';
 import SalesVerticalWise from '../../asset/images/sales-vertical-wise.png';
 import SalesSoWise from '../../asset/images/sales-so-wise.png';
-import loadingImg from '../../asset/imgs/Loading.json';
+import loadingImg from '../../asset/imgs/Loading.json'; 
+// import loadingImg from '../../asset/imgs/Loading.json'; 
 // import productWise from '../../asset/imgs/Product Wise.json';
 // import vendorWise from '../../asset/imgs/Vendor Wise.json';
 // import poWise from '../../asset/imgs/PO Wise.json';
@@ -124,6 +125,7 @@ const Allreports = () => {
 					direction='row'
 					align='center'
 					maxW='800px'
+					margin='2rem 0rem'
 					overflowX='auto'>
 					{cardsData.map((data, index) => (
 						<Button
@@ -173,6 +175,7 @@ const Allreports = () => {
 						color='mainBlue'
 						mb='50px'
 						mt='20px'
+						paddingLeft='10px'
 						key={index}
 						id={data['card catagory']}>
 						<Box mb='15px'>
@@ -183,7 +186,7 @@ const Allreports = () => {
 								fontSize='12px'
 								color='rgb(184 182 182)'
 								paddingBottom='5px'
-								fontFamily='Montserrat, sans-serif'>
+								paddingLeft='2rem'>
 								{data['card catagory']}
 							</Heading>
 						</Box>

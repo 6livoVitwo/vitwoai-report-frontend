@@ -58,11 +58,56 @@ export const salesRegionWiseApi = apiSlice.injectEndpoints({
         };
       },
     }),
+    // Query to get global search state
     getGlobalsearchState: builder.query({
       query: (body) => {
         ;
         return {
           url: "/sales/global-search/region/state",
+          method: "POST",
+          body: JSON.stringify(body),
+        };
+      },
+    }),
+    // Query to get global search pincode
+    getGlobalsearchPincode: builder.query({
+      query: (body) => {
+        ;
+        return {
+          url: "/sales/global-search/region/pincode",
+          method: "POST",
+          body: JSON.stringify(body),
+        };
+      },
+    }),
+    // Query to get global search dist
+    getGlobalsearchDist: builder.query({
+      query: (body) => {
+        ;
+        return {
+          url: "/sales/global-search/region/dist",
+          method: "POST",
+          body: JSON.stringify(body),
+        };
+      },
+    }),
+    // Query to get global search country
+    getGlobalsearchCountry: builder.query({
+      query: (body) => {
+        ;
+        return {
+          url: "/sales/global-search/region/country",
+          method: "POST",
+          body: JSON.stringify(body),
+        };
+      },
+    }),
+    // Query to get global search city
+    getGlobalsearchCity: builder.query({
+      query: (body) => {
+        ;
+        return {
+          url: "/sales/global-search/region/city",
           method: "POST",
           body: JSON.stringify(body),
         };
@@ -79,4 +124,8 @@ export const {
   useGetselectedPincodeWiseQuery,
   useGetselectedStateWiseQuery,
   useGetGlobalsearchStateQuery,
+  useGetGlobalsearchPincodeQuery,
+  useGetGlobalsearchDistQuery,
+  useGetGlobalsearchCountryQuery,
+  useGetGlobalsearchCityQuery,
 } = salesRegionWiseApi;

@@ -4,6 +4,7 @@ import { useReceivableCustomerQuery } from "../slice/receivableCustomerApi";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import Pagination from "../../global/components/Pagination";
 import { usePagination } from "../../global/hooks/usePagination";
+import { exportToExcel, exportToImage, exportToPDF } from "../utils";
 
 const ReceivableCustomerTableView = () => {
   const { first, rows, onPageChange } = usePagination(10);
@@ -105,7 +106,16 @@ const ReceivableCustomerTableView = () => {
         w={"95%"}
         mb={5}
       >
-        <Text>Execution Time: {executionTime} ms</Text>
+        <Menu>
+          <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+            Export
+          </MenuButton>
+          <MenuList>
+            <MenuItem onClick={exportToExcel}>Export to Excel</MenuItem>
+            <MenuItem onClick={exportToPDF}>Export to PDF</MenuItem>
+            <MenuItem onClick={exportToImage}>Export as Image</MenuItem>
+          </MenuList>
+        </Menu>
         <Stack direction="row">
           <Menu>
             <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
@@ -186,6 +196,7 @@ const ReceivableCustomerTableView = () => {
         </Stack>
       </Box>
       <TableContainer
+        id="receivable-table"
         sx={{ border: "1px solid #dee2e6", borderRadius: "8px", padding: "10px", width: "95%" }}
       >
         {isLoading ? <Text>Loading...</Text> : <Table
@@ -200,9 +211,12 @@ const ReceivableCustomerTableView = () => {
         >
           <Thead sx={{ backgroundColor: "#f8f9fa" }}>
             <Tr>
-              {columns.map((column, index) => (
-                <Th key={index}>{column}</Th>
-              ))}
+              {columns
+                .map((column, index) => {
+                  return (
+                    <Th key={index}>{column}</Th>
+                  )
+                })}
               {allBuckets.map((bucket, index) => (
                 <Th bg={"green.100"} key={`due-${index}`}>
                   {bucket.label} Due
@@ -249,11 +263,12 @@ const ReceivableCustomerTableView = () => {
         }}
       >
         <Text mt={4}>Execution Time: {executionTime} ms</Text>
+        <Text mt={4}>Total Records: {totalRecords}</Text>
         <Pagination
           first={first}
           totalRecords={totalRecords}
           rows={rows}
-          rowsPerPageOptions={[10, 25, 50, 100, 200, 500]}
+          rowsPerPageOptions={[10, 25, totalRecords > 25 && parseInt(totalRecords / 5).toFixed(0), totalRecords > 25 && parseInt(totalRecords / 2).toFixed(0), totalRecords > 25 && totalRecords]}
           onPageChange={handlePageChange}
         />
       </Box>
