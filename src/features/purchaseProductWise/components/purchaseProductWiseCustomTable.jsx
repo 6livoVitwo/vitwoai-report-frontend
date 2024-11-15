@@ -102,7 +102,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const tableContainerRef = useRef(null);
 
   const { onOpen: onOpenDownloadReportModal, onClose: onCloseDownloadReportModal, isOpen: isOpenDownloadReportModal } = useDisclosure();
-  const { onOpen: onOpenGraphAddDrawer, onClose: onCloseGraphAddDrawer, isOpen: isOpenGraphAddDrawer } = useDisclosure();  
+  const { onOpen: onOpenGraphAddDrawer, onClose: onCloseGraphAddDrawer, isOpen: isOpenGraphAddDrawer } = useDisclosure();
+
+
 
   const getColumnStyle = (header) => ({
     textAlign: alignment[header] || "left",
@@ -222,8 +224,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   const handleModalClose = () => {
     setTempSelectedColumns(selectedColumns);
+    setIsBodyScaled(false);
     onClose();
   };
+
   const handleApplyChanges = () => {
     const updatedSelectedColumns = Array.from(
       new Set(
@@ -566,8 +570,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     });
   };
 
+  const handleOpenColumnModal = () => {
+    setIsBodyScaled(true);
+    onOpen();
+  };
+
+
   const handleGraphAddDrawer = () => {
-    setIsBodyScaled(true); 
+    setIsBodyScaled(true);
     onOpenGraphAddDrawer();
     dispatch(
       handleGraphWise({
@@ -578,7 +588,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
 
-   const handleDrawerClose = () => {
+  const handleDrawerClose = () => {
     setIsBodyScaled(false);
     onCloseGraphAddDrawer();
   };
@@ -590,7 +600,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   //     document.body.style.transform = "scale(1)"; // Reset on unmount
   //   };
   // }, [isBodyScaled]);
-  
+
 
   return (
     <Box bg="white">
@@ -835,7 +845,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             borderRadius="7px"
           >
             <Button
-              onClick={onOpen}
+              onClick={handleOpenColumnModal}
               fontSize="0.9rem"
               height="30px"
               color="mainBlue"
@@ -1007,7 +1017,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
       <TableContainer
         ref={tableContainerRef}
-        className={`table-tableContainerRef ${isOpenGraphAddDrawer ? 'table-tableContainerRef-scaled' : ''}`}
+        className={`table-tableContainerRef ${isBodyScaled ? 'table-tableContainerRef-scaled' : ''}`}
         overflowY="auto"
         margin="0 auto"
         height="calc(100vh - 130px)"
@@ -1358,10 +1368,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       {/* Main drawer */}
       <MainBodyDrawer
         isOpenGraphAddDrawer={isOpenGraphAddDrawer}
-        onCloseGraphAddDrawer={onCloseGraphAddDrawer}
+        onCloseGraphAddDrawer={handleDrawerClose}
       />
 
-      <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered className="{`column-selectScaled ${isOpenGraphAddDrawer ? 'column-selectScaled-scaled' : ''}`}">
+      <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered>
         <ModalOverlay />
         <ModalContent minW="40%">
           <ModalHeader
