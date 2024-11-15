@@ -7,16 +7,28 @@ import ChartConfiguration from '../chartConfigurations/ChartConfiguration';
 import { useSelector } from 'react-redux';
 import { chartsData } from '../jsonData/graphSkeleton';
 import { BreadCrumb } from 'primereact/breadcrumb';
+import { RxCross1 } from "react-icons/rx";
+import { capitalizeWord, formatWordBetweenDashes } from '../../../utils/common';
 
 const MainBodyDrawer = (props) => {
     const {
         isOpenGraphAddDrawer,
         onCloseGraphAddDrawer
     } = props;
-   
-    const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
-    console.log('Widgets data: ', {salesCustomerWise})
+
     const { selectedWise, reportType } = useSelector((state) => state.graphSlice);
+    const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
+    console.log('🔵Widgets data from store: ', salesCustomerWise);
+
+    const localStorageWidgets = JSON.parse(localStorage.getItem('widgets')) || [];
+    console.log('🟢Widgets data from localStorage: ', localStorageWidgets);
+
+    const checkSalesCustomerWise = salesCustomerWise === null ? salesCustomerWise : localStorageWidgets;
+
+    const filteredCharts = checkSalesCustomerWise?.filter((chart) => {
+        return chart.selectedWise === selectedWise;
+    });
+    console.log('🔴Filtered widgets: ', filteredCharts);
 
     const btnRef = React.useRef();
     const { onOpen: onOpenGraphSettingDrawer, onClose: onCloseGraphSettingDrawer, isOpen: isOpenGraphSettingDrawer } = useDisclosure();
@@ -44,7 +56,7 @@ const MainBodyDrawer = (props) => {
     const handleConfigure = (chart) => {
         console.log('clicked...')
         if (!chart) return;
-        
+
         onOpenGraphSettingsModal();
         const filterData = removeProperty(chart);
         setConfigureChart(filterData);
@@ -75,7 +87,7 @@ const MainBodyDrawer = (props) => {
                         color: "white",
                     }}
                 >
-                    Sales Product Wise
+                    {formatWordBetweenDashes(selectedWise)}
                     <BreadCrumb
                         model={items}
                         home={home}
@@ -101,7 +113,7 @@ const MainBodyDrawer = (props) => {
                         }}
                         mb={6}
                     >
-                        <Text fontWeight="bold">Sales Wise Graph View</Text>
+                        <Text fontWeight="bold">{capitalizeWord(reportType)} Wise Graph View</Text>
                         <Button
                             ref={btnRef}
                             type="button"
@@ -123,7 +135,7 @@ const MainBodyDrawer = (props) => {
 
                     {/* Update sales graph details report */}
                     <Box display="flex" flexWrap="wrap" justifyContent="space-between">
-                        {salesCustomerWise && salesCustomerWise?.length === 0 && (
+                        {filteredCharts && filteredCharts?.length === 0 && (
                             <Alert
                                 status="error"
                                 sx={{
@@ -137,8 +149,8 @@ const MainBodyDrawer = (props) => {
                                 No Sales Graph are there
                             </Alert>
                         )}
-                        {salesCustomerWise &&
-                            salesCustomerWise?.map((chart, index) => {
+                        {filteredCharts &&
+                            filteredCharts?.map((chart, index) => {
                                 return (
                                     <Box
                                         key={index}
@@ -194,10 +206,10 @@ const MainBodyDrawer = (props) => {
                                                 >
                                                     <Button
                                                         variant="outline"
+                                                        colorScheme='green'
                                                         style={{
                                                             padding: "15px 10px",
-                                                            fontSize: "12px",
-                                                            color: "#718296",
+                                                            fontSize: "12px"
                                                         }}
                                                         mr={3}
                                                         onClick={() => handleConfigure(chart)}
@@ -208,16 +220,28 @@ const MainBodyDrawer = (props) => {
 
                                                     <Button
                                                         variant="outline"
+                                                        colorScheme='blue'
                                                         style={{
                                                             padding: "15px 10px",
-                                                            fontSize: "12px",
-                                                            color: "#718296",
+                                                            fontSize: "12px"
                                                         }}
                                                         mr={3}
                                                         onClick={() => handleView(chart)}
                                                     >
                                                         <MdFullscreen style={{ marginRight: "6px" }} />{" "}
                                                         Full Screen
+                                                    </Button>
+
+                                                    <Button
+                                                        variant="outline"
+                                                        colorScheme='red'
+                                                        sx={{
+                                                            p: "15px 15px",
+                                                            fontSize: "12px",
+                                                            fontWeight: 'bold'
+                                                        }}
+                                                    >
+                                                        <RxCross1 />
                                                     </Button>
                                                 </Box>
                                             </Box>
@@ -259,14 +283,11 @@ const MainBodyDrawer = (props) => {
                                         flexGrow: 1,
                                     }}
                                 >
-                                    Total Graph (
-                                    {
-                                        chartsData.charts.filter(
-                                            (chart) =>
-                                                chart.type !== "funnel" && chart.type !== "heatmap"
+                                    Total Graph ({
+                                        chartsData.charts.filter((chart) =>
+                                            chart.type !== "funnel" && chart.type !== "heatmap"
                                         ).length
-                                    }
-                                    )
+                                    })
                                 </Box>
                                 <Box
                                     display="flex"
@@ -274,8 +295,26 @@ const MainBodyDrawer = (props) => {
                                     justifyContent="space-between"
                                 >
                                     {chartsData.charts.map((chart, index) => {
-                                        if (chart.type === "funnel" || chart.type === "heatmap")
-                                            return null;
+                                        if (selectedWise === "sales-product-wise") {
+                                            if (chart.type === "funnel" || chart.type === "heatmap") return null;
+                                        } else if (selectedWise === "sales-customer-wise") {
+                                            if (chart.type === "funnel" || chart.type === "heatmap") return null;
+                                        } else if (selectedWise === "sales-so-wise") {
+                                            if (chart.type !== "funnel") return null;
+                                        } else if (selectedWise === "sales-kam-wise") {
+                                            if (chart.type === "funnel") return null;
+                                        } else if (selectedWise === "sales-region-wise") {
+                                            if (chart.type === "funnel") return null;
+                                        } else if (selectedWise === "purchase-product-wise") {
+                                            if (chart.type === "funnel" || chart.type === "heatmap") return null;
+                                        } else if (selectedWise === "purchase-vendor-wise") {
+                                            if (chart.type === "funnel" || chart.type === "heatmap") return null;
+                                        } else if (selectedWise === "purchase-po-wise") {
+                                            if (chart.type === "bump" || chart.type === "line" || chart.type === "areaBump" || chart.type === "heatmap") return null;
+                                        } else if (selectedWise === "purchase-po-wise") {
+                                            if (chart.type === "bump" || chart.type === "line" || chart.type === "areaBump" || chart.type === "heatmap") return null;
+                                        }
+
                                         return (
                                             <Box
                                                 key={index}

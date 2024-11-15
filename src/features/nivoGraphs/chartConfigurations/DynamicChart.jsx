@@ -1,3 +1,4 @@
+import { Box } from "@chakra-ui/react";
 import FunnelChart from "../../dashboardNew/nivo/FunnelChart";
 import AreaBump from "../nivo/AreaBump";
 import Bar from "../nivo/Bar";

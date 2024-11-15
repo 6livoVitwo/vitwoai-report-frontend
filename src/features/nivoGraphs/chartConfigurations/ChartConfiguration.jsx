@@ -17,7 +17,7 @@ const ChartConfiguration = ({ configureChart }) => {
   const toast = useToast();
   const dispatch = useDispatch();
   const { selectedWise, reportType } = useSelector((state) => state.graphSlice);
-
+  
   // all states here
   const [chartDataApi, setChartDataApi] = useState([]);
   const [wise, setWise] = useState("sales");
@@ -261,16 +261,13 @@ const ChartConfiguration = ({ configureChart }) => {
     }, 500);
   };
 
+  console.log({currentWidgets})
   // handle save button
-  const handleSaveBtn = () => {
-    const getToken = localStorage.getItem('authToken');
-    
-    // decode token
-    const decodedToken = getToken ? JSON.parse(atob(getToken.split('.')[1])) : null;
-    console.log('Authentication 🟢', {decodedToken})
+  const handleSaveBtn = () => {        
+    const savedWidgets = JSON.parse(localStorage.getItem("widgets")) || [];
 
     const widgetIndex = currentWidgets.findIndex(
-      (widget) => widget.type === type
+      (widget) => widget.type === type && widget.selectedWise === selectedWise
     );
 
     const widgetData = {
@@ -284,18 +281,21 @@ const ChartConfiguration = ({ configureChart }) => {
       data: chartDataApi || [],
       selectedWise,
       reportType,
-      decodedToken: decodedToken.data
+      dynamicWidth
     };
 
     if (widgetIndex === -1) {
-      dispatch(addWidget(widgetData));
+      dispatch(addWidget([...savedWidgets, widgetData]));
+      localStorage.setItem("widgets", JSON.stringify([...savedWidgets, widgetData]));
     } else {
+
       dispatch(
         updateWidget({
           index: widgetIndex,
           ...widgetData,
         })
       );
+      localStorage.setItem("widgets", JSON.stringify([...savedWidgets.slice(0, widgetIndex), widgetData, ...savedWidgets.slice(widgetIndex + 1)]));
     }
     toast({
       title: "Chart Saved Successfully",

@@ -12,7 +12,7 @@ const Bar = ({ data = barChartData, dynamicWidth }) => {
       <ResponsiveBar
         data={data}
         // {...(dynamicWidth > 0 && { height: 600 })}
-        {...(dynamicWidth > 0 && { width: 3500 })}
+        {...(dynamicWidth > 0 && { width: dynamicWidth })}
         {...(dynamicWidth > 0 ? { keys: keys } : {
           keys: [
             'hot dog',
