@@ -263,6 +263,12 @@ const ChartConfiguration = ({ configureChart }) => {
 
   // handle save button
   const handleSaveBtn = () => {
+    const getToken = localStorage.getItem('authToken');
+    
+    // decode token
+    const decodedToken = getToken ? JSON.parse(atob(getToken.split('.')[1])) : null;
+    console.log('Authentication 🟢', {decodedToken})
+
     const widgetIndex = currentWidgets.findIndex(
       (widget) => widget.type === type
     );
@@ -276,6 +282,9 @@ const ChartConfiguration = ({ configureChart }) => {
       pinned: true,
       description: `This is ${type} Chart`,
       data: chartDataApi || [],
+      selectedWise,
+      reportType,
+      decodedToken: decodedToken.data
     };
 
     if (widgetIndex === -1) {

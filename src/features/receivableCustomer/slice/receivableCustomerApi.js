@@ -14,6 +14,4 @@ export const receivableCustomerApi = apiSlice.injectEndpoints({
   }),
 });
 
-export const {
-  useReceivableCustomerQuery,
-} = receivableCustomerApi;
+export const { useReceivableCustomerQuery } = receivableCustomerApi;
