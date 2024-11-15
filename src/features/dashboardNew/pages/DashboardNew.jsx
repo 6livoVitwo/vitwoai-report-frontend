@@ -16,8 +16,8 @@ const DashboardNew = () => {
     const { isOpen: isOpenGraphSettingsModal, onOpen: onOpenGraphSettingsModal, onClose: onCloseGraphSettingsModal } = useDisclosure();
     const [configureChart, setConfigureChart] = useState(null);
     const dashboardData = useSelector((state) => state.dashboard.widgets);
-    const authDetails = useSelector((state) => state.auth.authDetails);
-console.log({authDetails})
+    // const authDetails = useSelector((state) => state.auth.authDetails);
+    // console.log({authDetails})
     const removeProperty = (object) => {
         // error handling
         if (!object) {
