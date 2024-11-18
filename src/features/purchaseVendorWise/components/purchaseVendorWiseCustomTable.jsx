@@ -47,6 +47,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [dates, setDates] = useState(null);
   const [triggerFilter, setTriggerFilter] = useState(false);
   const [triggerSort, setTriggerSort] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
@@ -134,7 +135,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     if (!loading) {
       setLoading(true);
       const moreData = [...newArray];
-      console.log(moreData, "moreData");
       setData((prevData) => {
         const uniqueData = [...new Set([...prevData, ...moreData])];
         return uniqueData;
@@ -145,12 +145,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   useEffect(() => {
-    const initialColumns = getColumns(data)
-      .slice(0, 8)
-      .map((column) => column.field);
-    setDefaultColumns(initialColumns);
-    setSelectedColumns(initialColumns);
-  }, [data]);
+    if(!initialized && data.length > 0){
+      const initialColumns = getColumns(data)
+        .slice(0, 8)
+        .map((column) => column.field);
+      setDefaultColumns(initialColumns);
+      setSelectedColumns(initialColumns);
+      setTempSelectedColumns(initialColumns);
+      setInitialized(true);
+    }
+  }, [data, initialized]);
 
   const getColumns = useCallback((data) => {
     if (!data || data.length === 0) {

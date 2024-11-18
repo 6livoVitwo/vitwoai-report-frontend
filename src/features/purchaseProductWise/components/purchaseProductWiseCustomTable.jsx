@@ -73,7 +73,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [triggerFilter, setTriggerFilter] = useState(false);
   const [triggerSort, setTriggerSort] = useState(false);
+  const [initialized, setInitialized] = useState(false);
+
   const toast = useToast();
+
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
   };
@@ -165,14 +168,19 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setLoading(false);
     }
   };
-
+  
   useEffect(() => {
-    const initialColumns = getColumns(data)
+    if(!initialized && data.length > 0){
+      const initialColumns = getColumns(data)
       .slice(0, 8)
       .map((column) => column.field);
+      
     setDefaultColumns(initialColumns);
     setSelectedColumns(initialColumns);
-  }, [data]);
+    setTempSelectedColumns(initialColumns);
+    setInitialized(true);
+    }
+  }, [data, initialized]);
 
   const getColumns = useCallback((data) => {
     if (!data || data.length === 0) {
@@ -190,6 +198,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       return;
     }
     const newColumnsOrder = Array.from(selectedColumns);
+    
     const [removed] = newColumnsOrder.splice(result.source.index, 1);
     newColumnsOrder.splice(result.destination.index, 0, removed);
     setSelectedColumns(newColumnsOrder);
@@ -206,6 +215,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         : [...prev, field]
     );
   };
+
   const handleSelectAllToggle = () => {
     const allColumns = columnData
       ? Object.keys(columnData?.content[0] || {}).map((key) => ({

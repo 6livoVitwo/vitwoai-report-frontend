@@ -12,8 +12,7 @@ const PurchaseProductWiseTableView = () => {
   const [size, setSize] = useState(50);
   const [toastShown, setToastShown] = useState(false);
   const [individualItems, setIndividualItems] = useState([]);
-
-
+  
 
   const [filters, setFilters] = useState(
     {
@@ -61,8 +60,9 @@ const PurchaseProductWiseTableView = () => {
   });
 
   const pageInfo = sales?.lastPage;
-  
+
   const tableContainerRef = useRef(null);
+  
 
   const flattenObject = (obj, prefix = "") => {
     let result = {};
