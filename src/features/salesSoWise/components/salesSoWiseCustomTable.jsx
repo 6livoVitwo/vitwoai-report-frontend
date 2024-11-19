@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { Box, Button, useDisclosure, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Checkbox, Input, Text, Select, useToast, Menu, MenuButton, MenuList, MenuItem, Popover, PopoverTrigger, PopoverContent, PopoverBody, PopoverArrow, PopoverCloseButton, Tooltip } from "@chakra-ui/react";
+import { Box, Button, useDisclosure, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Checkbox, Input, Text, Select, useToast, Menu, MenuButton, MenuList, MenuItem, Popover, PopoverTrigger, PopoverContent, PopoverBody, PopoverArrow, PopoverCloseButton, Tooltip, Spinner } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -35,7 +35,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [endDate, setEndDate] = useState();
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
-  const [sortColumn, setSortColumn] = useState("customer.trade_name");
+  const [sortColumn, setSortColumn] = useState(" ");
   const [sortOrder, setSortOrder] = useState("asc");
   const [searchQuery, setSearchQuery] = useState("");
   const [inputValue, setInputValue] = useState("");
@@ -135,6 +135,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const loadMoreData = async () => {
     if (!loading) {
       setLoading(true);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       // Fetch or generate new data
       const moreData = [...newArray]; // Assuming newArray contains new data
       setData((prevData) => {
@@ -156,7 +157,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setTempSelectedColumns(initialColumns);
       setInitialized(true);
     }
-  }, [data], initialized);
+  }, [data, initialized]);
 
   const getColumns = useCallback((data) => {
     if (!data || data.length === 0) {
@@ -374,7 +375,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   let previousScrollLeft = 0;
   const handleScroll = () => {
-    const { scrollTop, scrollHeight, clientHeight, scrollLeft, clientWidth } =
+    const { scrollTop, scrollHeight, clientHeight, scrollLeft } =
       tableContainerRef.current;
     if (scrollLeft !== previousScrollLeft) {
       previousScrollLeft = scrollLeft;
@@ -1054,6 +1055,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                     <Tr>
                       <Td textAlign="center" colSpan={selectedColumns.length}>
                         No data available
+                      </Td>
+                    </Tr>
+                  )}
+                  {loading && (
+                    <Tr>
+                      <Td colSpan={selectedColumns.length} textAlign="center">
+                        <Spinner size="lg" color="blue.500" />
+                        <Text mt={2} fontSize="1.2rem" color="#4e4e4e">
+                          Loading more data...
+                        </Text>
                       </Td>
                     </Tr>
                   )}
