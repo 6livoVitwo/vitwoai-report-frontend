@@ -12,7 +12,7 @@ const PurchaseProductWiseTableView = () => {
   const [size, setSize] = useState(50);
   const [toastShown, setToastShown] = useState(false);
   const [individualItems, setIndividualItems] = useState([]);
-  
+
 
   const [filters, setFilters] = useState(
     {
@@ -34,15 +34,13 @@ const PurchaseProductWiseTableView = () => {
         "SUM(grnInvoice.grnTotalCgst)",
         "SUM(items.unitPrice)",
         "items.goodsItems.stockSummary.movingWeightedPrice",
-
-
       ],
       groupBy: ["items.goodName"],
       filter: [],
       page: 0,
-      size:50,
+      size: 50,
       sortDir: "asc",
-      sortBy: "items.goodName",
+      sortBy: "grnCreatedAt",
     }
   );
 
@@ -62,7 +60,7 @@ const PurchaseProductWiseTableView = () => {
   const pageInfo = sales?.lastPage;
 
   const tableContainerRef = useRef(null);
-  
+
 
   const flattenObject = (obj, prefix = "") => {
     let result = {};
@@ -110,7 +108,7 @@ const PurchaseProductWiseTableView = () => {
             p={3}
             bg="orange.300"
             borderRadius="md"
-            style={{ width: "300px", height: "70px" }} 
+            style={{ width: "300px", height: "70px" }}
           >
             <Box fontWeight="bold">No More Data</Box>
             <Box>You have reached the end of the list.</Box>
@@ -130,11 +128,11 @@ const PurchaseProductWiseTableView = () => {
         alignItems="center"
         justifyContent="center"
       >
-        <Loader width={100} height={100} objectFit="contain" /> 
+        <Loader width={100} height={100} objectFit="contain" />
       </Box>
     );
   }
-  if (error ) {
+  if (error) {
     return (
       <Box
         bg="white"
@@ -148,33 +146,33 @@ const PurchaseProductWiseTableView = () => {
       </Box>
     );
   }
-    
+
   return (
     <Box
-  ref={tableContainerRef}
-  height="calc(100vh - 75px)"
-  overflowY="hidden"
-  className="table-tableContainerRefSacled"
->
-  {individualItems.length > 0 && (
-    <CustomTable
-      newArray={individualItems}
-      page={page}
-      setPage={setPage}
-      isFetching={isFetching}
-      sales={sales}
-      pageInfo={pageInfo}
-      setSize={setSize}
-      filters={filters}
-      setFilters={setFilters}
-      alignment={{
-        "Total Quantity": "right",
-        "Received Quantity": "right",
-        "Total Amount": "right",
-      }}
-    />
-  )}
-</Box>
+      ref={tableContainerRef}
+      height="calc(100vh - 75px)"
+      overflowY="hidden"
+      className="table-tableContainerRefSacled"
+    >
+      {individualItems.length > 0 && (
+        <CustomTable
+          newArray={individualItems}
+          page={page}
+          setPage={setPage}
+          isFetching={isFetching}
+          sales={sales}
+          pageInfo={pageInfo}
+          setSize={setSize}
+          filters={filters}
+          setFilters={setFilters}
+          alignment={{
+            "Total Quantity": "right",
+            "Received Quantity": "right",
+            "Total Amount": "right",
+          }}
+        />
+      )}
+    </Box>
   );
 };
 

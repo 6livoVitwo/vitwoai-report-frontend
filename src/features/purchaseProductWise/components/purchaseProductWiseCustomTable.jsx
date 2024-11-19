@@ -18,6 +18,7 @@ import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice
 import { useGetSelectedColumnsPurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { useGetGlobalsearchPurchaseQuery } from "../slice/purchaseProductWiseApi";
+import { useGetCreatedbyQuery } from "../slice/purchaseProductWiseApi";
 
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
 
@@ -60,7 +61,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const [columns, setColumns] = useState([]);
-  const [sortColumn, setSortColumn] = useState("items.goodName");
+  const [sortColumn, setSortColumn] = useState(" grnInvoice.vendorCode");
   const [sortOrder, setSortOrder] = useState("asc");
   const [currentPage, setCurrentPage] = useState(0);
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
@@ -100,6 +101,19 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       skip: !searchQuery,
     }
   );
+  //API Calling sorting
+  const { data: ProductData, refetch: refetchProduct } =
+    useProductWisePurchaseQuery({
+      filters: {
+        ...filters,
+        sortBy: sortColumn,
+        sortDir: sortOrder,
+      },
+      page: currentPage,
+    }, {
+      skip: !triggerSort,
+    }
+    );
 
 
   const tableContainerRef = useRef(null);
@@ -149,6 +163,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   //sort asc desc
+
   const handleSort = (column) => {
     const newSortOrder =
       sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
@@ -168,17 +183,17 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setLoading(false);
     }
   };
-  
+
   useEffect(() => {
-    if(!initialized && data.length > 0){
+    if (!initialized && data.length > 0) {
       const initialColumns = getColumns(data)
-      .slice(0, 8)
-      .map((column) => column.field);
-      
-    setDefaultColumns(initialColumns);
-    setSelectedColumns(initialColumns);
-    setTempSelectedColumns(initialColumns);
-    setInitialized(true);
+        .slice(0, 8)
+        .map((column) => column.field);
+
+      setDefaultColumns(initialColumns);
+      setSelectedColumns(initialColumns);
+      setTempSelectedColumns(initialColumns);
+      setInitialized(true);
     }
   }, [data, initialized]);
 
@@ -198,7 +213,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       return;
     }
     const newColumnsOrder = Array.from(selectedColumns);
-    
+
     const [removed] = newColumnsOrder.splice(result.source.index, 1);
     newColumnsOrder.splice(result.destination.index, 0, removed);
     setSelectedColumns(newColumnsOrder);
@@ -1072,39 +1087,29 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                             {formatHeader(column)}
 
                             {/* A-Z Filter  */}
-                            {column !== "SL No" &&
-                              !column.toLowerCase().includes("sum") && (
-                                <Button
-                                  className="A_to_Z"
-                                  bg="none"
-                                  _hover={{ bg: "none" }}
-                                  onClick={() => handleSort(column)}
-                                  ref={sortButtonRef}
-                                  position="relative"
-                                  top="-2px"
-                                  fontSize="1.2rem"
-                                  color="#003060"
-                                  marginLeft="10px"
-                                >
-                                  {sortColumn === column ? (
-                                    sortOrder === "asc" ? (
-                                      <FontAwesomeIcon
-                                        icon={faArrowDownShortWide}
-                                      />
-                                    ) : (
-                                      <FontAwesomeIcon
-                                        icon={faArrowUpWideShort}
-                                      />
-                                    )
-                                  ) : (
+                            {column !== "SL No" && !column.toLowerCase().includes("sum") && (
+                              <Button
+                                className="A_to_Z"
+                                bg="none"
+                                _hover={{ bg: "none" }}
+                                onClick={() => handleSort(column)}>
+                                {sortColumn === column ? (
+                                  sortOrder === "asc" ? (
                                     <FontAwesomeIcon
-                                      icon={faArrowRightArrowLeft}
-                                      rotation={90}
-                                      fontSize="13px"
+                                      icon={faArrowDownShortWide}
                                     />
-                                  )}
-                                </Button>
-                              )}
+                                  ) : (
+                                    <FontAwesomeIcon icon={faArrowUpWideShort} />
+                                  )
+                                ) : (
+                                  <FontAwesomeIcon
+                                    icon={faArrowRightArrowLeft}
+                                    rotation={90}
+                                    fontSize="13px"
+                                  />
+                                )}
+                              </Button>
+                            )}
                             {column !== "SL No" && (
                               <Popover
                                 isOpen={activeFilterColumn === column}

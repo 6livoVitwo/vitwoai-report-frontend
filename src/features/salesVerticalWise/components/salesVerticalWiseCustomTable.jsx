@@ -106,7 +106,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
-  const [sortColumn, setSortColumn] = useState("companyFunction.functionalities_name");
+  const [sortColumn, setSortColumn] = useState(" ");
   const [sortOrder, setSortOrder] = useState("asc");
   const [currentPage, setCurrentPage] = useState(0);
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
@@ -504,7 +504,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const handleScroll = () => {
     const { scrollTop, scrollHeight, clientHeight, scrollLeft, scrollRight } =
       tableContainerRef.current;
-
     if (
       scrollRight === 0 &&
       scrollLeft === 0 &&

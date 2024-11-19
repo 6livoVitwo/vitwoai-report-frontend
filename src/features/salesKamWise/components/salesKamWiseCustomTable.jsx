@@ -32,7 +32,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [startDate, setStartDate] = useState();
   const dispatch = useDispatch();
   const [endDate, setEndDate] = useState();
-  const [sortColumn, setSortColumn] = useState("kam.kamName");
+  const [sortColumn, setSortColumn] = useState(" ");
   const [sortOrder, setSortOrder] = useState("asc");
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");

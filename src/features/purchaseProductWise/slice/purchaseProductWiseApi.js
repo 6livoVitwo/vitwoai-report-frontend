@@ -40,6 +40,16 @@ export const purchaseProductWiseApi = apiSlice.injectEndpoints({
         };
       },
     }),
+    //created By api 
+    getCreatedby: builder.query({
+      query: () => {
+        return {
+          url: "/data-createdBy",
+          method: "POST",
+        };
+      },
+    }),
+
   }),
 });
 
@@ -48,4 +58,5 @@ export const {
   useGetSelectedColumnsPurchaseQuery,
   useGetGlobalsearchPurchaseQuery,
   useGetProductGroupQuery,
+  useGetCreatedbyQuery,
 } = purchaseProductWiseApi;

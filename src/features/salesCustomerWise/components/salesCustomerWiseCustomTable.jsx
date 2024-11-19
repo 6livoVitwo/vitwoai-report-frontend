@@ -33,7 +33,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [configureChart, setConfigureChart] = useState({});
   const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
   const [inputValue, setInputValue] = useState("");
-  const [sortColumn, setSortColumn] = useState("customer.trade_name");
+  const [sortColumn, setSortColumn] = useState(" ");
   const [sortOrder, setSortOrder] = useState("asc");
   const [currentPage, setCurrentPage] = useState(0); // Default page is 0
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
@@ -55,6 +55,19 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     { skip: !triggerFilter }
 
   );
+  //API Calling sorting
+  const { data: ProductData, refetch: refetchProduct } =
+  useCustomerWiseSalesQuery({
+      filters: {
+        ...filters,
+        sortBy: sortColumn,
+        sortDir: sortOrder,
+      },
+      page: currentPage,
+    }, {
+      skip: !triggerSort,
+    }
+    );
 
   //..........Api calling for global search............
   const { data: searchData } = useGetGlobalsearchCustomerQuery(filters, {
@@ -76,7 +89,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const getColumnStyle = (header) => ({
     textAlign: alignment[header] || "left",
   });
-  
+
   const navigate = useNavigate();
 
   const reportOptions = [
@@ -132,14 +145,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   useEffect(() => {
-    if(!initialized && data.length > 0){
-    const initialColumns = getColumns(data)
-      .slice(0, 8)
-      .map((column) => column.field);
-    setDefaultColumns(initialColumns);
-    setSelectedColumns(initialColumns);
-    setTempSelectedColumns(initialColumns);
-    setInitialized(true);
+    if (!initialized && data.length > 0) {
+      const initialColumns = getColumns(data)
+        .slice(0, 8)
+        .map((column) => column.field);
+      setDefaultColumns(initialColumns);
+      setSelectedColumns(initialColumns);
+      setTempSelectedColumns(initialColumns);
+      setInitialized(true);
     }
   }, [data, initialized]);
 
