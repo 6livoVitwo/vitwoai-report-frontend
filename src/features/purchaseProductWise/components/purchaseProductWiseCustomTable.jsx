@@ -411,7 +411,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       previousScrollLeft = scrollLeft;
       return;
     }
-    if (scrollTop + clientHeight >= scrollHeight - 5 && !loading) {
+    if (scrollTop + clientHeight >= scrollHeight - 100 && !loading) {
       loadMoreData();
     }
   };
