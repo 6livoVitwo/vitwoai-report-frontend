@@ -104,7 +104,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   } = useDisclosure();
   const dispatch = useDispatch();
   const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
-  console.log(salesCustomerWise, "salesCustomerWise1");
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [sortColumn, setSortColumn] = useState("companyFunction.functionalities_name");
@@ -117,6 +116,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [triggerFilter, setTriggerFilter] = useState(false);
   const [triggerSort, setTriggerSort] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
   const btnRef = React.useRef();
 
@@ -239,12 +239,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   useEffect(() => {
+    if(!initialized && data.length > 0){
     const initialColumns = getColumns(data)
       .slice(0, 8)
       .map((column) => column.field);
     setDefaultColumns(initialColumns);
     setSelectedColumns(initialColumns);
-  }, [data]);
+    setTempSelectedColumns(initialColumns);
+    setInitialized(true);
+    }
+  }, [data, initialized]);
 
   const getColumns = useCallback((data) => {
     if (!data || data.length === 0) {

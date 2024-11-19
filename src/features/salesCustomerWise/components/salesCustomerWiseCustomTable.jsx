@@ -46,6 +46,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [triggerFilter, setTriggerFilter] = useState(false);
   const [triggerSort, setTriggerSort] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
 
   //........Api calling for advanced filter...........
@@ -131,12 +132,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   useEffect(() => {
+    if(!initialized && data.length > 0){
     const initialColumns = getColumns(data)
       .slice(0, 8)
       .map((column) => column.field);
     setDefaultColumns(initialColumns);
     setSelectedColumns(initialColumns);
-  }, [data]);
+    setTempSelectedColumns(initialColumns);
+    setInitialized(true);
+    }
+  }, [data, initialized]);
 
   const getColumns = useCallback((data) => {
     if (!data || data.length === 0) {
