@@ -3,6 +3,7 @@ import React from 'react';
 import { barChartData } from "../jsonData/chartData";
 
 const Bar = ({ data = barChartData, dynamicWidth }) => {
+  
   const dataKeys = Object.keys(data[0] || {});
   const keysCommaSeparated = dataKeys.join(',');
   const keys = keysCommaSeparated.split(',').filter(key => key !== 'xaxis');

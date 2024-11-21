@@ -39,6 +39,7 @@ export const dashboardView = {
       pinned: true,
       description: "This is Area Bump Chart",
       data: areaBumpData,
+      skeleton: 'yes'
     },
     {
       id: "1",
@@ -53,6 +54,7 @@ export const dashboardView = {
         "grouped-vertical",
         "grouped-horizontal",
       ],
+      skeleton: 'yes'
     },
     {
       id: "2",
@@ -61,6 +63,7 @@ export const dashboardView = {
       pinned: false,
       description: "This is Funnel Chart",
       data: funnelChartData,
+      skeleton: 'yes'
     },
     {
       id: "3",
@@ -69,6 +72,7 @@ export const dashboardView = {
       pinned: true,
       description: "This is Pie Chart",
       data: pieChartData,
+      skeleton: 'yes'
     },
     {
       id: "4",
@@ -77,6 +81,7 @@ export const dashboardView = {
       pinned: false,
       description: "This is Line Chart",
       data: lineChartData,
+      skeleton: 'yes'
     },
     {
       id: "6",
@@ -85,6 +90,7 @@ export const dashboardView = {
       pinned: true,
       description: "This is Box Plot",
       data: boxPlotChartData,
+      skeleton: 'yes'
     },
     {
       id: "7",
@@ -93,6 +99,7 @@ export const dashboardView = {
       pinned: true,
       description: "This is Bump Chart",
       data: bumpChartData,
+      skeleton: 'yes'
     },
     {
       id: "8",
@@ -101,6 +108,7 @@ export const dashboardView = {
       pinned: true,
       description: "This is Calendar",
       data: calendarChartData,
+      skeleton: 'yes'
     },
     {
       id: "9",
@@ -109,6 +117,7 @@ export const dashboardView = {
       pinned: true,
       description: "This is Heat Map",
       data: heatmapChartData,
+      skeleton: 'yes'
     },
     {
       id: "10",
@@ -117,6 +126,7 @@ export const dashboardView = {
       pinned: false,
       description: "This is Marimekko Chart",
       data: marimekkoChartData,
+      skeleton: 'yes'
     },
     {
       id: "11",
@@ -125,6 +135,7 @@ export const dashboardView = {
       pinned: false,
       description: "This is Radar Chart",
       data: radarChartData,
+      skeleton: 'yes'
     },
     {
       id: "12",
@@ -133,6 +144,7 @@ export const dashboardView = {
       pinned: false,
       description: "This is Radial Bar Chart",
       data: radialBarChartData,
+      skeleton: 'yes'
     },
     {
       id: "13",
@@ -141,6 +153,7 @@ export const dashboardView = {
       pinned: false,
       description: "This is Scatter Plot Chart",
       data: scatterplotChartData,
+      skeleton: 'yes'
     },
     {
       id: "14",
@@ -149,6 +162,7 @@ export const dashboardView = {
       pinned: false,
       description: "This is Sunburst Chart",
       data: sunburstChartData,
+      skeleton: 'yes'
     },
     {
       id: "15",
@@ -157,6 +171,7 @@ export const dashboardView = {
       pinned: true,
       description: "This is Tree Chart",
       data: treeChartData,
+      skeleton: 'yes'
     },
     {
       id: "16",
@@ -165,6 +180,7 @@ export const dashboardView = {
       pinned: true,
       description: "This is Tree Map Chart",
       data: treeMapChartData,
+      skeleton: 'yes'
     },
     {
       id: "17",
@@ -173,6 +189,7 @@ export const dashboardView = {
       pinned: true,
       description: "This is Waffle Chart",
       data: waffleChartData,
+      skeleton: 'yes'
     },
     {
       id: "20",
@@ -181,6 +198,7 @@ export const dashboardView = {
       pinned: true,
       description: "This is Waffle Chart",
       data: streamChartData,
+      skeleton: 'yes'
     },
   ],
 };
@@ -197,6 +215,7 @@ export const chartsData = {
       pinned: true,
       description: 'This is Area Bump Chart',
       data: areaBumpData,
+      skeleton: 'yes'
     },
     {
       id: '1',
@@ -213,6 +232,7 @@ export const chartsData = {
         'grouped-vertical',
         'grouped-horizontal',
       ],
+      skeleton: 'yes'
     },
     {
       id: '3',
@@ -223,6 +243,7 @@ export const chartsData = {
       pinned: true,
       description: 'This is Pie Chart',
       data: pieChartData,
+      skeleton: 'yes'
     },
     {
       id: '4',
@@ -233,6 +254,7 @@ export const chartsData = {
       pinned: false,
       description: 'This is Line Chart',
       data: lineChartData,
+      skeleton: 'yes'
     },
     {
       id: '7',
@@ -243,6 +265,7 @@ export const chartsData = {
       pinned: true,
       description: 'This is Bump Chart',
       data: bumpChartData,
+      skeleton: 'yes'
     },
     {
 			id: '9',
@@ -253,6 +276,7 @@ export const chartsData = {
 			pinned: true,
 			description: 'This is Heat Map',
 			data: heatmapChartData,
+      skeleton: 'yes'
 		},
     {
 			id: '2',
@@ -263,6 +287,7 @@ export const chartsData = {
 			pinned: false,
 			description: 'This is Funnel Chart',
 			data: funnelChartData,
+      skeleton: 'yes'
 		}
   ],
 };

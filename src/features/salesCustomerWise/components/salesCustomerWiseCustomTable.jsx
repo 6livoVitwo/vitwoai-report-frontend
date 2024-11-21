@@ -31,7 +31,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
   const [configureChart, setConfigureChart] = useState({});
-  const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
   const [inputValue, setInputValue] = useState("");
   const [sortColumn, setSortColumn] = useState("customer.trade_name");
   const [sortOrder, setSortOrder] = useState("asc");

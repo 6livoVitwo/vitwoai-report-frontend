@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Alert, AlertIcon, Box, Button, Divider, Grid, Heading, Select, Spinner, Stack, useToast, Text, Badge, Card, CardFooter, CardBody } from "@chakra-ui/react";
 import { capitalizeWord } from "../../../utils/common";
 import { MdRemoveRedEye, MdSave } from "react-icons/md";
@@ -8,18 +8,19 @@ import { MultiSelect } from "primereact/multiselect";
 import { calculateCount, createBodyWise, setDateRange, updateBodyWise, updateCountAndWidth } from "../graphUtils/common";
 import TypingMaster from "../../dashboardNew/components/TypingMaster";
 import { useDynamicNewQuery } from "./graphApi";
-import { addWidget, updateWidget } from "./graphSlice";
+import { addWidget, getAllWidgets, updateWidget } from "./graphSlice";
 import { graphDescriptions, initialBodyWise, newEndpoint, initialStartDate, initialEndDate, newProcessFlow, chartComponents, initialChartApiConfig, yAxisOptions } from "../utils";
+import useProcessedData from "../hooks/useProcessedData";
 
 const ChartConfiguration = ({ configureChart }) => {
   const { type } = configureChart;
-  const currentWidgets = useSelector((state) => state.salescustomer.widgets);
+  const widgets = useSelector((state) => state.graphSlice.widgets);
   const toast = useToast();
   const dispatch = useDispatch();
   const { selectedWise, reportType } = useSelector((state) => state.graphSlice);
-  
+
   // all states here
-  const [chartDataApi, setChartDataApi] = useState([]);
+  // const [chartDataApi, setChartDataApi] = useState([]);
   const [wise, setWise] = useState("sales");
   const [priceOrQty, setPriceOrQty] = useState("qty");
   const [valuetype, setValuetype] = useState("count");
@@ -176,14 +177,16 @@ const ChartConfiguration = ({ configureChart }) => {
 
   const chartConfig = chartApiConfig[type];
   const { endpoint, body, method } = chartConfig ? chartConfig.find((config) => config.wise === wise) : {};
-  const { data: graphData, isLoading, isError, error, } = useDynamicNewQuery(endpoint ? { endpoint: type === "funnel" ? processFlow : endpoint, body, method } : null, { skip: !endpoint });
+  const { data: graphData, isLoading, isError, error } = useDynamicNewQuery(endpoint ? { endpoint: type === "funnel" ? processFlow : endpoint, body, method } : null, { skip: !endpoint });
 
-  let finalData = graphData?.data || [];
-  if (type === "funnel") {
-    finalData = graphData?.steps || [];
-  } else if (type === "bar" || type === "pie") {
-    finalData = graphData?.content || [];
-  }
+  const finalData = useMemo(() => {
+    if (type === "funnel") {
+      return graphData?.steps || [];
+    } else if (type === "bar" || type === "pie") {
+      return graphData?.content || [];
+    }
+    return graphData?.data || [];
+  }, [graphData, type]);
 
   useEffect(() => {
     if (type === "heatmap") {
@@ -195,44 +198,8 @@ const ChartConfiguration = ({ configureChart }) => {
     }
   }, [type]);
 
-  useEffect(() => {
-    let isMounted = false;
-    if (finalData) {
-      let processedData = [];
-
-      if (type === "pie") {
-        processedData = finalData.map((product, index) => {
-          return {
-            id: index,
-            label: product?.yaxis,
-            value: product?.all_total_amt,
-          };
-        });
-      } else if (type === "bar") {
-        processedData = finalData;
-      } else {
-        processedData = finalData.map((item) => {
-          return {
-            ...item,
-            data: item?.data?.map((entry) => {
-              return {
-                ...entry,
-                y: parseFloat(entry?.y),
-              };
-            }),
-          };
-        });
-      }
-
-      if (!isMounted) {
-        setChartDataApi(processedData || []);
-      }
-    }
-
-    return () => {
-      isMounted = true;
-    };
-  }, [finalData, endDate]);
+  const processedData = useProcessedData(finalData, type);
+  console.log({ processedData, finalData });
 
   const ChartComponent = chartComponents[type];
   if (isLoading) return <Spinner />;
@@ -261,47 +228,57 @@ const ChartConfiguration = ({ configureChart }) => {
     }, 500);
   };
 
-  console.log({currentWidgets})
   // handle save button
-  const handleSaveBtn = () => {        
-    const savedWidgets = JSON.parse(localStorage.getItem("widgets")) || [];
+  const handleSaveBtn = () => {
+    const localStorageWidgets = JSON.parse(localStorage.getItem("widgets")) || [];
 
-    const widgetIndex = currentWidgets.findIndex(
+    const widgetIndex = widgets.findIndex(
       (widget) => widget.type === type && widget.selectedWise === selectedWise
     );
-
+    const id = widgetIndex === -1 ? Date.now().toString() : localStorageWidgets[widgetIndex].id;
     const widgetData = {
-      id: "1",
-      chartName: `Chart (${wise})`,
+      id: id,
+      chartName: `Chart (${selectedWise})`,
       title: `${type.charAt(0).toUpperCase() + type.slice(1)} Chart`,
       type: type,
       group: "distributionComparison",
       pinned: true,
       description: `This is ${type} Chart`,
-      data: chartDataApi || [],
+      data: processedData || [],
       selectedWise,
       reportType,
-      dynamicWidth
+      dynamicWidth,
+      dynamicHeight,
+      startDate,
+      endDate,
+      inputType,
+      endpoint,
+      body,
+      method
     };
 
-    if (widgetIndex === -1) {
-      dispatch(addWidget([...savedWidgets, widgetData]));
-      localStorage.setItem("widgets", JSON.stringify([...savedWidgets, widgetData]));
-    } else {
-
-      dispatch(
-        updateWidget({
-          index: widgetIndex,
-          ...widgetData,
-        })
-      );
-      localStorage.setItem("widgets", JSON.stringify([...savedWidgets.slice(0, widgetIndex), widgetData, ...savedWidgets.slice(widgetIndex + 1)]));
+    const saveWidgetsToLocalStorage = (widgets) => {
+      localStorage.setItem("widgets", JSON.stringify(widgets));
     }
-    toast({
-      title: "Chart Saved Successfully",
-      status: "success",
-      isClosable: true,
-    });
+
+    const updatedWidgets = [...localStorageWidgets, widgetData];
+    if (widgetIndex === -1) {
+      saveWidgetsToLocalStorage(updatedWidgets);
+      dispatch(addWidget(widgetData));
+      dispatch(getAllWidgets());
+      toast({
+        title: "Chart Saved Successfully",
+        status: "success",
+        isClosable: true,
+      });
+    } else {
+      dispatch(updateWidget({ id, data: widgetData }));
+      toast({
+        title: "Chart Updated Successfully",
+        status: "success",
+        isClosable: true,
+      })
+    }
   };
 
   const handleProcessFlow = (value) => {
@@ -348,7 +325,7 @@ const ChartConfiguration = ({ configureChart }) => {
                 {error && <Alert status="error">{error?.error}</Alert>}
 
                 {!error && <ChartComponent
-                  liveData={chartDataApi}
+                  liveData={processedData}
                   startDate={startDate}
                   endDate={endDate}
                   dynamicWidth={dynamicWidth}

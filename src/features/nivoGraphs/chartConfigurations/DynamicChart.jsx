@@ -1,30 +1,29 @@
-import { Box } from "@chakra-ui/react";
 import FunnelChart from "../../dashboardNew/nivo/FunnelChart";
-import AreaBump from "../nivo/AreaBump";
-import Bar from "../nivo/Bar";
-import Bump from "../nivo/Bump";
-import HeatMap from "../nivo/HeatMap";
-import Line from "../nivo/Line";
-import Pie from "../nivo/Pie";
+import AreaBumpChart from "../chartSettings/AreaBumpChart";
+import LineChart from "../chartSettings/LineChart";
+import BumpChart from "../chartSettings/BumpChart";
+import BarChart from "../chartSettings/BarChart";
+import PieChart from "../chartSettings/PieChart";
+import HeatMapChart from "../chartSettings/HeatMapChart";
 
 const DynamicChart = ({ chart = {} }) => {
-  const { type, data } = chart;
+  const { type, data, startDate, endDate, inputType, dynamicWidth=600, dynamicHeight, skeleton= 'no' } = chart;
   let chartData = null;
 
   if (type === "bar") {
-    chartData = <Bar data={data} />;
+    chartData = <BarChart liveData={data} startDate={startDate} endDate={endDate} {...(skeleton=== 'no' && {dynamicWidth:dynamicWidth})} inputType={inputType} />;
   } else if (type === "areaBump") {
-    chartData = <AreaBump data={data} />;
+    chartData = <AreaBumpChart liveData={data} startDate={startDate} endDate={endDate} dynamicWidth={dynamicWidth} inputType={inputType} />;
   } else if (type === "pie") {
-    chartData = <Pie data={data} />;
+    chartData = <PieChart liveData={data} startDate={startDate} endDate={endDate} dynamicWidth={dynamicWidth} inputType={inputType} />;
   } else if (type === "line") {
-    chartData = <Line data={data} />;
+    chartData = <LineChart liveData={data} startDate={startDate} endDate={endDate} dynamicWidth={dynamicWidth} inputType={inputType} />;
   } else if (type === "bump") {
-    chartData = <Bump data={data} />;
+    chartData = <BumpChart liveData={data} startDate={startDate} endDate={endDate} dynamicWidth={dynamicWidth} inputType={inputType} />;
   } else if (type === "funnel") {
-    chartData = <FunnelChart data={data} />;
+    chartData = <FunnelChart liveData={data} />;
   } else if(type === "heatmap") {
-    chartData = <HeatMap data={data} />
+    chartData = <HeatMapChart liveData={data} dynamicWidth={dynamicWidth} dynamicHeight={dynamicHeight} />
   }
 
   return <>{chartData}</>;

@@ -40,7 +40,8 @@ const DashboardNew = () => {
     return (
         <>
         <Box>
-            <TestTableComp />
+            <TestComp />
+            {/* <TestTableComp /> */}
             {/* <TestProductTableComp /> */}
         </Box>
             <Box
