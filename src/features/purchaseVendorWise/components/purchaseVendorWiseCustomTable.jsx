@@ -18,6 +18,7 @@ import { useGetGlobalsearchVendorQuery } from "../slice/purchaseVendorWiseApi";
 import { useVendorWisePurchaseQuery } from "../slice/purchaseVendorWiseApi";
 import { useGetSelectedColumnsVendorQuery } from "../slice/purchaseVendorWiseApi";
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
+import {useGetCreatedbyQuery} from "../slice/purchaseVendorWiseApi";
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
@@ -63,6 +64,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const { data: searchData } = useGetGlobalsearchVendorQuery(filters, {
     skip: !searchQuery,
   });
+
 
   // api calling from drop-down data
   const { data: columnData, refetch: refetchColumnvendor } = useGetSelectedColumnsVendorQuery();

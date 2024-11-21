@@ -40,15 +40,16 @@ export const purchaseProductWiseApi = apiSlice.injectEndpoints({
         };
       },
     }),
-    //created By api 
-    getCreatedby: builder.query({
-      query: () => {
+    //export to excel date wise
+    getexportdata: builder.query({
+      query: (body) => {
         return {
-          url: "/data-createdBy",
+          url: "/purchase/download-data",
           method: "POST",
+          body: JSON.stringify(body),
         };
       },
-    }),
+    })
 
   }),
 });
@@ -58,5 +59,5 @@ export const {
   useGetSelectedColumnsPurchaseQuery,
   useGetGlobalsearchPurchaseQuery,
   useGetProductGroupQuery,
-  useGetCreatedbyQuery,
+  useGetexportdataQuery,
 } = purchaseProductWiseApi;
