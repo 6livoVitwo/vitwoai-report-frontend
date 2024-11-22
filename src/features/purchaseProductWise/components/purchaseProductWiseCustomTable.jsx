@@ -18,8 +18,7 @@ import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice
 import { useGetSelectedColumnsPurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { useGetGlobalsearchPurchaseQuery } from "../slice/purchaseProductWiseApi";
-import { useGetCreatedbyQuery } from "../slice/purchaseProductWiseApi";
-
+import { useGetexportdataQuery } from "../slice/purchaseProductWiseApi";
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
 
 const CssWrapper = styled.div`
@@ -75,6 +74,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [triggerFilter, setTriggerFilter] = useState(false);
   const [triggerSort, setTriggerSort] = useState(false);
   const [initialized, setInitialized] = useState(false);
+  const [localFiltersdate, setLocalFiltersdate] = useState(null);
+  const [triggerApiCall, setTriggerApiCall] = useState(false);
+  const [selectdate, setSelectdate] = useState([]);
+  const [filtereddateitem, setFiltereddateitem] = useState([]);
 
   const toast = useToast();
 
@@ -90,6 +93,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     { skip: !triggerFilter }
   );
 
+  // ...Export API CALL...
+  const { data: exportData } = useGetexportdataQuery(localFiltersdate || {}, { skip: !triggerApiCall });
+
+
   //Api calling for selected columns drop down
   const { data: columnData, refetch: refetchColumnData } =
     useGetSelectedColumnsPurchaseQuery();
@@ -101,6 +108,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       skip: !searchQuery,
     }
   );
+
   //API Calling sorting
   const { data: ProductData, refetch: refetchProduct } =
     useProductWisePurchaseQuery({
@@ -114,6 +122,59 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       skip: !triggerSort,
     }
     );
+
+  // function date expoet Calling for date filter
+  const handleFilter = () => {
+    handleDateSelection(dates);
+  };
+  useEffect(() => {
+    if (selectdate && selectdate.length > 0) {
+      setLocalFiltersdate({
+        data: selectedColumns,
+        groupBy: ["items.goodName"],
+        filter: [
+          {
+            column: "grnCreatedAt",
+            operator: "between",
+            type: "date",
+            value: selectdate,
+          },
+        ],
+      });
+      setTriggerApiCall(true);
+
+    }
+  }, [selectdate]);
+
+  const formattedDates = (dates) => {
+    return dates.map((date) => {
+      if (date) {
+        const adjustedDate =
+          new Date(date);
+        adjustedDate.setMinutes(
+          adjustedDate.getMinutes() -
+          adjustedDate.getTimezoneOffset()
+        );
+        const value = adjustedDate
+          .toISOString()
+          .split("T")[0];
+        return value;
+      }
+      return null;
+    });
+  }
+  const handleDateSelection = (dates) => {
+    const formatDate = formattedDates(dates);
+    setSelectdate(formatDate);
+  };
+
+  //hide the calendar
+  const handleDateChange = (e) => {
+    setDates(e.value);
+    if (e.value[0] && e.value[1]) {
+      setCalendarVisible((prevKey) => prevKey + 1);
+    }
+  };
 
 
   const tableContainerRef = useRef(null);
@@ -219,6 +280,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     newColumnsOrder.splice(result.destination.index, 0, removed);
     setSelectedColumns(newColumnsOrder);
   };
+
   const clearPriviewColumnData = () => {
     setPage(0);
   };
@@ -287,7 +349,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setTempSelectedColumns(filteredColumns);
     }
   }, [isOpen, selectedColumns, columnData]);
-
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
   useEffect(() => {
     return () => {
@@ -570,6 +631,42 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setFilters,
   ]);
 
+  useEffect(() => {
+    if (exportData) {
+      setFiltereddateitem(exportData);
+      // exportToExcelDaterange(filtereddateitem);
+    }
+  }, [exportData]);
+  console.log("export01", { filtereddateitem })
+  const exportToExcelDaterange = () => {
+    import("xlsx").then((xlsx) => {
+      console.log("Hiiiiiiiiiiiiii", filtereddateitem)
+      const formattedData = filtereddateitem?.content?.map((item) => {
+        const formattedItem = {};
+        for (const key in item) {
+          formattedItem[formatHeader(key)] = item[key];
+        }
+        return formattedItem;
+      });
+      console.log("object", formattedData);
+      const worksheet = xlsx.utils.json_to_sheet(formattedData);
+      const workbook = {
+        Sheets: { data: worksheet },
+        SheetNames: ["data"],
+      };
+      const excelBuffer = xlsx.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+      saveAs(
+        new Blob([excelBuffer], {
+          type: "application/octet-stream",
+        }),
+        "customers.xlsx"
+      );
+    });
+  };
+
   const exportToExcel = () => {
     import("xlsx").then((xlsx) => {
       const formattedData = filteredItems.map((item) => {
@@ -627,6 +724,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   //     document.body.style.transform = "scale(1)"; // Reset on unmount
   //   };
   // }, [isBodyScaled]);
+
+
+
+  // formattedDates();
 
 
   return (
@@ -958,7 +1059,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                   >
                     Select Date Range
                   </ModalHeader>
-                  <ModalCloseButton mt="5px" color="white" size="lg" />
+                  <ModalCloseButton mt="5px" color="white" size="lg"
+                    onClick={() => {
+                      setTempFilterCondition("");
+                      setTempFilterValue("");
+                      setDates([]);
+                    }}
+                  />
                   <ModalBody>
                     <Box
                       display="flex"
@@ -985,24 +1092,21 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         alignItems="center"
                       >
                         <Calendar
-                          value={startDate}
-                          onChange={(e) => setStartDate(e.value)}
-                          placeholder="Start Date"
+                          key={calendarVisible}
+                          value={dates}
+                          placeholder="Select date"
                           style={{
-                            width: "150px",
-                            padding: "5px",
+                            width: "50%",
+                            height: "35px",
+                            borderRadius: "5px",
                           }}
+                          onChange={handleDateChange}
+                          selectionMode="range"
+                          readOnlyInput
+                          hideOnRangeSelection
+                        // visible={calendarVisible}
                         />
-                        <Text>to</Text>
-                        <Calendar
-                          value={endDate}
-                          onChange={(e) => setEndDate(e.value)}
-                          placeholder="End Date"
-                          style={{
-                            width: "150px",
-                            padding: "5px",
-                          }}
-                        />
+
                       </Box>
                     </Box>
                   </ModalBody>
@@ -1017,7 +1121,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         bg: "var(--chakra-colors-mainBlue)",
                       }}
                       color="white"
-                      onClick={onCloseDownloadReportModal}
+                      onClick={() => {
+                        // setTempFilterCondition("");
+                        // setTempFilterValue("");
+                        setDates([]);
+                        onCloseDownloadReportModal();
+                      }}
                     >
                       Close
                     </Button>
@@ -1029,8 +1138,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         bg: "var(--chakra-colors-mainBlue)",
                       }}
                       color="white"
+                      onClick={() => {
+                        handleFilter();
+                        onCloseDownloadReportModal();
+                        setDates([]);
+                      }}
                     >
-                      Filter
+                      Export
                     </Button>
                   </ModalFooter>
                 </ModalContent>
@@ -1374,7 +1488,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                       </Td>
                     </Tr>
                   )}
-                   {loading && (
+                  {loading && (
                     <Tr>
                       <Td colSpan={selectedColumns.length} textAlign="center">
                         <Spinner size="lg" color="blue.500" />
@@ -1385,7 +1499,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                     </Tr>
                   )}
                 </Tbody>
-                
+
               </Table>
             )}
           </Droppable>

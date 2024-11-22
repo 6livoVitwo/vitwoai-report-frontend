@@ -17,6 +17,7 @@ import { useGetGlobalsearchPoQuery } from "../slice/purchasePoWiseApi";
 import { usePoWisePurchaseQuery } from "../slice/purchasePoWiseApi";
 import { useGetSelectedColumnsPoQuery } from "../slice/purchasePoWiseApi";
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
+import {useGetexportdataPoQuery} from "../slice/purchasePoWiseApi";
 
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [data, setData] = useState([...newArray]);
@@ -48,10 +49,22 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [triggerSort, setTriggerSort] = useState(false);
+  const [selectdate, setSelectdate] = useState([]);
+  const [triggerApiCall, setTriggerApiCall] = useState(false);
+  const [localFiltersdate, setLocalFiltersdate] = useState(null);
+  const [filtereddateitem, setFiltereddateitem] = useState([]);
+
+
+
+
 
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
   };
+
+  // ...Export API CALL...
+  const { data: exportData } = useGetexportdataPoQuery(
+    localFiltersdate || {}, { skip: !triggerApiCall });
 
   // Advance Filter Api Calling
   const { data: PoWiseDataFilter, refetch: refetchPoWiseDataFilter } =
@@ -147,6 +160,58 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     refetchPoWiseDataFilter();
   };
 
+  // function date expoet Calling for date filter
+  const handleFilter = () => {
+    handleDateSelection(dates);
+  };
+  useEffect(() => {
+    if (selectdate && selectdate.length > 0) {
+      setLocalFiltersdate({
+        data: selectedColumns,
+        groupBy: ["grnInvoice.grnPoNumber"],
+        filter: [
+          {
+            column: "grnCreatedAt",
+            operator: "between",
+            type: "date",
+            value: selectdate,
+          },
+        ],
+      });
+      setTriggerApiCall(true);
+
+    }
+  }, [selectdate]);
+
+  const formattedDates = (dates) => {
+    return dates.map((date) => {
+      if (date) {
+        const adjustedDate =
+          new Date(date);
+        adjustedDate.setMinutes(
+          adjustedDate.getMinutes() -
+          adjustedDate.getTimezoneOffset()
+        );
+        const value = adjustedDate
+          .toISOString()
+          .split("T")[0];
+        return value;
+      }
+      return null;
+    });
+  }
+  const handleDateSelection = (dates) => {
+    const formatDate = formattedDates(dates);
+    setSelectdate(formatDate);
+  };
+  //hide the calendar
+  const handleDateChange = (e) => {
+    setDates(e.value);
+    if (e.value[0] && e.value[1]) {
+      setCalendarVisible((prevKey) => prevKey + 1);
+    }
+  };
+
   //sort asc desc
   const handleSort = (column) => {
     const newSortOrder =
@@ -171,7 +236,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   useEffect(() => {
-    if(!initialized && data.length > 0){
+    if (!initialized && data.length > 0) {
       const initialColumns = getColumns(data)
         .slice(0, 8)
         .map((column) => column.field);
@@ -398,7 +463,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       loadMoreData(); // Load more data when scrolled to the bottom
     }
   };
-  
+
   useEffect(() => {
     const container = tableContainerRef.current;
     if (container) {
@@ -495,13 +560,20 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
     }
   };
+  useEffect(() => {
+    if (exportData) {
+      setFiltereddateitem(exportData);
+      // exportToExcelDaterange(exportData);
+    }
+  }, [exportData]);
+  console.log("export01", { filtereddateitem })
 
   const exportToExcel = () => {
     import("xlsx").then((xlsx) => {
       const formattedData = filteredItems.map((item) => {
         const formattedItem = {};
-        for (const key in item){
-          formattedItem[formatHeader(key)]=item[key];
+        for (const key in item) {
+          formattedItem[formatHeader(key)] = item[key];
         }
         return formattedItem;
       })
@@ -733,24 +805,21 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         padding="5px"
                         alignItems="center">
                         <Calendar
-                          value={startDate}
-                          onChange={(e) => setStartDate(e.value)}
-                          placeholder="Start Date"
+                          key={calendarVisible}
+                          value={dates}
+                          placeholder="Select date"
                           style={{
-                            width: "150px",
-                            padding: "5px",
+                            width: "50%",
+                            height: "35px",
+                            borderRadius: "5px",
                           }}
+                          onChange={handleDateChange}
+                          selectionMode="range"
+                          readOnlyInput
+                          hideOnRangeSelection
+                        // visible={calendarVisible}
                         />
-                        <Text>to</Text>
-                        <Calendar
-                          value={endDate}
-                          onChange={(e) => setEndDate(e.value)}
-                          placeholder="End Date"
-                          style={{
-                            width: "150px",
-                            padding: "5px",
-                          }}
-                        />
+
                       </Box>
                     </Box>
                   </ModalBody>
@@ -774,6 +843,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                       bg="var(--chakra-colors-mainBlue)"
                       _hover={{
                         bg: "var(--chakra-colors-mainBlue)",
+                      }}
+                      onClick={() => {
+                        handleFilter();
+                        onCloseDownloadReportModal();
+                        setDates([]);
                       }}
                       color="white">
                       Filter
