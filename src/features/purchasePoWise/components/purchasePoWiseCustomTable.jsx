@@ -17,7 +17,7 @@ import { useGetGlobalsearchPoQuery } from "../slice/purchasePoWiseApi";
 import { usePoWisePurchaseQuery } from "../slice/purchasePoWiseApi";
 import { useGetSelectedColumnsPoQuery } from "../slice/purchasePoWiseApi";
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
-import {useGetexportdataPoQuery} from "../slice/purchasePoWiseApi";
+import { useGetexportdataPoQuery } from "../slice/purchasePoWiseApi";
 
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [data, setData] = useState([...newArray]);
@@ -563,10 +563,39 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   useEffect(() => {
     if (exportData) {
       setFiltereddateitem(exportData);
-      // exportToExcelDaterange(exportData);
+      ExportToExcelDaterange(exportData);
     }
   }, [exportData]);
   console.log("export01", { filtereddateitem })
+
+  const ExportToExcelDaterange = (data) => {
+    console.log("object", data);
+    import("xlsx").then((xlsx) => {
+      const formattedData = data?.content?.map((item) => {
+        const formattedItem = {};
+        for (const key in item) {
+          formattedItem[formatHeader(key)] = item[key];
+        }
+        return formattedItem;
+      })
+      const worksheet = xlsx.utils.json_to_sheet(formattedData);
+      const workbook = {
+        Sheets: { data: worksheet },
+        SheetNames: ["data"],
+      };
+      const excelBuffer = xlsx.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+      saveAs(
+        new Blob([excelBuffer], {
+          type: "application/octet-stream",
+        }),
+        "customers.xlsx"
+      );
+    });
+  };
+
 
   const exportToExcel = () => {
     import("xlsx").then((xlsx) => {

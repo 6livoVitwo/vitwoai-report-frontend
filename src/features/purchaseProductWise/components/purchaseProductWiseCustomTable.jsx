@@ -77,7 +77,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [localFiltersdate, setLocalFiltersdate] = useState(null);
   const [triggerApiCall, setTriggerApiCall] = useState(false);
   const [selectdate, setSelectdate] = useState([]);
-  const [filtereddateitem, setFiltereddateitem] = useState([]);
 
   const toast = useToast();
 
@@ -633,15 +632,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   useEffect(() => {
     if (exportData) {
-      setFiltereddateitem(exportData);
-      // exportToExcelDaterange(filtereddateitem);
+      exportToExcelDaterange(exportData);
     }
   }, [exportData]);
-  console.log("export01", { filtereddateitem })
-  const exportToExcelDaterange = () => {
+
+  const exportToExcelDaterange = (data) => {
     import("xlsx").then((xlsx) => {
-      console.log("Hiiiiiiiiiiiiii", filtereddateitem)
-      const formattedData = filtereddateitem?.content?.map((item) => {
+      const formattedData = data?.content?.map((item) => {
         const formattedItem = {};
         for (const key in item) {
           formattedItem[formatHeader(key)] = item[key];
