@@ -168,6 +168,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSelectdate(formatDate);
   };
 
+  //hide the calendar
+  const handleDateChange = (e) => {
+    setDates(e.value);
+    if (e.value[0] && e.value[1]) {
+      setCalendarVisible((prevKey) => prevKey + 1);
+    }
+  };
+
 
   const tableContainerRef = useRef(null);
 
@@ -624,22 +632,23 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   ]);
 
   useEffect(() => {
-    if ( exportData) {
+    if (exportData) {
       setFiltereddateitem(exportData);
-      exportToExcelDaterange(exportData);
+      // exportToExcelDaterange(filtereddateitem);
     }
   }, [exportData]);
-  console.log("export01",{filtereddateitem})
-
+  console.log("export01", { filtereddateitem })
   const exportToExcelDaterange = () => {
     import("xlsx").then((xlsx) => {
-      const formattedData = filteredItems.map((item) => {
+      console.log("Hiiiiiiiiiiiiii", filtereddateitem)
+      const formattedData = filtereddateitem?.content?.map((item) => {
         const formattedItem = {};
         for (const key in item) {
           formattedItem[formatHeader(key)] = item[key];
         }
         return formattedItem;
       });
+      console.log("object", formattedData);
       const worksheet = xlsx.utils.json_to_sheet(formattedData);
       const workbook = {
         Sheets: { data: worksheet },
@@ -1083,6 +1092,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         alignItems="center"
                       >
                         <Calendar
+                          key={calendarVisible}
                           value={dates}
                           placeholder="Select date"
                           style={{
@@ -1090,11 +1100,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                             height: "35px",
                             borderRadius: "5px",
                           }}
-                          onChange={(e) => setDates(e.value)}
+                          onChange={handleDateChange}
                           selectionMode="range"
                           readOnlyInput
                           hideOnRangeSelection
-                          visible={calendarVisible}
+                        // visible={calendarVisible}
                         />
 
                       </Box>
@@ -1111,7 +1121,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         bg: "var(--chakra-colors-mainBlue)",
                       }}
                       color="white"
-                      // onClick={onCloseDownloadReportModal}
                       onClick={() => {
                         // setTempFilterCondition("");
                         // setTempFilterValue("");
@@ -1129,9 +1138,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         bg: "var(--chakra-colors-mainBlue)",
                       }}
                       color="white"
-                      onClick={handleFilter}
+                      onClick={() => {
+                        handleFilter();
+                        onCloseDownloadReportModal();
+                        setDates([]);
+                      }}
                     >
-                      Filter
+                      Export
                     </Button>
                   </ModalFooter>
                 </ModalContent>

@@ -33,6 +33,16 @@ export const purchasePoWiseApi = apiSlice.injectEndpoints({
         };
       },
     }),
+    //export to excel date wise
+    getexportdataPo: builder.query({
+      query: (body) => {
+        return {
+          url: "/purchase/download-data",
+          method: "POST",
+          body: JSON.stringify(body),
+        };
+      },
+    })
   }),
 });
 
@@ -40,4 +50,5 @@ export const {
   usePoWisePurchaseQuery,
   useGetGlobalsearchPoQuery,
   useGetSelectedColumnsPoQuery,
+  useGetexportdataPoQuery,
 } = purchasePoWiseApi;
