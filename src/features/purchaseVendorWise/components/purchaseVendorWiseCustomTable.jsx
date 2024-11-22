@@ -347,6 +347,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             value: selectdate,
           },
         ],
+        timestamp: new Date().getTime(),
       });
       setTriggerApiCall(true);
 

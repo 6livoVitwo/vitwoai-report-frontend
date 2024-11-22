@@ -348,6 +348,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             value: selectdate,
           },
         ],
+        timestamp: new Date().getTime(),
       });
       setTriggerApiCall(true);
 
@@ -889,7 +890,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         setDates([]);
                       }}
                     >
-                      Filter
+                      Export
                     </Button>
                   </ModalFooter>
                 </ModalContent>
