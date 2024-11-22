@@ -169,10 +169,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   //hide the calendar
   const handleDateChange = (e) => {
-    setDates(e.value);
     if (e.value[0] && e.value[1]) {
       setCalendarVisible((prevKey) => prevKey + 1);
     }
+    // const differenceInYears = Math.abs(new Date(e.value[1]) - new Date(e.value[0])) / (1000 * 60 * 60 * 24 * 365);
+
+    // if (differenceInYears > 1) {
+    //   alert("You cannot select a date range exceeding 1 year.");
+    //   return; // Ignore the change
+    // }
+    setDates(e.value);
   };
 
 
@@ -1102,7 +1108,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                           selectionMode="range"
                           readOnlyInput
                           hideOnRangeSelection
-                        // visible={calendarVisible}
                         />
 
                       </Box>
