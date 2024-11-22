@@ -4,7 +4,6 @@ import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
-import { useGetCreatedbyQuery } from "../slice/purchaseProductWiseApi";
 import Loader from "../../analyticloader/components/Loader";
 
 const PurchaseProductWiseTableView = () => {
@@ -13,7 +12,6 @@ const PurchaseProductWiseTableView = () => {
   const [size, setSize] = useState(50);
   const [toastShown, setToastShown] = useState(false);
   const [individualItems, setIndividualItems] = useState([]);
-  const [grnCreatedByData, setGrnCreatedByData] = useState([]);
 
   const [filters, setFilters] = useState(
     {
