@@ -77,6 +77,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [localFiltersdate, setLocalFiltersdate] = useState(null);
   const [triggerApiCall, setTriggerApiCall] = useState(false);
   const [selectdate, setSelectdate] = useState([]);
+  const [isDatesInvalid, setIsDatesInvalid] = useState(false);
+
 
   const toast = useToast();
 
@@ -124,14 +126,37 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   // function date expoet Calling for date filter
   const handleFilter = () => {
+    if (!dates || dates.length === 0) {
+      setIsDatesInvalid(true);
+      return;
+    }
+    setIsDatesInvalid(false);
     handleDateSelection(dates);
+
   };
   useEffect(() => {
     if (selectdate && selectdate.length > 0) {
       const [startDate, endDate] = selectdate;
       const oneYearInMillis = 365 * 24 * 60 * 60 * 1000;
       if (new Date(endDate) - new Date(startDate) > oneYearInMillis) {
-        alert("Selected date range exceeds one year. Please choose a valid range.");
+        toast({
+          title: "No More Data",
+          description: "You have reached the end of the list.",
+          status: "warning",
+          isClosable: true,
+          duration: 4000,
+          render: () => (
+            <Box
+              p={3}
+              bg="orange.300"
+              borderRadius="md"
+              style={{ width: "300px", height: "80px" }}
+            >
+              <Box fontWeight="bold">Please choose a valid range</Box>
+              <Box>Selected date range exceeds one year. Please choose a valid range.</Box>
+            </Box>
+          ),
+        });
         return;
       }
       setLocalFiltersdate({
@@ -180,6 +205,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     }
 
     setDates(e.value);
+    setIsDatesInvalid(false);
   };
 
 
@@ -1104,6 +1130,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                             width: "50%",
                             height: "35px",
                             borderRadius: "5px",
+                            border: isDatesInvalid ? "2px solid red" : "1px solid #ccc",
                           }}
                           onChange={handleDateChange}
                           selectionMode="range"
@@ -1144,7 +1171,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                       color="white"
                       onClick={() => {
                         handleFilter();
-                        onCloseDownloadReportModal();
+                        // onCloseDownloadReportModal();
                         setDates();
                       }}
                     >
