@@ -333,6 +333,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   // function date expoet Calling for date filter
   const handleFilter = () => {
     handleDateSelection(dates);
+    
   };
   useEffect(() => {
     if (selectdate && selectdate.length > 0) {

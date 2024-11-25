@@ -1153,10 +1153,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                       }}
                       color="white"
                       onClick={() => {
-                        // setTempFilterCondition("");
-                        // setTempFilterValue("");
-                        setDates();
                         onCloseDownloadReportModal();
+                        setDates();
                       }}
                     >
                       Close
