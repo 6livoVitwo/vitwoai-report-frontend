@@ -17,6 +17,8 @@ const SalesVerticalWiseTableView = () => {
     {
       data: [
         "invoice_date",
+        "invoice_no",
+        "SUM(due_amount)",
         "companyFunction.functionalities_name",
         "SUM(quotation.totalAmount)",
         "SUM(salesOrder.totalAmount)",
@@ -156,7 +158,7 @@ const SalesVerticalWiseTableView = () => {
       </Box>
     );
   }
-   const mainData = sales?.content;
+  const mainData = sales?.content;
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
       {individualItems.length > 0 && (
