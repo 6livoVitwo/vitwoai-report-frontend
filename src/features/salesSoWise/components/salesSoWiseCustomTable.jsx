@@ -867,7 +867,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                       color="white"
                       onClick={() => {
                         onCloseDownloadReportModal();
-                        setDates([]);
+                        setDates();
                       }}
                     >
                       Close
@@ -883,7 +883,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                       onClick={() => {
                         handleFilter();
                         onCloseDownloadReportModal();
-                        setDates([]);
+                        setDates();
                       }}
                     >
                       Export

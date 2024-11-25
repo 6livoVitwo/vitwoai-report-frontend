@@ -128,6 +128,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
   useEffect(() => {
     if (selectdate && selectdate.length > 0) {
+      const [startDate, endDate] = selectdate;
+      const oneYearInMillis = 365 * 24 * 60 * 60 * 1000;
+      if (new Date(endDate) - new Date(startDate) > oneYearInMillis) {
+        alert("Selected date range exceeds one year. Please choose a valid range.");
+        return;
+      }
       setLocalFiltersdate({
         data: selectedColumns,
         groupBy: ["items.goodName"],
@@ -172,12 +178,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     if (e.value[0] && e.value[1]) {
       setCalendarVisible((prevKey) => prevKey + 1);
     }
-    // const differenceInYears = Math.abs(new Date(e.value[1]) - new Date(e.value[0])) / (1000 * 60 * 60 * 24 * 365);
 
-    // if (differenceInYears > 1) {
-    //   alert("You cannot select a date range exceeding 1 year.");
-    //   return; // Ignore the change
-    // }
     setDates(e.value);
   };
 
@@ -642,7 +643,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     }
   }, [exportData]);
 
-  
   const exportToExcelDaterange = (data) => {
     import("xlsx").then((xlsx) => {
       const formattedData = data?.content?.map((item) => {
@@ -1068,7 +1068,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                     onClick={() => {
                       setTempFilterCondition("");
                       setTempFilterValue("");
-                      setDates([]);
+                      setDates();
                     }}
                   />
                   <ModalBody>
@@ -1128,7 +1128,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                       onClick={() => {
                         // setTempFilterCondition("");
                         // setTempFilterValue("");
-                        setDates([]);
+                        setDates();
                         onCloseDownloadReportModal();
                       }}
                     >
@@ -1145,7 +1145,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                       onClick={() => {
                         handleFilter();
                         onCloseDownloadReportModal();
-                        setDates([]);
+                        setDates();
                       }}
                     >
                       Export
@@ -1281,7 +1281,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                       onClick={() => {
                                         setTempFilterCondition("");
                                         setTempFilterValue("");
-                                        setDates([]);
+                                        setDates();
                                       }}
                                     />
                                     <PopoverBody h="auto" maxH="300px">

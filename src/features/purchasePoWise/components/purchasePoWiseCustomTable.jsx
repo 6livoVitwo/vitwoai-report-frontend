@@ -864,7 +864,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         bg: "var(--chakra-colors-mainBlue)",
                       }}
                       color="white"
-                      onClick={onCloseDownloadReportModal}>
+                      onClick={()=>{onCloseDownloadReportModal();
+                      setDates()
+                      }}>
                       Close
                     </Button>
                     <Button
@@ -877,7 +879,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                       onClick={() => {
                         handleFilter();
                         onCloseDownloadReportModal();
-                        setDates([]);
+                        setDates();
                       }}
                       color="white">
                       Export
