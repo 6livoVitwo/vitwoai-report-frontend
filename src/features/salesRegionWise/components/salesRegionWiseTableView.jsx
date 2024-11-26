@@ -150,7 +150,7 @@ const SalesRegionWiseTableView = () => {
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
       {individualItems.length > 0 && (
         <CustomTable
-          newArray={individualItems}
+          newArray={mainData}
           page={page}
           setPage={setPage}
           isFetching={isFetching}
@@ -158,8 +158,6 @@ const SalesRegionWiseTableView = () => {
           setSize={setSize}
           filters={filters}
           setFilters={setFilters}
-          sortBy="kam.kamName"
-          sortDir="asc"
           alignment={{
             "SO Total Amount": "right",
             "SD Total Amount": "right",
