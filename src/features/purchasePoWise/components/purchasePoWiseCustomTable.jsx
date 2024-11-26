@@ -36,7 +36,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [sortColumn, setSortColumn] = useState("grnInvoice.grnPoNumber");
   const [sortOrder, setSortOrder] = useState("asc");
   const [initialized, setInitialized] = useState(false);
-
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
@@ -44,7 +43,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const dispatch = useDispatch();
   const [dates, setDates] = useState(null);
-
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [triggerSort, setTriggerSort] = useState(false);
@@ -52,6 +50,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [triggerApiCall, setTriggerApiCall] = useState(false);
   const [localFiltersdate, setLocalFiltersdate] = useState(null);
   const [filtereddateitem, setFiltereddateitem] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
 
 
 
@@ -78,6 +77,20 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   // api calling from drop-down data
   const { data: columnData, refetch: refetchColumnDatapo } = useGetSelectedColumnsPoQuery();
+
+  //API Calling sorting
+  const { data: ProductData, refetch: refetchProduct } =
+    usePoWisePurchaseQuery({
+      filters: {
+        ...filters,
+        sortBy: sortColumn,
+        sortDir: sortOrder,
+      },
+      page: currentPage,
+    }, {
+      skip: !triggerSort,
+    }
+    );
 
   const toast = useToast();
   const tableContainerRef = useRef(null);

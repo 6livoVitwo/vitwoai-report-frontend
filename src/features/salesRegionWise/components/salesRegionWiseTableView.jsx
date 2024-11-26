@@ -150,7 +150,7 @@ const SalesRegionWiseTableView = () => {
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
       {individualItems.length > 0 && (
         <CustomTable
-          newArray={mainData}
+          newArray={individualItems}
           page={page}
           setPage={setPage}
           isFetching={isFetching}
