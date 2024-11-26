@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { Box, Button, useDisclosure, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Checkbox, Input, Text, Select, useToast, Menu, MenuButton, MenuList, MenuItem, Popover, PopoverTrigger, PopoverContent, PopoverHeader, PopoverBody, PopoverArrow, PopoverCloseButton, Tooltip, Heading } from "@chakra-ui/react";
+import { Box, Button, useDisclosure, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Checkbox, Input, Text, Select, useToast, Menu, MenuButton, MenuList, MenuItem, Popover, PopoverTrigger, PopoverContent, PopoverHeader, PopoverBody, PopoverArrow, PopoverCloseButton, Tooltip, Heading, Spinner } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -17,6 +17,7 @@ import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice
 import { useGetSelectedColumnsPurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { useGetGlobalsearchPurchaseQuery } from "../slice/purchaseProductWiseApi";
+import { useGetexportdataQuery } from "../slice/purchaseProductWiseApi";
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
 
 const CssWrapper = styled.div`
@@ -57,7 +58,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const [columns, setColumns] = useState([]);
-  const [sortColumn, setSortColumn] = useState("items.goodName");
+  const [sortColumn, setSortColumn] = useState(" ");
   const [sortOrder, setSortOrder] = useState("asc");
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
   const [filtersApplied, setFiltersApplied] = useState(false);
@@ -69,6 +70,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [triggerFilter, setTriggerFilter] = useState(false);
   const [triggerSort, setTriggerSort] = useState(false);
+  const [initialized, setInitialized] = useState(false);
+  const [localFiltersdate, setLocalFiltersdate] = useState(null);
+  const [triggerApiCall, setTriggerApiCall] = useState(false);
+  const [selectdate, setSelectdate] = useState([]);
+  const [isDatesInvalid, setIsDatesInvalid] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+
+
+  const toast = useToast();
+
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
   };
@@ -80,6 +91,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     { filters: localFilters },
     { skip: !triggerFilter }
   );
+
+  // ...Export API CALL...
+  const { data: exportData } = useGetexportdataQuery(localFiltersdate || {}, { skip: !triggerApiCall });
+
 
   //Api calling for selected columns drop down
   const { data: columnData, refetch: refetchColumnData } =
@@ -93,7 +108,104 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     }
   );
 
-  const toast = useToast();
+  //API Calling sorting
+  const { data: ProductData, refetch: refetchProduct } =
+    useProductWisePurchaseQuery({
+      filters: {
+        ...filters,
+        sortBy: sortColumn,
+        sortDir: sortOrder,
+      },
+      page: currentPage,
+    }, {
+      skip: !triggerSort,
+    }
+    );
+
+  // function date expoet Calling for date filter
+  const handleFilter = () => {
+    if (!dates || dates.length === 0) {
+      setIsDatesInvalid(true);
+      return;
+    }
+    setIsDatesInvalid(false);
+    handleDateSelection(dates);
+
+  };
+  useEffect(() => {
+    if (selectdate && selectdate.length > 0) {
+      const [startDate, endDate] = selectdate;
+      const oneYearInMillis = 365 * 24 * 60 * 60 * 1000;
+      if (new Date(endDate) - new Date(startDate) > oneYearInMillis) {
+        toast({
+          title: "No More Data",
+          description: "You have reached the end of the list.",
+          status: "warning",
+          isClosable: true,
+          duration: 4000,
+          render: () => (
+            <Box
+              p={3}
+              bg="orange.300"
+              borderRadius="md"
+              style={{ width: "300px", height: "80px" }}
+            >
+              <Box fontWeight="bold">Please choose a valid range</Box>
+              <Box>Selected date range exceeds one year. Please choose a valid range.</Box>
+            </Box>
+          ),
+        });
+        return;
+      }
+      setLocalFiltersdate({
+        data: selectedColumns,
+        groupBy: ["items.goodName"],
+        filter: [
+          {
+            column: "grnCreatedAt",
+            operator: "between",
+            type: "date",
+            value: selectdate,
+          },
+        ],
+        timestamp: new Date().getTime(),
+      });
+      setTriggerApiCall(true);
+    }
+  }, [selectdate]);
+
+  const formattedDates = (dates) => {
+    return dates.map((date) => {
+      if (date) {
+        const adjustedDate =
+          new Date(date);
+        adjustedDate.setMinutes(
+          adjustedDate.getMinutes() -
+          adjustedDate.getTimezoneOffset()
+        );
+        const value = adjustedDate
+          .toISOString()
+          .split("T")[0];
+        return value;
+      }
+      return null;
+    });
+  }
+  const handleDateSelection = (dates) => {
+    const formatDate = formattedDates(dates);
+    setSelectdate(formatDate);
+  };
+
+  //hide the calendar
+  const handleDateChange = (e) => {
+    if (e.value[0] && e.value[1]) {
+      setCalendarVisible((prevKey) => prevKey + 1);
+    }
+
+    setDates(e.value);
+    setIsDatesInvalid(false);
+  };
+
 
   const tableContainerRef = useRef(null);
 
@@ -140,6 +252,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   //sort asc desc
+
   const handleSort = (column) => {
     const newSortOrder =
       sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
@@ -150,6 +263,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const loadMoreData = async () => {
     if (!loading) {
       setLoading(true);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       const moreData = [...newArray];
       setData((prevData) => {
         const uniqueData = [...new Set([...prevData, ...moreData])];
@@ -161,12 +275,17 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   useEffect(() => {
-    const initialColumns = getColumns(data)
-      .slice(0, 8)
-      .map((column) => column.field);
-    setDefaultColumns(initialColumns);
-    setSelectedColumns(initialColumns);
-  }, [data]);
+    if (!initialized && data.length > 0) {
+      const initialColumns = getColumns(data)
+        .slice(0, 8)
+        .map((column) => column.field);
+
+      setDefaultColumns(initialColumns);
+      setSelectedColumns(initialColumns);
+      setTempSelectedColumns(initialColumns);
+      setInitialized(true);
+    }
+  }, [data, initialized]);
 
   const getColumns = useCallback((data) => {
     if (!data || data.length === 0) {
@@ -184,10 +303,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       return;
     }
     const newColumnsOrder = Array.from(selectedColumns);
+
     const [removed] = newColumnsOrder.splice(result.source.index, 1);
     newColumnsOrder.splice(result.destination.index, 0, removed);
     setSelectedColumns(newColumnsOrder);
   };
+
   const clearPriviewColumnData = () => {
     setPage(0);
   };
@@ -200,6 +321,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         : [...prev, field]
     );
   };
+
   const handleSelectAllToggle = () => {
     const allColumns = columnData
       ? Object.keys(columnData?.content[0] || {}).map((key) => ({
@@ -218,8 +340,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   const handleModalClose = () => {
     setTempSelectedColumns(selectedColumns);
+    setIsBodyScaled(false);
     onClose();
   };
+
   const handleApplyChanges = () => {
     const updatedSelectedColumns = Array.from(
       new Set(
@@ -253,7 +377,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setTempSelectedColumns(filteredColumns);
     }
   }, [isOpen, selectedColumns, columnData]);
-
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
   useEffect(() => {
     return () => {
@@ -288,6 +411,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setFilters(updatedFilters);
     setSearchQuery(inputValue);
   };
+
+
   const FiltersTrigger = () => {
     setSortColumn("");
   };
@@ -344,7 +469,40 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       filteredData = productDataFilter.content;
     }
     setTableData(filteredData);
-  }, [newArray, searchData, sortColumn, sortOrder, productDataFilter]);
+    return filteredData;
+
+  }, [
+    newArray,
+    searchData,
+    sortColumn,
+    sortOrder,
+    productDataFilter,
+  ]);
+  useEffect(() => {
+    if (productDataFilter?.content && productDataFilter.content.length === 0) {
+      toast({
+        title: " No Results Found ",
+        description: "You search did not match any data.",
+        status: "warning",
+        isClosable: true,
+        duration: 4000,
+        render: () => (
+          <Box
+            p={3}
+            bg="orange.300"
+            borderRadius="md"
+            style={{ width: "300px", height: "70px" }}
+          >
+            <Box fontWeight="bold">No Results Found</Box>
+            <Box>You search did not match any data.</Box>
+          </Box>
+        ),
+      });
+      setLastPage(true);
+    }
+  }, [productDataFilter, toast]);
+
+
 
   const formatHeader = (column) => {
     if (columnData && columnData.content) {
@@ -361,7 +519,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   // ...Handle scroll...
   let previousScrollLeft = 0;
   const handleScroll = () => {
-    const { scrollTop, scrollHeight, clientHeight, scrollLeft, clientWidth } =
+    const { scrollTop, scrollHeight, clientHeight, scrollLeft } =
       tableContainerRef.current;
     if (scrollLeft !== previousScrollLeft) {
       previousScrollLeft = scrollLeft;
@@ -374,12 +532,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   useEffect(() => {
     const container = tableContainerRef.current;
     if (container) {
-      const debouncedHandleScroll = debounce(handleScroll, 5);
+      const debouncedHandleScroll = debounce(handleScroll, 200);
       container.addEventListener("scroll", debouncedHandleScroll);
       return () =>
         container.removeEventListener("scroll", debouncedHandleScroll);
     }
-  }, [loading, lastPage]);
+  }, [loading, tableData]);
 
   //function for filter
   const handleTempFilterConditionChange = (e) => {
@@ -490,9 +648,23 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setTriggerFilter(true);
   }, [activeFilterColumn, handleApplyFiltersSUM, handleApplyFilters]);
 
-  const exportToExcel = () => {
+  useEffect(() => {
+    if (exportData) {
+      exportToExcelDaterange(exportData);
+    }
+  }, [exportData]);
+
+  const exportToExcelDaterange = (data) => {
     import("xlsx").then((xlsx) => {
-      const worksheet = xlsx.utils.json_to_sheet(filteredItems);
+      const formattedData = data?.content?.map((item) => {
+        const formattedItem = {};
+        for (const key in item) {
+          formattedItem[formatHeader(key)] = item[key];
+        }
+        return formattedItem;
+      });
+      // console.log("object", formattedData);
+      const worksheet = xlsx.utils.json_to_sheet(formattedData);
       const workbook = {
         Sheets: { data: worksheet },
         SheetNames: ["data"],
@@ -510,6 +682,40 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     });
   };
 
+
+  const exportToExcel = () => {
+    import("xlsx").then((xlsx) => {
+      const formattedData = filteredItems.map((item) => {
+        const formattedItem = {};
+        for (const key in item) {
+          formattedItem[formatHeader(key)] = item[key];
+        }
+        return formattedItem;
+      });
+      const worksheet = xlsx.utils.json_to_sheet(formattedData);
+      const workbook = {
+        Sheets: { data: worksheet },
+        SheetNames: ["data"],
+      };
+      const excelBuffer = xlsx.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+      saveAs(
+        new Blob([excelBuffer], {
+          type: "application/octet-stream",
+        }),
+        "customers.xlsx"
+      );
+    });
+  };
+
+  const handleOpenColumnModal = () => {
+    setIsBodyScaled(true);
+    onOpen();
+  };
+
+
   const handleGraphAddDrawer = () => {
     setIsBodyScaled(true);
     onOpenGraphAddDrawer();
@@ -520,6 +726,25 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       })
     );
   };
+
+
+  const handleDrawerClose = () => {
+    setIsBodyScaled(false);
+    onCloseGraphAddDrawer();
+  };
+
+  //  useEffect(() => {
+  //   document.body.style.transition = "transform 0.3s ease-in-out";
+  //   document.body.style.transform = isBodyScaled ? "scale(0.98)" : "scale(1)";
+  //   return () => {
+  //     document.body.style.transform = "scale(1)"; // Reset on unmount
+  //   };
+  // }, [isBodyScaled]);
+
+
+
+  // formattedDates();
+
 
   return (
     <Box bg="white">
@@ -764,7 +989,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             borderRadius="7px"
           >
             <Button
-              onClick={onOpen}
+              onClick={handleOpenColumnModal}
               fontSize="0.9rem"
               height="30px"
               color="mainBlue"
@@ -850,7 +1075,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                   >
                     Select Date Range
                   </ModalHeader>
-                  <ModalCloseButton mt="5px" color="white" size="lg" />
+                  <ModalCloseButton mt="5px" color="white" size="lg"
+                    onClick={() => {
+                      setTempFilterCondition("");
+                      setTempFilterValue("");
+                      setDates();
+                    }}
+                  />
                   <ModalBody>
                     <Box
                       display="flex"
@@ -877,24 +1108,21 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         alignItems="center"
                       >
                         <Calendar
-                          value={startDate}
-                          onChange={(e) => setStartDate(e.value)}
-                          placeholder="Start Date"
+                          key={calendarVisible}
+                          value={dates}
+                          placeholder="Select date"
                           style={{
-                            width: "150px",
-                            padding: "5px",
+                            width: "50%",
+                            height: "35px",
+                            borderRadius: "5px",
+                            border: isDatesInvalid ? "2px solid red" : "1px solid #ccc",
                           }}
+                          onChange={handleDateChange}
+                          selectionMode="range"
+                          readOnlyInput
+                          hideOnRangeSelection
                         />
-                        <Text>to</Text>
-                        <Calendar
-                          value={endDate}
-                          onChange={(e) => setEndDate(e.value)}
-                          placeholder="End Date"
-                          style={{
-                            width: "150px",
-                            padding: "5px",
-                          }}
-                        />
+
                       </Box>
                     </Box>
                   </ModalBody>
@@ -909,7 +1137,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         bg: "var(--chakra-colors-mainBlue)",
                       }}
                       color="white"
-                      onClick={onCloseDownloadReportModal}
+                      onClick={() => {
+                        onCloseDownloadReportModal();
+                        setDates();
+                      }}
                     >
                       Close
                     </Button>
@@ -921,8 +1152,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         bg: "var(--chakra-colors-mainBlue)",
                       }}
                       color="white"
+                      onClick={() => {
+                        handleFilter();
+                        // onCloseDownloadReportModal();
+                        setDates();
+                      }}
                     >
-                      Filter
+                      Export
                     </Button>
                   </ModalFooter>
                 </ModalContent>
@@ -936,7 +1172,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
       <TableContainer
         ref={tableContainerRef}
-        className={`table-tableContainerRef ${isOpenGraphAddDrawer ? 'table-tableContainerRef-scaled' : ''}`}
+        className={`table-tableContainerRef ${isBodyScaled ? 'table-tableContainerRef-scaled' : ''}`}
         overflowY="auto"
         margin="0 auto"
         height="calc(100vh - 130px)"
@@ -981,39 +1217,29 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                             {formatHeader(column)}
 
                             {/* A-Z Filter  */}
-                            {column !== "SL No" &&
-                              !column.toLowerCase().includes("sum") && (
-                                <Button
-                                  className="A_to_Z"
-                                  bg="none"
-                                  _hover={{ bg: "none" }}
-                                  onClick={() => handleSort(column)}
-                                  ref={sortButtonRef}
-                                  position="relative"
-                                  top="-2px"
-                                  fontSize="1.2rem"
-                                  color="#003060"
-                                  marginLeft="10px"
-                                >
-                                  {sortColumn === column ? (
-                                    sortOrder === "asc" ? (
-                                      <FontAwesomeIcon
-                                        icon={faArrowDownShortWide}
-                                      />
-                                    ) : (
-                                      <FontAwesomeIcon
-                                        icon={faArrowUpWideShort}
-                                      />
-                                    )
-                                  ) : (
+                            {column !== "SL No" && !column.toLowerCase().includes("sum") && (
+                              <Button
+                                className="A_to_Z"
+                                bg="none"
+                                _hover={{ bg: "none" }}
+                                onClick={() => handleSort(column)}>
+                                {sortColumn === column ? (
+                                  sortOrder === "asc" ? (
                                     <FontAwesomeIcon
-                                      icon={faArrowRightArrowLeft}
-                                      rotation={90}
-                                      fontSize="13px"
+                                      icon={faArrowDownShortWide}
                                     />
-                                  )}
-                                </Button>
-                              )}
+                                  ) : (
+                                    <FontAwesomeIcon icon={faArrowUpWideShort} />
+                                  )
+                                ) : (
+                                  <FontAwesomeIcon
+                                    icon={faArrowRightArrowLeft}
+                                    rotation={90}
+                                    fontSize="13px"
+                                  />
+                                )}
+                              </Button>
+                            )}
                             {column !== "SL No" && (
                               <Popover
                                 isOpen={activeFilterColumn === column}
@@ -1065,7 +1291,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                       onClick={() => {
                                         setTempFilterCondition("");
                                         setTempFilterValue("");
-                                        setDates([]);
+                                        setDates();
                                       }}
                                     />
                                     <PopoverBody h="auto" maxH="300px">
@@ -1233,7 +1459,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                     ))}
                   </Tr>
                 </Thead>
-
                 <Tbody>
                   {tableData.length > 0 ? (
                     tableData.map((item, index) => (
@@ -1277,7 +1502,18 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                       </Td>
                     </Tr>
                   )}
+                  {loading && (
+                    <Tr>
+                      <Td colSpan={selectedColumns.length} textAlign="center">
+                        <Spinner size="lg" color="blue.500" />
+                        <Text mt={2} fontSize="1.2rem" color="#4e4e4e">
+                          Loading more data...
+                        </Text>
+                      </Td>
+                    </Tr>
+                  )}
                 </Tbody>
+
               </Table>
             )}
           </Droppable>
@@ -1287,10 +1523,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       {/* Main drawer */}
       <MainBodyDrawer
         isOpenGraphAddDrawer={isOpenGraphAddDrawer}
-        onCloseGraphAddDrawer={onCloseGraphAddDrawer}
+        onCloseGraphAddDrawer={handleDrawerClose}
       />
 
-      <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered className="{`column-selectScaled ${isOpenGraphAddDrawer ? 'column-selectScaled-scaled' : ''}`}">
+      <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered>
         <ModalOverlay />
         <ModalContent minW="40%">
           <ModalHeader

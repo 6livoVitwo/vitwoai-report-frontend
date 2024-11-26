@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { Box, Button, useDisclosure, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Checkbox, Input, Text, Select, useToast, Menu, MenuButton, MenuList, MenuItem, Popover, PopoverTrigger, PopoverContent, PopoverBody, PopoverArrow, PopoverCloseButton, Tooltip } from "@chakra-ui/react";
+import { Box, Button, useDisclosure, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Checkbox, Input, Text, Select, useToast, Menu, MenuButton, MenuList, MenuItem, Popover, PopoverTrigger, PopoverContent, PopoverBody, PopoverArrow, PopoverCloseButton, Tooltip, Spinner } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -17,6 +17,7 @@ import { useGetGlobalsearchKamQuery } from "../slice/salesKamWiseApi";
 import { useDispatch } from "react-redux";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
+import { useGetexportdataSalesKamQuery } from '../slice/salesKamWiseApi'
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
@@ -32,7 +33,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [startDate, setStartDate] = useState();
   const dispatch = useDispatch();
   const [endDate, setEndDate] = useState();
-  const [sortColumn, setSortColumn] = useState("kam.kamName");
+  const [sortColumn, setSortColumn] = useState(" ");
   const [sortOrder, setSortOrder] = useState("asc");
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
@@ -44,12 +45,18 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [triggerFilter, setTriggerFilter] = useState(false);
   const [triggerSort, setTriggerSort] = useState(false);
+  const [initialized, setInitialized] = useState(false);
+  const [localFiltersdate, setLocalFiltersdate] = useState(null);
+  const [triggerApiCall, setTriggerApiCall] = useState(false);
+  const [selectdate, setSelectdate] = useState([]);
 
   //......Advance Filter Api Calling.........
   const { data: kamDataFilter } = useKamWiseSalesQuery(
     { filters: localFilters },
     { skip: !triggerFilter }
   );
+  // ...Export API CALL...
+  const { data: exportData } = useGetexportdataSalesKamQuery(localFiltersdate || {}, { skip: !triggerApiCall });
 
   //..........Api calling for selected columns............
   const { data: columnDatakam, refetch: refetchColumnDatakam } = useGetSelectedColumnsKamQuery();
@@ -120,6 +127,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const loadMoreData = async () => {
     if (!loading) {
       setLoading(true);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       // Fetch or generate new data
       const moreData = [...newArray];
       setData((prevData) => {
@@ -132,12 +140,17 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   useEffect(() => {
-    const initialColumns = getColumns(data)
-      .slice(0, 8)
-      .map((column) => column.field);
-    setDefaultColumns(initialColumns);
-    setSelectedColumns(initialColumns);
-  }, [data]);
+    if (!initialized && data.length > 0) {
+      const initialColumns = getColumns(data)
+        .slice(0, 8)
+        .map((column) => column.field);
+      setDefaultColumns(initialColumns);
+      setSelectedColumns(initialColumns);
+      setTempSelectedColumns(initialColumns);
+      setInitialized(true);
+
+    }
+  }, [data, initialized]);
 
   const getColumns = useCallback((data) => {
     if (!data || data.length === 0) {
@@ -310,6 +323,84 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     // refetchKamWiseSalesFilter();
   };
 
+  // function date expoet Calling for date filter
+  const handleFilter = () => {
+    handleDateSelection(dates);
+  };
+  useEffect(() => {
+    if (selectdate && selectdate.length > 0) {
+      const [startDate, endDate] = selectdate;
+      const oneYearInMillis = 365 * 24 * 60 * 60 * 1000;
+      if (new Date(endDate) - new Date(startDate) > oneYearInMillis) {
+        toast({
+          title: "No More Data",
+          description: "You have reached the end of the list.",
+          status: "warning",
+          isClosable: true,
+          duration: 4000,
+          render: () => (
+            <Box
+              p={3}
+              bg="orange.300"
+              borderRadius="md"
+              style={{ width: "300px", height: "80px",}}
+            >
+              <Box fontWeight="bold">Please choose a valid range</Box>
+              <Box>Selected date range exceeds one year. Please choose a valid range.</Box>
+            </Box>
+          ),
+        });
+        return;
+      }
+      setLocalFiltersdate({
+        data: selectedColumns,
+        groupBy: ["kam.kamName", "kam.kamCode"],
+        filter: [
+          {
+            column: "invoice_date",
+            operator: "between",
+            type: "date",
+            value: selectdate,
+          },
+        ],
+        timestamp: new Date().getTime(),
+      });
+      setTriggerApiCall(true);
+
+    }
+  }, [selectdate]);
+
+  const formattedDates = (dates) => {
+    return dates.map((date) => {
+      if (date) {
+        const adjustedDate =
+          new Date(date);
+        adjustedDate.setMinutes(
+          adjustedDate.getMinutes() -
+          adjustedDate.getTimezoneOffset()
+        );
+        const value = adjustedDate
+          .toISOString()
+          .split("T")[0];
+        return value;
+      }
+      return null;
+    });
+  }
+  const handleDateSelection = (dates) => {
+    const formatDate = formattedDates(dates);
+    setSelectdate(formatDate);
+  };
+
+  //hide the calendar
+  const handleDateChange = (e) => {
+    setDates(e.value);
+    if (e.value[0] && e.value[1]) {
+      setCalendarVisible((prevKey) => prevKey + 1);
+    }
+  };
+
+
   // sort asc desc
   const handleSort = (column) => {
     const newSortOrder =
@@ -365,7 +456,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   // ...Handle scroll...
   let previousScrollLeft = 0;
   const handleScroll = () => {
-    const { scrollTop, scrollHeight, clientHeight, scrollLeft, clientWidth } =
+    const { scrollTop, scrollHeight, clientHeight, scrollLeft } =
       tableContainerRef.current;
     if (scrollLeft !== previousScrollLeft) {
       previousScrollLeft = scrollLeft;
@@ -467,9 +558,47 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setTriggerFilter(true);
   };
 
+  useEffect(() => {
+    if (exportData) {
+      exportToExcelDaterange(exportData);
+    }
+  }, [exportData])
+  const exportToExcelDaterange = (data) => {
+    import("xlsx").then((xlsx) => {
+      const formattedData = data?.content?.map((item) => {
+        const formattedItem = {};
+        for (const key in item) {
+          formattedItem[formatHeader(key)] = item[key];
+        }
+        return formattedItem;
+      })
+      const worksheet = xlsx.utils.json_to_sheet(formattedData);
+      const workbook = {
+        Sheets: { data: worksheet },
+        SheetNames: ["data"],
+      };
+      const excelBuffer = xlsx.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+      saveAs(
+        new Blob([excelBuffer], {
+          type: "application/octet-stream",
+        }),
+        "customers.xlsx"
+      );
+    });
+  };
   const exportToExcel = () => {
     import("xlsx").then((xlsx) => {
-      const worksheet = xlsx.utils.json_to_sheet(filteredItems);
+      const formattedData = filteredItems.map((item) => {
+        const formattedItem = {};
+        for (const key in item) {
+          formattedItem[formatHeader(key)] = item[key];
+        }
+        return formattedItem;
+      })
+      const worksheet = xlsx.utils.json_to_sheet(formattedData);
       const workbook = {
         Sheets: { data: worksheet },
         SheetNames: ["data"],
@@ -712,23 +841,18 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         padding="5px"
                         alignItems="center">
                         <Calendar
-                          value={startDate}
-                          onChange={(e) => setStartDate(e.value)}
-                          placeholder="Start Date"
+                          key={calendarVisible}
+                          value={dates}
+                          placeholder="Select date"
                           style={{
-                            width: "150px",
-                            padding: "5px",
+                            width: "50%",
+                            height: "35px",
+                            borderRadius: "5px",
                           }}
-                        />
-                        <Text>to</Text>
-                        <Calendar
-                          value={endDate}
-                          onChange={(e) => setEndDate(e.value)}
-                          placeholder="End Date"
-                          style={{
-                            width: "150px",
-                            padding: "5px",
-                          }}
+                          onChange={handleDateChange}
+                          selectionMode="range"
+                          readOnlyInput
+                          hideOnRangeSelection
                         />
                       </Box>
                     </Box>
@@ -744,7 +868,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         bg: "var(--chakra-colors-mainBlue)",
                       }}
                       color="white"
-                      onClick={onCloseDownloadReportModal}
+                      onClick={() => {
+                        onCloseDownloadReportModal();
+                        setDates();
+                      }}
                     >
                       Close
                     </Button>
@@ -756,8 +883,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         bg: "var(--chakra-colors-mainBlue)",
                       }}
                       color="white"
+                      onClick={() => {
+                        handleFilter();
+                        onCloseDownloadReportModal();
+                        setDates();
+                      }}
                     >
-                      Filter
+                      Export
                     </Button>
                   </ModalFooter>
                 </ModalContent>
@@ -1023,6 +1155,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                     <Tr>
                       <Td textAlign="center" colSpan={selectedColumns.length}>
                         No data available
+                      </Td>
+                    </Tr>
+                  )}
+                  {loading && (
+                    <Tr>
+                      <Td colSpan={selectedColumns.length} textAlign="center">
+                        <Spinner size="lg" color="blue.500" />
+                        <Text mt={2} fontSize="1.2rem" color="#4e4e4e">
+                          Loading more data...
+                        </Text>
                       </Td>
                     </Tr>
                   )}

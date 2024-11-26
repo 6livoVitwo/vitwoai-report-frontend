@@ -166,16 +166,14 @@ const CssWrapper = styled.div`
     transition: transform 0.3s ease-out; /* Ease-out for smooth movement */
   }
 
-  .table-tableContainerRef, .column-selectScaled {
+  .table-tableContainerRef{
     transition: transform 0.3s ease-in-out;
   }
   .table-tableContainerRef.table-tableContainerRef-scaled {
     transform: scale(0.95) !important;
   }
 
-  ..column-selectScaled.column-selectScaled-scaled {
-    transform: scale(0.95) !important;
-  }
+
 
   
 

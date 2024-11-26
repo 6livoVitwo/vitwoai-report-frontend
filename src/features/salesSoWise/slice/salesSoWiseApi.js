@@ -27,6 +27,16 @@ export const salesSoWiseApi = apiSlice.injectEndpoints({
         };
       },
     }),
+    //export to excel date wise
+    getexportdataSalesSo: builder.query({
+      query: (body) => {
+        return {
+          url: "/sales/download-data",
+          method: "POST",
+          body: JSON.stringify(body),
+        };
+      },
+    }),
   }),
 });
 
@@ -34,4 +44,5 @@ export const {
   useSoWiseSalesQuery,
   useGetSelectedColumnsSoQuery,
   useGetGlobalsearchQuery,
+  useGetexportdataSalesSoQuery,
 } = salesSoWiseApi;

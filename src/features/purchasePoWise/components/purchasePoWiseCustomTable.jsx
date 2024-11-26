@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { Box, Button, useDisclosure, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Checkbox, Input, Text, Select, useToast, Menu, MenuButton, MenuList, MenuItem, Popover, PopoverTrigger, PopoverContent, PopoverBody, PopoverArrow, PopoverCloseButton, Tooltip } from "@chakra-ui/react";
+import { Box, Button, useDisclosure, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Checkbox, Input, Text, Select, useToast, Menu, MenuButton, MenuList, MenuItem, Popover, PopoverTrigger, PopoverContent, PopoverBody, PopoverArrow, PopoverCloseButton, Tooltip, Spinner } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -17,6 +17,7 @@ import { useGetGlobalsearchPoQuery } from "../slice/purchasePoWiseApi";
 import { usePoWisePurchaseQuery } from "../slice/purchasePoWiseApi";
 import { useGetSelectedColumnsPoQuery } from "../slice/purchasePoWiseApi";
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
+import { useGetexportdataPoQuery } from "../slice/purchasePoWiseApi";
 
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [data, setData] = useState([...newArray]);
@@ -34,6 +35,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [endDate, setEndDate] = useState();
   const [sortColumn, setSortColumn] = useState("grnInvoice.grnPoNumber");
   const [sortOrder, setSortOrder] = useState("asc");
+  const [initialized, setInitialized] = useState(false);
 
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
@@ -46,10 +48,22 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [triggerSort, setTriggerSort] = useState(false);
+  const [selectdate, setSelectdate] = useState([]);
+  const [triggerApiCall, setTriggerApiCall] = useState(false);
+  const [localFiltersdate, setLocalFiltersdate] = useState(null);
+  const [filtereddateitem, setFiltereddateitem] = useState([]);
+
+
+
+
 
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
   };
+
+  // ...Export API CALL...
+  const { data: exportData } = useGetexportdataPoQuery(
+    localFiltersdate || {}, { skip: !triggerApiCall });
 
   // Advance Filter Api Calling
   const { data: PoWiseDataFilter, refetch: refetchPoWiseDataFilter } =
@@ -144,6 +158,82 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     refetchPoWiseDataFilter();
   };
 
+  // function date expoet Calling for date filter
+  const handleFilter = () => {
+    handleDateSelection(dates);
+  };
+  useEffect(() => {
+    if (selectdate && selectdate.length > 0) {
+      const [startDate, endDate] = selectdate;
+      const oneYearInMillis = 365 * 24 * 60 * 60 * 1000;
+      if (new Date(endDate) - new Date(startDate) > oneYearInMillis) {
+        toast({
+          title: "No More Data",
+          description: "You have reached the end of the list.",
+          status: "warning",
+          isClosable: true,
+          duration: 4000,
+          render: () => (
+            <Box
+              p={3}
+              bg="orange.300"
+              borderRadius="md"
+              style={{ width: "300px", height: "80px" }}
+            >
+              <Box fontWeight="bold">Please choose a valid range</Box>
+              <Box>Selected date range exceeds one year. Please choose a valid range.</Box>
+            </Box>
+          ),
+        });
+        return;
+      }
+      setLocalFiltersdate({
+        data: selectedColumns,
+        groupBy: ["grnInvoice.grnPoNumber"],
+        filter: [
+          {
+            column: "grnCreatedAt",
+            operator: "between",
+            type: "date",
+            value: selectdate,
+          },
+        ],
+        timestamp: new Date().getTime(),
+      });
+      setTriggerApiCall(true);
+
+    }
+  }, [selectdate]);
+
+  const formattedDates = (dates) => {
+    return dates.map((date) => {
+      if (date) {
+        const adjustedDate =
+          new Date(date);
+        adjustedDate.setMinutes(
+          adjustedDate.getMinutes() -
+          adjustedDate.getTimezoneOffset()
+        );
+        const value = adjustedDate
+          .toISOString()
+          .split("T")[0];
+        return value;
+      }
+      return null;
+    });
+  }
+  const handleDateSelection = (dates) => {
+    const formatDate = formattedDates(dates);
+    setSelectdate(formatDate);
+  };
+  //hide the calendar
+  const handleDateChange = (e) => {
+    setDates(e.value);
+    if (e.value[0] && e.value[1]) {
+      setCalendarVisible((prevKey) => prevKey + 1);
+    }
+  };
+
   //sort asc desc
   const handleSort = (column) => {
     const newSortOrder =
@@ -156,6 +246,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const loadMoreData = async () => {
     if (!loading) {
       setLoading(true);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       const moreData = [...newArray];
       setData((prevData) => {
         const uniqueData = [...new Set([...prevData, ...moreData])];
@@ -167,12 +258,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   useEffect(() => {
-    const initialColumns = getColumns(data)
-      .slice(0, 8)
-      .map((column) => column.field);
-    setDefaultColumns(initialColumns);
-    setSelectedColumns(initialColumns);
-  }, [data]);
+    if (!initialized && data.length > 0) {
+      const initialColumns = getColumns(data)
+        .slice(0, 8)
+        .map((column) => column.field);
+      setDefaultColumns(initialColumns);
+      setSelectedColumns(initialColumns);
+      setTempSelectedColumns(initialColumns);
+      setInitialized(true);
+    }
+  }, [data, initialized]);
 
   const getColumns = useCallback((data) => {
     if (!data || data.length === 0) {
@@ -338,6 +433,28 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     selectedColumns,
     PoWiseDataFilter
   ]);
+  useEffect(() => {
+    if (PoWiseDataFilter?.content && PoWiseDataFilter.content.length === 0) {
+      toast({
+        title: " No Results Found ",
+        description: "You search did not match any data.",
+        status: "warning",
+        isClosable: true,
+        duration: 4000,
+        render: () => (
+          <Box
+            p={3}
+            bg="orange.300"
+            borderRadius="md"
+            style={{ width: "300px", height: "70px" }}
+          >
+            <Box fontWeight="bold">No Results Found</Box>
+            <Box>You search did not match any data.</Box>
+          </Box>
+        ),
+      });
+    }
+  }, [PoWiseDataFilter, toast]);
 
   const formatHeader = (column) => {
     if (columnData && columnData.content) {
@@ -353,7 +470,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   let previousScrollLeft = 0;
   const handleScroll = () => {
-    const { scrollTop, scrollHeight, clientHeight, scrollLeft, clientWidth } =
+    const { scrollTop, scrollHeight, clientHeight, scrollLeft } =
       tableContainerRef.current;
 
     // Check if horizontal scroll has changed
@@ -368,7 +485,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       loadMoreData(); // Load more data when scrolled to the bottom
     }
   };
-  
+
   useEffect(() => {
     const container = tableContainerRef.current;
     if (container) {
@@ -465,10 +582,53 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
     }
   };
+  useEffect(() => {
+    if (exportData) {
+      setFiltereddateitem(exportData);
+      ExportToExcelDaterange(exportData);
+    }
+  }, [exportData]);
+  console.log("export01", { filtereddateitem })
+
+  const ExportToExcelDaterange = (data) => {
+    console.log("object", data);
+    import("xlsx").then((xlsx) => {
+      const formattedData = data?.content?.map((item) => {
+        const formattedItem = {};
+        for (const key in item) {
+          formattedItem[formatHeader(key)] = item[key];
+        }
+        return formattedItem;
+      })
+      const worksheet = xlsx.utils.json_to_sheet(formattedData);
+      const workbook = {
+        Sheets: { data: worksheet },
+        SheetNames: ["data"],
+      };
+      const excelBuffer = xlsx.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+      saveAs(
+        new Blob([excelBuffer], {
+          type: "application/octet-stream",
+        }),
+        "customers.xlsx"
+      );
+    });
+  };
+
 
   const exportToExcel = () => {
     import("xlsx").then((xlsx) => {
-      const worksheet = xlsx.utils.json_to_sheet(filteredItems);
+      const formattedData = filteredItems.map((item) => {
+        const formattedItem = {};
+        for (const key in item) {
+          formattedItem[formatHeader(key)] = item[key];
+        }
+        return formattedItem;
+      })
+      const worksheet = xlsx.utils.json_to_sheet(formattedData);
       const workbook = {
         Sheets: { data: worksheet },
         SheetNames: ["data"],
@@ -696,24 +856,21 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         padding="5px"
                         alignItems="center">
                         <Calendar
-                          value={startDate}
-                          onChange={(e) => setStartDate(e.value)}
-                          placeholder="Start Date"
+                          key={calendarVisible}
+                          value={dates}
+                          placeholder="Select date"
                           style={{
-                            width: "150px",
-                            padding: "5px",
+                            width: "50%",
+                            height: "35px",
+                            borderRadius: "5px",
                           }}
+                          onChange={handleDateChange}
+                          selectionMode="range"
+                          readOnlyInput
+                          hideOnRangeSelection
+                        // visible={calendarVisible}
                         />
-                        <Text>to</Text>
-                        <Calendar
-                          value={endDate}
-                          onChange={(e) => setEndDate(e.value)}
-                          placeholder="End Date"
-                          style={{
-                            width: "150px",
-                            padding: "5px",
-                          }}
-                        />
+
                       </Box>
                     </Box>
                   </ModalBody>
@@ -728,7 +885,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         bg: "var(--chakra-colors-mainBlue)",
                       }}
                       color="white"
-                      onClick={onCloseDownloadReportModal}>
+                      onClick={() => {
+                        onCloseDownloadReportModal();
+                        setDates()
+                      }}>
                       Close
                     </Button>
                     <Button
@@ -738,8 +898,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                       _hover={{
                         bg: "var(--chakra-colors-mainBlue)",
                       }}
+                      onClick={() => {
+                        handleFilter();
+                        onCloseDownloadReportModal();
+                        setDates();
+                      }}
                       color="white">
-                      Filter
+                      Export
                     </Button>
                   </ModalFooter>
                 </ModalContent>
@@ -999,6 +1164,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                     <Tr>
                       <Td textAlign="center" colSpan={selectedColumns.length}>
                         No data available
+                      </Td>
+                    </Tr>
+                  )}
+                  {loading && (
+                    <Tr>
+                      <Td colSpan={selectedColumns.length} textAlign="center">
+                        <Spinner size="lg" color="blue.500" />
+                        <Text mt={2} fontSize="1.2rem" color="#4e4e4e">
+                          Loading more data...
+                        </Text>
                       </Td>
                     </Tr>
                   )}

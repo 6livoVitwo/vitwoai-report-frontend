@@ -12,12 +12,12 @@ export const salesVerticalWiseApi = apiSlice.injectEndpoints({
         };
       },
     }),
-     // Query to get selected columns
-    getSelectedColumnsVertical:builder.query({
-      query:() =>'/sales/drop-down-data/vertical',
+    // Query to get selected columns
+    getSelectedColumnsVertical: builder.query({
+      query: () => '/sales/drop-down-data/vertical',
     }),
-     // Query to get global search
-     getGlobalsearchVertical: builder.query({
+    // Query to get global search
+    getGlobalsearchVertical: builder.query({
       query: (body) => {
         return {
           url: "/sales/global-search/vertical",
@@ -26,10 +26,19 @@ export const salesVerticalWiseApi = apiSlice.injectEndpoints({
         };
       },
     }),
-
+    //export to excel date wise
+    getexportdataSalesVertical: builder.query({
+      query: (body) => {
+        return {
+          url: "/sales/download-data",
+          method: "POST",
+          body: JSON.stringify(body),
+        };
+      },
+    }),
 
   }),
 });
 
-export const { useVerticalWiseSalesQuery,useGetSelectedColumnsVerticalQuery,useGetGlobalsearchVerticalQuery} = salesVerticalWiseApi;
+export const { useVerticalWiseSalesQuery, useGetSelectedColumnsVerticalQuery, useGetGlobalsearchVerticalQuery ,useGetexportdataSalesVerticalQuery} = salesVerticalWiseApi;
 
