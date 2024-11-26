@@ -1,64 +1,9 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-  useRef,
-} from "react";
-import {
-  Box,
-  Button,
-  useDisclosure,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  TableContainer,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  Checkbox,
-  Input,
-  Text,
-  Select,
-  useToast,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverHeader,
-  PopoverBody,
-  PopoverArrow,
-  PopoverCloseButton,
-  Tooltip,
-  Drawer,
-  DrawerCloseButton,
-  DrawerHeader,
-  DrawerOverlay,
-  DrawerContent,
-  DrawerBody,
-  Alert,
-  Badge,
-  Divider,
-} from "@chakra-ui/react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { Box, Button, useDisclosure, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Checkbox, Input, Text, Select, useToast, Menu, MenuButton, MenuList, MenuItem, Popover, PopoverTrigger, PopoverContent, PopoverHeader, PopoverBody, PopoverArrow, PopoverCloseButton, Tooltip, Drawer, DrawerCloseButton, DrawerHeader, DrawerOverlay, DrawerContent, DrawerBody, Alert, Badge, Divider } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faChartLine,
-  faArrowDownShortWide,
-  faArrowUpWideShort,
-  faArrowRightArrowLeft,
-} from "@fortawesome/free-solid-svg-icons";
+import { faChartLine, faArrowDownShortWide, faArrowUpWideShort, faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { saveAs } from "file-saver";
 import { faFileExcel, faGear } from "@fortawesome/free-solid-svg-icons";
 import { DownloadIcon } from "@chakra-ui/icons";
@@ -98,95 +43,44 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [filterCondition, setFilterCondition] = useState("");
   const [filterValue, setFilterValue] = useState("");
   const [filterValue2, setFilterValue2] = useState("");
-  const [applyFilter, setApplyFilter] = useState(false);
-  // Temporary states to hold user inputs before applying the filter
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [tempFilterValue2, setTempFilterValue2] = useState("");
 
-  const [tempSearchQuery, setTempSearchQuery] = useState("");
   const [columns, setColumns] = useState([]);
-  const [originalData, setOriginalData] = useState([]);
   const [sortColumn, setSortColumn] = useState();
   const [sortOrder, setSortOrder] = useState();
-  const [currentPage, setCurrentPage] = useState(0); // Default page is 0
+  const [currentPage, setCurrentPage] = useState(0);
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const dispatch = useDispatch();
 
-  // const generateColumnMappings = (filtersData) => {
-  //   const mappings = [];
-  //   filtersData.forEach((field) => {
-  //     const humanReadableName = field.split(".").pop(); // Use your own logic for mapping
-  //     mappings[humanReadableName] = field;
-  //   });
-  //   return mappings;
-  // };
-  // Dynamically generate column mappings from filters.data
-  // const columnMappings = generateColumnMappings(filters.data);
-  // console.log("🟢columnMappings", columnMappings);
-  // console.log(columnMappings["goodName"]);
-
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
   };
-  // Function to map filters dynamically
-  // const mapFilters = (filters) => {
-  //   return filters.map((filter) => ({
-  //     ...filter,
-  //     // If filter.column is a string, directly use columnMappings; otherwise, check for filter.column.key
-  //     column: columnMappings[filter.column],
-  //     // sortBy:filter.column,
-  //   }));
-  // };
-
-  // const {data: sales} = useProductWisePurchaseQuery({filters});
-  // console.log("sales_piyas1221", sales);
-
-  //...Advanced Filter API CALL...
-  const { data: productDataFilter, refetch: refetchProductFilter } =
-    useProductWisePurchaseQuery(
-      { filters: localFilters }
-      // { skip: !filtersApplied }
-    );
-  // console.log("productDataFilterPiyas", productDataFilter);
 
   //API Calling sorting
   const { data: ProductData, refetch: refetchProduct } =
     useProductWisePurchaseQuery({
       filters: {
-        ...filters,
-        //  sortBy: sortColumn,
-        // sortDir: sortOrder,
+        ...filters
       },
       page: currentPage,
     });
-  // console.log("piyas ninja", ProductData);
 
   //Api calling for selected columns
   const { data: columnData, refetch: refetchColumnData } =
     useGetSelectedColumnsPurchaseQuery();
-  console.log("columnData🔵🔵", columnData);
 
   // api calling from global search
   const { data: searchData } = useGetGlobalsearchPurchaseQuery(filters, {
     skip: !searchQuery,
   });
-  // console.log("piyas3333333", searchData);
-
-  // api calling for product group....
-  // const { data: productGroup } = useGetProductGroupQuery();
-  // console.log("productGroup⭕", productGroup);
 
   const toast = useToast();
 
   const tableContainerRef = useRef(null);
-  const {
-    onOpen: onOpenFilterModal,
-    onClose: onCloseFilterModal,
-    isOpen: isOpenFilterModal,
-  } = useDisclosure();
   const {
     onOpen: onOpenDownloadReportModal,
     onClose: onCloseDownloadReportModal,
@@ -209,14 +103,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     onClose: onCloseGraphSettingsModal,
   } = useDisclosure();
 
-  const {
-    isOpen: isOpenGraphDetailsView,
-    onOpen: onOpenGraphDetailsView,
-    onClose: onCloseGraphDetailsView,
-  } = useDisclosure();
-
+  const { onOpen: onOpenGraphDetailsView } = useDisclosure();
   const btnRef = React.useRef();
-
   const getColumnStyle = (header) => ({
     textAlign: alignment[header] || "left",
   });
@@ -242,7 +130,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   useEffect(() => {
     if (columns.length) {
       // Initialize selected columns based on fetched data or some default logic
-      setSelectedColumns(columns.map((col) => col.field)); // Example initialization
+      setSelectedColumns(columns.map((col) => col.field));
     }
   }, [columns]);
 
@@ -693,7 +581,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     }
   };
   const handleTempFilterValue2Change = (e) => {
-    const value = e?.target?.value; // Safely accessing e.target.value
+    const value = e?.target?.value;
     if (value !== undefined) {
       setTempFilterValue2(value);
     } else {
@@ -746,7 +634,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           type: typeof tempFilterValue === "number" ? "integer" : "string",
         },
       }));
-      console.log("Updated Filters:", updatedFilters); // Debugging line
+
       // Update local filters state
       setLocalFilters(updatedFilters);
       setFiltersApplied(true);
@@ -761,7 +649,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   const handleClick = () => {
     if (activeFilterColumn) {
-      const columnType = activeFilterColumn; // Assuming activeFilterColumn holds the column type
+      const columnType = activeFilterColumn;
       columnType.includes("SUM(")
         ? handleApplyFiltersSUM()
         : handleApplyFilters();
@@ -818,12 +706,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setConfigureChart(filterData);
   };
 
-  const handleGraphAddDrawer = () => {    
+  const handleGraphAddDrawer = () => {
     onOpenGraphAddDrawer();
-    dispatch(handleGraphWise({selectedWise: "purchase-product-wise", reportType: 'purchase'}));
+    dispatch(handleGraphWise({ selectedWise: "purchase-product-wise", reportType: 'purchase' }));
   };
-
-  console.log('🟢',{selectedWise})
 
   return (
     <Box bg="white" padding="0px 10px" borderRadius="5px">

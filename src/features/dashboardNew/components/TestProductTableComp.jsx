@@ -35,13 +35,11 @@ const body = {
 
 const TestProductTableComp = () => {
 
-  const { data: allProducts, isSuccess, isLoading } = useGetAllProductsQuery({
+  const { data: allProducts } = useGetAllProductsQuery({
     endpoint: '/purchase/purchase-groupby-data',
     method: 'POST',
     body
   });
-
-  console.log({ allProducts, isSuccess, isLoading });
 
   const keys = allProducts?.content?.length ? Object.keys(allProducts?.content[0]) : [];
 

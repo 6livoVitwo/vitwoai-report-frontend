@@ -40,7 +40,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
-  const [configureChart, setConfigureChart] = useState({});
   const dispatch = useDispatch();
   const [dates, setDates] = useState(null);
 
@@ -124,7 +123,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   const clearsingleFilter = (column) => {
-    console.log('Clearing filter for column:', column);
     setLocalFilters((prevFilters) => {
       const updatedFilters = {
         ...prevFilters,

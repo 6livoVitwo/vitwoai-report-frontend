@@ -10,7 +10,8 @@ const ReceivableCustomerTableView = () => {
   const { first, rows, onPageChange } = usePagination(10);
   const [intervalDays, setIntervalDays] = useState(20);
   const [bucket, setBucket] = useState(5);
-  const [asOnDate, setAsOnDate] = useState("2024-10-20");
+  const [asOnDate, setAsOnDate] = useState(new Date().toISOString().split("T")[0]);
+  
   const [allBuckets, setAllBuckets] = useState([
     { value: 0, label: "0-20" },
     { value: 21, label: "21-40" },

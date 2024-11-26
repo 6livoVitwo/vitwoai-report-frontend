@@ -327,9 +327,15 @@ export const pieChartData = [
     {
         id: 'java',
         label: 'java',
-        value: 7,
+        value: 185,
         color: 'hsl(54, 70%, 50%)',
     },
+    {
+        id: 'C',
+        label: 'C',
+        value: 252,
+        color: 'hsl(54, 70%, 50%)',
+    }
 ]
 export const lineChartData = [
     {

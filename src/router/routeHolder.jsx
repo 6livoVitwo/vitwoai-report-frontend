@@ -80,7 +80,6 @@ const AllRoutes = () => {
       }
     };
     const token = getTokenFromURL();
-    console.log("Token from URL:", token);
     if (token !== null) {
       storeTokenLocally(token);
     } else {

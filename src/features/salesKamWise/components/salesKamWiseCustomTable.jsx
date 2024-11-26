@@ -289,7 +289,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
   // Clear single filter active column.... 
   const clearsingleFilter = (column) => {
-    console.log('Clearing filter for column:', column);
     setLocalFilters((prevFilters) => {
       const updatedFilters = {
         ...prevFilters,

@@ -19,7 +19,6 @@ export const customerWiseSalesApi = apiSlice.injectEndpoints({
     // Query to get global search
     getGlobalsearchCustomer: builder.query({
       query: (body) => {
-        // console.log("body_piyas",body)
         return {
           url: "/sales/global-search/customer",
           method: "POST",

@@ -30,7 +30,7 @@ const Bar = ({ data = barChartData, dynamicWidth }) => {
         groupMode="grouped"
         valueScale={{ type: 'linear' }}
         indexScale={{ type: 'band', round: true }}
-        colors={{ scheme: 'nivo' }}
+        colors={{ scheme: 'blues' }}
         defs={[
           {
             id: 'dots',

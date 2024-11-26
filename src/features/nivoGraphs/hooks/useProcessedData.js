@@ -7,11 +7,16 @@ const useProcessedData = (finalData, type) => {
     if (finalData) {
       let processedData = [];
       if (type === "pie") {
-        processedData = finalData.map((product, index) => ({
-          id: index,
-          label: product?.yaxis,
-          value: product?.all_total_amt,
-        }));
+        processedData = finalData.map((product, index) => {
+          const label = product?.xaxis || `Unknown${index+1}`;
+          const hslColor = Math.floor(Math.random() * 360);
+          return {
+            id: label,
+            label: label,
+            value: product?.all_total_amt,
+            color: `hsl(${hslColor}, 70%, 50%)`,
+          };
+        });
       } else if (type === "bar") {
         processedData = finalData;
       } else {

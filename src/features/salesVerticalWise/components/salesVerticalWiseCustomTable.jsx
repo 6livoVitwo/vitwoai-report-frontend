@@ -104,7 +104,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   } = useDisclosure();
   const dispatch = useDispatch();
   const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
-  console.log(salesCustomerWise, "salesCustomerWise1");
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [sortColumn, setSortColumn] = useState("companyFunction.functionalities_name");
@@ -397,7 +396,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     window.location.reload();
   };
   const clearsingleFilter = (column) => {
-    console.log('Clearing filter for column:', column);
     setLocalFilters((prevFilters) => {
       const updatedFilters = {
         ...prevFilters,
@@ -586,9 +584,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           type: tempFilterCondition === "between" ? "date" : (typeof tempFilterValue === "number" ? "integer" : "string"),
         },
       }));
-
-      // Log the updated filters for debugging
-      console.log("Updated Filters:", updatedFilters);
 
       // Update local filters state
       setLocalFilters(updatedFilters);

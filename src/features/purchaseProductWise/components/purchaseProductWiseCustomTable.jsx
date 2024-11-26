@@ -13,12 +13,10 @@ import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
 import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import { useGetSelectedColumnsPurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { useGetGlobalsearchPurchaseQuery } from "../slice/purchaseProductWiseApi";
-
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
 
 const CssWrapper = styled.div`
@@ -55,14 +53,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [selectedReport, setSelectedReport] = useState(null);
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
-  const [configureChart, setConfigureChart] = useState({});
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const [columns, setColumns] = useState([]);
   const [sortColumn, setSortColumn] = useState("items.goodName");
   const [sortOrder, setSortOrder] = useState("asc");
-  const [currentPage, setCurrentPage] = useState(0);
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
@@ -102,7 +98,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const tableContainerRef = useRef(null);
 
   const { onOpen: onOpenDownloadReportModal, onClose: onCloseDownloadReportModal, isOpen: isOpenDownloadReportModal } = useDisclosure();
-  const { onOpen: onOpenGraphAddDrawer, onClose: onCloseGraphAddDrawer, isOpen: isOpenGraphAddDrawer } = useDisclosure();  
+  const { onOpen: onOpenGraphAddDrawer, onClose: onCloseGraphAddDrawer, isOpen: isOpenGraphAddDrawer } = useDisclosure();
 
   const getColumnStyle = (header) => ({
     textAlign: alignment[header] || "left",
@@ -297,8 +293,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   const clearAllFiltersbutton = () => {
-    console.log("cleared ...");
-    console.log({ newArray });
     setSearchQuery("");
     setInputValue("");
     setColumnFilters({});
@@ -307,7 +301,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   // Clear single filter active column....
   const clearsingleFilter = (column) => {
-    console.log("Clearing filter for column:", column);
     setLocalFilters((prevFilters) => {
       const updatedFilters = {
         ...prevFilters,
@@ -472,9 +465,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         },
       }));
 
-      // Log the updated filters for debugging
-      console.log("Updated Filters:", updatedFilters);
-
       // Update local filters state
       setLocalFilters(updatedFilters);
       setFiltersApplied(true);
@@ -483,7 +473,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
-      // refetchProductFilter();
     } else {
       console.error("Filter condition, value, or column is missing");
     }
@@ -499,12 +488,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       handleApplyFilters();
     }
     setTriggerFilter(true);
-  }, [
-    activeFilterColumn,
-    handleApplyFiltersSUM,
-    handleApplyFilters,
-    setFilters,
-  ]);
+  }, [activeFilterColumn, handleApplyFiltersSUM, handleApplyFilters]);
 
   const exportToExcel = () => {
     import("xlsx").then((xlsx) => {
@@ -527,7 +511,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   const handleGraphAddDrawer = () => {
-    setIsBodyScaled(true); 
+    setIsBodyScaled(true);
     onOpenGraphAddDrawer();
     dispatch(
       handleGraphWise({
@@ -536,21 +520,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       })
     );
   };
-
-
-   const handleDrawerClose = () => {
-    setIsBodyScaled(false);
-    onCloseGraphAddDrawer();
-  };
-
-  //  useEffect(() => {
-  //   document.body.style.transition = "transform 0.3s ease-in-out";
-  //   document.body.style.transform = isBodyScaled ? "scale(0.98)" : "scale(1)";
-  //   return () => {
-  //     document.body.style.transform = "scale(1)"; // Reset on unmount
-  //   };
-  // }, [isBodyScaled]);
-  
 
   return (
     <Box bg="white">

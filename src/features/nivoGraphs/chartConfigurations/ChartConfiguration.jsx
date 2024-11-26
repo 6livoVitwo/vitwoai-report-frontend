@@ -35,7 +35,9 @@ const ChartConfiguration = ({ configureChart }) => {
   const [dynamicHeight, setDynamicHeight] = useState(4000);
   const [bodyWise, setBodyWise] = useState(initialBodyWise(selectedWise, type, priceOrQty, startDate, endDate, regionWise));
   const [chartApiConfig, setChartApiConfig] = useState(initialChartApiConfig(selectedWise, type, processFlow, bodyWise));
-
+  const [selectedValues, setSelectedValues] = useState(null);
+  const [selectedPieValues, setSelectedPieValues] = useState(null);
+  console.log({selectedPieValues})
   const handleInputType = (data) => {
     let { startDate: newStartDate, endDate: newEndDate } = setDateRange(data);
     let newBodyWise = createBodyWise(data, newStartDate, newEndDate, priceOrQty);
@@ -178,7 +180,7 @@ const ChartConfiguration = ({ configureChart }) => {
   const chartConfig = chartApiConfig[type];
   const { endpoint, body, method } = chartConfig ? chartConfig.find((config) => config.wise === wise) : {};
   const { data: graphData, isLoading, isError, error } = useDynamicNewQuery(endpoint ? { endpoint: type === "funnel" ? processFlow : endpoint, body, method } : null, { skip: !endpoint });
-
+  console.log('In the chart config: ', { graphData });
   const finalData = useMemo(() => {
     if (type === "funnel") {
       return graphData?.steps || [];
@@ -284,6 +286,25 @@ const ChartConfiguration = ({ configureChart }) => {
   const handleProcessFlow = (value) => {
     setProcessFlow(value);
   };
+
+  const handleMultiSelect = (value) => {
+    setSelectedValues(value);
+    console.log('in the handleMultiSelect', { value });
+    setChartApiConfig((prevConfig) => ({
+      ...prevConfig,
+      [type]: prevConfig[type].map((config) => ({
+        ...config,
+        body: {
+          ...config.body,
+          yaxis: value,
+        },
+      })),
+    }));
+  }
+
+  const handleMultiSelectPie = (value) => {
+    setSelectedPieValues(value);
+  }
 
   return (
     <Card variant={"unstyled"}>
@@ -481,32 +502,48 @@ const ChartConfiguration = ({ configureChart }) => {
                       )}
 
                     {(type === "bar" || type === "pie") && (
-                      <Grid templateColumns="repeat(1, 1fr)" gap={6}>
-                        <Stack spacing={3}>
+                      <Grid templateColumns="repeat(1, 1fr)" gap={6} >
+                        <Stack spacing={3} >
                           <Text fontSize="sm" fontWeight="500">
                             Y Axis
                           </Text>
                           {type === "pie" ? (
+                            <>
                             <Select size="lg" onChange={handleYAxisChange}>
-                              {yAxisOptions().map((option) => (
+                              {yAxisOptions(reportType).map((option) => (
                                 <option key={option.value} value={option.value}>
                                   {option.label}
                                 </option>
                               ))}
                             </Select>
+                            <MultiSelect
+                              display="chip"
+                              value={selectedPieValues}
+                              options={graphData?.content?.map((option, index) => {
+                                console.log('in the pie option', option)
+                                return {
+                                  value: option?.xaxis,
+                                  label: option?.xaxis,
+                                }
+                              })}
+                              placeholder="Select X-Axis"
+                              onChange={(e) => handleMultiSelectPie(e.value)}
+                            />
+                            </>
                           ) : (
                             <MultiSelect
                               display="chip"
-                              options={yAxisOptions().map((option) => ({
+                              value={selectedValues}
+                              options={yAxisOptions(reportType).map((option) => ({
                                 value: option.value,
                                 label: option.label,
                               }))}
                               placeholder="Select Y-Axis"
-                              onChange={handleYAxisChange}
+                              onChange={(e) => handleMultiSelect(e.value)}
                             />
                           )}
                         </Stack>
-                        <Stack spacing={3}>
+                        <Stack spacing={3} >
                           <Text fontSize="sm" fontWeight="500">
                             Filter
                           </Text>
