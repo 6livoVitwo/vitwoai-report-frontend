@@ -71,7 +71,7 @@ const AllRoutes = () => {
       if (typeof Storage !== "undefined") {
         localStorage.setItem("authToken", token);
         setGlobalStaticFragmennt(true);
-        navigate("/");
+        // navigate("/");
       } else {
         console.log(
           "Sorry, your browser does not support Web Storage. Token cannot be stored."
@@ -84,16 +84,20 @@ const AllRoutes = () => {
       
     const token = existingToken ? existingToken : getTokenFromURL();
 
-    if (token !== null && token !== existingToken) {
-      storeTokenLocally(token);
-    } else{
-      console.log("Token Verified.");
-    }
-    
     if (token) {
+      if (token !== existingToken) {
+        storeTokenLocally(token); 
+      }
       setGlobalStaticFragmennt(true);
+      dispatch(setAuthDetails(token));
+
+      if (window.location.href.includes("token=")) {
+        navigate("/");
+      }
+    } else {
+      console.log("Token not found or already verified.");
     }
-    dispatch(setAuthDetails(token));
+
   }, [dispatch, navigate]);
 
   return (
