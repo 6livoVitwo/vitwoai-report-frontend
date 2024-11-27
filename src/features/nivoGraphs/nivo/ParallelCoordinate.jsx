@@ -11,7 +11,7 @@ const ParallelCoordinate = ({ data = parallelCoordinatesChartData }) => {
         {
           id: "temp",
           label: "temperature",
-          value: "temp",
+          value: "temp", 
           min: "auto",
           max: "auto",
           ticksPosition: "before",

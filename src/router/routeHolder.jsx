@@ -9,7 +9,7 @@ import {
 } from "react-router-dom";
 import HashLoader from "react-spinners/HashLoader";
 import Store from "../store/store";
-import { Box, Center, Container } from "@chakra-ui/react";
+import { Center, Container } from "@chakra-ui/react";
 import DetectOffline from "../features/global/components/ofline";
 import Layout from "../features/global/components/layout";
 import PortalForLayout from "../features/global/components/PortalForLayout";
@@ -49,7 +49,7 @@ const Dashboard = lazy(() => import("../features/dashboard/components"));
 const AllRoutes = () => {
   const locate = useLocation();
   const dispatch = useDispatch();
-  const nevigate = useNavigate();
+  const navigate = useNavigate();
   const [globalStaticFragmennt, setGlobalStaticFragmennt] = useState(
     () => false
   );
@@ -70,29 +70,31 @@ const AllRoutes = () => {
     const storeTokenLocally = (token) => {
       if (typeof Storage !== "undefined") {
         localStorage.setItem("authToken", token);
-
         setGlobalStaticFragmennt(true);
-        nevigate("/");
+        navigate("/");
       } else {
         console.log(
           "Sorry, your browser does not support Web Storage. Token cannot be stored."
         );
       }
     };
-    const token = getTokenFromURL();
-    if (token !== null) {
-      storeTokenLocally(token);
-    } else {
-      console.log("Token not found in the URL.");
-    }
-
+    
     // Check if token already exists in local storage
     const existingToken = localStorage.getItem("authToken");
-    if (existingToken) {
+      
+    const token = existingToken ? existingToken : getTokenFromURL();
+
+    if (token !== null && token !== existingToken) {
+      storeTokenLocally(token);
+    } else{
+      console.log("Token Verified.");
+    }
+    
+    if (token) {
       setGlobalStaticFragmennt(true);
     }
-    dispatch(setAuthDetails(existingToken));
-  }, [dispatch]);
+    dispatch(setAuthDetails(token));
+  }, [dispatch, navigate]);
 
   return (
     <>

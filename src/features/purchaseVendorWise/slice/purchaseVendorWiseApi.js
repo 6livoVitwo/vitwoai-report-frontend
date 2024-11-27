@@ -42,6 +42,16 @@ export const purchaseVendorWiseApi = apiSlice.injectEndpoints({
         };
       },
     }),
+    //export to excel date wise
+    getexportdataVendor: builder.query({
+      query: (body) => {
+        return {
+          url: "/purchase/download-data",
+          method: "POST",
+          body: JSON.stringify(body),
+        };
+      },
+    })
   }),
 });
 
@@ -50,4 +60,5 @@ export const {
   useFetchDataQuery,
   useGetGlobalsearchVendorQuery,
   useGetSelectedColumnsVendorQuery,
+  useGetexportdataVendorQuery,
 } = purchaseVendorWiseApi;

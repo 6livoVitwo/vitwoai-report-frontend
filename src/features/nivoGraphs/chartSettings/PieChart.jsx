@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Pie from "../nivo/Pie";
 
-
 const PieChart = ({ liveData = [], startDate = "", endDate = "", dynamicWidth = 1200, inputType = "" }) => {
-  
+    console.log({liveData})
   return (
     <>
       {liveData?.length > 0 ? (

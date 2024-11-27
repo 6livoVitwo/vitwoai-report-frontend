@@ -1,13 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Heading, Flex, Button } from '@chakra-ui/react';
 import ReportsCards from '../dashboard/components/ReportsCards';
-import SalesVerticalWise from '../../asset/images/sales-vertical-wise.png';
-import SalesSoWise from '../../asset/images/sales-so-wise.png';
-import loadingImg from '../../asset/imgs/Loading.json'; 
-// import loadingImg from '../../asset/imgs/Loading.json'; 
-// import productWise from '../../asset/imgs/Product Wise.json';
-// import vendorWise from '../../asset/imgs/Vendor Wise.json';
-// import poWise from '../../asset/imgs/PO Wise.json';
 
 //Add lotifies dummy json
 import purchaseProductWise from '../../asset/imgs/purchase-product-wise.json';
@@ -44,7 +37,7 @@ const Allreports = () => {
           imgsrc: purchasePoWise,
         },
         {
-          id: "11",
+          id: "12",
           name: "Functional Wise",
           link: "/reports/purchase-po-wise/table-view",
           imgsrc: purchasePoWise,
@@ -127,45 +120,47 @@ const Allreports = () => {
 					maxW='800px'
 					margin='2rem 0rem'
 					overflowX='auto'>
-					{cardsData.map((data, index) => (
-						<Button
-							key={index}
-							size='md'
-							fontSize='11px'
-							fontWeight='normal'
-							padding='15px 65px'
-							borderRadius='md'
-							borderColor={
-								activeButton === index ? '#003060' : '#CBD5E0'
-							}
-							color={
-								activeButton === index ? '#003060' : '#c6c6c6'
-							}
-							bg='transparent'
-							borderWidth='1px'
-							_hover={{
-								bg:
-									activeButton === index
-										? '#003060'
-										: '#f3f3f3',
-								color:
-									activeButton === index
-										? '#ffffff'
-										: '#003060',
-								borderColor: '#b9b9b9',
-							}}
-							_focus={{
-								boxShadow: 'none',
-								borderColor: '#b9b9b9',
-							}}
-							onClick={() =>
-								handleButtonClick(index, data['card catagory'])
-							}
-							mr='3'
-							mb={6}>
-							{data['card catagory']}
-						</Button>
-					))}
+					{cardsData.map((data, index) => {
+						return (
+							<Button
+								key={`${index}-${data.name}`}
+								size='md'
+								fontSize='11px'
+								fontWeight='normal'
+								padding='15px 65px'
+								borderRadius='md'
+								borderColor={
+									activeButton === index ? '#003060' : '#CBD5E0'
+								}
+								color={
+									activeButton === index ? '#003060' : '#c6c6c6'
+								}
+								bg='transparent'
+								borderWidth='1px'
+								_hover={{
+									bg:
+										activeButton === index
+											? '#003060'
+											: '#f3f3f3',
+									color:
+										activeButton === index
+											? '#ffffff'
+											: '#003060',
+									borderColor: '#b9b9b9',
+								}}
+								_focus={{
+									boxShadow: 'none',
+									borderColor: '#b9b9b9',
+								}}
+								onClick={() =>
+									handleButtonClick(index, data['card catagory'])
+								}
+								mr='3'
+								mb={6}>
+								{data['card catagory']}
+							</Button>
+						)
+					})}
 				</Flex>
 			</Box>
 

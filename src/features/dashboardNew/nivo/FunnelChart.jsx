@@ -2,11 +2,11 @@ import { ResponsiveFunnel } from '@nivo/funnel';
 import React from 'react';
 import { funnelChartData } from '../data/chartData';
 
-const FunnelChart = ({ data = funnelChartData }) => {
+const FunnelChart = ({ liveData = funnelChartData }) => {
 	return (
 		<>
 			<ResponsiveFunnel
-				data={data}
+				data={liveData}
 				margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
 				valueFormat='>-.4s'
 				colors={{ scheme: 'spectral' }}

@@ -22,9 +22,20 @@ export const salesProductWiseApi = apiSlice.injectEndpoints({
 
     // Query to get global search
     getGlobalsearchProduct: builder.query({
-      query: (body) => {;
+      query: (body) => {
+        ;
         return {
           url: "/sales/global-search/product",
+          method: "POST",
+          body: JSON.stringify(body),
+        };
+      },
+    }),
+    //export to excel date wise
+    getexportdataSalesProduct: builder.query({
+      query: (body) => {
+        return {
+          url: "/sales/download-data",
           method: "POST",
           body: JSON.stringify(body),
         };
@@ -37,4 +48,5 @@ export const {
   useProductWiseSalesQuery,
   useGetSelectedColumnsproductQuery,
   useGetGlobalsearchProductQuery,
+  useGetexportdataSalesProductQuery,
 } = salesProductWiseApi;

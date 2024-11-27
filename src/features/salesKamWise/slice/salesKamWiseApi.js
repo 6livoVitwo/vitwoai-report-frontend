@@ -30,9 +30,18 @@ export const salesKamWiseApi = apiSlice.injectEndpoints({
         };
       },
     }),
-
+     //export to excel date wise
+    getexportdataSalesKam: builder.query({
+      query: (body) => {
+        return {
+          url: "/sales/download-data",
+          method: "POST",
+          body: JSON.stringify(body),
+        };
+      },
+    }),
   }),
 });
 
-export const { useKamWiseSalesQuery, useGetSelectedColumnsKamQuery, useGetGlobalsearchKamQuery } =
+export const { useKamWiseSalesQuery, useGetSelectedColumnsKamQuery, useGetGlobalsearchKamQuery, useGetexportdataSalesKamQuery, } =
   salesKamWiseApi;

@@ -19,7 +19,6 @@ export const customerWiseSalesApi = apiSlice.injectEndpoints({
     // Query to get global search
     getGlobalsearchCustomer: builder.query({
       query: (body) => {
-        // console.log("body_piyas",body)
         return {
           url: "/sales/global-search/customer",
           method: "POST",
@@ -32,8 +31,18 @@ export const customerWiseSalesApi = apiSlice.injectEndpoints({
     getSelectedColumnscustomer: builder.query({
       query: () => "/sales/drop-down-data/customer",
     }),
+    //export to excel date wise
+    getexportdataSalesCustomer: builder.query({
+      query: (body) => {
+        return {
+          url: "/sales/download-data",
+          method: "POST",
+          body: JSON.stringify(body),
+        };
+      },
+    }),
   }),
 });
 
-export const { useCustomerWiseSalesQuery, useGetGlobalsearchCustomerQuery, useGetSelectedColumnscustomerQuery } =
+export const { useCustomerWiseSalesQuery, useGetGlobalsearchCustomerQuery, useGetSelectedColumnscustomerQuery, useGetexportdataSalesCustomerQuery } =
   customerWiseSalesApi;

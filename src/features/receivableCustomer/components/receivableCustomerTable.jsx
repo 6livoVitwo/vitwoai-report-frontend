@@ -226,27 +226,22 @@ const CustomTable = ({
   //..........Api calling for dropdown for district-wise ............
   const { data: DistrictWiseData, refetch: refetchDistrict } =
     useGetselectedDistWiseQuery(filters);
-  // console.log("DistrictWiseData_🟠", DistrictWiseData);
 
   //..........Api calling for dropdown for city-wise ............
   const { data: CityWiseData, refetch: refetchcity } =
     useGetselectedCityWiseQuery(filters);
-  // console.log("CityWiseData_🟢", CityWiseData);
 
   //..........Api calling for dropdown for pincode-wise ............
   const { data: CountryWiseData, refetch: refetchcountry } =
     useGetselectedCountryWiseQuery(filters);
-  // console.log("CountryWiseData_🟣", CountryWiseData);
 
   //..........Api calling for dropdown for pincode-wise ............
   const { data: PincodeWiseData, refetch: refetchpincode } =
     useGetselectedPincodeWiseQuery(filters);
-  // console.log("PincodeWiseData_🟤", PincodeWiseData);
 
   //..........Api calling for dropdown for state-wise ............
   const { data: StateWiseData, refetch: refetchstate } =
     useGetselectedStateWiseQuery(filters);
-  // console.log("StateWiseData_🟡", StateWiseData);
 
   const RerionType = [
     { label: "State", value: "state" },

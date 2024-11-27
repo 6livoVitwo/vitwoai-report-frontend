@@ -4,7 +4,6 @@ export const graphApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     dynamicNew: builder.query({
       query: ({ endpoint, body, method }) => {
-        console.log('🟢💚 imss', { endpoint, body, method })
         if (method === "GET") {
           return ({
             url: endpoint,

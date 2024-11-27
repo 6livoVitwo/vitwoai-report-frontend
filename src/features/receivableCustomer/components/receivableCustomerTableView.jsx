@@ -10,7 +10,8 @@ const ReceivableCustomerTableView = () => {
   const { first, rows, onPageChange } = usePagination(10);
   const [intervalDays, setIntervalDays] = useState(20);
   const [bucket, setBucket] = useState(5);
-  const [asOnDate, setAsOnDate] = useState("2024-10-20");
+  const [asOnDate, setAsOnDate] = useState(new Date().toISOString().split("T")[0]);
+  
   const [allBuckets, setAllBuckets] = useState([
     { value: 0, label: "0-20" },
     { value: 21, label: "21-40" },
@@ -211,9 +212,12 @@ const ReceivableCustomerTableView = () => {
         >
           <Thead sx={{ backgroundColor: "#f8f9fa" }}>
             <Tr>
-              {columns.map((column, index) => (
-                <Th key={index}>{column}</Th>
-              ))}
+              {columns
+                .map((column, index) => {
+                  return (
+                    <Th key={index}>{column}</Th>
+                  )
+                })}
               {allBuckets.map((bucket, index) => (
                 <Th bg={"green.100"} key={`due-${index}`}>
                   {bucket.label} Due
@@ -265,7 +269,7 @@ const ReceivableCustomerTableView = () => {
           first={first}
           totalRecords={totalRecords}
           rows={rows}
-          rowsPerPageOptions={[10, 25, 50, 100, 200, 500]}
+          rowsPerPageOptions={[10, 25, totalRecords > 25 && parseInt(totalRecords / 5).toFixed(0), totalRecords > 25 && parseInt(totalRecords / 2).toFixed(0), totalRecords > 25 && totalRecords]}
           onPageChange={handlePageChange}
         />
       </Box>

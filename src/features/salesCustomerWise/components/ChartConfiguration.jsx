@@ -1,20 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDynamicNewQuery } from "../slice/graphApi";
-import {
-  Alert,
-  AlertIcon,
-  Box,
-  Button,
-  Divider,
-  Grid,
-  Heading,
-  Input,
-  Select,
-  Spinner,
-  Stack,
-  Text,
-  useToast,
-} from "@chakra-ui/react";
+import { Alert, AlertIcon, Box, Button, Divider, Grid, Heading, Input, Select, Spinner, Stack, Text, useToast } from "@chakra-ui/react";
 import { capitalizeWord, lastDateOfMonth } from "../../../utils/common";
 import { MdRemoveRedEye, MdSave } from "react-icons/md";
 import { MultiSelect } from "primereact/multiselect";
@@ -40,11 +26,10 @@ const graphDescriptions = {
 };
 
 const ChartConfiguration = ({ configureChart }) => {
-  console.log("Props:", configureChart);
 
   const today = new Date().toISOString().slice(0, 10);
   const currentDate = new Date();
-  const { type, group } = configureChart;
+  const { type } = configureChart;
 
   const toast = useToast();
   const [chartDataApi, setChartDataApi] = useState([]);
@@ -195,8 +180,6 @@ const ChartConfiguration = ({ configureChart }) => {
   });
 
   const chartConfig = chartApiConfig[type];
-  const { endpoint, body } = chartConfig || {};
-  console.log("chartConfig1:", chartConfig);
 
   const selectedConfig = Array.isArray(chartConfig)
     ? chartConfig.find((config) => config.wise === wise)
@@ -210,34 +193,14 @@ const ChartConfiguration = ({ configureChart }) => {
   } = useDynamicNewQuery(
     selectedConfig
       ? {
-          endpoint: selectedConfig.endpoint,
-          body: selectedConfig.body,
-        }
+        endpoint: selectedConfig.endpoint,
+        body: selectedConfig.body,
+      }
       : null
   );
 
-//  useEffect(() => {
-//    if (graphData && graphData.length > 0) {
-//      setCurrentDescription(
-//        graphData[0].description || graphDescriptions[type] 
-//      );
-//    }
-//  }, [graphData]);
-
-//  const handleGraphPointClick = (index) => {
-//    if (graphData && graphData[index]) {
-//      console.log("Clicked Data Point:", graphData[index]);
-//      setCurrentDescription(
-//        graphData[index].description || "No description available"
-//      );
-//    }
-//  };
-
   useEffect(() => {
-    console.log("Selected Config:", selectedConfig);
     if (graphData) {
-      console.log("Graph Data:", graphData);
-      console.log("Current Description:", currentDescription);
       setChartDataApi(graphData?.content);
     }
   }, [graphData]);
@@ -258,25 +221,6 @@ const ChartConfiguration = ({ configureChart }) => {
   if (!ChartComponent) {
     return <div>No valid chart type provided</div>;
   }
-
-  const updateChartConfig = (key, value) => {
-    console.log({ key, value });
-
-    setChartApiConfig((prevConfig) => {
-      const updatedConfig = prevConfig[type].map((config) => ({
-        ...config,
-        body: {
-          ...config.body,
-          [key]: value,
-        },
-      }));
-
-      return {
-        ...prevConfig,
-        [type]: updatedConfig,
-      };
-    });
-  };
 
   const yAxisOptions = [
     {
@@ -437,7 +381,7 @@ const ChartConfiguration = ({ configureChart }) => {
             <Box sx={{ height: "300px" }}>
               <ChartComponent
                 liveData={chartDataApi}
-                // onPointClick={handleGraphPointClick}
+              // onPointClick={handleGraphPointClick}
               />
             </Box>
           </Box>

@@ -3,7 +3,7 @@ import React from 'react'
 import { bumpChartData } from "../jsonData/chartData";
 
 const Bump = ({ data = bumpChartData, dynamicWidth }) => {
-
+  
   return (
     <>
       <ResponsiveBump
