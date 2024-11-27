@@ -105,7 +105,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     isOpen: isOpenGraphSettingDrawer,
   } = useDisclosure();
   const dispatch = useDispatch();
-  const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
+  const salesCustomerWise = useSelector((state) => state.graphSlice.widgets);
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [sortColumn, setSortColumn] = useState(" ");

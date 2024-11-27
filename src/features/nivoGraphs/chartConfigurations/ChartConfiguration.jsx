@@ -15,6 +15,7 @@ import useProcessedData from "../hooks/useProcessedData";
 const ChartConfiguration = ({ configureChart }) => {
   const { type } = configureChart;
   const widgets = useSelector((state) => state.graphSlice.widgets);
+  console.log('🟢', {widgets})
   const toast = useToast();
   const dispatch = useDispatch();
   const { selectedWise, reportType } = useSelector((state) => state.graphSlice);
@@ -37,6 +38,13 @@ const ChartConfiguration = ({ configureChart }) => {
   const [chartApiConfig, setChartApiConfig] = useState(initialChartApiConfig(selectedWise, type, processFlow, bodyWise));
   const [selectedValues, setSelectedValues] = useState(null);
   const [selectedPieValues, setSelectedPieValues] = useState(null);
+  const token = useSelector((state) => state.auth.authDetails);
+  // decode data from token
+  const decodedToken = useMemo(() => {
+    return token ? JSON.parse(atob(token.split('.')[1])) : null;
+  }, [token]);
+
+  console.log({decodedToken})
   console.log({selectedPieValues})
   const handleInputType = (data) => {
     let { startDate: newStartDate, endDate: newEndDate } = setDateRange(data);
@@ -233,10 +241,15 @@ const ChartConfiguration = ({ configureChart }) => {
   // handle save button
   const handleSaveBtn = () => {
     const localStorageWidgets = JSON.parse(localStorage.getItem("widgets")) || [];
+    const companyId = decodedToken?.data?.company_id;
+    const branchId = decodedToken?.data?.branch_id;
+    const locationId = decodedToken?.data?.location_id;
+    const userId = decodedToken?.data?.authUserId;
 
     const widgetIndex = widgets.findIndex(
-      (widget) => widget.type === type && widget.selectedWise === selectedWise
+      (widget) => widget.type === type && widget.selectedWise === selectedWise && widget.companyId === companyId && widget.branchId === branchId && widget.locationId === locationId && widget.userId === userId
     );
+
     const id = widgetIndex === -1 ? Date.now().toString() : localStorageWidgets[widgetIndex].id;
     const widgetData = {
       id: id,
@@ -256,7 +269,11 @@ const ChartConfiguration = ({ configureChart }) => {
       inputType,
       endpoint,
       body,
-      method
+      method,
+      companyId,
+      branchId,
+      locationId,
+      userId
     };
 
     const saveWidgetsToLocalStorage = (widgets) => {
@@ -516,7 +533,7 @@ const ChartConfiguration = ({ configureChart }) => {
                                 </option>
                               ))}
                             </Select>
-                            <MultiSelect
+                            {/* <MultiSelect
                               display="chip"
                               value={selectedPieValues}
                               options={graphData?.content?.map((option, index) => {
@@ -528,7 +545,7 @@ const ChartConfiguration = ({ configureChart }) => {
                               })}
                               placeholder="Select X-Axis"
                               onChange={(e) => handleMultiSelectPie(e.value)}
-                            />
+                            /> */}
                             </>
                           ) : (
                             <MultiSelect

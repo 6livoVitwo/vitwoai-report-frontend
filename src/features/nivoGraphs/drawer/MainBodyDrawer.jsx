@@ -1,5 +1,5 @@
 import { Alert, Badge, Box, Button, Divider, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, DrawerOverlay, Text, useDisclosure } from '@chakra-ui/react';
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { FiPlus, FiSettings } from 'react-icons/fi';
 import { MdFullscreen, MdRefresh } from 'react-icons/md';
 import DynamicChart from '../chartConfigurations/DynamicChart';
@@ -25,30 +25,41 @@ const MainBodyDrawer = (props) => {
     const localStorageWidgets = JSON.parse(localStorage.getItem('widgets')) || [];
     const checkWidgets = widgets?.length > 0 ? widgets : localStorageWidgets;
 
+    const token = useSelector((state) => state.auth.authDetails);
+    // decode data from token
+    const decodedToken = useMemo(() => {
+        return token ? JSON.parse(atob(token.split('.')[1])) : null;
+    }, [token]);
+
+    const companyId = decodedToken?.data?.company_id;
+    const branchId = decodedToken?.data?.branch_id;
+    const locationId = decodedToken?.data?.location_id;
+    const userId = decodedToken?.data?.authUserId;
+
     const filteredCharts = checkWidgets?.filter((chart) => {
-        return chart.selectedWise === selectedWise;
+        return chart.selectedWise === selectedWise && chart.reportType === reportType && chart.companyId === companyId && chart.branchId === branchId && chart.locationId === locationId && chart.userId === userId;
     });
-    
+
     const btnRef = React.useRef();
     const { onOpen: onOpenGraphSettingDrawer, onClose: onCloseGraphSettingDrawer, isOpen: isOpenGraphSettingDrawer } = useDisclosure();
     const { isOpen: isOpenGraphSettingsModal, onOpen: onOpenGraphSettingsModal, onClose: onCloseGraphSettingsModal } = useDisclosure();
     const { onOpen: onOpenGraphDetailsView } = useDisclosure();
     const { onClose } = useDisclosure();
-    
+
     const [configureChart, setConfigureChart] = useState({});
-    
+
     const items = [{ label: reportType }, { label: selectedWise }];
     const home = { icon: 'pi pi-home', url: 'https://primereact.org' }
-    
+
     const [chart, setChart] = useState({ endpoint: 'some-endpoint', body: {}, method: 'GET', type: 'some-type', processFlow: 'some-process-flow' });
 
     const { graphData, handleRefresh } = useChartRefresh(chart);
-    const processedGraphData = useProcessedData(graphData, chart?.type);    
+    const processedGraphData = useProcessedData(graphData, chart?.type);
 
     const handleGraphAddDrawer = () => {
         onOpenGraphSettingDrawer();
     };
-    
+
     const removeProperty = (object) => {
         if (!object) {
             return {};
@@ -79,7 +90,7 @@ const MainBodyDrawer = (props) => {
     const handleRefreshWidget = (chart) => {
         setChart(chart);
         handleRefresh(chart);
-        console.log('in the handleRefreshWidget', {processedGraphData})
+        console.log('in the handleRefreshWidget', { processedGraphData })
         dispatch(refreshWidget({ id: chart.id, data: processedGraphData }));
     }
 
