@@ -990,7 +990,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                 ) : (
                                   <Button
                                     bg="transparent"
-                                    onClick={() => handlePopoverClick(column)}
+                                    onClick={() =>{ handlePopoverClick(column)
+                                      setDates();
+                                    }}
                                   >
                                     <i
                                       className="pi pi-filter"
@@ -1009,7 +1011,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                     onClick={() => {
                                       setTempFilterCondition("");
                                       setTempFilterValue("");
-                                      setDates([]);
+                                      setActiveFilterColumn(null);
+                                      setCalendarVisible(false);
+                                      setDates();
                                     }}
                                   />
                                   <PopoverBody h="auto" maxH="300px">

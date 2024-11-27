@@ -105,7 +105,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     isOpen: isOpenGraphSettingDrawer,
   } = useDisclosure();
   const dispatch = useDispatch();
-  const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
+  const salesCustomerWise = useSelector((state) => state.graphSlice.widgets);
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [sortColumn, setSortColumn] = useState(" ");
@@ -1178,7 +1178,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                 ) : (
                                   <Button
                                     bg="transparent"
-                                    onClick={() => handlePopoverClick(column)}
+                                    onClick={() => {
+                                      handlePopoverClick(column)
+                                      setCalendarVisible(false);
+                                      setTempFilterCondition("");
+                                      setTempFilterValue("");
+                                      setDates();
+                                    }}
                                   >
                                     <i
                                       className="pi pi-filter"
@@ -1197,7 +1203,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                     onClick={() => {
                                       setTempFilterCondition("");
                                       setTempFilterValue("");
-                                      setDates([]);
+                                      setActiveFilterColumn("");
+                                      setDates();
+                                      setCalendarVisible(false);
                                     }}
                                   />
                                   <PopoverBody h="auto" maxH="300px">

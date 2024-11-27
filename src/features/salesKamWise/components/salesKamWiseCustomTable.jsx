@@ -18,6 +18,7 @@ import { useDispatch } from "react-redux";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
 import { useGetexportdataSalesKamQuery } from '../slice/salesKamWiseApi'
+import { set } from "lodash";
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
@@ -220,8 +221,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
       data: updatedSelectedColumns,
-    }));
-
+    }
+    ));
     const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
 
     const columnsChanged = JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
@@ -243,6 +244,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       status: "success",
       isClosable: true,
     });
+
   };
   useEffect(() => {
     if (isOpen) {
@@ -343,7 +345,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               p={3}
               bg="orange.300"
               borderRadius="md"
-              style={{ width: "300px", height: "80px",}}
+              style={{ width: "300px", height: "80px", }}
             >
               <Box fontWeight="bold">Please choose a valid range</Box>
               <Box>Selected date range exceeds one year. Please choose a valid range.</Box>
@@ -985,7 +987,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                 ) : (
                                   <Button
                                     bg="transparent"
-                                    onClick={() => handlePopoverClick(column)}
+                                    onClick={() =>{handlePopoverClick(column)
+                                      setCalendarVisible(false);
+                                      setTempFilterCondition("");
+                                      setTempFilterValue("");
+                                      setDates();
+                                    }}
                                   >
                                     <i
                                       className="pi pi-filter"
@@ -1004,7 +1011,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                     onClick={() => {
                                       setTempFilterCondition("");
                                       setTempFilterValue("");
-                                      setDates([]);
+                                      setActiveFilterColumn("");
+                                      setDates();
+                                      setCalendarVisible(false);
                                     }}
                                   />
                                   <PopoverBody h="auto" maxH="300px">

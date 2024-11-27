@@ -4,6 +4,7 @@ import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { usePoWisePurchaseQuery } from "../slice/purchasePoWiseApi";
+import Loader from "../../analyticloader/components/Loader";
 
 const PurchaseProductWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
@@ -33,7 +34,7 @@ const PurchaseProductWiseTableView = () => {
       "vendorDocumentNo",
       "SUM(items.igst)",
       "grnUpdatedBy",
-      
+
 
     ],
     groupBy: ["grnInvoice.grnPoNumber"],
@@ -117,14 +118,14 @@ const PurchaseProductWiseTableView = () => {
             p={3}
             bg="orange.300"
             borderRadius="md"
-            style={{ width: "300px", height: "70px" }} // Set custom width and height
+            style={{ width: "300px", height: "70px" }} 
           >
             <Box fontWeight="bold">No More Data</Box>
             <Box>You have reached the end of the list.</Box>
           </Box>
         ),
       });
-      setToastShown(true); // Mark the toast as shown
+      setToastShown(true); 
     }
   }, [sales, page, toast, toastShown]);
 
@@ -137,13 +138,7 @@ const PurchaseProductWiseTableView = () => {
         alignItems="center"
         justifyContent="center"
       >
-        <Spinner
-          thickness="4px"
-          speed="0.65s"
-          emptyColor="gray.200"
-          color="blue.500"
-          size="xl"
-        />
+        <Loader width={100} height={100} objectFit="contain" />
       </Box>
     );
   }

@@ -16,21 +16,22 @@ const SalesKamWiseTableView = () => {
   const [filters, setFilters] = useState({
     data: [
       "kam.kamCode",
+      "SUM(quotation.totalAmount)",
       "kam.kamName",
-      "kam.emp_code",
       "kam.designation",
-      "kam.contact",
+      "SUM(items.qty)",
       "invoice_no",
+      "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
+      "SUM(salesPgi.salesDelivery.totalAmount)",
+      "SUM(salesOrder.totalAmount)",
+      "kam.emp_code",
+      "SUM(salesPgi.totalAmount)",
+      "kam.email",
       "invoice_date",
-      // "SUM(due_amount)",
-      // "SUM(salesPgi.salesDelivery.totalAmount)",
-      // "SUM(salesPgi.totalAmount)",
-      // "SUM(quotation.totalAmount)",
-      // "SUM(salesOrder.totalAmount)",
-      // "SUM(items.qty)",
-      // "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
-      // "SUM(all_total_amt)",
-      // "SUM(items.totalTax)",
+      "SUM(all_total_amt)",
+      "kam.contact",
+      "SUM(due_amount)",
+      "SUM(items.totalTax)",
     ],
     groupBy: ["kam.kamName", "kam.kamCode"],
     filter: [],
@@ -88,7 +89,6 @@ const SalesKamWiseTableView = () => {
     }
   }, [sales]);
   useEffect(() => {
-    // Show the toast only if the user has scrolled to the last page and toast hasn't been shown
     if (sales?.totalPages < page && !toastShown) {
       toast({
         title: "No More Data",
@@ -101,14 +101,14 @@ const SalesKamWiseTableView = () => {
             p={3}
             bg="orange.300"
             borderRadius="md"
-            style={{ width: "300px", height: "70px" }} // Set custom width and height
+            style={{ width: "300px", height: "70px" }} 
           >
             <Box fontWeight="bold">No More Data</Box>
             <Box>You have reached the end of the list.</Box>
           </Box>
         ),
       });
-      setToastShown(true); // Mark the toast as shown
+      setToastShown(true); 
     }
   }, [sales, page, toast, toastShown]);
 
@@ -145,10 +145,6 @@ const SalesKamWiseTableView = () => {
       </Box>
     );
   }
-  // const newArray = individualItems.map((data, index) =>
-  //   extractFields(data, index)
-  // );
-  // const mainData = sales?.content;
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
       {individualItems.length > 0 && (

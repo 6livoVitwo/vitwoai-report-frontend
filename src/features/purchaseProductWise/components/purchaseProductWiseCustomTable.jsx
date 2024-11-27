@@ -377,6 +377,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setTempSelectedColumns(filteredColumns);
     }
   }, [isOpen, selectedColumns, columnData]);
+
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
   useEffect(() => {
     return () => {
@@ -461,6 +462,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         return 0;
       });
     }
+    else if (ProductData?.content && ProductData?.content.length > 0) {
+      filteredData = ProductData.content;
+    }
     // Advanced filters
     else if (
       productDataFilter?.content &&
@@ -477,6 +481,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     sortColumn,
     sortOrder,
     productDataFilter,
+    ProductData,
   ]);
   useEffect(() => {
     if (productDataFilter?.content && productDataFilter.content.length === 0) {
@@ -1077,7 +1082,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                   </ModalHeader>
                   <ModalCloseButton mt="5px" color="white" size="lg"
                     onClick={() => {
-                      setTempFilterCondition("");
                       setTempFilterValue("");
                       setDates();
                     }}
@@ -1268,7 +1272,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                   ) : (
                                     <Button
                                       bg="transparent"
-                                      onClick={() => handlePopoverClick(column)}
+                                      onClick={() => {
+                                        handlePopoverClick(column);
+                                        setCalendarVisible(false);
+                                        setDates();
+                                      }}
                                     >
                                       <i
                                         className="pi pi-filter"
@@ -1291,7 +1299,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                       onClick={() => {
                                         setTempFilterCondition("");
                                         setTempFilterValue("");
+                                        setActiveFilterColumn("");
                                         setDates();
+                                        setCalendarVisible(false);
                                       }}
                                     />
                                     <PopoverBody h="auto" maxH="300px">

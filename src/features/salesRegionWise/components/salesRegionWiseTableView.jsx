@@ -158,6 +158,8 @@ const SalesRegionWiseTableView = () => {
           setSize={setSize}
           filters={filters}
           setFilters={setFilters}
+          sortBy="kam.kamName"
+          sortDir="asc"
           alignment={{
             "SO Total Amount": "right",
             "SD Total Amount": "right",
