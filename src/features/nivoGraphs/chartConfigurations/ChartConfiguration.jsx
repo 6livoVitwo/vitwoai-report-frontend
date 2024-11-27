@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Alert, AlertIcon, Box, Button, Divider, Grid, Heading, Select, Spinner, Stack, useToast, Text, Badge, Card, CardFooter, CardBody } from "@chakra-ui/react";
 import { capitalizeWord } from "../../../utils/common";
 import { MdRemoveRedEye, MdSave } from "react-icons/md";
@@ -8,18 +8,20 @@ import { MultiSelect } from "primereact/multiselect";
 import { calculateCount, createBodyWise, setDateRange, updateBodyWise, updateCountAndWidth } from "../graphUtils/common";
 import TypingMaster from "../../dashboardNew/components/TypingMaster";
 import { useDynamicNewQuery } from "./graphApi";
-import { addWidget, updateWidget } from "./graphSlice";
+import { addWidget, getAllWidgets, updateWidget } from "./graphSlice";
 import { graphDescriptions, initialBodyWise, newEndpoint, initialStartDate, initialEndDate, newProcessFlow, chartComponents, initialChartApiConfig, yAxisOptions } from "../utils";
+import useProcessedData from "../hooks/useProcessedData";
 
 const ChartConfiguration = ({ configureChart }) => {
   const { type } = configureChart;
-  const currentWidgets = useSelector((state) => state.salescustomer.widgets);
+  const widgets = useSelector((state) => state.graphSlice.widgets);
+  console.log('🟢', {widgets})
   const toast = useToast();
   const dispatch = useDispatch();
   const { selectedWise, reportType } = useSelector((state) => state.graphSlice);
 
   // all states here
-  const [chartDataApi, setChartDataApi] = useState([]);
+  // const [chartDataApi, setChartDataApi] = useState([]);
   const [wise, setWise] = useState("sales");
   const [priceOrQty, setPriceOrQty] = useState("qty");
   const [valuetype, setValuetype] = useState("count");
@@ -34,7 +36,16 @@ const ChartConfiguration = ({ configureChart }) => {
   const [dynamicHeight, setDynamicHeight] = useState(4000);
   const [bodyWise, setBodyWise] = useState(initialBodyWise(selectedWise, type, priceOrQty, startDate, endDate, regionWise));
   const [chartApiConfig, setChartApiConfig] = useState(initialChartApiConfig(selectedWise, type, processFlow, bodyWise));
+  const [selectedValues, setSelectedValues] = useState(null);
+  const [selectedPieValues, setSelectedPieValues] = useState(null);
+  const token = useSelector((state) => state.auth.authDetails);
+  // decode data from token
+  const decodedToken = useMemo(() => {
+    return token ? JSON.parse(atob(token.split('.')[1])) : null;
+  }, [token]);
 
+  console.log({decodedToken})
+  console.log({selectedPieValues})
   const handleInputType = (data) => {
     let { startDate: newStartDate, endDate: newEndDate } = setDateRange(data);
     let newBodyWise = createBodyWise(data, newStartDate, newEndDate, priceOrQty);
@@ -176,14 +187,16 @@ const ChartConfiguration = ({ configureChart }) => {
 
   const chartConfig = chartApiConfig[type];
   const { endpoint, body, method } = chartConfig ? chartConfig.find((config) => config.wise === wise) : {};
-  const { data: graphData, isLoading, isError, error, } = useDynamicNewQuery(endpoint ? { endpoint: type === "funnel" ? processFlow : endpoint, body, method } : null, { skip: !endpoint });
-
-  let finalData = graphData?.data || [];
-  if (type === "funnel") {
-    finalData = graphData?.steps || [];
-  } else if (type === "bar" || type === "pie") {
-    finalData = graphData?.content || [];
-  }
+  const { data: graphData, isLoading, isError, error } = useDynamicNewQuery(endpoint ? { endpoint: type === "funnel" ? processFlow : endpoint, body, method } : null, { skip: !endpoint });
+  console.log('In the chart config: ', { graphData });
+  const finalData = useMemo(() => {
+    if (type === "funnel") {
+      return graphData?.steps || [];
+    } else if (type === "bar" || type === "pie") {
+      return graphData?.content || [];
+    }
+    return graphData?.data || [];
+  }, [graphData, type]);
 
   useEffect(() => {
     if (type === "heatmap") {
@@ -195,44 +208,8 @@ const ChartConfiguration = ({ configureChart }) => {
     }
   }, [type]);
 
-  useEffect(() => {
-    let isMounted = false;
-    if (finalData) {
-      let processedData = [];
-
-      if (type === "pie") {
-        processedData = finalData.map((product, index) => {
-          return {
-            id: index,
-            label: product?.yaxis,
-            value: product?.all_total_amt,
-          };
-        });
-      } else if (type === "bar") {
-        processedData = finalData;
-      } else {
-        processedData = finalData.map((item) => {
-          return {
-            ...item,
-            data: item?.data?.map((entry) => {
-              return {
-                ...entry,
-                y: parseFloat(entry?.y),
-              };
-            }),
-          };
-        });
-      }
-
-      if (!isMounted) {
-        setChartDataApi(processedData || []);
-      }
-    }
-
-    return () => {
-      isMounted = true;
-    };
-  }, [finalData, endDate]);
+  const processedData = useProcessedData(finalData, type);
+  console.log({ processedData, finalData });
 
   const ChartComponent = chartComponents[type];
   if (isLoading) return <Spinner />;
@@ -263,41 +240,88 @@ const ChartConfiguration = ({ configureChart }) => {
 
   // handle save button
   const handleSaveBtn = () => {
-    const widgetIndex = currentWidgets.findIndex(
-      (widget) => widget.type === type
+    const localStorageWidgets = JSON.parse(localStorage.getItem("widgets")) || [];
+    const companyId = decodedToken?.data?.company_id;
+    const branchId = decodedToken?.data?.branch_id;
+    const locationId = decodedToken?.data?.location_id;
+    const userId = decodedToken?.data?.authUserId;
+
+    const widgetIndex = widgets.findIndex(
+      (widget) => widget.type === type && widget.selectedWise === selectedWise && widget.companyId === companyId && widget.branchId === branchId && widget.locationId === locationId && widget.userId === userId
     );
 
+    const id = widgetIndex === -1 ? Date.now().toString() : localStorageWidgets[widgetIndex].id;
     const widgetData = {
-      id: "1",
-      chartName: `Chart (${wise})`,
+      id: id,
+      chartName: `Chart (${selectedWise})`,
       title: `${type.charAt(0).toUpperCase() + type.slice(1)} Chart`,
       type: type,
       group: "distributionComparison",
       pinned: true,
       description: `This is ${type} Chart`,
-      data: chartDataApi || [],
+      data: processedData || [],
+      selectedWise,
+      reportType,
+      dynamicWidth,
+      dynamicHeight,
+      startDate,
+      endDate,
+      inputType,
+      endpoint,
+      body,
+      method,
+      companyId,
+      branchId,
+      locationId,
+      userId
     };
 
-    if (widgetIndex === -1) {
-      dispatch(addWidget(widgetData));
-    } else {
-      dispatch(
-        updateWidget({
-          index: widgetIndex,
-          ...widgetData,
-        })
-      );
+    const saveWidgetsToLocalStorage = (widgets) => {
+      localStorage.setItem("widgets", JSON.stringify(widgets));
     }
-    toast({
-      title: "Chart Saved Successfully",
-      status: "success",
-      isClosable: true,
-    });
+
+    const updatedWidgets = [...localStorageWidgets, widgetData];
+    if (widgetIndex === -1) {
+      saveWidgetsToLocalStorage(updatedWidgets);
+      dispatch(addWidget(widgetData));
+      dispatch(getAllWidgets());
+      toast({
+        title: "Chart Saved Successfully",
+        status: "success",
+        isClosable: true,
+      });
+    } else {
+      dispatch(updateWidget({ id, data: widgetData }));
+      toast({
+        title: "Chart Updated Successfully",
+        status: "success",
+        isClosable: true,
+      })
+    }
   };
 
   const handleProcessFlow = (value) => {
     setProcessFlow(value);
   };
+
+  const handleMultiSelect = (value) => {
+    setSelectedValues(value);
+    console.log('in the handleMultiSelect', { value });
+    setChartApiConfig((prevConfig) => ({
+      ...prevConfig,
+      [type]: prevConfig[type].map((config) => ({
+        ...config,
+        body: {
+          ...config.body,
+          yaxis: value,
+        },
+      })),
+    }));
+  }
+
+  const handleMultiSelectPie = (value) => {
+    setSelectedPieValues(value);
+  }
 
   return (
     <Card variant={"unstyled"}>
@@ -339,7 +363,7 @@ const ChartConfiguration = ({ configureChart }) => {
                 {error && <Alert status="error">{error?.error}</Alert>}
 
                 {!error && <ChartComponent
-                  liveData={chartDataApi}
+                  liveData={processedData}
                   startDate={startDate}
                   endDate={endDate}
                   dynamicWidth={dynamicWidth}
@@ -495,32 +519,48 @@ const ChartConfiguration = ({ configureChart }) => {
                       )}
 
                     {(type === "bar" || type === "pie") && (
-                      <Grid templateColumns="repeat(1, 1fr)" gap={6}>
-                        <Stack spacing={3}>
+                      <Grid templateColumns="repeat(1, 1fr)" gap={6} >
+                        <Stack spacing={3} >
                           <Text fontSize="sm" fontWeight="500">
                             Y Axis
                           </Text>
                           {type === "pie" ? (
+                            <>
                             <Select size="lg" onChange={handleYAxisChange}>
-                              {yAxisOptions().map((option) => (
+                              {yAxisOptions(reportType).map((option) => (
                                 <option key={option.value} value={option.value}>
                                   {option.label}
                                 </option>
                               ))}
                             </Select>
+                            {/* <MultiSelect
+                              display="chip"
+                              value={selectedPieValues}
+                              options={graphData?.content?.map((option, index) => {
+                                console.log('in the pie option', option)
+                                return {
+                                  value: option?.xaxis,
+                                  label: option?.xaxis,
+                                }
+                              })}
+                              placeholder="Select X-Axis"
+                              onChange={(e) => handleMultiSelectPie(e.value)}
+                            /> */}
+                            </>
                           ) : (
                             <MultiSelect
                               display="chip"
-                              options={yAxisOptions().map((option) => ({
+                              value={selectedValues}
+                              options={yAxisOptions(reportType).map((option) => ({
                                 value: option.value,
                                 label: option.label,
                               }))}
                               placeholder="Select Y-Axis"
-                              onChange={handleYAxisChange}
+                              onChange={(e) => handleMultiSelect(e.value)}
                             />
                           )}
                         </Stack>
-                        <Stack spacing={3}>
+                        <Stack spacing={3} >
                           <Text fontSize="sm" fontWeight="500">
                             Filter
                           </Text>

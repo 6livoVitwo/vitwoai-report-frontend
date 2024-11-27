@@ -23,3 +23,11 @@ export const lastDateOfMonth = (currentDate) => {
 
   return lastMonthDate;
 };
+
+export const formatWordBetweenDashes = (words) => {
+  // Split the string by dashes, capitalize each part, and join with spaces
+  return words
+      .split('-') // Split the word into parts by dashes
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize first letter of each part
+      .join(' '); // Join the parts together with spaces
+}

@@ -50,6 +50,7 @@ import {
   Alert,
   Tooltip,
   Divider,
+  Spinner,
 } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
@@ -79,6 +80,7 @@ import { Calendar } from "primereact/calendar";
 import { useGetSelectedColumnsVerticalQuery } from "../slice/salesVerticalWiseApi";
 import { useGetGlobalsearchVerticalQuery } from "../slice/salesVerticalWiseApi";
 import { useVerticalWiseSalesQuery } from "../slice/salesVerticalWiseApi";
+import { useGetexportdataSalesVerticalQuery } from "../slice/salesVerticalWiseApi"
 import { set } from "lodash";
 
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
@@ -103,11 +105,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     isOpen: isOpenGraphSettingDrawer,
   } = useDisclosure();
   const dispatch = useDispatch();
-  const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
-  console.log(salesCustomerWise, "salesCustomerWise1");
+  const salesCustomerWise = useSelector((state) => state.graphSlice.widgets);
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
-  const [sortColumn, setSortColumn] = useState("companyFunction.functionalities_name");
+  const [sortColumn, setSortColumn] = useState(" ");
   const [sortOrder, setSortOrder] = useState("asc");
   const [currentPage, setCurrentPage] = useState(0);
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
@@ -117,6 +118,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [triggerFilter, setTriggerFilter] = useState(false);
   const [triggerSort, setTriggerSort] = useState(false);
+  const [initialized, setInitialized] = useState(false);
+  const [localFiltersdate, setLocalFiltersdate] = useState(null);
+  const [triggerApiCall, setTriggerApiCall] = useState(false);
+  const [selectdate, setSelectdate] = useState([]);
+
 
   const btnRef = React.useRef();
 
@@ -130,6 +136,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setActiveFilterColumn(column);
   }
 
+  // ...Export API CALL...
+  const { data: exportData } = useGetexportdataSalesVerticalQuery(localFiltersdate || {}, { skip: !triggerApiCall },
+    { setLoading: true }
+  );
 
   //.........Api call drop down selected columns.......
   const { data: selectedColumnsData, refetch: refetchSelectedColumns } = useGetSelectedColumnsVerticalQuery();
@@ -227,6 +237,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const loadMoreData = async () => {
     if (!loading) {
       setLoading(true);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       // Fetch or generate new data
       const moreData = [...newArray]; // Assuming newArray contains new data
       setData((prevData) => {
@@ -239,12 +250,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   useEffect(() => {
-    const initialColumns = getColumns(data)
-      .slice(0, 8)
-      .map((column) => column.field);
-    setDefaultColumns(initialColumns);
-    setSelectedColumns(initialColumns);
-  }, [data]);
+    if (!initialized && data.length > 0) {
+      const initialColumns = getColumns(data)
+        .slice(0, 8)
+        .map((column) => column.field);
+      setDefaultColumns(initialColumns);
+      setSelectedColumns(initialColumns);
+      setTempSelectedColumns(initialColumns);
+      setInitialized(true);
+    }
+  }, [data, initialized]);
 
   const getColumns = useCallback((data) => {
     if (!data || data.length === 0) {
@@ -397,7 +412,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     window.location.reload();
   };
   const clearsingleFilter = (column) => {
-    console.log('Clearing filter for column:', column);
     setLocalFilters((prevFilters) => {
       const updatedFilters = {
         ...prevFilters,
@@ -418,6 +432,85 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setActiveFilterColumn(null);
     // refetchVerticalfilter();
   };
+
+  // function date expoet Calling for date filter
+  const handleFilter = () => {
+    handleDateSelection(dates);
+  };
+  useEffect(() => {
+    if (selectdate && selectdate.length > 0) {
+      const [startDate, endDate] = selectdate;
+      const oneYearInMillis = 365 * 24 * 60 * 60 * 1000;
+      if (new Date(endDate) - new Date(startDate) > oneYearInMillis) {
+        toast({
+          title: "No More Data",
+          description: "You have reached the end of the list.",
+          status: "warning",
+          isClosable: true,
+          duration: 4000,
+          render: () => (
+            <Box
+              p={3}
+              bg="orange.300"
+              borderRadius="md"
+              style={{ width: "300px", height: "80px" }}
+            >
+              <Box fontWeight="bold">Please choose a valid range</Box>
+              <Box>Selected date range exceeds one year. Please choose a valid range.</Box>
+            </Box>
+          ),
+        });
+        return;
+      }
+      setLocalFiltersdate({
+        data: selectedColumns,
+        groupBy: ["companyFunction.functionalities_name"],
+        filter: [
+          {
+            column: "invoice_date",
+            operator: "between",
+            type: "date",
+            value: selectdate,
+          },
+        ],
+        timestamp: new Date().getTime(),
+      });
+      setTriggerApiCall(true);
+
+    }
+  }, [selectdate]);
+
+  const formattedDates = (dates) => {
+    return dates.map((date) => {
+      if (date) {
+        const adjustedDate =
+          new Date(date);
+        adjustedDate.setMinutes(
+          adjustedDate.getMinutes() -
+          adjustedDate.getTimezoneOffset()
+        );
+        const value = adjustedDate
+          .toISOString()
+          .split("T")[0];
+        return value;
+      }
+      return null;
+    });
+  }
+  const handleDateSelection = (dates) => {
+    const formatDate = formattedDates(dates);
+    setSelectdate(formatDate);
+  };
+
+  //hide the calendar
+  const handleDateChange = (e) => {
+    setDates(e.value);
+    if (e.value[0] && e.value[1]) {
+      setCalendarVisible((prevKey) => prevKey + 1);
+    }
+  };
+
+
 
   //sort asc desc
   const handleSort = (column) => {
@@ -497,16 +590,15 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     return column;
   };
 
+  let previousScrollLeft = 0;
   const handleScroll = () => {
-    const { scrollTop, scrollHeight, clientHeight, scrollLeft, scrollRight } =
+    const { scrollTop, scrollHeight, clientHeight, scrollLeft } =
       tableContainerRef.current;
-
-    if (
-      scrollRight === 0 &&
-      scrollLeft === 0 &&
-      scrollTop + clientHeight >= scrollHeight - 5 &&
-      !loading
-    ) {
+    if (scrollLeft !== previousScrollLeft) {
+      previousScrollLeft = scrollLeft;
+      return;
+    }
+    if (scrollTop + clientHeight >= scrollHeight - 5 && !loading) {
       loadMoreData();
     }
   };
@@ -587,9 +679,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         },
       }));
 
-      // Log the updated filters for debugging
-      console.log("Updated Filters:", updatedFilters);
-
       // Update local filters state
       setLocalFilters(updatedFilters);
       setFiltersApplied(true);
@@ -613,11 +702,47 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     }
     setTriggerFilter(true);
   };
-
-
+  useEffect(() => {
+    if (exportData) {
+      exportToExcelDaterange(exportData);
+    }
+  }, [exportData])
+  const exportToExcelDaterange = (data) => {
+    import("xlsx").then((xlsx) => {
+      const formattedData = data?.content?.map((item) => {
+        const formattedItem = {};
+        for (const key in item) {
+          formattedItem[formatHeader(key)] = item[key];
+        }
+        return formattedItem;
+      })
+      const worksheet = xlsx.utils.json_to_sheet(formattedData);
+      const workbook = {
+        Sheets: { data: worksheet },
+        SheetNames: ["data"],
+      };
+      const excelBuffer = xlsx.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+      saveAs(
+        new Blob([excelBuffer], {
+          type: "application/octet-stream",
+        }),
+        "customers.xlsx"
+      );
+    });
+  };
   const exportToExcel = () => {
     import("xlsx").then((xlsx) => {
-      const worksheet = xlsx.utils.json_to_sheet(filteredItems);
+      const formattedData = filteredItems.map((item) => {
+        const formattedItem = {};
+        for (const key in item) {
+          formattedItem[formatHeader(key)] = item[key];
+        }
+        return formattedItem;
+      })
+      const worksheet = xlsx.utils.json_to_sheet(formattedData);
       const workbook = {
         Sheets: { data: worksheet },
         SheetNames: ["data"],
@@ -852,23 +977,18 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         padding="5px"
                         alignItems="center">
                         <Calendar
-                          value={startDate}
-                          onChange={(e) => setStartDate(e.value)}
-                          placeholder="Start Date"
+                          key={calendarVisible}
+                          value={dates}
+                          placeholder="Select date"
                           style={{
-                            width: "150px",
-                            padding: "5px",
+                            width: "50%",
+                            height: "35px",
+                            borderRadius: "5px",
                           }}
-                        />
-                        <Text>to</Text>
-                        <Calendar
-                          value={endDate}
-                          onChange={(e) => setEndDate(e.value)}
-                          placeholder="End Date"
-                          style={{
-                            width: "150px",
-                            padding: "5px",
-                          }}
+                          onChange={handleDateChange}
+                          selectionMode="range"
+                          readOnlyInput
+                          hideOnRangeSelection
                         />
                       </Box>
                     </Box>
@@ -884,7 +1004,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         bg: "var(--chakra-colors-mainBlue)",
                       }}
                       color="white"
-                      onClick={onCloseDownloadReportModal}>
+                      onClick={() => {
+                        onCloseDownloadReportModal();
+                        setDates();
+                      }}>
                       Close
                     </Button>
                     <Button
@@ -894,8 +1017,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                       _hover={{
                         bg: "var(--chakra-colors-mainBlue)",
                       }}
-                      color="white">
-                      Filter
+                      color="white"
+                      onClick={() => {
+                        handleFilter();
+                        onCloseDownloadReportModal();
+                        setDates();
+                      }}
+                    >
+                      Export
                     </Button>
                   </ModalFooter>
                 </ModalContent>
@@ -1217,6 +1346,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                     <Tr>
                       <Td textAlign="center" colSpan={selectedColumns.length}>
                         No data available
+                      </Td>
+                    </Tr>
+                  )}
+                  {loading && (
+                    <Tr>
+                      <Td colSpan={selectedColumns.length} textAlign="center">
+                        <Spinner size="lg" color="blue.500" />
+                        <Text mt={2} fontSize="1.2rem" color="#4e4e4e">
+                          Loading more data...
+                        </Text>
                       </Td>
                     </Tr>
                   )}

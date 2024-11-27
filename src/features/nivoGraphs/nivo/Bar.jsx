@@ -3,6 +3,7 @@ import React from 'react';
 import { barChartData } from "../jsonData/chartData";
 
 const Bar = ({ data = barChartData, dynamicWidth }) => {
+  
   const dataKeys = Object.keys(data[0] || {});
   const keysCommaSeparated = dataKeys.join(',');
   const keys = keysCommaSeparated.split(',').filter(key => key !== 'xaxis');
@@ -12,7 +13,7 @@ const Bar = ({ data = barChartData, dynamicWidth }) => {
       <ResponsiveBar
         data={data}
         // {...(dynamicWidth > 0 && { height: 600 })}
-        {...(dynamicWidth > 0 && { width: 3500 })}
+        {...(dynamicWidth > 0 && { width: dynamicWidth })}
         {...(dynamicWidth > 0 ? { keys: keys } : {
           keys: [
             'hot dog',

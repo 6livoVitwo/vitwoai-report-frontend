@@ -3,6 +3,7 @@ import React from "react";
 import { pieChartData } from "../jsonData/chartData";
 
 const Pie = ({ data = pieChartData, dynamicWidth}) => {
+
   return (
     <ResponsivePie
       data={data}

@@ -1,88 +1,23 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-  useRef,
-} from "react";
-import {
-  Box,
-  Button,
-  useDisclosure,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  TableContainer,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  Checkbox,
-  Input,
-  Text,
-  Select,
-  useToast,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverBody,
-  PopoverCloseButton,
-  PopoverArrow,
-  Drawer,
-  DrawerOverlay,
-  DrawerContent,
-  DrawerCloseButton,
-  DrawerHeader,
-  DrawerBody,
-  Alert,
-  Badge,
-  Divider,
-  DrawerFooter,
-  PopoverHeader,
-  Tooltip,
-} from "@chakra-ui/react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { Box, Button, useDisclosure, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Checkbox, Input, Text, Select, useToast, Menu, MenuButton, MenuList, MenuItem, Popover, PopoverTrigger, PopoverContent, PopoverBody, PopoverCloseButton, PopoverArrow, PopoverHeader, Tooltip, Spinner } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faGear,
-  faChartLine,
-  faArrowDownShortWide,
-  faArrowUpWideShort,
-  faArrowRightArrowLeft,
-} from "@fortawesome/free-solid-svg-icons";
+import { faGear, faChartLine, faArrowDownShortWide, faArrowUpWideShort, faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { saveAs } from "file-saver";
 import { faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { DownloadIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
-import { useSelector } from "react-redux";
 import { Calendar } from "primereact/calendar";
-import { FiPlus, FiSettings } from "react-icons/fi";
-import NewMyCharts from "../../dashboardNew/nivo/NewMyCharts";
-import ReactDatePicker from "react-datepicker";
 import { useGetSelectedColumnsproductQuery } from "../slice/salesProductWiseApi";
 import { useProductWiseSalesQuery } from "../slice/salesProductWiseApi";
 import { useGetGlobalsearchProductQuery } from "../slice/salesProductWiseApi";
-import { all } from "axios";
-import DynamicChart from "../../nivoGraphs/chartConfigurations/DynamicChart";
-import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfiguration";
-import { chartsData } from "../../nivoGraphs/jsonData/graphSkeleton";
-import { useDispatch } from "react-redux";
+import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
-import { MdFullscreen } from "react-icons/md";
-import { set } from "lodash";
+import { useDispatch } from "react-redux";
+import { useGetexportdataSalesProductQuery } from "../slice/salesProductWiseApi"
 
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [data, setData] = useState([...newArray]);
@@ -96,34 +31,29 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [columnFilters, setColumnFilters] = useState({});
   const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
-  const [configureChart, setConfigureChart] = useState({});
-  const salesCustomerWise = useSelector((state) => state.salescustomer.widgets);
+  const [initialized, setInitialized] = useState(false);
+
+  const dispatch = useDispatch();
+
   const [tempFilterCondition, setTempFilterCondition] = useState("");
-  const [filterCondition, setFilterCondition] = useState("");
-  const [filterValue, setFilterValue] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [columns, setColumns] = useState([]);
   const [sortColumn, setSortColumn] = useState("invoice_date");
   const [sortOrder, setSortOrder] = useState("asc");
-  const [currentPage, setCurrentPage] = useState(0);
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
-  const [fullData, setFullData] = useState([]);
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const [dates, setDates] = useState(null);
-  const [calendarVisible, setCalendarVisible] = useState(false);
   const [triggerFilter, setTriggerFilter] = useState(false);
   const [triggerSort, setTriggerSort] = useState(false);
-
+  const [localFiltersdate, setLocalFiltersdate] = useState(null);
+  const [triggerApiCall, setTriggerApiCall] = useState(false);
+  const [selectdate, setSelectdate] = useState([]);
+  const [calendarVisible, setCalendarVisible] = useState(false);
 
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
-  };
-  const parseDate = (dateString) => {
-    return new Date(Date.parse(dateString));
   };
 
   //......Advanced Filtering....
@@ -134,35 +64,22 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     }
   );
 
+  // ...Export API CALL...
+  const { data: exportData } = useGetexportdataSalesProductQuery(
+    localFiltersdate || {}, { skip: !triggerApiCall });
 
   //api call for drop-down-data columns....
   const { data: columnData, refetch: refetchColumnData } =
     useGetSelectedColumnsproductQuery();
 
-  // api call for sort A-Z
-  const { data: productWise, refetch: refetchProductWiseSales } =
-    useProductWiseSalesQuery({
-      filters: {
-        ...filters,
-        sortBy: sortColumn,
-        sortDir: sortOrder,
-      },
-      page: currentPage,
-    }, {
-      skip: !triggerSort,
-    });
-
-
   //.........Api call to get global search.......
   const { data: searchData } = useGetGlobalsearchProductQuery(filters, {
     skip: !searchQuery,
   });
-  const dispatch = useDispatch();
 
   const toast = useToast();
   const tableContainerRef = useRef(null);
   const {
-    onOpen: onOpenFilterModal,
     onClose: onCloseFilterModal,
     isOpen: isOpenFilterModal,
   } = useDisclosure();
@@ -171,28 +88,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     onClose: onCloseDownloadReportModal,
     isOpen: isOpenDownloadReportModal,
   } = useDisclosure();
+
   const {
     onOpen: onOpenGraphAddDrawer,
     onClose: onCloseGraphAddDrawer,
     isOpen: isOpenGraphAddDrawer,
   } = useDisclosure();
-  const {
-    onOpen: onOpenGraphSettingDrawer,
-    onClose: onCloseGraphSettingDrawer,
-    isOpen: isOpenGraphSettingDrawer,
-  } = useDisclosure();
-  const {
-    isOpen: isOpenGraphSettingsModal,
-    onOpen: onOpenGraphSettingsModal,
-    onClose: onCloseGraphSettingsModal,
-  } = useDisclosure();
-  const {
-    isOpen: isOpenGraphDetailsView,
-    onOpen: onOpenGraphDetailsView,
-    onClose: onCloseGraphDetailsView,
-  } = useDisclosure();
-
-  const btnRef = React.useRef();
 
   const getColumnStyle = (header) => ({
     textAlign: alignment[header] || "left",
@@ -241,6 +142,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const loadMoreData = async () => {
     if (!loading) {
       setLoading(true);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       const moreData = [...newArray];
       setData((prevData) => {
         const uniqueData = [...new Set([...prevData, ...moreData])];
@@ -252,12 +154,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   useEffect(() => {
-    const initialColumns = getColumns(data)
-      .slice(0, 8)
-      .map((column) => column.field);
-    setDefaultColumns(initialColumns);
-    setSelectedColumns(initialColumns);
-  }, [data]);
+    if (!initialized && data.length > 0) {
+      const initialColumns = getColumns(data)
+        .slice(0, 8)
+        .map((column) => column.field);
+      setDefaultColumns(initialColumns);
+      setSelectedColumns(initialColumns);
+      setTempSelectedColumns(initialColumns);
+      setInitialized(true);
+    }
+  }, [data, initialized]);
 
   const getColumns = useCallback((data) => {
     if (!data || data.length === 0) {
@@ -414,7 +320,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   // Clear single filter active column.... 
   const clearsingleFilter = (column) => {
-    console.log('Clearing filter for column:', column);
     setLocalFilters((prevFilters) => {
       const updatedFilters = {
         ...prevFilters,
@@ -435,6 +340,88 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setActiveFilterColumn(null);
     refetchsalesproductdata();
   };
+
+  // function date expoet Calling for date filter
+  const handleFilter = () => {
+    if (!dates || dates.length === 0) {
+      alert("Please select dates before applying the filter!");
+      return;
+    }
+    handleDateSelection(dates);
+  };
+  useEffect(() => {
+    if (selectdate && selectdate.length > 0) {
+      const [startDate, endDate] = selectdate;
+      const oneYearInMillis = 365 * 24 * 60 * 60 * 1000;
+      if (new Date(endDate) - new Date(startDate) > oneYearInMillis) {
+        toast({
+          title: "No More Data",
+          description: "You have reached the end of the list.",
+          status: "warning",
+          isClosable: true,
+          duration: 4000,
+          render: () => (
+            <Box
+              p={3}
+              bg="orange.300"
+              borderRadius="md"
+              style={{ width: "300px", height: "80px" }}
+            >
+              <Box fontWeight="bold">Please choose a valid range</Box>
+              <Box>Selected date range exceeds one year. Please choose a valid range.</Box>
+            </Box>
+          ),
+        });
+        return;
+      }
+      setLocalFiltersdate({
+        data: selectedColumns,
+        groupBy: ["items.itemName"],
+        filter: [
+          {
+            column: "invoice_date",
+            operator: "between",
+            type: "date",
+            value: selectdate,
+          },
+        ],
+        timestamp: new Date().getTime(),
+      });
+      setTriggerApiCall(true);
+
+    }
+  }, [selectdate]);
+
+  const formattedDates = (dates) => {
+    return dates.map((date) => {
+      if (date) {
+        const adjustedDate =
+          new Date(date);
+        adjustedDate.setMinutes(
+          adjustedDate.getMinutes() -
+          adjustedDate.getTimezoneOffset()
+        );
+        const value = adjustedDate
+          .toISOString()
+          .split("T")[0];
+        return value;
+      }
+      return null;
+    });
+  }
+  const handleDateSelection = (dates) => {
+    const formatDate = formattedDates(dates);
+    setSelectdate(formatDate);
+  };
+
+  //hide the calendar
+  const handleDateChange = (e) => {
+    setDates(e.value);
+    if (e.value[0] && e.value[1]) {
+      setCalendarVisible((prevKey) => prevKey + 1);
+    }
+  };
+
 
   // Sorting logic
   const handleSort = (column) => {
@@ -492,7 +479,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   //scroll logic
   let previousScrollLeft = 0;
   const handleScroll = () => {
-    const { scrollTop, scrollHeight, clientHeight, scrollLeft, clientWidth } =
+    const { scrollTop, scrollHeight, clientHeight, scrollLeft } =
       tableContainerRef.current;
     if (scrollLeft !== previousScrollLeft) {
       previousScrollLeft = scrollLeft;
@@ -505,8 +492,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   useEffect(() => {
     const container = tableContainerRef.current;
     if (container) {
-      container.addEventListener("scroll", handleScroll);
-      return () => container.removeEventListener("scroll", handleScroll);
+      const debouncedHandleScroll = debounce(handleScroll, 200);
+      container.addEventListener("scroll", debouncedHandleScroll);
+      return () => container.removeEventListener("scroll", debouncedHandleScroll);
     }
   }, [loading, lastPage]);
 
@@ -588,9 +576,48 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setTriggerFilter(true);
   };
 
+  useEffect(() => {
+    if (exportData) {
+      exportToExcelDaterange(exportData);
+    }
+  }, [exportData])
+
+  const exportToExcelDaterange = (data) => {
+    import("xlsx").then((xlsx) => {
+      const formattedData = data?.content?.map((item) => {
+        const formattedItem = {};
+        for (const key in item) {
+          formattedItem[formatHeader(key)] = item[key];
+        }
+        return formattedItem;
+      })
+      const worksheet = xlsx.utils.json_to_sheet(formattedData);
+      const workbook = {
+        Sheets: { data: worksheet },
+        SheetNames: ["data"],
+      };
+      const excelBuffer = xlsx.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+      saveAs(
+        new Blob([excelBuffer], {
+          type: "application/octet-stream",
+        }),
+        "customers.xlsx"
+      );
+    });
+  };
   const exportToExcel = () => {
     import("xlsx").then((xlsx) => {
-      const worksheet = xlsx.utils.json_to_sheet(filteredItems);
+      const formattedData = filteredItems.map((item) => {
+        const formattedItem = {};
+        for (const key in item) {
+          formattedItem[formatHeader(key)] = item[key];
+        }
+        return formattedItem;
+      })
+      const worksheet = xlsx.utils.json_to_sheet(formattedData);
       const workbook = {
         Sheets: { data: worksheet },
         SheetNames: ["data"],
@@ -608,36 +635,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     });
   };
 
-  const removeProperty = (object) => {
-    if (!object) {
-      return {};
-    }
-    const { data, id, ...rest } = object;
-    return rest;
-  };
-
-  const handleConfigure = (chart) => {
-    if (!chart) {
-      return;
-    }
-    onOpenGraphSettingsModal();
-    const filterData = removeProperty(chart);
-    setConfigureChart(filterData);
-  };
-
-  const handleView = (chart) => {
-    if (!chart) {
-      return;
-    }
-    onOpenGraphDetailsView();
-    const filterData = removeProperty(chart);
-    setConfigureChart(filterData);
-  };
-
-  const handleGraphAddDrawer = () => {
-    onOpenGraphSettingDrawer();
+  const handleGraphViewDrawer = () => {
+    onOpenGraphAddDrawer();
     dispatch(handleGraphWise({ selectedWise: "sales-product-wise", reportType: 'sales' }));
-  };
+  }
 
   return (
     <Box bg="white" padding="0px 10px" borderRadius="5px">
@@ -790,7 +791,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           <Tooltip label="Graph View" hasArrow>
             <Button
               aria-label="Graph View"
-              onClick={onOpenGraphAddDrawer}
+              onClick={handleGraphViewDrawer}
               borderRadius="30px"
               width="40px"
               height="40px"
@@ -920,19 +921,18 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         alignItems="center"
                       >
                         <Calendar
-                          placeholder="Start Date"
+                          key={calendarVisible}
+                          value={dates}
+                          placeholder="Select date"
                           style={{
-                            width: "150px",
-                            padding: "5px",
+                            width: "50%",
+                            height: "35px",
+                            borderRadius: "5px",
                           }}
-                        />
-                        <Text>to</Text>
-                        <Calendar
-                          placeholder="End Date"
-                          style={{
-                            width: "150px",
-                            padding: "5px",
-                          }}
+                          onChange={handleDateChange}
+                          selectionMode="range"
+                          readOnlyInput
+                          hideOnRangeSelection
                         />
                       </Box>
                     </Box>
@@ -948,7 +948,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         bg: "var(--chakra-colors-mainBlue)",
                       }}
                       color="white"
-                      onClick={onCloseDownloadReportModal}
+                      onClick={() => {
+                        onCloseDownloadReportModal();
+                        setDates()
+                      }}
                     >
                       Close
                     </Button>
@@ -960,8 +963,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         bg: "var(--chakra-colors-mainBlue)",
                       }}
                       color="white"
+                      onClick={() => {
+                        handleFilter();
+                        onCloseDownloadReportModal();
+                        setDates();
+                      }}
                     >
-                      Filter
+                      Export
                     </Button>
                   </ModalFooter>
                 </ModalContent>
@@ -1303,6 +1311,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                       </Td>
                     </Tr>
                   )}
+                  {loading && (
+                    <Tr>
+                      <Td colSpan={selectedColumns.length} textAlign="center">
+                        <Spinner size="lg" color="blue.500" />
+                        <Text mt={2} fontSize="1.2rem" color="#4e4e4e">
+                          Loading more data...
+                        </Text>
+                      </Td>
+                    </Tr>
+                  )}
                 </Tbody>
               </Table>
             )}
@@ -1311,346 +1329,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       </TableContainer>
 
       {/* Main body drawer */}
-      <Drawer
-        isOpen={isOpenGraphAddDrawer}
-        placement="right"
-        onClose={onCloseGraphAddDrawer}
-        finalFocusRef={btnRef}
-      >
-        <DrawerOverlay />
-        <DrawerContent maxW="88vw">
-          <DrawerCloseButton style={{ color: "white" }} />
-          <DrawerHeader
-            style={{
-              backgroundColor: "#003060",
-              color: "white",
-            }}
-          >
-            Sales Product Wise
-          </DrawerHeader>
-          <DrawerBody>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                "& button": {
-                  color: "#718296",
-                  padding: "20px 20px",
-                  fontSize: "14px",
-                  border: "1px solid #dee2e6",
-                  backgroundColor: "white",
-                },
-                "& button:hover": {
-                  backgroundColor: "rgb(0, 48, 96)",
-                  borderRadius: "5px",
-                },
-              }}
-              mb={6}
-            >
-              <Text fontWeight="bold">Sales Wise Graph View</Text>
-              <Button
-                ref={btnRef}
-                type="button"
-                variant="outlined"
-                onClick={handleGraphAddDrawer}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                  _hover: {
-                    color: "white",
-                  },
-                }}
-              >
-                <FiPlus />
-                Add Graph
-              </Button>
-            </Box>
-
-            {/* Update sales graph details report */}
-            <Box display="flex" flexWrap="wrap" justifyContent="space-between">
-              {salesCustomerWise && salesCustomerWise?.length === 0 && (
-                <Alert
-                  status="error"
-                  sx={{
-                    fontSize: "16px",
-                    padding: "5px",
-                    borderRadius: "5px",
-                    height: "30px",
-                    px: "10px",
-                  }}
-                >
-                  No Sales Graph are there
-                </Alert>
-              )}
-              {salesCustomerWise &&
-                salesCustomerWise?.map((chart, index) => {
-                  return (
-                    <Box
-                      key={index}
-                      width={{
-                        base: "100%",
-                        lg: "49%",
-                      }}
-                      mb={6}
-                    >
-                      <Box
-                        sx={{
-                          backgroundColor: "white",
-                          padding: "15px",
-                          my: 2.5,
-                          borderRadius: "8px",
-                          transition: "box-shadow 0.3s ease-in-out",
-                          border: "1px solid #dee2e6",
-                          "&:hover": {
-                            boxShadow: "0 4px 4px rgba(0, 0, 0, 0.2)",
-                          },
-                        }}
-                        mb={3}
-                      >
-                        <Box
-                          display="flex"
-                          justifyContent="space-between"
-                          alignItems="center"
-                          mb={8}
-                        >
-                          <Box
-                            style={{
-                              padding: "10px",
-                              fontWeight: 600,
-                              color: "black",
-                            }}
-                          >
-                            {chart.chartName}
-                            <Text
-                              sx={{
-                                color: "#718296",
-                                fontSize: "10px",
-                              }}
-                            >
-                              {chart.description}
-                            </Text>
-                          </Box>
-                          <Box
-                            style={{
-                              padding: "10px",
-                              fontWeight: 600,
-                              color: "black",
-                            }}
-                          >
-                            <Button
-                              variant="outline"
-                              style={{
-                                padding: "15px 10px",
-                                fontSize: "12px",
-                                color: "#718296",
-                              }}
-                              mr={3}
-                              onClick={() => handleConfigure(chart)}
-                            >
-                              <FiSettings style={{ marginRight: "6px" }} />{" "}
-                              Configure
-                            </Button>
-
-                            <Button
-                              variant="outline"
-                              style={{
-                                padding: "15px 10px",
-                                fontSize: "12px",
-                                color: "#718296",
-                              }}
-                              mr={3}
-                              onClick={() => handleView(chart)}
-                            >
-                              <MdFullscreen style={{ marginRight: "6px" }} />{" "}
-                              Full Screen
-                            </Button>
-                          </Box>
-                        </Box>
-                        <Box sx={{ height: "300px" }}>
-                          <DynamicChart chart={chart} />
-                        </Box>
-                      </Box>
-                    </Box>
-                  );
-                })}
-            </Box>
-            {/* //sales-product-wise graph settings */}
-            <Drawer
-              isOpen={isOpenGraphSettingDrawer}
-              placement="right"
-              onClose={onCloseGraphSettingDrawer}
-              finalFocusRef={btnRef}
-            >
-              <DrawerOverlay />
-              <DrawerContent maxW="87vw">
-                <DrawerCloseButton style={{ color: "white" }} />
-                <DrawerHeader
-                  style={{
-                    backgroundColor: "#003060",
-                    color: "white",
-                  }}
-                >
-                  Choose Data Wise Graph
-                </DrawerHeader>
-                <DrawerBody>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 4px",
-                      p: 2,
-                      my: 2,
-                      flexGrow: 1,
-                    }}
-                  >
-                    Total Graph (
-                    {
-                      chartsData.charts.filter(
-                        (chart) =>
-                          chart.type !== "funnel" && chart.type !== "heatmap"
-                      ).length
-                    }
-                    )
-                  </Box>
-                  <Box
-                    display="flex"
-                    flexWrap="wrap"
-                    justifyContent="space-between"
-                  >
-                    {chartsData.charts.map((chart, index) => {
-                      if (chart.type === "funnel" || chart.type === "heatmap")
-                        return null;
-                      return (
-                        <Box
-                          key={index}
-                          width={{
-                            base: "100%",
-                            lg: "49.4%",
-                          }}
-                          mb={6}
-                        >
-                          <Box
-                            sx={{
-                              backgroundColor: "white",
-                              padding: "15px",
-                              my: 5,
-                              borderRadius: "8px",
-                              border: "1px solid #c4c4c4",
-                            }}
-                            mb={3}
-                          >
-                            <Box
-                              sx={{
-                                display: "flex",
-                                justifyContent: "flex-end",
-                                "& button": {
-                                  color: "#718296",
-                                  padding: "20px 20px",
-                                  fontSize: "14px",
-                                  border: "1px solid #dee2e6",
-                                  backgroundColor: "white",
-                                  borderRadius: "8px",
-                                },
-                                "& button:hover": {
-                                  backgroundColor: "rgb(0, 48, 96)",
-                                  borderRadius: "5px",
-                                  color: "white",
-                                },
-                              }}
-                              mb={6}
-                            >
-                              <Button
-                                type="button"
-                                variant="outlined"
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 1,
-                                  _hover: {
-                                    color: "white",
-                                  },
-                                }}
-                                onClick={() => handleConfigure(chart)}
-                              >
-                                <FiSettings
-                                  sx={{
-                                    mr: "6px",
-                                  }}
-                                />
-                                Select
-                              </Button>
-                            </Box>
-                            <Box
-                              sx={{
-                                width: "100%",
-                                height: "200px",
-                              }}
-                            >
-                              <DynamicChart chart={chart} />
-                            </Box>
-                            <Badge
-                              colorScheme="blue"
-                              py={0}
-                              px={3}
-                              fontSize={9}
-                            >
-                              {chart.title}
-                            </Badge>
-                          </Box>
-                        </Box>
-                      );
-                    })}
-                  </Box>
-
-                  <Drawer
-                    isCentered
-                    size="md"
-                    isOpen={isOpenGraphSettingsModal}
-                    onClose={onCloseGraphSettingsModal}
-                    finalFocusRef={btnRef}
-                  >
-                    <DrawerOverlay />
-                    <DrawerContent maxW="86vw">
-                      <DrawerCloseButton color="white" size="lg" mt="8px" />
-                      <DrawerHeader
-                        color="white"
-                        mb="4px"
-                        fontSize="17px"
-                        fontWeight="500"
-                        padding="15px 15px"
-                        backgroundColor="#003060"
-                      >
-                        Graphical View Settings
-                      </DrawerHeader>
-                      <Divider orientation="horizontal" mb={6} />
-                      <DrawerBody>
-                        <ChartConfiguration configureChart={configureChart} />
-                      </DrawerBody>
-                    </DrawerContent>
-                  </Drawer>
-                </DrawerBody>
-
-                <DrawerFooter>
-                  <Button variant="outline" mr={3} onClick={onClose}>
-                    Cancel
-                  </Button>
-                  <Button colorScheme="blue">Save</Button>
-                </DrawerFooter>
-              </DrawerContent>
-            </Drawer>
-          </DrawerBody>
-
-          <DrawerFooter>
-            <Button variant="outline" mr={3} onClick={onClose}>
-              Cancel
-            </Button>
-            <Button colorScheme="blue">Save</Button>
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
+      <MainBodyDrawer
+        isOpenGraphAddDrawer={isOpenGraphAddDrawer}
+        onCloseGraphAddDrawer={onCloseGraphAddDrawer}
+      />
 
       <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered>
         <ModalOverlay />

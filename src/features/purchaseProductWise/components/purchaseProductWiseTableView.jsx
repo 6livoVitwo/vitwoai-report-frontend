@@ -4,6 +4,7 @@ import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
+import Loader from "../../analyticloader/components/Loader";
 
 const PurchaseProductWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
@@ -32,15 +33,13 @@ const PurchaseProductWiseTableView = () => {
         "SUM(grnInvoice.grnTotalCgst)",
         "SUM(items.unitPrice)",
         "items.goodsItems.stockSummary.movingWeightedPrice",
-
-
       ],
       groupBy: ["items.goodName"],
       filter: [],
       page: 0,
-      size:50,
+      size: 50,
       sortDir: "asc",
-      sortBy: "items.goodName",
+      sortBy: "grnCreatedAt",
     }
   );
 
@@ -58,7 +57,9 @@ const PurchaseProductWiseTableView = () => {
   });
 
   const pageInfo = sales?.lastPage;
+
   const tableContainerRef = useRef(null);
+
 
   const flattenObject = (obj, prefix = "") => {
     let result = {};
@@ -90,7 +91,6 @@ const PurchaseProductWiseTableView = () => {
           : [flattenedInvoice];
       });
       setIndividualItems((prevItems) => [...prevItems, ...newItems]);
-
     }
   }, [sales]);
 
@@ -107,7 +107,7 @@ const PurchaseProductWiseTableView = () => {
             p={3}
             bg="orange.300"
             borderRadius="md"
-            style={{ width: "300px", height: "70px" }} // Set custom width and height
+            style={{ width: "300px", height: "70px" }}
           >
             <Box fontWeight="bold">No More Data</Box>
             <Box>You have reached the end of the list.</Box>
@@ -127,13 +127,7 @@ const PurchaseProductWiseTableView = () => {
         alignItems="center"
         justifyContent="center"
       >
-        <Spinner
-          thickness="4px"
-          speed="0.65s"
-          emptyColor="gray.200"
-          color="blue.500"
-          size="xl"
-        />
+        <Loader width={100} height={100} objectFit="contain" />
       </Box>
     );
   }
@@ -152,14 +146,13 @@ const PurchaseProductWiseTableView = () => {
     );
   }
 
-  const mainData = sales?.content;
-
-  // const newArray = individualItems.map((data, index) =>
-  //   extractFields(data, index)
-  // );
-
   return (
-    <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="hidden">
+    <Box
+      ref={tableContainerRef}
+      height="calc(100vh - 75px)"
+      overflowY="hidden"
+      className="table-tableContainerRefSacled"
+    >
       {individualItems.length > 0 && (
         <CustomTable
           newArray={individualItems}
@@ -171,7 +164,6 @@ const PurchaseProductWiseTableView = () => {
           setSize={setSize}
           filters={filters}
           setFilters={setFilters}
-          // extractFields={extractFields}
           alignment={{
             "Total Quantity": "right",
             "Received Quantity": "right",

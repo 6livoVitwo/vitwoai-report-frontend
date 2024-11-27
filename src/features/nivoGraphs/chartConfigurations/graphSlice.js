@@ -1,45 +1,43 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-// Initial state with example widgets
 const initialState = {
   widgets: [],
-  selectedWise: 'sales-product-wise',
-  reportType: 'sales',
+  selectedWise: '',
+  reportType: '',
 };
 
-// Create the slice
 const graphSlice = createSlice({
-  name: "salescustomer",
+  name: "graphs",
   initialState,
   reducers: {
-    // Set the widgets array
-    setSalesCustomerWidgets: (state, action) => {
-      state.widgets = action.payload || [];
+    getAllWidgets: (state) => {
+      const localWidgets = JSON.parse(localStorage.getItem("widgets")) || [];
+      state.widgets = localWidgets;
     },
-
-    // Add a new widget
     addWidget: (state, action) => {
       state.widgets.unshift(action.payload);
     },
-
-    // Remove a widget by id
     removeWidget: (state, action) => {
-      state.widgets = state.widgets.filter(
-        (widget) => widget.id !== action.payload
-      );
+      const id = action.payload;
+      state.widgets = state.widgets.filter((widget) => widget.id !== id);
+      // Remove the widget from local storage as well
+      const localWidgets = JSON.parse(localStorage.getItem("widgets")) || [];
+      const updatedWidgets = localWidgets.filter((widget) => widget.id !== id);
+      localStorage.setItem("widgets", JSON.stringify(updatedWidgets));
     },
-
-    // Update a widget by index
     updateWidget: (state, action) => {
-      const { index, ...updates } = action.payload;
-      if (index >= 0 && index < state.widgets.length) {
-        state.widgets[index] = {
-          ...state.widgets[index],
-          ...updates,
-        };
+      const { id, data } = action.payload;
+      const widgetIndex = state.widgets.findIndex(widget => widget.id === id);
+      if (widgetIndex !== -1) {
+        state.widgets[widgetIndex] = {
+          ...state.widgets[widgetIndex],
+          ...data
+        }
+
+        // sync with local storage
+        localStorage.setItem("widgets", JSON.stringify(state.widgets));
       }
     },
-    // Toggle pin status of a widget by id
     togglePinWidget: (state, action) => {
       const widget = state.widgets.find(
         (widget) => widget.id === action.payload
@@ -48,22 +46,35 @@ const graphSlice = createSlice({
         widget.pinned = !widget.pinned;
       }
     },
-
     handleGraphWise: (state, action) => {
       const { selectedWise, reportType } = action.payload;
-
       state.selectedWise = selectedWise;
       state.reportType = reportType;
+    },
+    refreshWidget: (state, action) => {
+      const { id, data } = action.payload;
+      const widgetIndex = state.widgets.findIndex(widget => widget.id === id);
+
+      if (widgetIndex !== -1) {
+        state.widgets[widgetIndex] = {
+          ...state.widgets[widgetIndex],
+          ...data
+        }
+
+        // sync with local storage
+        localStorage.setItem("widgets", JSON.stringify(state.widgets));
+      }
     }
   },
 });
 
 export const {
-  setSalesCustomerWidgets,
   addWidget,
+  getAllWidgets,
   removeWidget,
   updateWidget,
   togglePinWidget,
+  refreshWidget,
   handleGraphWise
 } = graphSlice.actions;
 export default graphSlice.reducer;
