@@ -84,7 +84,7 @@ const SalesRegionWiseTableView = () => {
           })
           : [flattenedInvoice];
       });
-      setIndividualItems((prevItems) => [...prevItems, ...newItems]);
+      setIndividualItems((prevItems) => [...prevItems,...(sales.content ? newItems : []), ]);
     }
   }, [sales]);
   useEffect(() => {
@@ -146,6 +146,7 @@ const SalesRegionWiseTableView = () => {
   }
 
   const mainData = sales?.content;
+  // console.log("Sayannnnnnnnnnnnnnnnnnn", {mainData})
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
       {individualItems.length > 0 && (

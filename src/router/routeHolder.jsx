@@ -9,7 +9,7 @@ import {
 } from "react-router-dom";
 import HashLoader from "react-spinners/HashLoader";
 import Store from "../store/store";
-import { Center, Container } from "@chakra-ui/react";
+import { Box, Center, Container } from "@chakra-ui/react";
 import DetectOffline from "../features/global/components/ofline";
 import Layout from "../features/global/components/layout";
 import PortalForLayout from "../features/global/components/PortalForLayout";
@@ -49,7 +49,7 @@ const Dashboard = lazy(() => import("../features/dashboard/components"));
 const AllRoutes = () => {
   const locate = useLocation();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const nevigate = useNavigate();
   const [globalStaticFragmennt, setGlobalStaticFragmennt] = useState(
     () => false
   );
@@ -70,35 +70,29 @@ const AllRoutes = () => {
     const storeTokenLocally = (token) => {
       if (typeof Storage !== "undefined") {
         localStorage.setItem("authToken", token);
+
         setGlobalStaticFragmennt(true);
-        // navigate("/");
+        nevigate("/");
       } else {
         console.log(
           "Sorry, your browser does not support Web Storage. Token cannot be stored."
         );
       }
     };
-    
-    // Check if token already exists in local storage
-    const existingToken = localStorage.getItem("authToken");
-      
-    const token = existingToken ? existingToken : getTokenFromURL();
-
-    if (token) {
-      if (token !== existingToken) {
-        storeTokenLocally(token); 
-      }
-      setGlobalStaticFragmennt(true);
-      dispatch(setAuthDetails(token));
-
-      if (window.location.href.includes("token=")) {
-        navigate("/");
-      }
+    const token = getTokenFromURL();
+    if (token !== null) {
+      storeTokenLocally(token);
     } else {
-      console.log("Token not found or already verified.");
+      console.log("Token already verified.");
     }
 
-  }, [dispatch, navigate]);
+    // Check if token already exists in local storage
+    const existingToken = localStorage.getItem("authToken");
+    if (existingToken) {
+      setGlobalStaticFragmennt(true);
+    }
+    dispatch(setAuthDetails(existingToken));
+  }, [dispatch]);
 
   return (
     <>
