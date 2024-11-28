@@ -32,9 +32,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
   const [initialized, setInitialized] = useState(false);
-
+  const [currentPage, setCurrentPage] = useState(0);
   const dispatch = useDispatch();
-
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [columns, setColumns] = useState([]);
@@ -73,9 +72,28 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     useGetSelectedColumnsproductQuery();
 
   //.........Api call to get global search.......
-  const { data: searchData } = useGetGlobalsearchProductQuery(filters, {
-    skip: !searchQuery,
-  });
+  const { data: searchData } = useGetGlobalsearchProductQuery({
+    ...filters,
+    sortBy: sortColumn,
+    sortDir: sortOrder,
+  },
+    {
+      skip: !searchQuery,
+    });
+
+  //API Calling sorting
+  const { data: ProductData, refetch: refetchProduct } =
+    useProductWiseSalesQuery({
+      filters: {
+        ...filters,
+        sortBy: sortColumn,
+        sortDir: sortOrder,
+      },
+      page: currentPage,
+    }, {
+      skip: !triggerSort,
+    }
+    );
 
   const toast = useToast();
   const tableContainerRef = useRef(null);
@@ -1138,7 +1156,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                       onClick={() => {
                                         handlePopoverClick(column)
                                         setDates();
-                                        setCalendarVisible(false);  
+                                        setCalendarVisible(false);
                                         setTempFilterCondition("");
                                       }}
                                     >

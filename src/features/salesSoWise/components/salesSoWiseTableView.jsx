@@ -4,6 +4,7 @@ import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useSoWiseSalesQuery } from "../slice/salesSoWiseApi";
+import Loader from "../../analyticloader/components/Loader";
 
 const SalesSoWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
@@ -129,13 +130,7 @@ const SalesSoWiseTableView = () => {
         alignItems="center"
         justifyContent="center"
       >
-        <Spinner
-          thickness="4px"
-          speed="0.65s"
-          emptyColor="gray.200"
-          color="blue.500"
-          size="xl"
-        />
+        <Loader width={100} height={100} objectFit="contain" />
       </Box>
     );
   }

@@ -71,9 +71,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     );
 
   // api calling from global search
-  const { data: searchData } = useGetGlobalsearchPoQuery(filters, {
-    skip: !searchQuery,
-  });
+  const { data: searchData } = useGetGlobalsearchPoQuery({
+    ...filters,
+    sortBy: sortColumn,
+    sortDir: sortOrder,
+  },
+    {
+      skip: !searchQuery,
+    });
 
   // api calling from drop-down data
   const { data: columnData, refetch: refetchColumnDatapo } = useGetSelectedColumnsPoQuery();
@@ -744,7 +749,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               handleReportChange(e);
             }}
             optionLabel="label"
-            placeholder="Select Sales Type"
+            placeholder={reportOptions.length > 0 ? reportOptions[2].label : ""}
             style={{
               width: "200px",
               background: "#dedede",
@@ -985,11 +990,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                 )}
                               </Button>
                             )}
+                            {column !== "SL No" && column !== "grnCreatedBy" && !column.toLowerCase().includes("sum") && (
                             <Popover
                               isOpen={activeFilterColumn === column}
                               onClose={() => setActiveFilterColumn(null)}
-                              autoFocus={false} // Prevent the popover from focusing automatically
-                              closeOnBlur={false} // Prevent the popover from closing when clicking outside
+                              autoFocus={false}
+                              closeOnBlur={false}
                             >
                               <PopoverTrigger>
                                 {columnFilters[column] ? (
@@ -1010,7 +1016,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                 ) : (
                                   <Button
                                     bg="transparent"
-                                    onClick={() => {handlePopoverClick(column)
+                                    onClick={() => {
+                                      handlePopoverClick(column)
                                       setCalendarVisible(false);
                                       setDates();
                                     }}
@@ -1065,7 +1072,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                             <option value="greaterThanOrEqual">Greater Than or Equal</option>
                                             <option value="lessThan">Less Than</option>
                                             <option value="lessThanOrEqual">Less Than or Equal</option>
-                                            <option value="between">Between</option>
+                                            {(column === "grnCreatedAt" || column === "grnUpdatedAt" || column === "postingDate") && (
+                                              <option value="between">Between</option>
+                                            )}
                                           </Select>
 
                                           {tempFilterCondition === "between" ? (
@@ -1145,6 +1154,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                 </PopoverContent>
                               )}
                             </Popover>
+                            )}
                           </Th>
                         )}
                       </Draggable>

@@ -146,9 +146,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
 
   //.........Api call to get global search.......
-  const { data: searchData } = useGetGlobalsearchVerticalQuery(filters, {
-    skip: !searchQuery,
-  });
+  const { data: searchData } = useGetGlobalsearchVerticalQuery({
+    ...filters,
+    sortBy: sortColumn,
+    sortDir: sortOrder,
+  },
+    {
+      skip: !searchQuery,
+    });
 
   //API Calling sorting
   const { data: vertical, refetch: refetchVertical } =

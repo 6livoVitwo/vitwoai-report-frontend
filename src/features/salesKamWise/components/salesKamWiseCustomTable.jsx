@@ -18,7 +18,6 @@ import { useDispatch } from "react-redux";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
 import { useGetexportdataSalesKamQuery } from '../slice/salesKamWiseApi'
-import { set } from "lodash";
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
@@ -34,7 +33,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [startDate, setStartDate] = useState();
   const dispatch = useDispatch();
   const [endDate, setEndDate] = useState();
-  const [sortColumn, setSortColumn] = useState(" ");
+  const [sortColumn, setSortColumn] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
@@ -63,9 +62,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const { data: columnDatakam, refetch: refetchColumnDatakam } = useGetSelectedColumnsKamQuery();
 
   //..........Api calling for search............
-  const { data: searchData } = useGetGlobalsearchKamQuery(filters, {
-    skip: !searchQuery,
-  });
+  const { data: searchData } = useGetGlobalsearchKamQuery({
+    ...filters,
+    sortBy: sortColumn,
+    sortDir: sortOrder,
+  },
+    {
+      skip: !searchQuery,
+    });
 
   const toast = useToast();
   const tableContainerRef = useRef(null);
@@ -221,8 +225,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
       data: updatedSelectedColumns,
-    }
-    ));
+    }));
+
     const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
 
     const columnsChanged = JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
@@ -244,7 +248,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       status: "success",
       isClosable: true,
     });
-
   };
   useEffect(() => {
     if (isOpen) {
@@ -471,10 +474,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   useEffect(() => {
     const container = tableContainerRef.current;
     if (container) {
-      const debouncedHandleScroll = debounce(handleScroll, 200);
-      container.addEventListener("scroll", debouncedHandleScroll);
-      return () =>
-        container.removeEventListener("scroll", debouncedHandleScroll);
+      container.addEventListener("scroll", handleScroll);
+      // handleScroll();
+      return () => container.removeEventListener("scroll", handleScroll);
     }
   }, [loading, lastPage]);
 
@@ -987,12 +989,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                 ) : (
                                   <Button
                                     bg="transparent"
-                                    onClick={() =>{handlePopoverClick(column)
-                                      setCalendarVisible(false);
-                                      setTempFilterCondition("");
-                                      setTempFilterValue("");
-                                      setDates();
-                                    }}
+                                    onClick={() => handlePopoverClick(column)}
                                   >
                                     <i
                                       className="pi pi-filter"
@@ -1011,9 +1008,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                     onClick={() => {
                                       setTempFilterCondition("");
                                       setTempFilterValue("");
-                                      setActiveFilterColumn("");
-                                      setDates();
-                                      setCalendarVisible(false);
+                                      setDates([]);
                                     }}
                                   />
                                   <PopoverBody h="auto" maxH="300px">

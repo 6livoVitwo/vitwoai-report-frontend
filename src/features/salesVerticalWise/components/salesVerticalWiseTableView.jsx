@@ -38,21 +38,7 @@ const SalesVerticalWiseTableView = () => {
       sortBy: "companyFunction.functionalities_name",
     }
   )
-
-  const formatDate = (dateString) => {
-    try {
-      const [year, month, day] = dateString.split("-").map(Number);
-      const date = new Date(year, month - 1, day);
-      return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-    } catch (error) {
-      return "Invalid Date";
-    }
-  };
-
+  
   const {
     data: sales,
     isLoading,
@@ -122,7 +108,7 @@ const SalesVerticalWiseTableView = () => {
           </Box>
         ),
       });
-      setToastShown(true); // Mark the toast as shown
+      setToastShown(true);
     }
   }, [sales, page, toast, toastShown]);
 

@@ -36,7 +36,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [endDate, setEndDate] = useState();
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
-  const [sortColumn, setSortColumn] = useState(" ");
+  const [sortColumn, setSortColumn] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [searchQuery, setSearchQuery] = useState("");
   const [inputValue, setInputValue] = useState("");
@@ -83,9 +83,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const { data: ColumnsData, refetch: refetchColumnData } = useGetSelectedColumnsSoQuery();
 
   //.........Api call to get global search.......
-  const { data: searchData } = useGetGlobalsearchQuery(filters, {
-    skip: !searchQuery,
-  });
+  const { data: searchData } = useGetGlobalsearchQuery({
+    ...filters,
+    sortBy: sortColumn,
+    sortDir: sortOrder,
+  },
+    {
+      skip: !searchQuery,
+    });
 
   const toast = useToast();
   const tableContainerRef = useRef(null);

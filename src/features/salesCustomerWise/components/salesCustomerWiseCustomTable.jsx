@@ -33,9 +33,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [selectedReport, setSelectedReport] = useState(null);
   const [configureChart, setConfigureChart] = useState({});
   const [inputValue, setInputValue] = useState("");
-  const [sortColumn, setSortColumn] = useState(" ");
+  const [sortColumn, setSortColumn] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
-  const [currentPage, setCurrentPage] = useState(0); // Default page is 0
+  const [currentPage, setCurrentPage] = useState(0);
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
@@ -62,6 +62,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   // ...Export API CALL...
   const { data: exportData } = useGetexportdataSalesCustomerQuery(localFiltersdate || {}, { skip: !triggerApiCall });
 
+  //..........Api calling for global search............
+  const { data: searchData } = useGetGlobalsearchCustomerQuery({
+    ...filters,
+    sortBy: sortColumn,
+    sortDir: sortOrder,
+  },
+    {
+      skip: !searchQuery,
+    });
+
   //API Calling sorting
   const { data: ProductData, refetch: refetchProduct } =
     useCustomerWiseSalesQuery({
@@ -76,10 +86,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     }
     );
 
-  //..........Api calling for global search............
-  const { data: searchData } = useGetGlobalsearchCustomerQuery(filters, {
-    skip: !searchQuery,
-  });
   const dispatch = useDispatch();
 
   //..........Api calling for drop down column data............
@@ -463,17 +469,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const handleScroll = () => {
     const { scrollTop, scrollHeight, clientHeight, scrollLeft } =
       tableContainerRef.current;
-
-    // Check if horizontal scroll has changed
     if (scrollLeft !== previousScrollLeft) {
-      // Update the previous scroll left position
       previousScrollLeft = scrollLeft;
       return;
     }
 
-    // Only trigger the API call if scrolling vertically
     if (scrollTop + clientHeight >= scrollHeight - 5 && !loading) {
-      loadMoreData(); // Load more data when scrolled to the bottom
+      loadMoreData();
     }
   };
   useEffect(() => {
@@ -1074,7 +1076,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                 ) : (
                                   <Button
                                     bg="transparent"
-                                    onClick={() =>{handlePopoverClick(column)
+                                    onClick={() => {
+                                      handlePopoverClick(column)
                                       setTempFilterCondition("");
                                       setDates();
                                       setCalendarVisible(false);

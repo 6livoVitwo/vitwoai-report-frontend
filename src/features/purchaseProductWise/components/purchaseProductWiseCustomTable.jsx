@@ -58,7 +58,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const [columns, setColumns] = useState([]);
-  const [sortColumn, setSortColumn] = useState(" ");
+  const [sortColumn, setSortColumn] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
   const [filtersApplied, setFiltersApplied] = useState(false);
@@ -101,8 +101,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     useGetSelectedColumnsPurchaseQuery();
 
   // api calling from global search
-  const { data: searchData } = useGetGlobalsearchPurchaseQuery(
-    filters,
+  const { data: searchData } = useGetGlobalsearchPurchaseQuery({
+    ...filters,
+    sortBy: sortColumn,
+    sortDir: sortOrder,
+  },
     {
       skip: !searchQuery,
     }
@@ -252,7 +255,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   //sort asc desc
-
   const handleSort = (column) => {
     const newSortOrder =
       sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
@@ -260,6 +262,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSortOrder(newSortOrder);
     setTriggerSort(true);
   };
+
+
+
   const loadMoreData = async () => {
     if (!loading) {
       setLoading(true);
@@ -462,9 +467,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         return 0;
       });
     }
-    else if (ProductData?.content && ProductData?.content.length > 0) {
-      filteredData = ProductData.content;
-    }
+    // else if (ProductData?.content && ProductData?.content.length > 0) {
+    //   filteredData = ProductData.content;
+    // }
     // Advanced filters
     else if (
       productDataFilter?.content &&
@@ -481,7 +486,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     sortColumn,
     sortOrder,
     productDataFilter,
-    ProductData,
+    // ProductData,
   ]);
   useEffect(() => {
     if (productDataFilter?.content && productDataFilter.content.length === 0) {
@@ -856,8 +861,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 handleReportChange(e);
               }}
               optionLabel="label"
-              placeholder="Search Sales Type"
-              panelStyle={{ margin: "0", padding: "0.75rem 1.25rem" }}
+              placeholder={reportOptions.length > 0 ? reportOptions[0].label : ""}
               style={{
                 width: "175px",
                 border: "1px solid #00000061 ",
@@ -865,23 +869,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 alignItems: "center",
                 height: "32px",
                 borderColor: "#dedede",
-              }}
-              sx={{
-                "& .p-dropdown-label": {
-                  color: "blue",
-                  fontSize: "1.2rem",
-                },
-                "&:focus": {
-                  outline: "none",
-                  borderColor: "#cccccc61",
-                  boxShadow: "none",
-                },
-                "& .p-dropdown-trigger": {
-                  color: "#00000061",
-                },
-                "& .p-dropdown .p-dropdown-label.p-placeholder": {
-                  color: "red",
-                },
               }}
             />
           </CssWrapper>
@@ -1244,7 +1231,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                 )}
                               </Button>
                             )}
-                            {column !== "SL No" && (
+                            {column !== "SL No" && column !== "grnCreatedBy" && !column.toLowerCase().includes("sum") && (
                               <Popover
                                 isOpen={activeFilterColumn === column}
                                 onClose={() => {
@@ -1352,9 +1339,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                               <option value="lessThanOrEqual">
                                                 Less Than or Equal
                                               </option>
-                                              <option value="between">
-                                                Between
-                                              </option>
+                                              {(column === "grnCreatedAt" || column === "grnUpdatedAt" || column === "dueDate") && (
+                                                <option value="between">Between</option>
+                                              )}
                                             </Select>
 
                                             {tempFilterCondition ===
