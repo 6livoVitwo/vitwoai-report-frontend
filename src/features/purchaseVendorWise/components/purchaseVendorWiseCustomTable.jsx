@@ -193,6 +193,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSelectedColumns(newColumnsOrder);
   };
 
+  // Handle column selection
   const toggleColumn = (field) => {
     setTempSelectedColumns((prev) =>
       prev.includes(field)
@@ -232,25 +233,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         })
       )
     )
-
     setFilters((prevFilters) => ({
       ...prevFilters,
       data: updatedSelectedColumns,
     }));
-
-    const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
-
-    const columnsChanged = JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
-
-    if (!columnsChanged) {
-      toast({
-        title: "No changes to apply",
-        status: "info",
-        isClosable: true,
-      });
-      return;
-    }
     setSelectedColumns(updatedSelectedColumns);
+    // Save selected columns to localStorage
+    localStorage.setItem("selectedColumsVendor", JSON.stringify(updatedSelectedColumns));
     refetchColumnvendor({ columns: updatedSelectedColumns });
     onClose();
     toast({
@@ -259,6 +248,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       isClosable: true,
     });
   };
+  // Load selected columns from localStorage 
+  useEffect(() => {
+    const savedColumns = localStorage.getItem("selectedColumsVendor");
+    if (savedColumns) {
+      setSelectedColumns(JSON.parse(savedColumns));
+    }
+  }, []);
   useEffect(() => {
     if (isOpen) {
       const filteredColumns = columnData?.content[0]

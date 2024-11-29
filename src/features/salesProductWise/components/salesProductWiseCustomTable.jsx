@@ -37,7 +37,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [columns, setColumns] = useState([]);
-  const [sortColumn, setSortColumn] = useState(" ");
+  const [sortColumn, setSortColumn] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
   const [filtersApplied, setFiltersApplied] = useState(false);
@@ -261,29 +261,23 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       ...prevFilters,
       data: updatedSelectedColumns,
     }));
-
-    const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
-
-    const columnsChanged = JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
-
-    if (!columnsChanged) {
-      toast({
-        title: "No changes to apply",
-        status: "info",
-        isClosable: true,
-      });
-      return;
-    }
     setSelectedColumns(updatedSelectedColumns);
     refetchColumnData({ columns: updatedSelectedColumns });
     onClose();
-    // localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
+    localStorage.setItem("selectedColumnsSalesProduct", JSON.stringify(updatedSelectedColumns));
     toast({
       title: "Columns Applied Successfully",
       status: "success",
       isClosable: true,
     });
   };
+  // Load selected columns from localStorage 
+  useEffect(() => {
+    const savedColumns = localStorage.getItem("selectedColumnsSalesProduct");
+    if (savedColumns) {
+      setSelectedColumns(JSON.parse(savedColumns));
+    }
+  }, []);
   useEffect(() => {
     if (isOpen) {
       const filteredColumns = columnData?.content[0]
@@ -481,6 +475,28 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     searchData,
     productDataFilter
   ]);
+  useEffect(() => {
+    if (productDataFilter?.content && productDataFilter.content.length === 0 ) {
+      toast({
+        title: " No Results Found ",
+        description: "You search did not match any data.",
+        status: "warning",
+        isClosable: true,
+        duration: 4000,
+        render: () => (
+          <Box
+            p={3}
+            bg="orange.300"
+            borderRadius="md"
+            style={{ width: "300px", height: "70px" }}
+          >
+            <Box fontWeight="bold">No Results Found</Box>
+            <Box>You search did not match any data.</Box>
+          </Box>
+        ),
+      });
+    }
+  }, [productDataFilter, toast]);
 
   const formatHeader = (column) => {
     if (columnData && columnData.content) {
@@ -1127,7 +1143,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                 )}
                               </Button>
                             )}
-                            {column !== "SL No" && (
+                            {column !== "SL No" && !column.toLowerCase().includes("sum") && (
                               <Popover
                                 isOpen={activeFilterColumn === column}
                                 onClose={() => setActiveFilterColumn(null)}
@@ -1210,7 +1226,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                               <option value="greaterThanOrEqual">Greater Than or Equal</option>
                                               <option value="lessThan">Less Than</option>
                                               <option value="lessThanOrEqual">Less Than or Equal</option>
-                                              <option value="between">Between</option>
+                                              {(column === "invoice_date") && (
+                                                <option value="between">Between</option>
+                                              )}
                                             </Select>
 
                                             {tempFilterCondition === "between" ? (

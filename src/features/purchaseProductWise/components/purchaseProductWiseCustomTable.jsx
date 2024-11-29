@@ -19,6 +19,7 @@ import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { useGetGlobalsearchPurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { useGetexportdataQuery } from "../slice/purchaseProductWiseApi";
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
+import { update } from "lodash";
 
 const CssWrapper = styled.div`
   .p-component {
@@ -278,7 +279,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     if (!initialized && data.length > 0) {
       const initialColumns = getColumns(data)
@@ -289,8 +289,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setSelectedColumns(initialColumns);
       setTempSelectedColumns(initialColumns);
       setInitialized(true);
+      setFiltersApplied(true);
     }
   }, [data, initialized]);
+  console.log("piya_columns", selectedColumns);
 
   const getColumns = useCallback((data) => {
     if (!data || data.length === 0) {
@@ -326,7 +328,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         : [...prev, field]
     );
   };
-
   const handleSelectAllToggle = () => {
     const allColumns = columnData
       ? Object.keys(columnData?.content[0] || {}).map((key) => ({
@@ -364,6 +365,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       data: updatedSelectedColumns,
     }));
     setSelectedColumns(updatedSelectedColumns);
+    // Save selected columns to localStorage
+    localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
     refetchColumnData({ columns: updatedSelectedColumns });
     onClose();
     toast({
@@ -372,6 +375,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       isClosable: true,
     });
   };
+  // Load selected columns from localStorage on component mount
+useEffect(() => {
+  const savedColumns = localStorage.getItem("selectedColumns");
+  if (savedColumns) {
+    setSelectedColumns(JSON.parse(savedColumns));
+  }
+}, []);
   useEffect(() => {
     if (isOpen) {
       const filteredColumns = columnData?.content[0]
@@ -382,6 +392,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setTempSelectedColumns(filteredColumns);
     }
   }, [isOpen, selectedColumns, columnData]);
+
 
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
   useEffect(() => {
@@ -508,7 +519,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           </Box>
         ),
       });
-      setLastPage(true);
+      // setLastPage(true);
     }
   }, [productDataFilter, toast]);
 
@@ -645,6 +656,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       console.error("Filter condition, value, or column is missing");
     }
   };
+  console.log("piyas🔴🔴", localFilters)
+  console.log("piyas🟢🟢", filtersApplied)
 
   const handleClick = useCallback(() => {
     if (activeFilterColumn) {

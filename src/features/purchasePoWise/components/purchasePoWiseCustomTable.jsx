@@ -353,25 +353,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         })
       )
     )
-    clearPriviewColumnData();
     setFilters((prevFilters) => ({
       ...prevFilters,
       data: updatedSelectedColumns,
     }));
-
-    const storedColumns =
-      JSON.parse(localStorage.getItem("selectedColumns")) || [];
-    const columnsChanged =
-      JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
-    if (!columnsChanged) {
-      toast({
-        title: "No changes to apply",
-        status: "info",
-        isClosable: true,
-      });
-      return;
-    }
     setSelectedColumns(updatedSelectedColumns);
+    // Save selected columns to localStorage
+    localStorage.setItem("selectedColumnsPo", JSON.stringify(updatedSelectedColumns));
     refetchColumnDatapo({ columns: updatedSelectedColumns });
     onClose();
     toast({
@@ -380,7 +368,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       isClosable: true,
     });
   };
-
+  // Load selected columns from localStorage 
+  useEffect(() => {
+    const savedColumns = localStorage.getItem("selectedColumnsPo");
+    if (savedColumns) {
+      setSelectedColumns(JSON.parse(savedColumns));
+    }
+  }, []);
   useEffect(() => {
     if (isOpen) {
       const filteredColumns = columnData?.content[0]
@@ -991,169 +985,169 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                               </Button>
                             )}
                             {column !== "SL No" && column !== "grnCreatedBy" && !column.toLowerCase().includes("sum") && (
-                            <Popover
-                              isOpen={activeFilterColumn === column}
-                              onClose={() => setActiveFilterColumn(null)}
-                              autoFocus={false}
-                              closeOnBlur={false}
-                            >
-                              <PopoverTrigger>
-                                {columnFilters[column] ? (
-                                  <Button
-                                    bg="transparent"
-                                    onClick={() => {
-                                      clearsingleFilter(column);
-                                    }}
-                                  >
-                                    <i
-                                      className="pi pi-filter-slash"
-                                      style={{
-                                        color: "slateblue",
-                                        fontSize: "1.4rem",
-                                      }}
-                                    ></i>
-                                  </Button>
-                                ) : (
-                                  <Button
-                                    bg="transparent"
-                                    onClick={() => {
-                                      handlePopoverClick(column)
-                                      setCalendarVisible(false);
-                                      setDates();
-                                    }}
-                                  >
-                                    <i
-                                      className="pi pi-filter"
-                                      style={{
-                                        color: "slateblue",
-                                        fontSize: "1.4rem",
-                                      }}
-                                    ></i>
-                                  </Button>
-                                )}
-                              </PopoverTrigger>
-                              {activeFilterColumn === column && (
-                                <PopoverContent w="120%">
-                                  <PopoverArrow />
-                                  <PopoverCloseButton size="lg"
-                                    onClick={() => {
-                                      setTempFilterCondition("");
-                                      setTempFilterValue("");
-                                      setActiveFilterColumn("");
-                                      setDates();
-                                      setCalendarVisible(false);
-                                    }}
-                                  />
-                                  <PopoverBody h="auto" maxH="300px">
-                                    <Box>
-                                      <Box key={column} mb="12px">
-                                        <Text
-                                          color="var(--chakra-colors-textBlack)"
-                                          fontWeight="500"
-                                          fontSize="14px"
-                                          mt="10px"
-                                          mb="5px"
-                                        >
-                                          {formatHeader(column)}
-                                        </Text>
-                                        <Box display="flex" flexDirection="column" gap="10px">
-                                          <Select
-                                            placeholder="Select condition"
-                                            size="sm"
-                                            fontSize="12px"
-                                            h="35px"
-                                            onChange={handleTempFilterConditionChange}
-                                          >
-                                            <option value="equal">Equal</option>
-                                            <option value="notEqual">Not Equal</option>
-                                            <option value="like">Like</option>
-                                            <option value="notLike">Not Like</option>
-                                            <option value="greaterThan">Greater Than</option>
-                                            <option value="greaterThanOrEqual">Greater Than or Equal</option>
-                                            <option value="lessThan">Less Than</option>
-                                            <option value="lessThanOrEqual">Less Than or Equal</option>
-                                            {(column === "grnCreatedAt" || column === "grnUpdatedAt" || column === "postingDate") && (
-                                              <option value="between">Between</option>
-                                            )}
-                                          </Select>
-
-                                          {tempFilterCondition === "between" ? (
-                                            <Box display="flex" gap="10px" flexDirection="column">
-                                              <Calendar
-                                                value={dates}
-                                                placeholder=" Select date"
-                                                style={{
-                                                  width: "100%",
-                                                  height: "35px",
-                                                  border: "1px solid #dee2e6",
-                                                  borderRadius: "5px",
-                                                }}
-                                                onChange={(e) => {
-                                                  const formattedDates = e.value.map((date) => {
-                                                    if (date) {
-                                                      const adjustedDate = new Date(date);
-                                                      adjustedDate.setMinutes(adjustedDate.getMinutes() - adjustedDate.getTimezoneOffset());
-                                                      return adjustedDate.toISOString().split("T")[0];
-                                                    }
-                                                    return null;
-                                                  });
-                                                  setDates(e.value);
-                                                  setTempFilterValue(formattedDates);
-                                                  if (e.value[0] && e.value[1]) {
-                                                    setCalendarVisible(false);
-                                                  }
-                                                }}
-                                                selectionMode="range"
-                                                readOnlyInput
-                                                hideOnRangeSelection
-                                                visible={calendarVisible}
-                                                onVisibleChange={(e) => setCalendarVisible(e.visible)}
-                                              />
-                                            </Box>
-                                          ) : (
-                                            <Input
-                                              h="35px"
-                                              fontSize="12px"
-                                              padding="6px"
-                                              onChange={handleTempFilterValueChange}
-                                              placeholder="Search by value"
-                                              value={tempFilterValue}
-                                              type={tempFilterCondition === "like" ? "string" : "integer"}
-                                            />
-                                          )}
-                                        </Box>
-                                      </Box>
-                                    </Box>
-                                  </PopoverBody>
-                                  <Box
-                                    display="flex"
-                                    justifyContent="flex-end"
-                                    width="90%"
-                                    ml="8px"
-                                    mb="10px"
-                                  >
+                              <Popover
+                                isOpen={activeFilterColumn === column}
+                                onClose={() => setActiveFilterColumn(null)}
+                                autoFocus={false}
+                                closeOnBlur={false}
+                              >
+                                <PopoverTrigger>
+                                  {columnFilters[column] ? (
                                     <Button
-                                      bg="mainBlue"
-                                      width="58px"
-                                      color="white"
-                                      mb="5px"
-                                      outline="none"
-                                      _hover={{
-                                        color: "white",
-                                        bg: "mainBlue",
-                                      }}
+                                      bg="transparent"
                                       onClick={() => {
-                                        handleClick();
-                                        FiltersTrigger();
-                                        setActiveFilterColumn(null);
+                                        clearsingleFilter(column);
                                       }}
                                     >
-                                      Apply
+                                      <i
+                                        className="pi pi-filter-slash"
+                                        style={{
+                                          color: "slateblue",
+                                          fontSize: "1.4rem",
+                                        }}
+                                      ></i>
                                     </Button>
-                                  </Box>
-                                </PopoverContent>
-                              )}
-                            </Popover>
+                                  ) : (
+                                    <Button
+                                      bg="transparent"
+                                      onClick={() => {
+                                        handlePopoverClick(column)
+                                        setCalendarVisible(false);
+                                        setDates();
+                                      }}
+                                    >
+                                      <i
+                                        className="pi pi-filter"
+                                        style={{
+                                          color: "slateblue",
+                                          fontSize: "1.4rem",
+                                        }}
+                                      ></i>
+                                    </Button>
+                                  )}
+                                </PopoverTrigger>
+                                {activeFilterColumn === column && (
+                                  <PopoverContent w="120%">
+                                    <PopoverArrow />
+                                    <PopoverCloseButton size="lg"
+                                      onClick={() => {
+                                        setTempFilterCondition("");
+                                        setTempFilterValue("");
+                                        setActiveFilterColumn("");
+                                        setDates();
+                                        setCalendarVisible(false);
+                                      }}
+                                    />
+                                    <PopoverBody h="auto" maxH="300px">
+                                      <Box>
+                                        <Box key={column} mb="12px">
+                                          <Text
+                                            color="var(--chakra-colors-textBlack)"
+                                            fontWeight="500"
+                                            fontSize="14px"
+                                            mt="10px"
+                                            mb="5px"
+                                          >
+                                            {formatHeader(column)}
+                                          </Text>
+                                          <Box display="flex" flexDirection="column" gap="10px">
+                                            <Select
+                                              placeholder="Select condition"
+                                              size="sm"
+                                              fontSize="12px"
+                                              h="35px"
+                                              onChange={handleTempFilterConditionChange}
+                                            >
+                                              <option value="equal">Equal</option>
+                                              <option value="notEqual">Not Equal</option>
+                                              <option value="like">Like</option>
+                                              <option value="notLike">Not Like</option>
+                                              <option value="greaterThan">Greater Than</option>
+                                              <option value="greaterThanOrEqual">Greater Than or Equal</option>
+                                              <option value="lessThan">Less Than</option>
+                                              <option value="lessThanOrEqual">Less Than or Equal</option>
+                                              {(column === "grnCreatedAt" || column === "grnUpdatedAt" || column === "postingDate") && (
+                                                <option value="between">Between</option>
+                                              )}
+                                            </Select>
+
+                                            {tempFilterCondition === "between" ? (
+                                              <Box display="flex" gap="10px" flexDirection="column">
+                                                <Calendar
+                                                  value={dates}
+                                                  placeholder=" Select date"
+                                                  style={{
+                                                    width: "100%",
+                                                    height: "35px",
+                                                    border: "1px solid #dee2e6",
+                                                    borderRadius: "5px",
+                                                  }}
+                                                  onChange={(e) => {
+                                                    const formattedDates = e.value.map((date) => {
+                                                      if (date) {
+                                                        const adjustedDate = new Date(date);
+                                                        adjustedDate.setMinutes(adjustedDate.getMinutes() - adjustedDate.getTimezoneOffset());
+                                                        return adjustedDate.toISOString().split("T")[0];
+                                                      }
+                                                      return null;
+                                                    });
+                                                    setDates(e.value);
+                                                    setTempFilterValue(formattedDates);
+                                                    if (e.value[0] && e.value[1]) {
+                                                      setCalendarVisible(false);
+                                                    }
+                                                  }}
+                                                  selectionMode="range"
+                                                  readOnlyInput
+                                                  hideOnRangeSelection
+                                                  visible={calendarVisible}
+                                                  onVisibleChange={(e) => setCalendarVisible(e.visible)}
+                                                />
+                                              </Box>
+                                            ) : (
+                                              <Input
+                                                h="35px"
+                                                fontSize="12px"
+                                                padding="6px"
+                                                onChange={handleTempFilterValueChange}
+                                                placeholder="Search by value"
+                                                value={tempFilterValue}
+                                                type={tempFilterCondition === "like" ? "string" : "integer"}
+                                              />
+                                            )}
+                                          </Box>
+                                        </Box>
+                                      </Box>
+                                    </PopoverBody>
+                                    <Box
+                                      display="flex"
+                                      justifyContent="flex-end"
+                                      width="90%"
+                                      ml="8px"
+                                      mb="10px"
+                                    >
+                                      <Button
+                                        bg="mainBlue"
+                                        width="58px"
+                                        color="white"
+                                        mb="5px"
+                                        outline="none"
+                                        _hover={{
+                                          color: "white",
+                                          bg: "mainBlue",
+                                        }}
+                                        onClick={() => {
+                                          handleClick();
+                                          FiltersTrigger();
+                                          setActiveFilterColumn(null);
+                                        }}
+                                      >
+                                        Apply
+                                      </Button>
+                                    </Box>
+                                  </PopoverContent>
+                                )}
+                              </Popover>
                             )}
                           </Th>
                         )}
