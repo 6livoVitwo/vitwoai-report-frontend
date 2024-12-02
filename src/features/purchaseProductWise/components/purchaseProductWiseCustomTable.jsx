@@ -19,7 +19,6 @@ import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { useGetGlobalsearchPurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { useGetexportdataQuery } from "../slice/purchaseProductWiseApi";
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
-import { update } from "lodash";
 
 const CssWrapper = styled.div`
   .p-component {
@@ -256,6 +255,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   //sort asc desc
+
   const handleSort = (column) => {
     const newSortOrder =
       sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
@@ -263,9 +263,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSortOrder(newSortOrder);
     setTriggerSort(true);
   };
-
-
-
   const loadMoreData = async () => {
     if (!loading) {
       setLoading(true);
@@ -279,6 +276,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     if (!initialized && data.length > 0) {
       const initialColumns = getColumns(data)
@@ -289,10 +287,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setSelectedColumns(initialColumns);
       setTempSelectedColumns(initialColumns);
       setInitialized(true);
-      setFiltersApplied(true);
     }
   }, [data, initialized]);
-  console.log("piya_columns", selectedColumns);
 
   const getColumns = useCallback((data) => {
     if (!data || data.length === 0) {
@@ -328,6 +324,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         : [...prev, field]
     );
   };
+
   const handleSelectAllToggle = () => {
     const allColumns = columnData
       ? Object.keys(columnData?.content[0] || {}).map((key) => ({
@@ -365,7 +362,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       data: updatedSelectedColumns,
     }));
     setSelectedColumns(updatedSelectedColumns);
-    // Save selected columns to localStorage
     localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
     refetchColumnData({ columns: updatedSelectedColumns });
     onClose();
@@ -375,13 +371,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       isClosable: true,
     });
   };
-  // Load selected columns from localStorage on component mount
-useEffect(() => {
-  const savedColumns = localStorage.getItem("selectedColumns");
-  if (savedColumns) {
-    setSelectedColumns(JSON.parse(savedColumns));
-  }
-}, []);
+  useEffect(() => {
+    const savedColumns = localStorage.getItem("selectedColumns");
+    if (savedColumns) {
+      setSelectedColumns(JSON.parse(savedColumns));
+    }
+  }, []);
   useEffect(() => {
     if (isOpen) {
       const filteredColumns = columnData?.content[0]
@@ -392,8 +387,6 @@ useEffect(() => {
       setTempSelectedColumns(filteredColumns);
     }
   }, [isOpen, selectedColumns, columnData]);
-
-
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
   useEffect(() => {
     return () => {
@@ -478,9 +471,6 @@ useEffect(() => {
         return 0;
       });
     }
-    // else if (ProductData?.content && ProductData?.content.length > 0) {
-    //   filteredData = ProductData.content;
-    // }
     // Advanced filters
     else if (
       productDataFilter?.content &&
@@ -497,7 +487,6 @@ useEffect(() => {
     sortColumn,
     sortOrder,
     productDataFilter,
-    // ProductData,
   ]);
   useEffect(() => {
     if (productDataFilter?.content && productDataFilter.content.length === 0) {
@@ -519,7 +508,7 @@ useEffect(() => {
           </Box>
         ),
       });
-      // setLastPage(true);
+      setLastPage(true);
     }
   }, [productDataFilter, toast]);
 
@@ -656,8 +645,6 @@ useEffect(() => {
       console.error("Filter condition, value, or column is missing");
     }
   };
-  console.log("piyas🔴🔴", localFilters)
-  console.log("piyas🟢🟢", filtersApplied)
 
   const handleClick = useCallback(() => {
     if (activeFilterColumn) {
@@ -875,6 +862,7 @@ useEffect(() => {
               }}
               optionLabel="label"
               placeholder={reportOptions.length > 0 ? reportOptions[0].label : ""}
+              panelStyle={{ margin: "0", padding: "0.75rem 1.25rem" }}
               style={{
                 width: "175px",
                 border: "1px solid #00000061 ",
@@ -882,6 +870,23 @@ useEffect(() => {
                 alignItems: "center",
                 height: "32px",
                 borderColor: "#dedede",
+              }}
+              sx={{
+                "& .p-dropdown-label": {
+                  color: "blue",
+                  fontSize: "1.2rem",
+                },
+                "&:focus": {
+                  outline: "none",
+                  borderColor: "#cccccc61",
+                  boxShadow: "none",
+                },
+                "& .p-dropdown-trigger": {
+                  color: "#00000061",
+                },
+                "& .p-dropdown .p-dropdown-label.p-placeholder": {
+                  color: "red",
+                },
               }}
             />
           </CssWrapper>
@@ -1082,6 +1087,7 @@ useEffect(() => {
                   </ModalHeader>
                   <ModalCloseButton mt="5px" color="white" size="lg"
                     onClick={() => {
+                      setTempFilterCondition("");
                       setTempFilterValue("");
                       setDates();
                     }}
