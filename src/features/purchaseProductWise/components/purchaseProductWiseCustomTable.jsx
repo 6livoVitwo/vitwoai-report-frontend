@@ -58,7 +58,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const [columns, setColumns] = useState([]);
-  const [sortColumn, setSortColumn] = useState("");
+  const [sortColumn, setSortColumn] = useState(" ");
   const [sortOrder, setSortOrder] = useState("asc");
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
   const [filtersApplied, setFiltersApplied] = useState(false);
@@ -101,11 +101,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     useGetSelectedColumnsPurchaseQuery();
 
   // api calling from global search
-  const { data: searchData } = useGetGlobalsearchPurchaseQuery({
-    ...filters,
-    sortBy: sortColumn,
-    sortDir: sortOrder,
-  },
+  const { data: searchData } = useGetGlobalsearchPurchaseQuery(
+    filters,
     {
       skip: !searchQuery,
     }
@@ -362,7 +359,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       data: updatedSelectedColumns,
     }));
     setSelectedColumns(updatedSelectedColumns);
-    localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
     refetchColumnData({ columns: updatedSelectedColumns });
     onClose();
     toast({
@@ -371,12 +367,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       isClosable: true,
     });
   };
-  useEffect(() => {
-    const savedColumns = localStorage.getItem("selectedColumns");
-    if (savedColumns) {
-      setSelectedColumns(JSON.parse(savedColumns));
-    }
-  }, []);
   useEffect(() => {
     if (isOpen) {
       const filteredColumns = columnData?.content[0]
@@ -861,7 +851,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 handleReportChange(e);
               }}
               optionLabel="label"
-              placeholder={reportOptions.length > 0 ? reportOptions[0].label : ""}
+              placeholder="Search Sales Type"
               panelStyle={{ margin: "0", padding: "0.75rem 1.25rem" }}
               style={{
                 width: "175px",
@@ -1279,7 +1269,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                     <Button
                                       bg="transparent"
                                       onClick={() => {
-                                        handlePopoverClick(column);
+                                        handlePopoverClick(column)
                                         setCalendarVisible(false);
                                         setDates();
                                       }}
