@@ -8,12 +8,19 @@ const Bar = ({ data = barChartData, dynamicWidth }) => {
   const keysCommaSeparated = dataKeys.join(',');
   const keys = keysCommaSeparated.split(',').filter(key => key !== 'xaxis');
 
+  const truncateLabel = (label, maxLength = 10) => {
+    if (label?.length > maxLength) {
+      return label.slice(0, maxLength) + '...'; // truncate and append '...'
+    }
+    return label;
+  };
+
   return (
     <>
       <ResponsiveBar
         data={data}
         // {...(dynamicWidth > 0 && { height: 600 })}
-        {...(dynamicWidth > 0 && { width: dynamicWidth })}
+        {...(dynamicWidth > 800 ? { width: dynamicWidth } : { width: 800 })}
         {...(dynamicWidth > 0 ? { keys: keys } : {
           keys: [
             'hot dog',
@@ -83,7 +90,8 @@ const Bar = ({ data = barChartData, dynamicWidth }) => {
           legend: dynamicWidth > 0 ? 'xaxis' : 'country',
           legendPosition: 'middle',
           legendOffset: 32,
-          truncateTickAt: 0
+          truncateTickAt: 0,
+          format: (value) => truncateLabel(value, 10),
         }}
         axisLeft={{
           tickSize: 5,

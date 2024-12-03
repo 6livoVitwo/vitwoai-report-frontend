@@ -796,6 +796,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               width="40px"
               height="40px"
               bg="transparent"
+              color="mainBlue"
               border="1px solid gray"
               _hover={{
                 bg: "mainBlue",
@@ -834,6 +835,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             <Tooltip label="Export" hasArrow>
               <MenuButton
                 color="mainBlue"
+                bg="transparent"
                 border="1px solid gray"
                 padding="5px"
                 height="40px"
@@ -1052,6 +1054,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         overflowY="auto"
         height="calc(100vh - 179px)"
         width="calc(100vw - 115px)"
+        bg="mainLightModeBackgroundColor"
       >
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="droppable" direction="horizontal">

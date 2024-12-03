@@ -15,7 +15,7 @@ import useProcessedData from "../hooks/useProcessedData";
 const ChartConfiguration = ({ configureChart }) => {
   const { type } = configureChart;
   const widgets = useSelector((state) => state.graphSlice.widgets);
-  console.log('🟢', { widgets })
+  console.log('🟢', {widgets})
   const toast = useToast();
   const dispatch = useDispatch();
   const { selectedWise, reportType } = useSelector((state) => state.graphSlice);
@@ -39,26 +39,34 @@ const ChartConfiguration = ({ configureChart }) => {
   const [selectedValues, setSelectedValues] = useState(null);
   const [selectedPieValues, setSelectedPieValues] = useState(null);
   const token = useSelector((state) => state.auth.authDetails);
-  const [yearError, setYearError] = useState(null);
-  const [fromYear, setFromYear] = useState(2021);
-  const [toYear, setToYear] = useState(null);
   // decode data from token
   const decodedToken = useMemo(() => {
     return token ? JSON.parse(atob(token.split('.')[1])) : null;
   }, [token]);
 
   const handleDateRange = (data) => {
-    console.log('data', data)
     let { startDate: newStartDate, endDate: newEndDate } = setDateRange(data);
-    let newBodyWise = createBodyWise(data, newStartDate, newEndDate, priceOrQty);
+    let newBodyWise = createBodyWise(data, newStartDate, newEndDate, priceOrQty, type, selectedWise, reportType);
     let count = calculateCount(data, newStartDate, newEndDate);
+
+    console.log('🟣🟣', {newBodyWise})
 
     setInputType(data);
     setDynamicWidth(200 * count);
     setStartDate(newStartDate);
     setEndDate(newEndDate);
     setBodyWise(newBodyWise);
-    updateChartApiConfig(newBodyWise);
+    // updateChartApiConfig(newBodyWise);
+    setChartApiConfig((prevConfig) => ({
+      ...prevConfig,
+      [type]: prevConfig[type].map((config) => ({
+        ...config,
+        body: {
+          ...config.body,
+          ...newBodyWise
+        }
+      }))
+    }))
   };
 
   const handlePriceOrQty = (data) => {
@@ -102,39 +110,20 @@ const ChartConfiguration = ({ configureChart }) => {
   };
 
   const handleFromDate = (data) => {
-    const yearRegex = /^(19|20)\d{2}$/; // Accepts years between 1900 and 2099
-
-    if (inputType === "year") {
-      if (data === "" || yearRegex.test(data)) {
-        setFromYear(data);
-        setYearError(""); // Clear any previous error
-      } else {
-        setYearError("Please enter a valid year (e.g., 2021)");
-      }
-    }
     handleDateUpdate("from", data, type, reportType);
   };
 
   const handleToDate = (data) => {
-    const yearRegex = /^(19|20)\d{2}$/; // Accepts years between 1900 and 2099
-    if (inputType === "year") {
-      if (data === "" || yearRegex.test(data)) {
-        if (fromYear && parseInt(data, 10) <= parseInt(fromYear, 10)) {
-          setYearError("To year cannot be less than or equal to From year");
-        } else {
-          setToYear(data);
-          setYearError("");
-        }
-      } else {
-        setYearError("Please enter a valid year (e.g., 2021)");
-      }
-    }
     handleDateUpdate("to", data, type, reportType);
   };
 
   const handleYAxisChange = (e) => {
     const { value } = e.target;
+    console.log('🗑️')
+    console.log(e.target)
+    console.log({value})
     const newValue = Array.isArray(value) ? value : [value];
+    console.log({newValue})
     setChartApiConfig((prevConfig) => ({
       ...prevConfig,
       [type]: prevConfig[type].map((config) => ({
@@ -195,7 +184,7 @@ const ChartConfiguration = ({ configureChart }) => {
           wise: "sales",
           method: "POST",
           endpoint: newEndpoint(selectedWise, type, processFlow),
-          body: bodyWise,
+          body: newBodyWise,
         },
       ],
       pie: [
@@ -212,7 +201,7 @@ const ChartConfiguration = ({ configureChart }) => {
   const chartConfig = chartApiConfig[type];
   const { endpoint, body, method } = chartConfig ? chartConfig.find((config) => config.wise === wise) : {};
   const { data: graphData, isLoading, isError, error } = useDynamicNewQuery(endpoint ? { endpoint: type === "funnel" ? processFlow : endpoint, body, method } : null, { skip: !endpoint });
-  console.log('In the chart config:: ', { graphData });
+  console.log('In the chart config:: ', { graphData }); 
   const finalData = useMemo(() => {
     if (type === "funnel") {
       return graphData?.steps || [];
@@ -238,17 +227,17 @@ const ChartConfiguration = ({ configureChart }) => {
   const ChartComponent = chartComponents[type];
   if (isLoading) return <Spinner />;
 
-  // if (isError) {
-  //   console.log('imranali59059', { error });
-  //   return (
-  //     <>
-  //       <Alert status="error">
-  //         <AlertIcon />
-  //         Error: {error?.error || "An error occurred"}
-  //       </Alert>
-  //     </>
-  //   );
-  // }
+  if (isError) {
+    console.log('imranali59059', { error });
+    return (
+      <>
+        <Alert status="error">
+          <AlertIcon />
+          Error: {error?.error || "An error occurred"}
+        </Alert>
+      </>
+    );
+  }
 
   if (!ChartComponent) {
     return <Alert status="error">No valid chart type provided</Alert>;
@@ -385,7 +374,7 @@ const ChartConfiguration = ({ configureChart }) => {
                 </Badge>
               </Box>
               <Box sx={{ height: "350px", width: "100%", overflowX: "auto" }}>
-                {error && <Alert status="error">{error?.data?.message}</Alert>}
+                {error && <Alert status="error">{error?.error}</Alert>}
 
                 {!error && <ChartComponent
                   liveData={processedData}
@@ -495,7 +484,7 @@ const ChartConfiguration = ({ configureChart }) => {
                   </Box>
                 ) : (
                   <Box>
-                    {type !== "heatmap" && type !== "bar" && type !== "pie" && (
+                    {type !== "heatmap" && (
                       <Grid templateColumns="repeat(1, 1fr)" gap={6}>
                         <Stack spacing={3}>
                           <Text fontSize="sm" fontWeight="500">
@@ -551,14 +540,14 @@ const ChartConfiguration = ({ configureChart }) => {
                           </Text>
                           {type === "pie" ? (
                             <>
-                              <Select size="lg" onChange={handleYAxisChange}>
-                                {yAxisOptions(reportType).map((option) => (
-                                  <option key={option.value} value={option.value}>
-                                    {option.label}
-                                  </option>
-                                ))}
-                              </Select>
-                              {/* <MultiSelect
+                            <Select size="lg" onChange={handleYAxisChange}>
+                              {yAxisOptions(reportType).map((option) => (
+                                <option key={option.value} value={option.value}>
+                                  {option.label}
+                                </option>
+                              ))}
+                            </Select>
+                            {/* <MultiSelect
                               display="chip"
                               value={selectedPieValues}
                               options={graphData?.content?.map((option, index) => {
@@ -609,7 +598,6 @@ const ChartConfiguration = ({ configureChart }) => {
                           border: "1px solid rgba(0, 0, 0, 0.10)",
                           mt: 4,
                           p: 4,
-                          backgroundColor: `${yearError ? "rgba(255, 0, 0, 0.1)" : ""}`,
                         }}>
                         <Text fontSize="sm" fontWeight="500">
                           Date Filter (
@@ -657,7 +645,6 @@ const ChartConfiguration = ({ configureChart }) => {
                             />
                           </Stack>
                         </Grid>
-                        {yearError && <p style={{ fontSize: "8px", color: "red", marginTop: "4px" }}>{yearError}</p>}
                       </Stack>
                     )}
                   </Box>

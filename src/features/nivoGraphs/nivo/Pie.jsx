@@ -2,7 +2,10 @@ import { ResponsivePie } from "@nivo/pie";
 import React from "react";
 import { pieChartData } from "../jsonData/chartData";
 
-const Pie = ({ data = pieChartData, dynamicWidth}) => {
+const Pie = ({ data = pieChartData, dynamicWidth }) => {
+  const truncateLabel = (label, maxLength = 12) => {
+    return label.length > maxLength ? `${label.substring(0, maxLength)}...` : label;
+  };
 
   return (
     <ResponsivePie
@@ -27,6 +30,8 @@ const Pie = ({ data = pieChartData, dynamicWidth}) => {
       arcLinkLabelsThickness={2}
       arcLinkLabelsColor={{ from: 'color' }}
       arcLabelsSkipAngle={10}
+      arcLinkLabel={(d) => truncateLabel(d.label)}
+      // colors={data.map((d) => d.color)}
       arcLabelsTextColor={{
         from: 'color',
         modifiers: [
@@ -128,7 +133,15 @@ const Pie = ({ data = pieChartData, dynamicWidth}) => {
                 itemTextColor: '#000'
               }
             }
-          ]
+          ],
+          // data: data.map((item) => {
+          //   console.log('item color ', {item})
+          //   return {
+          //     id: item.id,
+          //     label: truncateLabel(item.label),
+          //     color: item.color
+          //   }
+          // })
         }
       ]}
     />

@@ -679,14 +679,14 @@ const Layout = ({ portalId }) => {
                 </svg>
 
                 {/* settings bar */}
-                <SettingsIcon onClick={() => setVisibleRight(true)} className="icon" color="mainBlue" />
+                {/* <SettingsIcon onClick={() => setVisibleRight(true)} className="icon" color="mainBlue" />
                 <Sidebar visible={visibleRight} position="right" onHide={() => setVisibleRight(false)}>
                   <p sx={{ fontSize: '2.5rem !important' }}>Settings Bar</p>
                   <Divider />
                   <p>
                    Lorem ipsum dolor, sit amet consectetur adipisicing elit. Amet sit labore dolores impedit ad eum est, quibusdam, debitis fugiat similique neque repudiandae ipsum dolor vero voluptatum et repellat officia eos obcaecati magni? Facere tempore doloremque beatae fugiat quaerat. Eaque nam nulla perspiciatis, voluptatibus fuga distinctio earum dicta voluptates iusto neque.
                   </p>
-                </Sidebar>
+                </Sidebar> */}
               </Box>
             </Box>
           </Box>
