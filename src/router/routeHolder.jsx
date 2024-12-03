@@ -9,7 +9,7 @@ import {
 } from "react-router-dom";
 import HashLoader from "react-spinners/HashLoader";
 import Store from "../store/store";
-import { Box, Center, Container } from "@chakra-ui/react";
+import { Center, Container } from "@chakra-ui/react";
 import DetectOffline from "../features/global/components/ofline";
 import Layout from "../features/global/components/layout";
 import PortalForLayout from "../features/global/components/PortalForLayout";
@@ -49,7 +49,7 @@ const Dashboard = lazy(() => import("../features/dashboard/components"));
 const AllRoutes = () => {
   const locate = useLocation();
   const dispatch = useDispatch();
-  const nevigate = useNavigate();
+  const navigate = useNavigate();
   const [globalStaticFragmennt, setGlobalStaticFragmennt] = useState(
     () => false
   );
@@ -72,7 +72,7 @@ const AllRoutes = () => {
         localStorage.setItem("authToken", token);
 
         setGlobalStaticFragmennt(true);
-        nevigate("/");
+        navigate("/");
       } else {
         console.log(
           "Sorry, your browser does not support Web Storage. Token cannot be stored."
