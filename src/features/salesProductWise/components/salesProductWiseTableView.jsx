@@ -4,7 +4,7 @@ import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useProductWiseSalesQuery } from "../slice/salesProductWiseApi";
-import { set } from "lodash";
+import Loader from "../../analyticloader/components/Loader";
 
 
 const SalesProductWiseTableView = () => {
@@ -88,7 +88,7 @@ const SalesProductWiseTableView = () => {
           })
           : [flattenedInvoice];
       });
-      setIndividualItems((prevItems) => [...prevItems,...(sales.content ? newItems : []), ]);
+      setIndividualItems((prevItems) => [...prevItems, ...(sales.content ? newItems : []),]);
     }
   }, [sales]);
 
@@ -124,13 +124,7 @@ const SalesProductWiseTableView = () => {
         alignItems="center"
         justifyContent="center"
       >
-        <Spinner
-          thickness="4px"
-          speed="0.65s"
-          emptyColor="gray.200"
-          color="blue.500"
-          size="xl"
-        />
+        <Loader width={100} height={100} objectFit="contain" />
       </Box>
     );
   }

@@ -5,14 +5,13 @@ import { Cursor, useTypewriter } from "react-simple-typewriter";
 const TypewriterHook = ({
   text,
   typeSpeed = 20,
-  deleteSpeed = 8,
   delaySpeed = 1000,
 }) => {
   const [typedText, flags] = useTypewriter({
     words: [text],
-    loop: 0,
+    // loop: 0,
     typeSpeed,
-    deleteSpeed,
+    // deleteSpeed,
     delaySpeed,
   });
 

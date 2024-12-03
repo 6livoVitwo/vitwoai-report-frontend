@@ -22,6 +22,7 @@ import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { useGetGlobalsearchStateQuery, useGetGlobalsearchPincodeQuery, useGetGlobalsearchDistQuery, useGetGlobalsearchCountryQuery, useGetGlobalsearchCityQuery } from "../slice/salesRegionWiseApi";
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
+import { MdLocalDining } from "react-icons/md";
 
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [data, setData] = useState([...newArray]);
@@ -536,11 +537,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       loadMoreData();
     }
   };
-
   useEffect(() => {
     const container = tableContainerRef.current;
     if (container) {
-      container.addEventListener("scroll", handleScroll);
+      container.addEventListener("scroll", handleScroll,200);
       return () => container.removeEventListener("scroll", handleScroll);
     }
   }, [loading, lastPage]);

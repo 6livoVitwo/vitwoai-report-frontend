@@ -21,10 +21,11 @@ export const chartComponents = {
 export const graphDescriptions = {
     bar: "The Bar chart can display multiple data series, either stacked or side by side. It supports both vertical and horizontal layouts, with negative values positioned below the respective axes. You can customize the bar item component to render any valid SVG element, receiving styles, data, and event handlers. The responsive variant is called ResponsiveBar, available in the @nivo/api package. For legend configuration, you'll need to specify the dataFrom property, which determines how to compute the legend's data using indexes or keys.",
     pie: "This component generates a pie chart from an array of data, where each item must include an id and a value property. Keep in mind that the margin object does not account for radial labels, so you should adjust it accordingly to provide sufficient space. The responsive version of this component is called ResponsivePie.",
-    areaBump:
-        "The AreaBump chart combines ranking and values, displaying both over time on the y-axis. This makes it ideal for understanding trends in performance. If your primary interest lies in rankings alone, the Bump chart is a more streamlined option. It effectively highlights shifts in position without the added complexity of values. Choose based on your specific data needs!",
+    areaBump: "The AreaBump chart combines ranking and values, displaying both over time on the y-axis. This makes it ideal for understanding trends in performance. If your primary interest lies in rankings alone, the Bump chart is a more streamlined option. It effectively highlights shifts in position without the added complexity of values. Choose based on your specific data needs!",
     bump: "The Bump chart visualizes the rankings of multiple series over time. While it resembles line charts, it focuses solely on displaying rankings rather than specific measurements on the y-axis. This makes it easy to track changes in position for each series at any given moment. By highlighting only the rankings, it simplifies the analysis of competitive dynamics. It's an effective tool for showcasing shifts in standings over time.",
     line: "This line chart supports stacking capabilities. It takes an array of data series, each with an id and a nested array of points (containing x and y properties), to compute the line for each series. Any datum with a null x or y value will be treated as a gap, resulting in skipped segments of the corresponding line.",
+    funnel: "A funnel chart is a type of graphical representation used to visualize processes or workflows that involve multiple stages, particularly when there is a reduction in data as it progresses through each stage. It is shaped like a funnel, wide at the top and narrowing down as you move lower, which reflects the decreasing size of data through the stages.",
+    heatmap: "A heatmap is a graphical representation of data where individual values contained in a matrix are represented by colors. It is a highly effective way to visualize large amounts of numerical data to identify patterns, correlations, and trends at a glance.",
 };
 
 export const newEndpoint = (data = "", type = "", processFlow = "") => {
@@ -87,7 +88,8 @@ export const initialBodyWise = (
     priceOrQty = "",
     startDate = "",
     endDate = "",
-    regionWise = ""
+    regionWise = "",
+    reportType = ""
 ) => {
     if (selectedWise === "sales-product-wise") {
         if (type === "bump" || type === "areaBump" || type === "line") {
@@ -98,7 +100,7 @@ export const initialBodyWise = (
                 monthFrom: split(startDate, "-")[1],
                 monthTo: split(endDate, "-")[1],
             };
-        } else if (type === "bar" || type === "pie") {
+        } else if (type === "bar") {
             return {
                 xaxis: "items.itemName",
                 yaxis: [
@@ -108,6 +110,21 @@ export const initialBodyWise = (
                     "salesOrder.totalAmount",
                     "all_total_amt",
                 ],
+                groupBy: ["items.itemName"],
+                valuetype: "count",
+                filter: [
+                    {
+                        column: "invoice_date",
+                        operator: "between",
+                        type: "date",
+                        value: [startDate, endDate],
+                    },
+                ],
+            };
+        } else if (type === "pie") {
+            return {
+                xaxis: "items.itemName",
+                yaxis: ["salesPgi.salesDelivery.totalAmount"],
                 groupBy: ["items.itemName"],
                 valuetype: "count",
                 filter: [
@@ -135,7 +152,7 @@ export const initialBodyWise = (
                 yearFrom: 2024,
                 yearTo: 2024,
             };
-        } else if (type === "bar" || type === "pie") {
+        } else if (type === "bar") {
             return {
                 "xaxis": "items.goodsItems.goodsGroup.goodGroupName",
                 "yaxis": [
@@ -144,6 +161,25 @@ export const initialBodyWise = (
                     "quotation.totalAmount",
                     "salesOrder.totalAmount",
                     "all_total_amt"
+                ],
+                "groupBy": [
+                    "items.goodsItems.goodsGroup"
+                ],
+                "valuetype": "count",
+                "filter": [
+                    {
+                        "column": "invoice_date",
+                        "operator": "between",
+                        "type": "date",
+                        "value": [startDate, endDate]
+                    }
+                ]
+            };
+        } else if (type === "pie") {
+            return {
+                "xaxis": "items.goodsItems.goodsGroup.goodGroupName",
+                "yaxis": [
+                    "salesPgi.salesDelivery.totalAmount"
                 ],
                 "groupBy": [
                     "items.goodsItems.goodsGroup"
@@ -175,7 +211,7 @@ export const initialBodyWise = (
                 "yearFrom": 2024,
                 "yearTo": 2024
             }
-        } else if (type === "bar" || type === "pie") {
+        } else if (type === "bar") {
             return {
                 "xaxis": "kam.kamName",
                 "yaxis": [
@@ -184,6 +220,26 @@ export const initialBodyWise = (
                     "quotation.totalAmount",
                     "salesOrder.totalAmount",
                     "all_total_amt"
+                ],
+                "groupBy": [
+                    "kam.kamCode"
+                ],
+                "valuetype": "count",
+
+                "filter": [
+                    {
+                        "column": "invoice_date",
+                        "operator": "between",
+                        "type": "date",
+                        "value": [startDate, endDate]
+                    }
+                ]
+            }
+        } else if (type === "pie") {
+            return {
+                "xaxis": "kam.kamName",
+                "yaxis": [
+                    "salesPgi.salesDelivery.totalAmount"
                 ],
                 "groupBy": [
                     "kam.kamCode"
@@ -216,7 +272,31 @@ export const initialBodyWise = (
                 "monthFrom": 1,
                 "monthTo": 5
             }
-        } else if (type === "bar" || type === "pie") {
+        } else if (type === "bar") {
+            return {
+                "xaxis": "customer.customerAddress.customer_address_state",
+                "yaxis": [
+                    "salesPgi.salesDelivery.totalAmount",
+                    "salesPgi.totalAmount",
+                    "quotation.totalAmount",
+                    "salesOrder.totalAmount",
+                    "all_total_amt"
+                ],
+                "groupBy": [
+                    "customer.customerAddress.customer_address_state"
+                ],
+                "valuetype": "count",
+
+                "filter": [
+                    {
+                        "column": "invoice_date",
+                        "operator": "between",
+                        "type": "date",
+                        "value": [startDate, endDate]
+                    }
+                ]
+            }
+        } else if (type === "pie") {
             return {
                 "xaxis": "customer.customerAddress.customer_address_state",
                 "yaxis": [
@@ -250,7 +330,7 @@ export const initialBodyWise = (
                 monthFrom: split(startDate, "-")[1],
                 monthTo: split(endDate, "-")[1],
             };
-        } else if (type === "bar" || type === "pie") {
+        } else if (type === "bar") {
             return {
                 xaxis: "items.goodName",
                 yaxis: [
@@ -258,6 +338,23 @@ export const initialBodyWise = (
                     "grnInvoice.grnTotalCgst",
                     "grnInvoice.grnTotalIgst",
                     "grnInvoice.grnTotalAmount",
+                ],
+                groupBy: ["items.goodCode"],
+                valuetype: "count",
+                filter: [
+                    {
+                        column: "vendorDocumentDate",
+                        operator: "between",
+                        type: "date",
+                        value: [startDate, endDate],
+                    },
+                ],
+            };
+        } else if (type === "pie") {
+            return {
+                xaxis: "items.goodName",
+                yaxis: [
+                    "grnInvoice.grnSubTotal",
                 ],
                 groupBy: ["items.goodCode"],
                 valuetype: "count",
@@ -279,7 +376,29 @@ export const initialBodyWise = (
                 monthFrom: split(startDate, "-")[1],
                 monthTo: split(endDate, "-")[1],
             };
-        } else if (type === "bar" || type === "pie") {
+        } else if (type === "bar") {
+            return {
+                "xaxis": "vendors.trade_name",
+                "yaxis": [
+                    "grnInvoice.grnSubTotal",
+                    "grnInvoice.grnTotalCgst",
+                    "grnInvoice.grnTotalIgst",
+                    "grnInvoice.grnTotalAmount"
+                ],
+                "groupBy": [
+                    "vendors.vendor_code"
+                ],
+                "valuetype": "count",
+                "filter": [
+                    {
+                        "column": "vendorDocumentDate",
+                        "operator": "between",
+                        "type": "date",
+                        "value": [startDate, endDate]
+                    }
+                ]
+            }
+        } else if (type === "pie") {
             return {
                 "xaxis": "vendors.trade_name",
                 "yaxis": [
@@ -303,7 +422,29 @@ export const initialBodyWise = (
             }
         }
     } else if (selectedWise === "purchase-po-wise") {
-        if (type === "bar" || type === "pie") {
+        if (type === "bar") {
+            return {
+                "xaxis": "po.po_number",
+                "yaxis": [
+                    "grnInvoice.grnSubTotal",
+                    "grnInvoice.grnTotalCgst",
+                    "grnInvoice.grnTotalIgst",
+                    "grnInvoice.grnTotalAmount"
+                ],
+                "groupBy": [
+                    "po.po_number"
+                ],
+                "valuetype": "count",
+                "filter": [
+                    {
+                        "column": "vendorDocumentDate",
+                        "operator": "between",
+                        "type": "date",
+                        "value": [startDate, endDate]
+                    }
+                ]
+            }
+        } else if (type === "pie") {
             return {
                 "xaxis": "po.po_number",
                 "yaxis": [
