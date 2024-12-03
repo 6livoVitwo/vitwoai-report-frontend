@@ -9,7 +9,7 @@ const Bump = ({ data = bumpChartData, dynamicWidth }) => {
       <ResponsiveBump
         data={data}
         xPadding={0.55}
-        {...(dynamicWidth > 0 && { width: dynamicWidth })}
+        {...(dynamicWidth > 800 ? { width: dynamicWidth } : { width: 800 })}
         xOuterPadding={0.4}
         yOuterPadding={0.3}
         colors={{ scheme: 'nivo' }}

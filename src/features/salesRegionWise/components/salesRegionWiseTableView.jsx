@@ -4,6 +4,7 @@ import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useRegionWiseSalesQuery } from "../slice/salesRegionWiseApi";
+import Loader from "../../analyticloader/components/Loader";
 
 const SalesRegionWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
@@ -29,7 +30,7 @@ const SalesRegionWiseTableView = () => {
     "filter": [
     ],
     "page": 0,
-    "size": 50,
+    "size": 100,
     "sortBy": "customer.customerAddress.customer_address_state",
     "sortDir": "asc"
   });
@@ -84,11 +85,12 @@ const SalesRegionWiseTableView = () => {
           })
           : [flattenedInvoice];
       });
-      setIndividualItems((prevItems) => [...prevItems,...(sales.content ? newItems : []), ]);
+      setIndividualItems([...newItems]);
     }
   }, [sales]);
+
   useEffect(() => {
-    if (sales?.totalPages < page && !toastShown) {
+    if (sales?.totalPages <= page && !toastShown) {
       toast({
         title: "No More Data",
         description: "You have reached the end of the list.",
@@ -120,13 +122,7 @@ const SalesRegionWiseTableView = () => {
         alignItems="center"
         justifyContent="center"
       >
-        <Spinner
-          thickness="4px"
-          speed="0.65s"
-          emptyColor="gray.200"
-          color="blue.500"
-          size="xl"
-        />
+        <Loader width={100} height={100} objectFit="contain" />
       </Box>
     );
   }
@@ -151,7 +147,7 @@ const SalesRegionWiseTableView = () => {
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
       {individualItems.length > 0 && (
         <CustomTable
-          newArray={mainData}
+          newArray={individualItems}
           page={page}
           setPage={setPage}
           isFetching={isFetching}
