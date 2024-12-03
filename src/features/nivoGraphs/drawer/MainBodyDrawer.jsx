@@ -448,7 +448,7 @@ const MainBodyDrawer = (props) => {
                                                 padding="15px 15px"
                                                 backgroundColor="#003060"
                                             >
-                                                Graphical View Settings ss
+                                                Graphical View Settings
                                             </DrawerHeader>
                                             <Divider orientation="horizontal" mb={6} />
                                             <DrawerBody>
