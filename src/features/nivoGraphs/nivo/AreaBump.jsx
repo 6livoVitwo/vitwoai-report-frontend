@@ -3,14 +3,14 @@ import { ResponsiveAreaBump } from "@nivo/bump";
 import { areaBumpData } from "../jsonData/chartData";
 
 const AreaBump = ({ data = areaBumpData, dynamicWidth }) => {
-
+console.log({dynamicWidth})
   return (
     <>
       <ResponsiveAreaBump
         data={data}
         margin={{ top: 40, right: 100, bottom: 40, left: 100 }}
         spacing={20}
-        {...(dynamicWidth > 0 && { width: dynamicWidth })}
+        {...(dynamicWidth > 800 ? { width: dynamicWidth } : { width: 800 })}
         colors={{ scheme: 'nivo' }}
         blendMode="multiply"
         defs={[
@@ -67,6 +67,7 @@ const AreaBump = ({ data = areaBumpData, dynamicWidth }) => {
           legendOffset: 32,
           truncateTickAt: 0
         }}
+        animate={true}
       />
     </>
   );

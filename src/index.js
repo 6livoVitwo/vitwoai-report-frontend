@@ -12,12 +12,12 @@ import { PrimeReactProvider } from "primereact/api";
 import "primeflex/primeflex.css";
 import "primereact/resources/primereact.css";
 import "primereact/resources/themes/lara-light-indigo/theme.css";
+import { Provider } from "react-redux";
+import { Store } from "@mui/x-data-grid/utils/Store";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <ChakraProvider theme={ExtendedTheme}>
     <PrimeReactProvider>
       <RouteHolder />
     </PrimeReactProvider>
-  </ChakraProvider>
 );

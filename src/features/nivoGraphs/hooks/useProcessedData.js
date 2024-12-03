@@ -8,12 +8,19 @@ const useProcessedData = (finalData, type) => {
       let processedData = [];
       if (type === "pie") {
         processedData = finalData.map((product, index) => {
-          const label = product?.xaxis || `Unknown${index+1}`;
+          const label = product?.xaxis || `Unknown${index + 1}`;
           const hslColor = Math.floor(Math.random() * 360);
+          console.log({ product })
+
+          const value = Object.keys(product)
+            .filter((key) => key !== "xaxis") // Exclude 'xaxis'
+            .map((key) => parseFloat(product[key]) || 0) // Parse numerical values, default to 0
+            .reduce((acc, curr) => acc + curr, 0); // Aggregate values (sum in this case)
+
           return {
             id: label,
             label: label,
-            value: product?.all_total_amt,
+            value: value || 0,
             color: `hsl(${hslColor}, 70%, 50%)`,
           };
         });

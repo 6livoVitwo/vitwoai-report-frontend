@@ -142,6 +142,7 @@ const SalesRegionWiseTableView = () => {
   }
 
   const mainData = sales?.content;
+  // console.log("Sayannnnnnnnnnnnnnnnnnn", {mainData})
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
       {individualItems.length > 0 && (

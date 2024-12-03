@@ -1,7 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { Sidebar } from 'primereact/sidebar';
 import {
   Flex,
   Wrap,
@@ -16,11 +17,14 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   Breadcrumb,
+  Divider,
+  Switch,
 } from "@chakra-ui/react";
 
 import Navigation from "./navigation";
 import { setDarkMode } from "../slice";
 import logoDark from "../../../asset/images/vitwo-logo-dark.png";
+import { SettingsIcon } from "@chakra-ui/icons";
 const CssWrapper = styled.div`
   .nav-collapse .sidebar nav {
     padding: 20px 13px 20px 8px;
@@ -272,6 +276,7 @@ const Layout = ({ portalId }) => {
   const dispatch = useDispatch();
   const [menuCollapse, setmenuCollapse] = useBoolean(true);
   const [isLessThan1023px] = useMediaQuery("(max-width: 1023px)");
+  const [visibleRight, setVisibleRight] = useState(false);
 
   const bellshake = keyframes`
         0% { transform: rotate(0); }
@@ -328,9 +333,8 @@ const Layout = ({ portalId }) => {
         h="100vh"
         justify="left"
         align="top"
-        className={`commonContainer ${
-          menuCollapse ? "nav-collapse" : "nav-expand"
-        }`}
+        className={`commonContainer ${menuCollapse ? "nav-collapse" : "nav-expand"
+          }`}
         alignSelf="flex-start"
         position="relative"
         bg="mainLightModeBackgroundColor"
@@ -443,9 +447,9 @@ const Layout = ({ portalId }) => {
                   width: "190px",
                 },
                 "& .chakra-collapse .chakra-wrap__list .chakra-wrap__listitem":
-                  {
-                    width: "100%",
-                  },
+                {
+                  width: "100%",
+                },
 
                 ".chakra-wrap__listitem": {
                   borderRadius: "8px",
@@ -482,31 +486,31 @@ const Layout = ({ portalId }) => {
                   transition: "0.5s ease all",
                 },
                 ".chakra-collapse .chakra-wrap__listitem .chakra-accordion__button":
-                  {
-                    width: "100%",
-                    borderRadius: "8px",
-                  },
+                {
+                  width: "100%",
+                  borderRadius: "8px",
+                },
                 ".chakra-collapse .chakra-wrap__listitem .chakra-accordion__button:hover":
-                  {
-                    background: "rgb(215, 229, 244)",
-                  },
+                {
+                  background: "rgb(215, 229, 244)",
+                },
                 ".chakra-accordion__button > a": {
                   textDecoration: "none",
                 },
                 ".chakra-collapse .chakra-wrap__listitem .chakra-collapse .chakra-accordion__panel .chakra-wrap__list > a":
-                  {
-                    textDecoration: "none",
-                  },
+                {
+                  textDecoration: "none",
+                },
                 ".chakra-collapse .chakra-wrap__listitem .chakra-collapse .chakra-accordion__panel .chakra-wrap__list > a >span":
-                  {
-                    textDecoration: "none",
-                    fontSize: "1.4rem",
-                  },
+                {
+                  textDecoration: "none",
+                  fontSize: "1.4rem",
+                },
                 ".chakra-collapse .chakra-wrap__listitem .chakra-collapse .chakra-accordion__panel .chakra-wrap__list > a:hover ":
-                  {
-                    background: "var(--chakra-colors-mainBlue)",
-                    color: "white !important",
-                  },
+                {
+                  background: "var(--chakra-colors-mainBlue)",
+                  color: "white !important",
+                },
                 '.chakra-accordion__button[aria-expanded="true"]': {
                   width: "190px",
                   bg: "#D7E5F4",
@@ -523,23 +527,23 @@ const Layout = ({ portalId }) => {
                   opacity: "0.5",
                 },
                 "& .chakra-accordion .chakra-accordion__item .chakra-collapse .chakra-accordion__panel .chakra-wrap .chakra-wrap__list .chakra-wrap__listitem":
-                  {
-                    width: "90%",
-                    margin: "0 auto",
-                  },
+                {
+                  width: "90%",
+                  margin: "0 auto",
+                },
                 "& .chakra-accordion .chakra-accordion__item .chakra-collapse .chakra-accordion__panel .chakra-wrap .chakra-wrap__list .chakra-wrap__listitem > a":
-                  {
-                    mb: "5px",
-                    color: "mainBlue",
-                  },
+                {
+                  mb: "5px",
+                  color: "mainBlue",
+                },
                 "& .chakra-accordion .chakra-accordion__item .chakra-collapse .chakra-accordion__panel .chakra-wrap .chakra-wrap__list .chakra-wrap__listitem > a:hover":
-                  {
-                    color: "white",
-                  },
+                {
+                  color: "white",
+                },
                 "& .chakra-accordion .chakra-accordion__item .chakra-collapse .chakra-accordion__panel .chakra-wrap .chakra-wrap__list .chakra-wrap__listitem > a.active":
-                  {
-                    color: "white",
-                  },
+                {
+                  color: "white",
+                },
                 "@media screen and (max-width: 1023px)": {
                   "&.navHolder": {
                     overflowY: "auto",
@@ -579,9 +583,8 @@ const Layout = ({ portalId }) => {
             transition="all 0.5s ease"
             width={{
               base: `${menuCollapse ? "100%" : "100%"}`,
-              lg: `${
-                menuCollapse ? "calc(100% - 60px)" : "calc(100% - 210px)"
-              }`,
+              lg: `${menuCollapse ? "calc(100% - 60px)" : "calc(100% - 210px)"
+                }`,
             }}
           >
             <Box
@@ -669,10 +672,21 @@ const Layout = ({ portalId }) => {
                   animation: `${animation}`,
                   transformOrigin: "top",
                 }}
+                sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
               >
                 <svg className="icon" width="20px" height="21px">
                   <use xlinkHref="/icon/icons.svg#icon-notification" />
                 </svg>
+
+                {/* settings bar */}
+                {/* <SettingsIcon onClick={() => setVisibleRight(true)} className="icon" color="mainBlue" />
+                <Sidebar visible={visibleRight} position="right" onHide={() => setVisibleRight(false)}>
+                  <p sx={{ fontSize: '2.5rem !important' }}>Settings Bar</p>
+                  <Divider />
+                  <p>
+                   Lorem ipsum dolor, sit amet consectetur adipisicing elit. Amet sit labore dolores impedit ad eum est, quibusdam, debitis fugiat similique neque repudiandae ipsum dolor vero voluptatum et repellat officia eos obcaecati magni? Facere tempore doloremque beatae fugiat quaerat. Eaque nam nulla perspiciatis, voluptatibus fuga distinctio earum dicta voluptates iusto neque.
+                  </p>
+                </Sidebar> */}
               </Box>
             </Box>
           </Box>
@@ -701,9 +715,8 @@ const Layout = ({ portalId }) => {
             transition="all 0.5s ease"
             width={{
               base: `${menuCollapse ? "100%" : "100%"}`,
-              lg: `${
-                menuCollapse ? "calc(100% - 60px)" : "calc(100% - 210px)"
-              }`,
+              lg: `${menuCollapse ? "calc(100% - 60px)" : "calc(100% - 210px)"
+                }`,
             }}
             bg="mainLightModeBackgroundColor"
             pos="fixed"
