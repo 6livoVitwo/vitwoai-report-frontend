@@ -102,7 +102,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   // api calling from global search
   const { data: searchData } = useGetGlobalsearchPurchaseQuery(
-    filters,
+    {
+      ...filters,
+      sortBy: sortColumn,
+      sortDir: sortOrder,
+    },
     {
       skip: !searchQuery,
     }
