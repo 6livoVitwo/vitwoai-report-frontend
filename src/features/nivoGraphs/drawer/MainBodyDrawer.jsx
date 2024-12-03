@@ -49,7 +49,7 @@ const MainBodyDrawer = (props) => {
     const [configureChart, setConfigureChart] = useState({});
 
     const items = [{ label: reportType }, { label: selectedWise }];
-    const home = { icon: 'pi pi-home', url: 'https://primereact.org' }
+    const home = { icon: 'pi pi-home', url: '#' }
 
     const [chart, setChart] = useState({ endpoint: 'some-endpoint', body: {}, method: 'GET', type: 'some-type', processFlow: 'some-process-flow' });
 
@@ -458,22 +458,22 @@ const MainBodyDrawer = (props) => {
                                     </Drawer>
                                 </DrawerBody>
 
-                                <DrawerFooter>
+                                {/* <DrawerFooter>
                                     <Button variant="outline" mr={3} onClick={onClose}>
                                         Cancel
                                     </Button>
                                     <Button colorScheme="blue">Save</Button>
-                                </DrawerFooter>
+                                </DrawerFooter> */}
                             </DrawerContent>
                         </Drawer>
                     </DrawerBody>
 
-                    <DrawerFooter>
+                    {/* <DrawerFooter>
                         <Button variant="outline" mr={3} onClick={onClose}>
                             Cancel
                         </Button>
                         <Button colorScheme="blue">Save</Button>
-                    </DrawerFooter>
+                    </DrawerFooter> */}
                 </DrawerContent>
             </Drawer>
             <div className="card flex justify-content-center">

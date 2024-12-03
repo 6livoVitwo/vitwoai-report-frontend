@@ -32,13 +32,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
   const [initialized, setInitialized] = useState(false);
-
+  const [currentPage, setCurrentPage] = useState(0);
   const dispatch = useDispatch();
-
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [columns, setColumns] = useState([]);
-  const [sortColumn, setSortColumn] = useState("invoice_date");
+  const [sortColumn, setSortColumn] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
   const [filtersApplied, setFiltersApplied] = useState(false);
@@ -73,9 +72,28 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     useGetSelectedColumnsproductQuery();
 
   //.........Api call to get global search.......
-  const { data: searchData } = useGetGlobalsearchProductQuery(filters, {
-    skip: !searchQuery,
-  });
+  const { data: searchData } = useGetGlobalsearchProductQuery({
+    ...filters,
+    sortBy: sortColumn,
+    sortDir: sortOrder,
+  },
+    {
+      skip: !searchQuery,
+    });
+
+  //API Calling sorting
+  const { data: ProductData, refetch: refetchProduct } =
+    useProductWiseSalesQuery({
+      filters: {
+        ...filters,
+        sortBy: sortColumn,
+        sortDir: sortOrder,
+      },
+      page: currentPage,
+    }, {
+      skip: !triggerSort,
+    }
+    );
 
   const toast = useToast();
   const tableContainerRef = useRef(null);
@@ -243,29 +261,23 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       ...prevFilters,
       data: updatedSelectedColumns,
     }));
-
-    const storedColumns = JSON.parse(localStorage.getItem("selectedColumns")) || [];
-
-    const columnsChanged = JSON.stringify(updatedSelectedColumns) !== JSON.stringify(storedColumns);
-
-    if (!columnsChanged) {
-      toast({
-        title: "No changes to apply",
-        status: "info",
-        isClosable: true,
-      });
-      return;
-    }
     setSelectedColumns(updatedSelectedColumns);
     refetchColumnData({ columns: updatedSelectedColumns });
     onClose();
-    // localStorage.setItem("selectedColumns", JSON.stringify(updatedSelectedColumns));
+    localStorage.setItem("selectedColumnsSalesProduct", JSON.stringify(updatedSelectedColumns));
     toast({
       title: "Columns Applied Successfully",
       status: "success",
       isClosable: true,
     });
   };
+  // Load selected columns from localStorage 
+  useEffect(() => {
+    const savedColumns = localStorage.getItem("selectedColumnsSalesProduct");
+    if (savedColumns) {
+      setSelectedColumns(JSON.parse(savedColumns));
+    }
+  }, []);
   useEffect(() => {
     if (isOpen) {
       const filteredColumns = columnData?.content[0]
@@ -463,6 +475,28 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     searchData,
     productDataFilter
   ]);
+  useEffect(() => {
+    if (productDataFilter?.content && productDataFilter.content.length === 0 ) {
+      toast({
+        title: " No Results Found ",
+        description: "You search did not match any data.",
+        status: "warning",
+        isClosable: true,
+        duration: 4000,
+        render: () => (
+          <Box
+            p={3}
+            bg="orange.300"
+            borderRadius="md"
+            style={{ width: "300px", height: "70px" }}
+          >
+            <Box fontWeight="bold">No Results Found</Box>
+            <Box>You search did not match any data.</Box>
+          </Box>
+        ),
+      });
+    }
+  }, [productDataFilter, toast]);
 
   const formatHeader = (column) => {
     if (columnData && columnData.content) {
@@ -796,6 +830,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               width="40px"
               height="40px"
               bg="transparent"
+              color="mainBlue"
               border="1px solid gray"
               _hover={{
                 bg: "mainBlue",
@@ -834,6 +869,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             <Tooltip label="Export" hasArrow>
               <MenuButton
                 color="mainBlue"
+                bg="transparent"
                 border="1px solid gray"
                 padding="5px"
                 height="40px"
@@ -1052,6 +1088,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         overflowY="auto"
         height="calc(100vh - 179px)"
         width="calc(100vw - 115px)"
+        bg="mainLightModeBackgroundColor"
       >
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="droppable" direction="horizontal">
@@ -1109,7 +1146,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                 )}
                               </Button>
                             )}
-                            {column !== "SL No" && (
+                            {column !== "SL No" && !column.toLowerCase().includes("sum") && (
                               <Popover
                                 isOpen={activeFilterColumn === column}
                                 onClose={() => setActiveFilterColumn(null)}
@@ -1135,7 +1172,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                   ) : (
                                     <Button
                                       bg="transparent"
-                                      onClick={() => handlePopoverClick(column)}
+                                      onClick={() => {
+                                        handlePopoverClick(column)
+                                        setDates();
+                                        setCalendarVisible(false);
+                                        setTempFilterCondition("");
+                                      }}
                                     >
                                       <i
                                         className="pi pi-filter"
@@ -1154,7 +1196,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                       onClick={() => {
                                         setTempFilterCondition("");
                                         setTempFilterValue("");
-                                        setDates([]);
+                                        setActiveFilterColumn("");
+                                        setDates();
+                                        setCalendarVisible(false);
                                       }}
                                     />
                                     <PopoverBody h="auto" maxH="300px">
@@ -1185,7 +1229,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                               <option value="greaterThanOrEqual">Greater Than or Equal</option>
                                               <option value="lessThan">Less Than</option>
                                               <option value="lessThanOrEqual">Less Than or Equal</option>
-                                              <option value="between">Between</option>
+                                              {(column === "invoice_date") && (
+                                                <option value="between">Between</option>
+                                              )}
                                             </Select>
 
                                             {tempFilterCondition === "between" ? (

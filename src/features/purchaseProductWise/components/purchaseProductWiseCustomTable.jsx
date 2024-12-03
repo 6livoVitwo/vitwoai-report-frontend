@@ -58,7 +58,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const [columns, setColumns] = useState([]);
-  const [sortColumn, setSortColumn] = useState(" ");
+  const [sortColumn, setSortColumn] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
   const [filtersApplied, setFiltersApplied] = useState(false);
@@ -102,7 +102,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   // api calling from global search
   const { data: searchData } = useGetGlobalsearchPurchaseQuery(
-    filters,
+    {
+      ...filters,
+      sortBy: sortColumn,
+      sortDir: sortOrder,
+    },
     {
       skip: !searchQuery,
     }
@@ -851,7 +855,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 handleReportChange(e);
               }}
               optionLabel="label"
-              placeholder="Search Sales Type"
+              placeholder={reportOptions.length > 0 ? reportOptions[0].label : ""}
               panelStyle={{ margin: "0", padding: "0.75rem 1.25rem" }}
               style={{
                 width: "175px",
@@ -1240,7 +1244,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                 )}
                               </Button>
                             )}
-                            {column !== "SL No" && (
+                            {column !== "SL No" && column !== "grnCreatedBy" && !column.toLowerCase().includes("sum") && (
                               <Popover
                                 isOpen={activeFilterColumn === column}
                                 onClose={() => {
@@ -1268,7 +1272,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                   ) : (
                                     <Button
                                       bg="transparent"
-                                      onClick={() => handlePopoverClick(column)}
+                                      onClick={() => {
+                                        handlePopoverClick(column)
+                                        setCalendarVisible(false);
+                                        setDates();
+                                      }}
                                     >
                                       <i
                                         className="pi pi-filter"
@@ -1291,7 +1299,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                       onClick={() => {
                                         setTempFilterCondition("");
                                         setTempFilterValue("");
+                                        setActiveFilterColumn("");
                                         setDates();
+                                        setCalendarVisible(false);
                                       }}
                                     />
                                     <PopoverBody h="auto" maxH="300px">
@@ -1342,9 +1352,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                               <option value="lessThanOrEqual">
                                                 Less Than or Equal
                                               </option>
-                                              <option value="between">
-                                                Between
-                                              </option>
+                                              {(column === "grnCreatedAt" || column === "grnUpdatedAt" || column === "dueDate") && (
+                                                <option value="between">Between</option>
+                                              )}
                                             </Select>
 
                                             {tempFilterCondition ===

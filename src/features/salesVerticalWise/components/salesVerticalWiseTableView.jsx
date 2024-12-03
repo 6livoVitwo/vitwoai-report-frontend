@@ -4,6 +4,7 @@ import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useVerticalWiseSalesQuery } from "../slice/salesVerticalWiseApi";
+import Loader from "../../analyticloader/components/Loader";
 
 const SalesVerticalWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
@@ -37,21 +38,7 @@ const SalesVerticalWiseTableView = () => {
       sortBy: "companyFunction.functionalities_name",
     }
   )
-
-  const formatDate = (dateString) => {
-    try {
-      const [year, month, day] = dateString.split("-").map(Number);
-      const date = new Date(year, month - 1, day);
-      return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-    } catch (error) {
-      return "Invalid Date";
-    }
-  };
-
+  
   const {
     data: sales,
     isLoading,
@@ -121,7 +108,7 @@ const SalesVerticalWiseTableView = () => {
           </Box>
         ),
       });
-      setToastShown(true); // Mark the toast as shown
+      setToastShown(true);
     }
   }, [sales, page, toast, toastShown]);
 
@@ -134,13 +121,7 @@ const SalesVerticalWiseTableView = () => {
         alignItems="center"
         justifyContent="center"
       >
-        <Spinner
-          thickness="4px"
-          speed="0.65s"
-          emptyColor="gray.200"
-          color="blue.500"
-          size="xl"
-        />
+        <Loader width={100} height={100} objectFit="contain" />
       </Box>
     );
   }

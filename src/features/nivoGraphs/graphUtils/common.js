@@ -47,7 +47,8 @@ export const setDateRange = (data) => {
     }
 }
 
-export const createBodyWise = (data, startDate, endDate, selectData, type = "", yaxisData = "") => {
+export const createBodyWise = (data, startDate, endDate, selectData, type = "", selectedWise = '', reportType = '') => {
+    console.log('hey -> 💚', {data, startDate, endDate, selectData, type, selectedWise, reportType})
     if (data === 'month') {
         return {
             "priceOrQty": `${selectData}`,
@@ -91,7 +92,7 @@ export const createBodyWise = (data, startDate, endDate, selectData, type = "", 
         } else if (type === "pie") {
             return {
                 xaxis: "items.itemName",
-                yaxis: [`${yaxisData}`],
+                yaxis: [`salesPgi.salesDelivery.totalAmount`, `salesPgi.totalAmount`, `quotation.totalAmount`, `salesOrder.totalAmount`, `all_total_amt`],
                 groupBy: ["items.itemName"],
                 valuetype: `${selectData}`,
                 filter: [
