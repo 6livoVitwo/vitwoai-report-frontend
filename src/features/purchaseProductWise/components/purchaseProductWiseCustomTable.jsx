@@ -19,6 +19,10 @@ import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { useGetGlobalsearchPurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { useGetexportdataQuery } from "../slice/purchaseProductWiseApi";
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
+import Loader from "../../analyticloader/components/Loader";
+import LoaderScroll from "../../analyticloader/components/LoaderScroll"
+import { color } from "framer-motion";
+
 
 const CssWrapper = styled.div`
   .p-component {
@@ -77,7 +81,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [isDatesInvalid, setIsDatesInvalid] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
 
-
   const toast = useToast();
 
   const handlePopoverClick = (column) => {
@@ -101,7 +104,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     useGetSelectedColumnsPurchaseQuery();
 
   // api calling from global search
-  const { data: searchData } = useGetGlobalsearchPurchaseQuery(
+  const { data: searchData, isLoading, refetch: refetchGlobalSearch } = useGetGlobalsearchPurchaseQuery(
     {
       ...filters,
       sortBy: sortColumn,
@@ -111,6 +114,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       skip: !searchQuery,
     }
   );
+
 
   //API Calling sorting
   const { data: ProductData, refetch: refetchProduct } =
@@ -255,6 +259,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSelectedReport(selectedValue);
   };
 
+
   //sort asc desc
 
   const handleSort = (column) => {
@@ -363,6 +368,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       data: updatedSelectedColumns,
     }));
     setSelectedColumns(updatedSelectedColumns);
+    localStorage.setItem("selectedColums", JSON.stringify(updatedSelectedColumns));
     refetchColumnData({ columns: updatedSelectedColumns });
     onClose();
     toast({
@@ -371,6 +377,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       isClosable: true,
     });
   };
+  useEffect(() => {
+    const savedColumns = localStorage.getItem("selectedColums");
+    if (savedColumns) {
+      setSelectedColumns(JSON.parse(savedColumns));
+    }
+  }, []);
   useEffect(() => {
     if (isOpen) {
       const filteredColumns = columnData?.content[0]
@@ -381,6 +393,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setTempSelectedColumns(filteredColumns);
     }
   }, [isOpen, selectedColumns, columnData]);
+
   const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
   useEffect(() => {
     return () => {
@@ -388,23 +401,38 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     };
   }, [debouncedSearchQuery]);
 
+  useEffect(() => {
+    if (isLoading) {
+      toast({
+        title: "Loading...",
+        description: "Fetching data, please wait.",
+        status: "info",
+        duration: null,
+        isClosable: true,
+        position: "top",
+        render: () => (
+          <div style={{ display: "flex", alignItems: "center", padding: "10px" }}>
+            <Spinner size="lg" color="blue.500" mr="10px" />
+            <span>Loading....</span>
+          </div>
+        ),
+      });
+    } else {
+      toast.closeAll();
+    }
+  }, [isLoading, toast]);
+  console.log("isloading", isLoading);
+
   const handleSearchChange = (e) => {
     setInputValue(e.target.value);
   };
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      handleSearchClick();
-    }
-  };
   const handleSearchClick = () => {
-    const filteredColumns = selectedColumns.filter(
-      (column) => !column.includes("SUM")
-    );
+    const filteredColumns = selectedColumns.filter(column => !column.includes('SUM'));
     const updatedFilters = {
       ...filters,
       filter: [
         ...filters.filter,
-        ...filteredColumns.map((column) => ({
+        ...filteredColumns.map(column => ({
           column: column,
           operator: "like",
           type: "string",
@@ -415,6 +443,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setFilters(updatedFilters);
     setSearchQuery(inputValue);
   };
+
 
 
   const FiltersTrigger = () => {
@@ -493,12 +522,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         render: () => (
           <Box
             p={3}
-            bg="orange.300"
+            mb={9}
+            bg="rgba(255, 195, 0, 0.2)"
+            backdropFilter="blur(4px)"
             borderRadius="md"
-            style={{ width: "300px", height: "70px" }}
+            style={{ width: "400px", height: "70px" }}
           >
-            <Box fontWeight="bold">No Results Found</Box>
-            <Box>You search did not match any data.</Box>
+            <Box fontWeight="bold" ml={5}>No Results Found</Box>
+            <Box ml={5}>You search did not match any data.</Box>
           </Box>
         ),
       });
@@ -506,6 +537,31 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     }
   }, [productDataFilter, toast]);
 
+  useEffect(() => {
+    if (searchData?.content && searchData.content.length === 0) {
+      toast({
+        title: " No Results Found ",
+        description: "You search did not match any data.",
+        status: "warning",
+        isClosable: true,
+        duration: 4000,
+        render: () => (
+          <Box
+            p={3}
+            mb={9}
+            bg="rgba(255, 195, 0, 0.2)"
+            backdropFilter="blur(4px)"
+            borderRadius="md"
+            style={{ width: "400px", height: "70px" }}
+          >
+            <Box fontWeight="bold" ml={5}>No Results Found</Box>
+            <Box ml={5}>You search did not match any data.</Box>
+          </Box>
+        ),
+      });
+      setLastPage(true);
+    }
+  }, [searchData, toast]);
 
 
   const formatHeader = (column) => {
@@ -564,34 +620,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       console.error("Temp filter value is undefined.");
     }
   };
-
-  const handleApplyFiltersSUM = () => {
-    if (tempFilterCondition && tempFilterValue) {
-      setColumnFilters((prevFilters) => ({
-        ...prevFilters,
-        [activeFilterColumn]: {
-          condition: tempFilterCondition,
-          value: tempFilterValue,
-          column: activeFilterColumn,
-          type: typeof tempFilterValue === "number" ? "integer" : "string",
-        },
-      }));
-      setTempFilterCondition(null);
-      setTempFilterValue("");
-      setActiveFilterColumn(null);
-      // This will trigger the query
-      setFiltersApplied(true);
-    } else {
-      console.error("Filter condition or value missing");
-    }
-  };
-
   const handleApplyFilters = () => {
     if (tempFilterCondition && tempFilterValue && activeFilterColumn) {
       // For the "between" operator, the value must be an array
       const filterValue =
         tempFilterCondition === "between" ? tempFilterValue : tempFilterValue;
-
       // Create a new filter object
       const newFilter = {
         column: activeFilterColumn,
@@ -642,15 +675,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   const handleClick = useCallback(() => {
     if (activeFilterColumn) {
-      const columnType = activeFilterColumn;
-      if (columnType.includes("SUM(")) {
-        handleApplyFiltersSUM();
-        return;
-      }
       handleApplyFilters();
     }
     setTriggerFilter(true);
-  }, [activeFilterColumn, handleApplyFiltersSUM, handleApplyFilters]);
+  }, [activeFilterColumn, handleApplyFilters]);
 
   useEffect(() => {
     if (exportData) {
@@ -667,7 +695,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         }
         return formattedItem;
       });
-      // console.log("object", formattedData);
       const worksheet = xlsx.utils.json_to_sheet(formattedData);
       const workbook = {
         Sheets: { data: worksheet },
@@ -798,7 +825,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             <Input
               onChange={handleSearchChange}
               value={inputValue}
-              onKeyDown={handleKeyDown}
               width="100%"
               bg="#fff"
               padding="15px"
@@ -1000,13 +1026,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               width="30px"
               borderRadius="5px"
               bg="#0d3a6833"
-              // border="1px solid gray"
               _hover={{
                 bg: "mainBlue",
                 color: "white",
               }}
             >
-              {/* <FontAwesomeIcon icon={faChartSimple} fontSize="20px" /> */}
               <FontAwesomeIcon icon={faGear} fontSize="1.8rem" />
             </Button>
           </Tooltip>
@@ -1515,15 +1539,15 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                   {loading && (
                     <Tr>
                       <Td colSpan={selectedColumns.length} textAlign="center">
-                        <Spinner size="lg" color="blue.500" />
+                        {/* <Spinner size="lg" color="blue.500" /> */}
+                        <LoaderScroll width={880} height={5} objectFit="contain" />
                         <Text mt={2} fontSize="1.2rem" color="#4e4e4e">
-                          Loading more data...
+                          Loading...
                         </Text>
                       </Td>
                     </Tr>
                   )}
                 </Tbody>
-
               </Table>
             )}
           </Droppable>

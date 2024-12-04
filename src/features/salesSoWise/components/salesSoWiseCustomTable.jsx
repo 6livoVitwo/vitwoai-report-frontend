@@ -83,7 +83,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const { data: ColumnsData, refetch: refetchColumnData } = useGetSelectedColumnsSoQuery();
 
   //.........Api call to get global search.......
-  const { data: searchData } = useGetGlobalsearchQuery({
+  const { data: searchData, isLoading } = useGetGlobalsearchQuery({
     ...filters,
     sortBy: sortColumn,
     sortDir: sortOrder,
@@ -273,6 +273,27 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       debouncedSearchQuery.cancel();
     };
   }, [debouncedSearchQuery]);
+  useEffect(() => {
+    if (isLoading) {
+      toast({
+        title: "Loading...",
+        description: "Fetching data, please wait.",
+        status: "info",
+        duration: null,
+        isClosable: true,
+        position: "top",
+        render: () => (
+          <div style={{ display: "flex", alignItems: "center", padding: "10px" }}>
+            <Spinner size="sm" color="blue.500" mr="10px" />
+
+            <span>Loading...</span>
+          </div>
+        ),
+      });
+    } else {
+      toast.closeAll();
+    }
+  }, [isLoading, toast]);
 
   const handleSearchChange = (e) => {
     setInputValue(e.target.value);
@@ -465,6 +486,32 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     }
   }, [SoWiseFilter, toast]);
 
+  useEffect(() => {
+    if (searchData?.content && searchData.content.length === 0) {
+      toast({
+        title: " No Results Found ",
+        description: "You search did not match any data.",
+        status: "warning",
+        isClosable: true,
+        duration: 4000,
+        render: () => (
+          <Box
+            p={3}
+            mb={9}
+            bg="rgba(255, 195, 0, 0.2)"
+            backdropFilter="blur(4px)"
+            borderRadius="md"
+            style={{ width: "400px", height: "70px" }}
+          >
+            <Box fontWeight="bold" ml={5}>No Results Found</Box>
+            <Box ml={5}>You search did not match any data.</Box>
+          </Box>
+        ),
+      });
+      setLastPage(true);
+    }
+  }, [searchData, toast]);
+
   const formatHeader = (column) => {
     if (ColumnsData && ColumnsData.content) {
       const apiContent = ColumnsData.content[0];
@@ -516,34 +563,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       console.error("Temp filter value is undefined.");
     }
   };
-  const handleApplyFiltersSUM = () => {
-    if (tempFilterCondition && tempFilterValue) {
-      setColumnFilters((prevFilters) => ({
-        ...prevFilters,
-        [activeFilterColumn]: {
-          condition: tempFilterCondition,
-          value: tempFilterValue,
-          column: activeFilterColumn,
-          type: typeof tempFilterValue === "number" ? "integer" : "string",
-        },
-      }));
-
-      setTempFilterCondition(null);
-      setTempFilterValue("");
-      setActiveFilterColumn(null);
-
-      // This will trigger the query
-      setFiltersApplied(true);
-    } else {
-      console.error("Filter condition or value missing");
-    }
-  };
   const handleApplyFilters = () => {
     if (tempFilterCondition && tempFilterValue && activeFilterColumn) {
-      // For the "between" operator, the value must be an array
       const filterValue = tempFilterCondition === "between" ? tempFilterValue : tempFilterValue;
-
-      // Create a new filter object
       const newFilter = {
         column: activeFilterColumn,
         operator: tempFilterCondition,
@@ -551,13 +573,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         value: filterValue,
       };
 
-      // Update localFilters state
       const updatedFilters = {
         ...localFilters,
         filter: [...localFilters.filter, newFilter],
       };
-
-      // Update column filters for the UI display
       setColumnFilters((prevFilters) => ({
         ...prevFilters,
         [activeFilterColumn]: {
@@ -567,8 +586,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           type: tempFilterCondition === "between" ? "date" : (typeof tempFilterValue === "number" ? "integer" : "string"),
         },
       }));
-
-      // Update local filters state
       setLocalFilters(updatedFilters);
       setFiltersApplied(true);
 
@@ -581,16 +598,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       console.error("Filter condition, value, or column is missing");
     }
   };
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     if (activeFilterColumn) {
-      const columnType = activeFilterColumn; // Assuming activeFilterColumn holds the column type
-      columnType.includes("SUM(")
-        ? handleApplyFiltersSUM()
-        : handleApplyFilters();
-
+      handleApplyFilters();
     }
     setTriggerFilter(true);
-  };
+  }, [activeFilterColumn, handleApplyFilters]);
+
   useEffect(() => {
     if (exportData) {
       exportToExcelDaterange(exportData);
@@ -748,7 +762,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               handleReportChange(e);
             }}
             optionLabel="label"
-            placeholder="Select Sales Type"
+            placeholder={reportOptions.length > 0 ? reportOptions[3].label : ""}
             style={{
               width: "200px",
               background: "#dedede",

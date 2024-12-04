@@ -114,7 +114,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
 
   //global search....
-  const { data: GlobalSearch } = useGetGlobalsearchStateQuery(filters, { skip: skipGlobalSearch })
+  const { data: GlobalSearch, isLoading } = useGetGlobalsearchStateQuery(filters, { skip: skipGlobalSearch })
 
   //..........Api calling for dropdown for district-wise ............
   const { data: DistrictWiseData } = useGetselectedDistWiseQuery(filters, { skip: skipDistrict });
@@ -239,7 +239,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   useEffect(() => {
-    if(!initialized && data.length > 0){
+    if (!initialized && data.length > 0) {
       const initialColumns = getColumns(data)
         .slice(0, 8)
         .map((column) => column.field);
@@ -379,6 +379,27 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       debouncedSearchQuery.cancel();
     };
   }, [debouncedSearchQuery]);
+  useEffect(() => {
+    if (isLoading) {
+      toast({
+        title: "Loading...",
+        description: "Fetching data, please wait.",
+        status: "info",
+        duration: null,
+        isClosable: true,
+        position: "top",
+        render: () => (
+          <div style={{ display: "flex", alignItems: "center", padding: "10px" }}>
+            <Spinner size="sm" color="blue.500" mr="10px" />
+
+            <span>Loading...</span>
+          </div>
+        ),
+      });
+    } else {
+      toast.closeAll();
+    }
+  }, [isLoading, toast]);
 
   const handleSearchChange = (e) => {
     setInputValue(e.target.value);
@@ -524,7 +545,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     return column;
   };
 
- // ...Handle scroll...
+  // ...Handle scroll...
   let previousScrollLeft = 0;
   const handleScroll = () => {
     const { scrollTop, scrollHeight, clientHeight, scrollLeft } =
@@ -540,7 +561,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   useEffect(() => {
     const container = tableContainerRef.current;
     if (container) {
-      container.addEventListener("scroll", handleScroll,200);
+      container.addEventListener("scroll", handleScroll, 200);
       return () => container.removeEventListener("scroll", handleScroll);
     }
   }, [loading, lastPage]);
