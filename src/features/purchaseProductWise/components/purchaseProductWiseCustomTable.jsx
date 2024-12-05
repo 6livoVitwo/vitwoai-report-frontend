@@ -19,9 +19,7 @@ import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { useGetGlobalsearchPurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { useGetexportdataQuery } from "../slice/purchaseProductWiseApi";
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
-import Loader from "../../analyticloader/components/Loader";
 import LoaderScroll from "../../analyticloader/components/LoaderScroll"
-import { color } from "framer-motion";
 
 
 const CssWrapper = styled.div`
@@ -44,7 +42,6 @@ const CssWrapper = styled.div`
 
 `;
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
-  const sortButtonRef = useRef(null);
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
   const [defaultColumns, setDefaultColumns] = useState([]);
@@ -52,12 +49,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [selectAll, setSelectAll] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [inputValue, setInputValue] = useState("");
-  const { isOpen, onOpen, onClose, onApplyChanges } = useDisclosure();
+  const { isOpen, onOpen, onClose} = useDisclosure();
   const [columnFilters, setColumnFilters] = useState({});
   const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
-  const [startDate, setStartDate] = useState();
-  const [endDate, setEndDate] = useState();
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
@@ -89,7 +84,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   const rightAlignColumns = ["SUM(items.totalAmount)", "SUM(grnInvoice.grnTotalTds)", "SUM(grnInvoice.grnTotalSgst)", "SUM(grnInvoice.grnTotalIgst)", "SUM(grnInvoice.grnTotalCgst)", "SUM(items.unitPrice)", "items.goodsItems.stockSummary.movingWeightedPrice"];
 
-  //...Advanced Filter API CALL...
+  //...Advanced Filter API CALL...  
   const { data: productDataFilter, refetch: refetchProductFilter } = useProductWisePurchaseQuery(
     { filters: localFilters },
     { skip: !triggerFilter }
@@ -104,7 +99,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     useGetSelectedColumnsPurchaseQuery();
 
   // api calling from global search
-  const { data: searchData, isLoading, refetch: refetchGlobalSearch } = useGetGlobalsearchPurchaseQuery(
+  const { data: searchData, isLoading} = useGetGlobalsearchPurchaseQuery(
     {
       ...filters,
       sortBy: sortColumn,
@@ -117,7 +112,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
 
   //API Calling sorting
-  const { data: ProductData, refetch: refetchProduct } =
+  const { data: ProductData} =
     useProductWisePurchaseQuery({
       filters: {
         ...filters,
@@ -764,19 +759,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     onCloseGraphAddDrawer();
   };
 
-  //  useEffect(() => {
-  //   document.body.style.transition = "transform 0.3s ease-in-out";
-  //   document.body.style.transform = isBodyScaled ? "scale(0.98)" : "scale(1)";
-  //   return () => {
-  //     document.body.style.transform = "scale(1)"; // Reset on unmount
-  //   };
-  // }, [isBodyScaled]);
-
-
-
-  // formattedDates();
-
-
   return (
     <Box bg="white">
       <Box
@@ -846,7 +828,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 "&:focus": {
                   outline: "none",
                   borderColor: "#00000061",
-                  boxShadow: "none",
                   e: "none",
                   boxShadow: "none",
                 },
@@ -1150,7 +1131,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                           readOnlyInput
                           hideOnRangeSelection
                         />
-
                       </Box>
                     </Box>
                   </ModalBody>
@@ -1505,7 +1485,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                             borderTop="1px solid #e1e1e1"
                             style={getColumnStyle(column)}
                           >
-
                             <Text
                               fontSize="1.4rem"
                               fontWeight={column === "items.goodName" ? "600" : "400"}
