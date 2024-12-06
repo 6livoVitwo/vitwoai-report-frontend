@@ -105,9 +105,11 @@ const PurchaseProductWiseTableView = () => {
         render: () => (
           <Box
             p={3}
-            bg="orange.300"
+            mb={9}
+            bg="rgba(255, 195, 0, 0.2)"
+            backdropFilter="blur(4px)"
             borderRadius="md"
-            style={{ width: "300px", height: "70px" }}
+            style={{ width: "400px", height: "70px" }}
           >
             <Box fontWeight="bold">No More Data</Box>
             <Box>You have reached the end of the list.</Box>
