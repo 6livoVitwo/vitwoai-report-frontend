@@ -10,7 +10,6 @@ import { DownloadIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
-import { useSelector } from "react-redux";
 import { useGetGlobalsearchCustomerQuery } from "../slice/customerWiseSalesApi";
 import { useCustomerWiseSalesQuery } from "../slice/customerWiseSalesApi";
 import { useGetSelectedColumnscustomerQuery } from "../slice/customerWiseSalesApi";
@@ -21,6 +20,7 @@ import { Calendar } from "primereact/calendar";
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
 import { useGetexportdataSalesCustomerQuery } from "../slice/customerWiseSalesApi";
 import styled from "@emotion/styled";
+import LoaderScroll from "../../analyticloader/components/LoaderScroll"
 const CssWrapper = styled.div`
   .p-component {
     font-size: 1.2rem;
@@ -44,7 +44,6 @@ const CssWrapper = styled.div`
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
-  const [defaultColumns, setDefaultColumns] = useState([]);
   const [selectedColumns, setSelectedColumns] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -56,11 +55,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [inputValue, setInputValue] = useState("");
   const [sortColumn, setSortColumn] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
-  const [currentPage, setCurrentPage] = useState(0);
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
-  const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const [dates, setDates] = useState(null);
@@ -98,14 +95,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     });
 
   //API Calling sorting
-  const { data: ProductData, refetch: refetchProduct } =
+  const { data: ProductData } =
     useCustomerWiseSalesQuery({
       filters: {
         ...filters,
         sortBy: sortColumn,
         sortDir: sortOrder,
       },
-      page: currentPage,
     }, {
       skip: !triggerSort,
     }
@@ -118,10 +114,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   const toast = useToast();
   const tableContainerRef = useRef(null);
-  const { onClose: onCloseFilterModal, isOpen: isOpenFilterModal } = useDisclosure();
   const { onOpen: onOpenDownloadReportModal, onClose: onCloseDownloadReportModal, isOpen: isOpenDownloadReportModal } = useDisclosure();
   const { onOpen: onOpenGraphAddDrawer, onClose: onCloseGraphAddDrawer, isOpen: isOpenGraphAddDrawer } = useDisclosure();
-  const { onOpen: onOpenGraphSettingsModal } = useDisclosure();
   const { isOpen: isOpenGraphDetailsView, onOpen: onOpenGraphDetailsView, onClose: onCloseGraphDetailsView } = useDisclosure();
 
   const getColumnStyle = (header) => ({
@@ -188,7 +182,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       const initialColumns = getColumns(data)
         .slice(0, 8)
         .map((column) => column.field);
-      setDefaultColumns(initialColumns);
       setSelectedColumns(initialColumns);
       setTempSelectedColumns(initialColumns);
       setInitialized(true);
@@ -490,12 +483,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     return filteredData;
   }, [
     newArray,
-    searchQuery,
     searchData,
-    columnFilters,
     sortColumn,
     sortOrder,
-    advancedFiltercustomer
+    advancedFiltercustomer,
+    ProductData
   ]);
   useEffect(() => {
     if (advancedFiltercustomer?.content && advancedFiltercustomer.content.length === 0) {
@@ -626,11 +618,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         },
       }));
       setLocalFilters(updatedFilters);
-      setFiltersApplied(true);
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
-      // refetchFiltercoustomer();
     } else {
       console.error("Filter condition, value, or column is missing");
     }
@@ -729,7 +719,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             color="mainBlue"
             textTransform="capitalize"
           >
-            Purchase Product Table View
+            Sales Customer Table View
           </Heading>
         </Box>
         <Box
@@ -1078,7 +1068,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         className="table-tableContainerRef"
         margin="0 auto"
         overflowY="auto"
-        height="calc(100vh - 179px)"
+        height="calc(100vh - 151px)"
         width="calc(100vw - 115px)"
         border="1px solid #ebebeb"
       >
@@ -1359,10 +1349,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                   {loading && (
                     <Tr>
                       <Td colSpan={selectedColumns.length} textAlign="center">
-                        <Spinner size="lg" color="blue.500" />
-                        <Text mt={2} fontSize="1.2rem" color="#4e4e4e">
-                          Loading more data...
-                        </Text>
+                        <LoaderScroll width={880} height={5} objectFit="contain" />
                       </Td>
                     </Tr>
                   )}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { Box, Button, useDisclosure, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Modal, ModalOverlay, ModalContent, Heading, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Checkbox, Input, Text, Select, useToast, Menu, MenuButton, MenuList, MenuItem, Popover, PopoverTrigger, PopoverContent, PopoverBody, PopoverCloseButton, PopoverArrow, PopoverHeader, Tooltip, Spinner } from "@chakra-ui/react";
+import { Box, Button, useDisclosure, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Modal, ModalOverlay, ModalContent, Heading, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Checkbox, Input, Text, Select, useToast, Menu, MenuButton, MenuList, MenuItem, Popover, PopoverTrigger, PopoverContent, PopoverBody, PopoverCloseButton, PopoverArrow, Tooltip, Spinner } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -19,6 +19,7 @@ import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice
 import { useDispatch } from "react-redux";
 import { useGetexportdataSalesProductQuery } from "../slice/salesProductWiseApi"
 import styled from "@emotion/styled";
+import LoaderScroll from "../../analyticloader/components/LoaderScroll"
 
 const CssWrapper = styled.div`
   .p-component {
@@ -43,7 +44,6 @@ const CssWrapper = styled.div`
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
-  const [defaultColumns, setDefaultColumns] = useState([]);
   const [selectedColumns, setSelectedColumns] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -53,7 +53,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
   const [initialized, setInitialized] = useState(false);
-  const [currentPage, setCurrentPage] = useState(0);
   const dispatch = useDispatch();
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
@@ -61,7 +60,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [sortColumn, setSortColumn] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
-  const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const [dates, setDates] = useState(null);
@@ -105,14 +103,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     });
 
   //API Calling sorting
-  const { data: ProductData, refetch: refetchProduct } =
+  const { data: ProductData } =
     useProductWiseSalesQuery({
       filters: {
         ...filters,
         sortBy: sortColumn,
         sortDir: sortOrder,
       },
-      page: currentPage,
     }, {
       skip: !triggerSort,
     }
@@ -120,10 +117,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   const toast = useToast();
   const tableContainerRef = useRef(null);
-  const {
-    onClose: onCloseFilterModal,
-    isOpen: isOpenFilterModal,
-  } = useDisclosure();
   const {
     onOpen: onOpenDownloadReportModal,
     onClose: onCloseDownloadReportModal,
@@ -199,7 +192,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       const initialColumns = getColumns(data)
         .slice(0, 8)
         .map((column) => column.field);
-      setDefaultColumns(initialColumns);
       setSelectedColumns(initialColumns);
       setTempSelectedColumns(initialColumns);
       setInitialized(true);
@@ -512,7 +504,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     sortColumn,
     sortOrder,
     searchData,
-    productDataFilter
+    productDataFilter,
+    ProductData
   ]);
   useEffect(() => {
     if (productDataFilter?.content && productDataFilter.content.length === 0) {
@@ -637,7 +630,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         },
       }));
       setLocalFilters(updatedFilters);
-      setFiltersApplied(true);
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
@@ -718,7 +710,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   }
 
   return (
-    <Box bg="white" padding="0px 10px" borderRadius="5px">
+    <Box bg="white">
       <Box
         display="flex"
         alignItems="center"
@@ -741,7 +733,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             color="mainBlue"
             textTransform="capitalize"
           >
-            Purchase Product Table View
+            Sales Product Table View
           </Heading>
         </Box>
         <Box
@@ -1089,7 +1081,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         className="table-tableContainerRef"
         margin="0 auto"
         overflowY="auto"
-        height="calc(100vh - 179px)"
+        height="calc(100vh - 151px)"
         width="calc(100vw - 115px)"
         border="1px solid #ebebeb"
       >
@@ -1373,10 +1365,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                   {loading && (
                     <Tr>
                       <Td colSpan={selectedColumns.length} textAlign="center">
-                        <Spinner size="lg" color="blue.500" />
-                        <Text mt={2} fontSize="1.2rem" color="#4e4e4e">
-                          Loading more data...
-                        </Text>
+                        <LoaderScroll width={880} height={5} objectFit="contain" />
                       </Td>
                     </Tr>
                   )}

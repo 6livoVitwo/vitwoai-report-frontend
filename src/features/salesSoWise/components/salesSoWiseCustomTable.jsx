@@ -14,11 +14,11 @@ import { Calendar } from "primereact/calendar";
 import { useGetSelectedColumnsSoQuery } from "../slice/salesSoWiseApi";
 import { useGetGlobalsearchQuery } from "../slice/salesSoWiseApi";
 import { useSoWiseSalesQuery } from "../slice/salesSoWiseApi";
-import { useSelector } from "react-redux";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import { useDispatch } from "react-redux";
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
 import { useGetexportdataSalesSoQuery } from "../slice/salesSoWiseApi"
+import LoaderScroll from "../../analyticloader/components/LoaderScroll"
 import styled from "@emotion/styled";
 const CssWrapper = styled.div`
   .p-component {
@@ -49,19 +49,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [columnFilters, setColumnFilters] = useState({});
   const [lastPage, setLastPage] = useState(false);
-  const [configureChart, setConfigureChart] = useState({});
   const [selectedReport, setSelectedReport] = useState(null);
-  const [startDate, setStartDate] = useState();
-  const [endDate, setEndDate] = useState();
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [sortColumn, setSortColumn] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [searchQuery, setSearchQuery] = useState("");
   const [inputValue, setInputValue] = useState("");
-  const [currentPage, setCurrentPage] = useState(0);
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
-  const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const [dates, setDates] = useState(null);
@@ -77,13 +72,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const isSumColumn = (column) => column.startsWith("SUM(");
 
   //API Calling sorting
-  const { data: SoWise, refetch: refetchSoWise } = useSoWiseSalesQuery({
+  const { data: SoWise } = useSoWiseSalesQuery({
     filters: {
       ...filters,
       sortBy: sortColumn,
       sortDir: sortOrder,
     },
-    page: currentPage,
   }, { skip: !triggerSort });
 
   const handlePopoverClick = (column) => {
@@ -116,8 +110,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const tableContainerRef = useRef(null);
   const { onOpen: onOpenDownloadReportModal, onClose: onCloseDownloadReportModal, isOpen: isOpenDownloadReportModal } = useDisclosure();
   const { onOpen: onOpenGraphAddDrawer, onClose: onCloseGraphAddDrawer, isOpen: isOpenGraphAddDrawer } = useDisclosure();
-  const { onOpen: onOpenGraphSettingDrawer } = useDisclosure();
-  const { onOpen: onOpenGraphSettingsModal } = useDisclosure();
   const { isOpen: isOpenGraphDetailsView, onOpen: onOpenGraphDetailsView, onClose: onCloseGraphDetailsView } = useDisclosure();
 
   const getColumnStyle = (header) => ({
@@ -481,12 +473,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   }, [
     newArray,
     searchData,
-    searchQuery,
-    columnFilters,
     sortColumn,
     sortOrder,
     selectedColumns,
-    SoWiseFilter
+    SoWiseFilter,
+    SoWise,
   ]);
   useEffect(() => {
     if (SoWiseFilter?.content && SoWiseFilter.content.length === 0) {
@@ -612,7 +603,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         },
       }));
       setLocalFilters(updatedFilters);
-      setFiltersApplied(true);
 
       // Clear temporary values
       setTempFilterCondition(null);
@@ -720,7 +710,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             color="mainBlue"
             textTransform="capitalize"
           >
-            Purchase Product Table View
+            Sales So Table View
           </Heading>
         </Box>
         <Box
@@ -1069,7 +1059,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         className="table-tableContainerRef"
         margin="0 auto"
         overflowY="auto"
-        height="calc(100vh - 179px)"
+        height="calc(100vh - 151px)"
         width="calc(100vw - 115px)"
         border="1px solid #ebebeb"
       >
@@ -1352,10 +1342,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                   {loading && (
                     <Tr>
                       <Td colSpan={selectedColumns.length} textAlign="center">
-                        <Spinner size="lg" color="blue.500" />
-                        <Text mt={2} fontSize="1.2rem" color="#4e4e4e">
-                          Loading more data...
-                        </Text>
+                        <LoaderScroll width={880} height={5} objectFit="contain" />
                       </Td>
                     </Tr>
                   )}

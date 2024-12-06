@@ -18,9 +18,8 @@ import { useGetselectedPincodeWiseQuery } from "../slice/salesRegionWiseApi";
 import { useGetselectedStateWiseQuery } from "../slice/salesRegionWiseApi";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfiguration";
-import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { useGetGlobalsearchStateQuery, useGetGlobalsearchPincodeQuery, useGetGlobalsearchDistQuery, useGetGlobalsearchCountryQuery, useGetGlobalsearchCityQuery } from "../slice/salesRegionWiseApi";
+import { useGetGlobalsearchStateQuery} from "../slice/salesRegionWiseApi";
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
 import styled from "@emotion/styled";
 const CssWrapper = styled.div`
@@ -52,16 +51,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [inputValue, setInputValue] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [columnFilters, setColumnFilters] = useState({});
-  const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
-  const [startDate, setStartDate] = useState();
-  const [endDate, setEndDate] = useState();
   const [sortColumn, setSortColumn] = useState("customer.customerAddress.customer_address_pin_code");
   const [sortOrder, setSortOrder] = useState("asc");
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
-  const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const [selectedRegion, setSelectedRegion] = useState("state");
   const [placeholder, setPlaceholder] = useState("District");
@@ -670,7 +665,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       container.addEventListener("scroll", handleScroll, 200);
       return () => container.removeEventListener("scroll", handleScroll);
     }
-  }, [loading, lastPage]);
+  }, [loading]);
 
   //function for filter
   const handleTempFilterConditionChange = (e) => {
@@ -706,7 +701,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setActiveFilterColumn(null);
 
       // This will trigger the query
-      setFiltersApplied(true);
     } else {
       console.error("Filter condition or value missing");
     }
@@ -736,7 +730,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       }));
       // Update local filters state
       setLocalFilters(updatedFilters);
-      setFiltersApplied(true);
       // Clear temporary values
       setTempFilterCondition(null);
       setTempFilterValue("");
@@ -811,7 +804,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             color="mainBlue"
             textTransform="capitalize"
           >
-            Purchase Product Table View
+            Sales Ragion Table View
           </Heading>
         </Box>
         <Box

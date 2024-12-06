@@ -44,14 +44,14 @@ const CssWrapper = styled.div`
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
-  const [defaultColumns, setDefaultColumns] = useState([]);
+  // const [defaultColumns, setDefaultColumns] = useState([]);
   const [selectedColumns, setSelectedColumns] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [inputValue, setInputValue] = useState("");
-  const { isOpen, onOpen, onClose} = useDisclosure();
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [columnFilters, setColumnFilters] = useState({});
-  const [lastPage, setLastPage] = useState(false);
+  // const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
@@ -60,7 +60,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [sortColumn, setSortColumn] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
-  const [filtersApplied, setFiltersApplied] = useState(false);
+  // const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const [dates, setDates] = useState(null);
   const dispatch = useDispatch();
@@ -74,7 +74,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [triggerApiCall, setTriggerApiCall] = useState(false);
   const [selectdate, setSelectdate] = useState([]);
   const [isDatesInvalid, setIsDatesInvalid] = useState(false);
-  const [currentPage, setCurrentPage] = useState(0);
 
   const toast = useToast();
 
@@ -99,7 +98,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     useGetSelectedColumnsPurchaseQuery();
 
   // api calling from global search
-  const { data: searchData, isLoading} = useGetGlobalsearchPurchaseQuery(
+  const { data: searchData, isLoading } = useGetGlobalsearchPurchaseQuery(
     {
       ...filters,
       sortBy: sortColumn,
@@ -112,14 +111,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
 
   //API Calling sorting
-  const { data: ProductData} =
+  const { data: ProductData } =
     useProductWisePurchaseQuery({
       filters: {
         ...filters,
         sortBy: sortColumn,
         sortDir: sortOrder,
       },
-      page: currentPage,
     }, {
       skip: !triggerSort,
     }
@@ -284,7 +282,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         .slice(0, 8)
         .map((column) => column.field);
 
-      setDefaultColumns(initialColumns);
+      // setDefaultColumns(initialColumns);
       setSelectedColumns(initialColumns);
       setTempSelectedColumns(initialColumns);
       setInitialized(true);
@@ -505,6 +503,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     sortColumn,
     sortOrder,
     productDataFilter,
+    ProductData,
   ]);
   useEffect(() => {
     if (productDataFilter?.content && productDataFilter.content.length === 0) {
@@ -528,7 +527,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           </Box>
         ),
       });
-      setLastPage(true);
+      // setLastPage(true);
     }
   }, [productDataFilter, toast]);
 
@@ -554,7 +553,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           </Box>
         ),
       });
-      setLastPage(true);
+      // setLastPage(true);
     }
   }, [searchData, toast]);
 
@@ -657,7 +656,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
       // Update local filters state
       setLocalFilters(updatedFilters);
-      setFiltersApplied(true);
+      // setFiltersApplied(true);
 
       // Clear temporary values
       setTempFilterCondition(null);
@@ -1183,7 +1182,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         className={`table-tableContainerRef ${isBodyScaled ? 'table-tableContainerRef-scaled' : ''}`}
         overflowY="auto"
         margin="0 auto"
-        height="calc(100vh - 130px)"
+        height="calc(100vh - 151px)"
         width="calc(100vw - 100px)"
         border="1px solid #ebebeb"
       >
@@ -1518,11 +1517,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                   {loading && (
                     <Tr>
                       <Td colSpan={selectedColumns.length} textAlign="center">
-                        {/* <Spinner size="lg" color="blue.500" /> */}
                         <LoaderScroll width={880} height={5} objectFit="contain" />
-                        <Text mt={2} fontSize="1.2rem" color="#4e4e4e">
-                          Loading...
-                        </Text>
                       </Td>
                     </Tr>
                   )}

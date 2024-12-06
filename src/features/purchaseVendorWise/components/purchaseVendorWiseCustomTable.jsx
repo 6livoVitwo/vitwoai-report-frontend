@@ -19,6 +19,8 @@ import { useVendorWisePurchaseQuery } from "../slice/purchaseVendorWiseApi";
 import { useGetSelectedColumnsVendorQuery } from "../slice/purchaseVendorWiseApi";
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
 import { useGetexportdataVendorQuery } from "../slice/purchaseVendorWiseApi";
+import LoaderScroll from "../../analyticloader/components/LoaderScroll"
+
 
 const CssWrapper = styled.div`
   .p-component {
@@ -42,22 +44,18 @@ const CssWrapper = styled.div`
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
-  const [defaultColumns, setDefaultColumns] = useState([]);
   const [selectedColumns, setSelectedColumns] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [inputValue, setInputValue] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [columnFilters, setColumnFilters] = useState({});
-  const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
   const [sortColumn, setSortColumn] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
-  const [currentPage, setCurrentPage] = useState(0);
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
-  const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const dispatch = useDispatch();
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
@@ -110,7 +108,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         sortBy: sortColumn,
         sortDir: sortOrder,
       },
-      page: currentPage,
     }, {
       skip: !triggerSort,
     }
@@ -184,7 +181,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       const initialColumns = getColumns(data)
         .slice(0, 8)
         .map((column) => column.field);
-      setDefaultColumns(initialColumns);
+      // setDefaultColumns(initialColumns);
       setSelectedColumns(initialColumns);
       setTempSelectedColumns(initialColumns);
       setInitialized(true);
@@ -482,6 +479,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     sortOrder,
     selectedColumns,
     VendorDataFilter,
+    ProductData,
   ]);
   useEffect(() => {
     if (VendorDataFilter?.content && VendorDataFilter.content.length === 0) {
@@ -528,7 +526,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           </Box>
         ),
       });
-      setLastPage(true);
     }
   }, [searchData, toast]);
 
@@ -608,7 +605,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         },
       }));
       setLocalFilters(updatedFilters);
-      setFiltersApplied(true);
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
@@ -713,7 +709,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             color="mainBlue"
             textTransform="capitalize"
           >
-            Purchase Product Table View
+            Purchase Vendor Table View
           </Heading>
         </Box>
         <Box
@@ -1060,11 +1056,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       <TableContainer
         ref={tableContainerRef}
         className="table-tableContainerRef"
-        margin="0 auto"
         overflowY="auto"
-        height="calc(100vh - 179px)"
-        width="calc(100vw - 115px)"
+        margin="0 auto"
+        height="calc(100vh - 151px)"
+        width="calc(100vw - 100px)"
         border="1px solid #ebebeb"
+        borderRadius="7px"
       >
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="droppable" direction="horizontal">
@@ -1336,10 +1333,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                   {loading && (
                     <Tr>
                       <Td colSpan={selectedColumns.length} textAlign="center">
-                        <Spinner size="lg" color="blue.500" />
-                        <Text mt={2} fontSize="1.2rem" color="#4e4e4e">
-                          Loading....
-                        </Text>
+                        <LoaderScroll width={880} height={5} objectFit="contain" />
                       </Td>
                     </Tr>
                   )}
