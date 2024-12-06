@@ -5,7 +5,7 @@ import dashboardReducer from "../features/dashboardNew/slice/graphSlice";
 import colorReducer from "../features/graphCharts/slice/colorTheme";
 import graphSlice from "../features/nivoGraphs/chartConfigurations/graphSlice";
 import themeReducer from "../features/global/slice/index";
-import multiThemeReducer from "../features/global/slice/themeSlice";
+import multiThemeReducer from "../features/global/slice/multiThemeSlice";
 
 const store = configureStore({
   reducer: {

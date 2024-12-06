@@ -37,7 +37,6 @@ import DashboardNew from "../features/dashboardNew/pages/DashboardNew";
 import SalesKamWise from "../features/salesKamWise/components";
 import SalesKamWiseTableView from "../features/salesKamWise/components/salesKamWiseTableView";
 import PurchaseDetails from "../features/purchaseDetailsReport/components";
-import { useSelector } from "react-redux";
 import ExtendedTheme from "../features/global/css/chakraExtendTheme";
 const Dashboard = lazy(() => import("../features/dashboard/components"));
 
@@ -428,10 +427,7 @@ const AllRoutes = () => {
     );
   };
   
-
 const Holder = () => {
-    const { currentTheme } = useSelector((state) => state.multiTheme);
-    console.log('🔵', { currentTheme });
     return (
         <ChakraProvider theme={ExtendedTheme}>
             <GlobalCss />
