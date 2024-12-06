@@ -1,4 +1,4 @@
-import { Alert, Badge, Box, Button, Divider, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, DrawerOverlay, Text, useDisclosure } from '@chakra-ui/react';
+import { Alert, Badge, Box, Button, Divider, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay, Text, useDisclosure } from '@chakra-ui/react';
 import React, { useMemo, useState } from 'react'
 import { FiPlus, FiSettings } from 'react-icons/fi';
 import { MdFullscreen, MdRefresh } from 'react-icons/md';
@@ -43,15 +43,12 @@ const MainBodyDrawer = (props) => {
     const btnRef = React.useRef();
     const { onOpen: onOpenGraphSettingDrawer, onClose: onCloseGraphSettingDrawer, isOpen: isOpenGraphSettingDrawer } = useDisclosure();
     const { isOpen: isOpenGraphSettingsModal, onOpen: onOpenGraphSettingsModal, onClose: onCloseGraphSettingsModal } = useDisclosure();
-    const { onOpen: onOpenGraphDetailsView } = useDisclosure();
-    const { onClose } = useDisclosure();
-
     const [configureChart, setConfigureChart] = useState({});
 
     const items = [{ label: reportType }, { label: selectedWise }];
     const home = { icon: 'pi pi-home', url: '#' }
 
-    const [chart, setChart] = useState({ endpoint: 'some-endpoint', body: {}, method: 'GET', type: 'some-type', processFlow: 'some-process-flow' });
+    const [chart, setChart] = useState({ endpoint: '', body: {}, method: '', type: '', processFlow: '' });
 
     const { graphData, handleRefresh } = useChartRefresh(chart);
     const processedGraphData = useProcessedData(graphData, chart?.type);
