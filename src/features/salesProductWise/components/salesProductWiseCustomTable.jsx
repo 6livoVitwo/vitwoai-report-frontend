@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { Box, Button, useDisclosure, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Checkbox, Input, Text, Select, useToast, Menu, MenuButton, MenuList, MenuItem, Popover, PopoverTrigger, PopoverContent, PopoverBody, PopoverCloseButton, PopoverArrow, PopoverHeader, Tooltip, Spinner } from "@chakra-ui/react";
+import { Box, Button, useDisclosure, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Modal, ModalOverlay, ModalContent, Heading, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Checkbox, Input, Text, Select, useToast, Menu, MenuButton, MenuList, MenuItem, Popover, PopoverTrigger, PopoverContent, PopoverBody, PopoverCloseButton, PopoverArrow, Tooltip, Spinner } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -18,11 +18,32 @@ import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import { useDispatch } from "react-redux";
 import { useGetexportdataSalesProductQuery } from "../slice/salesProductWiseApi"
+import styled from "@emotion/styled";
+import LoaderScroll from "../../analyticloader/components/LoaderScroll"
+
+const CssWrapper = styled.div`
+  .p-component {
+    font-size: 1.2rem;
+  }
+
+  .p-dropdown .p-dropdown-label.p-placeholder {
+    color: #00000061;
+    font-size: 1.2rem;
+    font-weight: normal;
+    font-family: "Poppins", sans-serif;
+  }
+
+  .action-tooltip .chakra-tooltip {
+    border-radius: 5px;
+    font-size: 1rem;
+    padding: 2px 8px;
+  }
+
+`;
 
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
-  const [defaultColumns, setDefaultColumns] = useState([]);
   const [selectedColumns, setSelectedColumns] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -32,7 +53,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
   const [initialized, setInitialized] = useState(false);
-  const [currentPage, setCurrentPage] = useState(0);
   const dispatch = useDispatch();
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
@@ -40,7 +60,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [sortColumn, setSortColumn] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
-  const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const [dates, setDates] = useState(null);
@@ -50,10 +69,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [triggerApiCall, setTriggerApiCall] = useState(false);
   const [selectdate, setSelectdate] = useState([]);
   const [calendarVisible, setCalendarVisible] = useState(false);
+  const [isDatesInvalid, setIsDatesInvalid] = useState(false);
 
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
   };
+  const isSumColumn = (column) => column.startsWith("SUM(");
 
   //......Advanced Filtering....
   const { data: productDataFilter, refetch: refetchsalesproductdata } = useProductWiseSalesQuery(
@@ -72,7 +93,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     useGetSelectedColumnsproductQuery();
 
   //.........Api call to get global search.......
-  const { data: searchData } = useGetGlobalsearchProductQuery({
+  const { data: searchData, isLoading } = useGetGlobalsearchProductQuery({
     ...filters,
     sortBy: sortColumn,
     sortDir: sortOrder,
@@ -82,14 +103,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     });
 
   //API Calling sorting
-  const { data: ProductData, refetch: refetchProduct } =
+  const { data: ProductData } =
     useProductWiseSalesQuery({
       filters: {
         ...filters,
         sortBy: sortColumn,
         sortDir: sortOrder,
       },
-      page: currentPage,
     }, {
       skip: !triggerSort,
     }
@@ -97,10 +117,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   const toast = useToast();
   const tableContainerRef = useRef(null);
-  const {
-    onClose: onCloseFilterModal,
-    isOpen: isOpenFilterModal,
-  } = useDisclosure();
   const {
     onOpen: onOpenDownloadReportModal,
     onClose: onCloseDownloadReportModal,
@@ -176,7 +192,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       const initialColumns = getColumns(data)
         .slice(0, 8)
         .map((column) => column.field);
-      setDefaultColumns(initialColumns);
       setSelectedColumns(initialColumns);
       setTempSelectedColumns(initialColumns);
       setInitialized(true);
@@ -229,8 +244,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         listName: columnData.content[0][key]?.listName || key,
       }))
       : [];
-
-    // const uniqueColumns = Array.from(new Set(allColumns.map((col) => col.listName)));
     const uniqueColumns = allColumns.map((col) => col.field);
 
     if (selectAll) {
@@ -271,7 +284,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       isClosable: true,
     });
   };
-  // Load selected columns from localStorage 
   useEffect(() => {
     const savedColumns = localStorage.getItem("selectedColumnsSalesProduct");
     if (savedColumns) {
@@ -295,6 +307,27 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       debouncedSearchQuery.cancel();
     };
   }, [debouncedSearchQuery]);
+
+  useEffect(() => {
+    if (isLoading) {
+      toast({
+        title: "Loading...",
+        description: "Fetching data, please wait.",
+        status: "info",
+        duration: null,
+        isClosable: true,
+        position: "top",
+        render: () => (
+          <div style={{ display: "flex", alignItems: "center", padding: "10px" }}>
+            <Spinner size="sm" color="blue.500" mr="10px" />
+            <span>Loading...</span>
+          </div>
+        ),
+      });
+    } else {
+      toast.closeAll();
+    }
+  }, [isLoading, toast]);
 
   const handleSearchChange = (e) => {
     setInputValue(e.target.value);
@@ -356,9 +389,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   // function date expoet Calling for date filter
   const handleFilter = () => {
     if (!dates || dates.length === 0) {
-      alert("Please select dates before applying the filter!");
+      setIsDatesInvalid(true);
       return;
     }
+    setIsDatesInvalid(false);
     handleDateSelection(dates);
   };
   useEffect(() => {
@@ -467,16 +501,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     return filteredData;
   }, [
     newArray,
-    searchQuery,
-    columnFilters,
     sortColumn,
     sortOrder,
-    selectedColumns,
     searchData,
-    productDataFilter
+    productDataFilter,
+    ProductData
   ]);
   useEffect(() => {
-    if (productDataFilter?.content && productDataFilter.content.length === 0 ) {
+    if (productDataFilter?.content && productDataFilter.content.length === 0) {
       toast({
         title: " No Results Found ",
         description: "You search did not match any data.",
@@ -497,6 +529,32 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       });
     }
   }, [productDataFilter, toast]);
+
+  useEffect(() => {
+    if (searchData?.content && searchData.content.length === 0) {
+      toast({
+        title: " No Results Found ",
+        description: "You search did not match any data.",
+        status: "warning",
+        isClosable: true,
+        duration: 4000,
+        render: () => (
+          <Box
+            p={3}
+            mb={9}
+            bg="rgba(255, 195, 0, 0.2)"
+            backdropFilter="blur(4px)"
+            borderRadius="md"
+            style={{ width: "400px", height: "70px" }}
+          >
+            <Box fontWeight="bold" ml={5}>No Results Found</Box>
+            <Box ml={5}>You search did not match any data.</Box>
+          </Box>
+        ),
+      });
+      setLastPage(true);
+    }
+  }, [searchData, toast]);
 
   const formatHeader = (column) => {
     if (columnData && columnData.content) {
@@ -549,25 +607,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       console.error("Temp filter value is undefined.");
     }
   };
-  const handleApplyFiltersSUM = () => {
-    if (tempFilterCondition && tempFilterValue) {
-      setColumnFilters((prevFilters) => ({
-        ...prevFilters,
-        [activeFilterColumn]: {
-          condition: tempFilterCondition,
-          value: tempFilterValue,
-          column: activeFilterColumn,
-          type: typeof tempFilterValue === "number" ? "integer" : "string",
-        },
-      }));
-      setTempFilterCondition(null);
-      setTempFilterValue("");
-      setActiveFilterColumn(null);
-      setFiltersApplied(true);
-    } else {
-      console.error("Filter condition or value missing");
-    }
-  };
   const handleApplyFilters = () => {
     if (tempFilterCondition && tempFilterValue && activeFilterColumn) {
       const filterValue = tempFilterCondition === "between" ? tempFilterValue : tempFilterValue;
@@ -591,7 +630,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         },
       }));
       setLocalFilters(updatedFilters);
-      setFiltersApplied(true);
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
@@ -600,15 +638,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       console.error("Filter condition, value, or column is missing");
     }
   };
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     if (activeFilterColumn) {
-      const columnType = activeFilterColumn;
-      columnType.includes("SUM(")
-        ? handleApplyFiltersSUM()
-        : handleApplyFilters();
+      handleApplyFilters();
     }
     setTriggerFilter(true);
-  };
+  }, [activeFilterColumn, handleApplyFilters]);
 
   useEffect(() => {
     if (exportData) {
@@ -675,58 +710,37 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   }
 
   return (
-    <Box bg="white" padding="0px 10px" borderRadius="5px">
+    <Box bg="white">
       <Box
         display="flex"
-        borderRadius="5px"
         alignItems="center"
         justifyContent="space-between"
-        padding="10px"
+        gap="10px"
+        padding="10px 20px"
         marginBottom="10px"
-        boxShadow="1px 2px 15px 2px #00000012"
+        position="relative"
+        zIndex="999"
         sx={{
           "& input:placeholder": {
             color: "white",
           },
-        }}
-      >
-        <Box display="flex" alignItems="center" w="20%" position="relative">
-          <Input
-            onChange={handleSearchChange}
-            value={inputValue}
-            width="100%"
-            bg="#dedede"
-            padding="15px"
-            h="36px"
-            borderRadius="5px"
-            placeholder="Search Global Data"
-            pr="40px"
-            zIndex="1"
-          />
-          <button
-            onClick={handleSearchClick}
-            style={{
-              position: "absolute",
-              right: "10px",
-              top: "50%",
-              transform: "translateY(-50%)",
-              border: "none",
-              background: "transparent",
-              cursor: "pointer",
-              fontSize: "20px",
-              zIndex: "2",
-            }}
+        }}>
+        <Box>
+          <Heading
+            as="h1"
+            fontSize="2rem"
+            fontWeight="600"
+            color="mainBlue"
+            textTransform="capitalize"
           >
-            <i
-              className="pi pi-search"
-              style={{ fontSize: "2rem", opacity: "0.8" }}
-            ></i>
-          </button>
+            Sales Product Table View
+          </Heading>
         </Box>
         <Box
           display="flex"
-          justifyContent="space-between"
+          justifyContent="flex-end"
           gap="10px"
+          alignItems="center"
           sx={{
             "& .react-datepicker-wrapper input": {
               bg: "#dedede",
@@ -738,100 +752,133 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             },
           }}
         >
-          <Tooltip label="Clear All" hasArrow>
-            <Button
-              onClick={clearAllFilters}
+          <Box display="flex" alignItems="center" w="175px" position="relative">
+            <Input
+              onChange={handleSearchChange}
+              value={inputValue}
+              width="100%"
+              bg="#fff"
+              padding="15px"
+              h="31px"
               borderRadius="5px"
-              w="40px"
-              h="40px"
-              bg="#d6eaf8"
+              borderColor="#00000061"
+              placeholder="Search Global Data"
+              pr="40px"
+              zIndex="1"
+              fontSize="1.2rem"
+              color="#000"
+              sx={{
+                "&::placeholder": {
+                  color: "#00000061",
+                },
+                "&:hover": {
+                  borderColor: "#00000061",
+                },
+                "&:focus": {
+                  outline: "none",
+                  borderColor: "#00000061",
+                  e: "none",
+                  boxShadow: "none",
+                },
+              }}
+            />
+            <button
+              onClick={handleSearchClick}
+              style={{
+                position: "absolute",
+                right: "10px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                border: "none",
+                background: "transparent",
+                cursor: "pointer",
+                fontSize: "20px",
+                zIndex: "2",
+              }}>
+              <i
+                className="pi pi-search"
+                style={{ fontSize: "2rem", opacity: "0.8" }}></i>
+            </button>
+          </Box>
+          <CssWrapper>
+            <Dropdown
+              value={selectedReport}
+              options={reportOptions}
+              onChange={(e) => {
+                handleReportChange(e);
+              }}
+              optionLabel="label"
+              placeholder={reportOptions.length > 0 ? reportOptions[0].label : ""}
+              panelStyle={{ margin: "0", padding: "0.75rem 1.25rem" }}
+              style={{
+                width: "175px",
+                border: "1px solid #00000061",
+                display: "flex",
+                alignItems: "center",
+                height: "32px",
+                borderColor: "#dedede",
+              }}
+              sx={{
+                "& .p-dropdown-label": {
+                  color: "blue",
+                  fontSize: "1.2rem",
+                },
+                "&:focus": {
+                  outline: "none",
+                  borderColor: "#cccccc61",
+                  boxShadow: "none",
+                },
+                "& .p-dropdown-trigger": {
+                  color: "#00000061",
+                },
+                "& .p-dropdown .p-dropdown-label.p-placeholder": {
+                  color: "red",
+                },
+              }}
+            />
+          </CssWrapper>
+          <Tooltip
+            label="Clear All"
+            hasArrow
+            bg="gray.400"
+            color="white"
+            fontSize="1.2rem"
+            p="5px 10px"
+            borderRadius="7px"
+          >
+            <Button
+              borderRadius="5px"
+              onClick={clearAllFilters}
+              w="30px"
+              h="30px"
+              bg="#0d3a6833"
               _hover={{
                 bg: "mainBlue",
                 color: "white",
-              }}
-            >
+              }}>
               <i
                 className="pi pi-filter-slash"
-                style={{ fontSize: "1.5rem" }}
-              ></i>
+                style={{ fontSize: "1.5rem" }}></i>
             </Button>
           </Tooltip>
-          <Dropdown
-            value={selectedReport}
-            options={reportOptions}
-            onChange={(e) => {
-              handleReportChange(e);
-            }}
-            optionLabel="label"
-            placeholder="Select Sales Type"
-            style={{
-              width: "200px",
-              background: "#dedede",
-            }}
-          />
-          <Popover>
-            {/* <PopoverTrigger>
-              <Button
-                rounded="full"
-                w="40px"
-                h="40px"
-                bg="none"
-                border="1px solid #1b4f72 "
-                _hover={{
-                  bg: "mainBlue",
-                  color: "white",
-                }}
-              >
-                Goods
-              </Button>
-            </PopoverTrigger> */}
-            <PopoverContent>
-              {/* <PopoverArrow /> */}
-              <PopoverCloseButton />
-              <PopoverHeader display="flex" justifyContent="center">
-                Select Groups
-              </PopoverHeader>
-              <PopoverBody>
-                <Box
-                  display="flex"
-                  flexDirection="column"
-                  justifyContent="space-around"
-                >
-                  <Button
-                    rounded="9px"
-                    border="1px solid gray"
-                    w="100%"
-                    p=""
-                    m="2px"
-                    h="40px"
-                  >
-                    Good Groups
-                  </Button>
-                  <Button
-                    rounded="9px"
-                    border="1px solid gray"
-                    w="100%"
-                    p=""
-                    m="2px"
-                    h="40px"
-                  >
-                    Good Items
-                  </Button>
-                </Box>
-              </PopoverBody>
-            </PopoverContent>
-          </Popover>
           {/* Graph view  */}
-          <Tooltip label="Graph View" hasArrow>
+          <Tooltip
+            label="Graph View"
+            hasArrow
+            bg="gray.400"
+            color="white"
+            fontSize="1.2rem"
+            p="5px 10px"
+            borderRadius="7px"
+          >
             <Button
-              aria-label="Graph View"
               onClick={handleGraphViewDrawer}
-              borderRadius="30px"
-              width="40px"
-              height="40px"
-              bg="transparent"
-              color="mainBlue"
-              border="1px solid gray"
+              aria-label="Graph View"
+              borderRadius="5px"
+              width="30px"
+              height="30px"
+              bg="#0d3a6833"
+              // border="1px solid gray"
               _hover={{
                 bg: "mainBlue",
                 color: "white",
@@ -841,40 +888,52 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               }}
               _focus={{
                 boxShadow: "outline",
-              }}
-            >
+              }}>
               <FontAwesomeIcon icon={faChartLine} fontSize="20px" />
             </Button>
           </Tooltip>
-
-          <Tooltip label="Select Columns to Show" hasArrow>
+          <Tooltip
+            label="Select Columns to Show"
+            hasArrow
+            bg="gray.400"
+            color="white"
+            fontSize="1.2rem"
+            p="5px 10px"
+            borderRadius="7px">
             <Button
               onClick={onOpen}
-              padding="15px"
-              bg="transparent"
-              border="1px solid gray"
+              fontSize="0.9rem"
+              height="30px"
               color="mainBlue"
-              height="40px"
-              width="40px"
-              borderRadius="30px"
+              width="30px"
+              borderRadius="5px"
+              bg="#0d3a6833"
               _hover={{
                 bg: "mainBlue",
                 color: "white",
-              }}
-            >
-              <FontAwesomeIcon icon={faGear} fontSize="20px" />
+              }}>
+              <FontAwesomeIcon icon={faGear} fontSize="1.8rem" />
             </Button>
           </Tooltip>
-          <Menu>
-            <Tooltip label="Export" hasArrow>
+
+          <Menu zIndex="1000" >
+            <Tooltip
+              label="Export"
+              hasArrow
+              bg="gray.400"
+              color="white"
+              fontSize="1.2rem"
+              p="5px 10px"
+              borderRadius="7px"
+            >
               <MenuButton
                 color="mainBlue"
-                bg="transparent"
-                border="1px solid gray"
+                height="30px"
+                width="30px"
                 padding="5px"
-                height="40px"
-                width="40px"
-                borderRadius="30px"
+                borderRadius="5px"
+                // border="1px solid gray"
+                bg="#0d3a6833"
                 _hover={{
                   color: "white",
                   bg: "mainBlue",
@@ -885,31 +944,30 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                     alignItems: "center",
                     justifyContent: "center",
                   },
-                }}
-              >
-                <DownloadIcon fontSize="20px" />
+                }}>
+                <DownloadIcon fontSize="1.8rem" />
               </MenuButton>
             </Tooltip>
-            <MenuList>
+            <MenuList padding="8px" borderRadius="7px" borderColor="#e4e4e499" boxShadow="rgba(0, 0, 0, 0.15) 0px 14px 34px -14px;" position="relative" zIndex="999">
               <MenuItem
                 onClick={exportToExcel}
-                fontSize="13px"
-                fontWeight="600"
-                height="35px"
-              >
-                <Box minW="25px">
-                  <FontAwesomeIcon icon={faFileExcel} />
+                fontSize="1.2rem" height="35px" padding="10px" borderRadius="7px">
+                <Box minW="25px" margin="3px 7px" display="flex" alignItems="center" justifyContent="flex-start">
+                  <FontAwesomeIcon icon={faFileExcel}
+                    fontSize="1.8rem" color="#003a73c9" />
                 </Box>
                 <Box as="span">Export Report</Box>
               </MenuItem>
               <MenuItem
-                fontSize="13px"
-                fontWeight="600"
+                fontSize="1.2rem"
                 height="35px"
-                onClick={onOpenDownloadReportModal}
-              >
-                <Box minW="25px">
-                  <FontAwesomeIcon icon={faFileExcel} />
+                padding="10px"
+                borderRadius="7px"
+                onClick={onOpenDownloadReportModal}>
+                <Box minW="25px" margin="3px 7px" display="flex" alignItems="center" justifyContent="flex-start">
+                  <FontAwesomeIcon icon={faFileExcel}
+                    fontSize="1.8rem" color="#003a73c9"
+                  />
                 </Box>
                 <Box as="span">Download Report</Box>
               </MenuItem>
@@ -917,8 +975,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 isCentered
                 size="xl"
                 isOpen={isOpenDownloadReportModal}
-                onClose={onCloseDownloadReportModal}
-              >
+                onClose={onCloseDownloadReportModal}>
                 <ModalOverlay />
                 <ModalContent>
                   <ModalHeader
@@ -926,11 +983,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                     bg="mainBlue"
                     color="white"
                     fontSize="16px"
-                    padding="12px"
-                  >
+                    padding="12px">
                     Select Date Range
                   </ModalHeader>
-                  <ModalCloseButton mt="5px" color="white" size="lg" />
+                  <ModalCloseButton mt="5px" color="white" size="lg"
+                  // onClick={() => {
+                  //   setTempFilterCondition("");
+                  //   setTempFilterValue("");
+                  //   setDates();
+                  // }}
+                  />
                   <ModalBody>
                     <Box
                       display="flex"
@@ -945,8 +1007,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                           mr: "0px",
                           bg: "#dedede",
                         },
-                      }}
-                    >
+                      }}>
                       <Text fontWeight="600" mb="5px" fontSize="14px">
                         Select Your Date - Range
                       </Text>
@@ -964,6 +1025,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                             width: "50%",
                             height: "35px",
                             borderRadius: "5px",
+                            border: isDatesInvalid ? "2px solid red" : "1px solid #ccc",
                           }}
                           onChange={handleDateChange}
                           selectionMode="range"
@@ -985,10 +1047,9 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                       }}
                       color="white"
                       onClick={() => {
-                        onCloseDownloadReportModal();
+                        onCloseDownloadReportModal()
                         setDates()
-                      }}
-                    >
+                      }}>
                       Close
                     </Button>
                     <Button
@@ -1001,7 +1062,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                       color="white"
                       onClick={() => {
                         handleFilter();
-                        onCloseDownloadReportModal();
+                        // onCloseDownloadReportModal();
                         setDates();
                       }}
                     >
@@ -1012,83 +1073,17 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               </Modal>
             </MenuList>
           </Menu>
-
-          <Modal
-            isOpen={isOpenFilterModal}
-            onClose={onCloseFilterModal}
-            size="xl"
-            isCentered
-          >
-            <ModalOverlay />
-            <ModalContent minW="40%">
-              <ModalHeader
-                fontWeight="600"
-                bg="mainBlue"
-                color="white"
-                fontSize="16px"
-                padding="12px"
-              >
-                Filter Table Report by Column
-              </ModalHeader>
-              <ModalCloseButton mt="5px" color="white" size="lg" />
-              <ModalBody>
-                <Box height="60vh" overflowY="scroll" overflowX="hidden">
-                  {getColumns(data).map((column) => {
-                    const formattedHeader = formatHeader(column.header);
-                    return (
-                      <Box key={column.field}>
-                        <Text
-                          color="var(--chakra-colors-textBlack)"
-                          fontWeight="600"
-                          fontSize="14px"
-                          mt="10px"
-                          mb="3px"
-                        >
-                          {formattedHeader}
-                        </Text>
-                      </Box>
-                    );
-                  })}
-                </Box>
-              </ModalBody>
-
-              <ModalFooter>
-                <Button
-                  mr={3}
-                  padding="15px"
-                  fontSize="13px"
-                  bg="var(--chakra-colors-mainBlue)"
-                  _hover={{
-                    bg: "var(--chakra-colors-mainBlue)",
-                  }}
-                  color="white"
-                  onClick={onCloseFilterModal}
-                >
-                  Reset
-                </Button>
-                <Button
-                  padding="15px"
-                  fontSize="13px"
-                  bg="var(--chakra-colors-mainBlue)"
-                  _hover={{
-                    bg: "var(--chakra-colors-mainBlue)",
-                  }}
-                  color="white"
-                >
-                  Filter
-                </Button>
-              </ModalFooter>
-            </ModalContent>
-          </Modal>
         </Box>
       </Box>
+
       <TableContainer
         ref={tableContainerRef}
         className="table-tableContainerRef"
+        margin="0 auto"
         overflowY="auto"
-        height="calc(100vh - 179px)"
+        height="calc(100vh - 151px)"
         width="calc(100vw - 115px)"
-        bg="mainLightModeBackgroundColor"
+        border="1px solid #ebebeb"
       >
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="droppable" direction="horizontal">
@@ -1099,7 +1094,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 variant="simple"
               >
                 <Thead style={{ position: "sticky", top: 0 }}>
-                  <Tr bg="#cfd8e1">
+                  <Tr bg="#ffffff">
                     {selectedColumns.map((column, index) => (
                       <Draggable
                         key={column}
@@ -1111,12 +1106,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
-                            padding="15px 10px"
-                            fontSize="13px"
+                            padding="7px 15px"
+                            fontSize="1.35rem"
                             fontWeight="500"
                             textTransform="capitalize"
                             fontFamily="Poppins, sans-serif"
                             color="black"
+                            letterSpacing="0"
+                            background="#cfd8e1a6"
                           >
                             {/* A-Z Filter  */}
                             {formatHeader(column)}
@@ -1164,8 +1161,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                       <i
                                         className="pi pi-filter-slash"
                                         style={{
-                                          color: "slateblue",
-                                          fontSize: "1.4rem",
+                                          color: "003060",
+                                          fontSize: "1.3rem",
                                         }}
                                       ></i>
                                     </Button>
@@ -1182,8 +1179,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                       <i
                                         className="pi pi-filter"
                                         style={{
-                                          color: "slateblue",
-                                          fontSize: "1.4rem",
+                                          color: "#003060",
+                                          fontWeight: "bold",
+                                          fontSize: "1.3rem",
+                                          position: "relative",
+                                          top: "-2px",
                                         }}
                                       ></i>
                                     </Button>
@@ -1326,25 +1326,30 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         {selectedColumns.map((column, colIndex) => (
                           <Td
                             key={colIndex}
-                            padding="10px"
+                            padding="12px 15px"
+                            borderBottom="1px solid #e1e1e1"
+                            borderTop="1px solid #e1e1e1"
                             style={getColumnStyle(column)}
                           >
                             <Text
-                              fontSize="13px"
+                              fontSize="1.4rem"
                               justifyItems="center"
+                              fontWeight={column === "items.itemName" ? "600" : "400"}
                               whiteSpace="nowrap"
+                              color="#4e4e4e"
                               width={
                                 column === "description"
                                   ? "300px"
-                                  : column === "name"
-                                    ? "200px"
-                                    : "100px"
+                                  : column === "items.itemName"
+                                    ? "250px"
+                                    : "auto"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis"
+                              title={column === "items.itemName" ? item[column] : undefined}
+                              textAlign={isSumColumn(column) ? "right" : "left"}
                             >
-                              {/* {item[column]} */}
-                              {item[column] !== undefined ? item[column] : "-"}
+                              {item[column] || "-"}
                             </Text>
                           </Td>
                         ))}
@@ -1360,10 +1365,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                   {loading && (
                     <Tr>
                       <Td colSpan={selectedColumns.length} textAlign="center">
-                        <Spinner size="lg" color="blue.500" />
-                        <Text mt={2} fontSize="1.2rem" color="#4e4e4e">
-                          Loading more data...
-                        </Text>
+                        <LoaderScroll width={880} height={5} objectFit="contain" />
                       </Td>
                     </Tr>
                   )}

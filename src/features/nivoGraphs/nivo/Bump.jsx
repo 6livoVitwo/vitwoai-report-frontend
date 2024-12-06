@@ -3,7 +3,7 @@ import React from 'react'
 import { bumpChartData } from "../jsonData/chartData";
 
 const Bump = ({ data = bumpChartData, dynamicWidth }) => {
-  
+  console.log('⭕', { data });
   return (
     <>
       <ResponsiveBump
@@ -48,12 +48,12 @@ const Bump = ({ data = bumpChartData, dynamicWidth }) => {
           tickSize: 5,
           tickPadding: 5,
           tickRotation: 0,
-          legend: 'ranking',
+          legend: '',
           legendPosition: 'middle',
           legendOffset: -40,
           truncateTickAt: 0
         }}
-        margin={{ top: 40, right: 100, bottom: 40, left: 60 }}
+        margin={{ top: 40, right: 500, bottom: 40, left: 60 }}
         axisRight={null}
       />
     </>

@@ -9,7 +9,7 @@ const Line = ({ data = lineChartData, dynamicWidth }) => {
       <ResponsiveLine
         data={data}
         {...(dynamicWidth > 800 ? { width: dynamicWidth } : { width: 800 })}
-        margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
+        margin={{ top: 50, right: 410, bottom: 50, left: 60 }}
         xScale={{ type: "point" }}
         colors={{ scheme: "nivo" }}
         yScale={{
@@ -26,7 +26,7 @@ const Line = ({ data = lineChartData, dynamicWidth }) => {
           tickSize: 5,
           tickPadding: 5,
           tickRotation: 0,
-          legend: "X Axis",
+          legend: "",
           legendOffset: 36,
           legendPosition: "middle",
           truncateTickAt: 0,
@@ -35,7 +35,7 @@ const Line = ({ data = lineChartData, dynamicWidth }) => {
           tickSize: 5,
           tickPadding: 5,
           tickRotation: 0,
-          legend: "Y Axis",
+          legend: "",
           legendOffset: -40,
           legendPosition: "middle",
           truncateTickAt: 0,

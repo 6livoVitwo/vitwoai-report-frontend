@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { format, parse } from 'date-fns';
 import { getAllDates } from "../graphUtils/common";
 import Line from "../nivo/Line";
+import { Box } from "@chakra-ui/react";
 
 const LineChart = ({ liveData = [], startDate = "", endDate = "", dynamicWidth = 1200, inputType = "" }) => {
   const [data, setData] = useState([]);

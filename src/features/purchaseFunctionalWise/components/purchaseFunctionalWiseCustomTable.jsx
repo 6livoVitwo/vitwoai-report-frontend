@@ -16,7 +16,6 @@ import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfiguration";
 import { chartsData } from "../../nivoGraphs/jsonData/graphSkeleton";
-import NewMyCharts from "../../dashboardNew/nivo/NewMyCharts";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import { useGetSelectedColumnsPurchaseQuery } from "../slice/purchaseProductWiseApi";
 import { useProductWisePurchaseQuery } from "../slice/purchaseProductWiseApi";
@@ -1435,7 +1434,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                           </Box>
                         </Box>
                         <Box sx={{ height: "300px" }}>
-                          <NewMyCharts chart={chart} />
+                          <p>No Data</p>
                         </Box>
                       </Box>
                     </Box>
