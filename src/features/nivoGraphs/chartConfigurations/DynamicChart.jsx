@@ -1,10 +1,10 @@
-import FunnelChart from "../../dashboardNew/nivo/FunnelChart";
 import AreaBumpChart from "../chartSettings/AreaBumpChart";
 import LineChart from "../chartSettings/LineChart";
 import BumpChart from "../chartSettings/BumpChart";
 import BarChart from "../chartSettings/BarChart";
 import PieChart from "../chartSettings/PieChart";
 import HeatMapChart from "../chartSettings/HeatMapChart";
+import FunnelChart from "../chartSettings/FunnelChart";
 
 const DynamicChart = ({ chart = {} }) => {
   const { type, data, startDate, endDate, inputType, dynamicWidth=600, dynamicHeight, skeleton= 'no' } = chart;

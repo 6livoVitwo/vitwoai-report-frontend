@@ -3,7 +3,14 @@ import { ResponsiveAreaBump } from "@nivo/bump";
 import { areaBumpData } from "../jsonData/chartData";
 
 const AreaBump = ({ data = areaBumpData, dynamicWidth }) => {
-console.log({dynamicWidth})
+
+  const truncateLabel = (label, maxLength = 10) => {
+    if (label?.length > maxLength) {
+      return label.slice(0, maxLength) + '...'; // truncate and append '...'
+    }
+    return label;
+  };
+
   return (
     <>
       <ResponsiveAreaBump
@@ -47,8 +54,8 @@ console.log({dynamicWidth})
             id: 'lines'
           }
         ]}
-        startLabel="id"
-        endLabel="id"
+        startLabel={(d) => truncateLabel(d.id)}
+        endLabel={(d) => truncateLabel(d.id)}
         axisTop={{
           tickSize: 5,
           tickPadding: 5,

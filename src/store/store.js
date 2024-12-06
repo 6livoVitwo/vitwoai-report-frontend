@@ -5,12 +5,10 @@ import dashboardReducer from "../features/dashboardNew/slice/graphSlice";
 import colorReducer from "../features/graphCharts/slice/colorTheme";
 import graphSlice from "../features/nivoGraphs/chartConfigurations/graphSlice";
 import themeReducer from "../features/global/slice/index";
-import multiThemeReducer from "../features/global/slice/themeSlice";
 
 const store = configureStore({
   reducer: {
     theme: themeReducer,
-    multiTheme: multiThemeReducer,
     colors: colorReducer,
     auth: authReducer,
     dashboard: dashboardReducer,
