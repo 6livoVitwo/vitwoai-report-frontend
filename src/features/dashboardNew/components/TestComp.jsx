@@ -7,514 +7,285 @@ import { ResponsivePie } from '@nivo/pie';
 
 
 const TestComp = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const [clickedData, setClickedData] = useState({})
-  const [data, setData] = useState([
-    {
-        "id": "Chocolate Bar",
-        "data": [
-            {
-                "x": "01-2024",
-                "y": 96
-            },
-            {
-                "x": "02-2024",
-                "y": 0
-            },
-            {
-                "x": "03-2024",
-                "y": 0
-            },
-            {
-                "x": "04-2024",
-                "y": 0
-            },
-            {
-                "x": "05-2024",
-                "y": 0
-            },
-            {
-                "x": "06-2024",
-                "y": 0
-            },
-            {
-                "x": "07-2024",
-                "y": 0
-            },
-            {
-                "x": "08-2024",
-                "y": 0
-            },
-            {
-                "x": "09-2024",
-                "y": 0
-            },
-            {
-                "x": "10-2024",
-                "y": 0
-            },
-            {
-                "x": "11-2024",
-                "y": 0
-            },
-            {
-                "x": "12-2024",
-                "y": 0
-            }
-        ]
-    },
-    {
-        "id": "HAIR SYSTEM AMPOLLE",
-        "data": [
-            {
-                "x": "01-2024",
-                "y": 96
-            },
-            {
-                "x": "02-2024",
-                "y": 0
-            },
-            {
-                "x": "03-2024",
-                "y": 0
-            },
-            {
-                "x": "04-2024",
-                "y": 0
-            },
-            {
-                "x": "05-2024",
-                "y": 0
-            },
-            {
-                "x": "06-2024",
-                "y": 0
-            },
-            {
-                "x": "07-2024",
-                "y": 0
-            },
-            {
-                "x": "08-2024",
-                "y": 0
-            },
-            {
-                "x": "09-2024",
-                "y": 0
-            },
-            {
-                "x": "10-2024",
-                "y": 0
-            },
-            {
-                "x": "11-2024",
-                "y": 0
-            },
-            {
-                "x": "12-2024",
-                "y": 0
-            }
-        ]
-    },
-    {
-        "id": "Stainless steel (1)",
-        "data": [
-            {
-                "x": "01-2024",
-                "y": 0
-            },
-            {
-                "x": "02-2024",
-                "y": 98
-            },
-            {
-                "x": "03-2024",
-                "y": 0
-            },
-            {
-                "x": "04-2024",
-                "y": 0
-            },
-            {
-                "x": "05-2024",
-                "y": 0
-            },
-            {
-                "x": "06-2024",
-                "y": 0
-            },
-            {
-                "x": "07-2024",
-                "y": 0
-            },
-            {
-                "x": "08-2024",
-                "y": 0
-            },
-            {
-                "x": "09-2024",
-                "y": 0
-            },
-            {
-                "x": "10-2024",
-                "y": 0
-            },
-            {
-                "x": "11-2024",
-                "y": 0
-            },
-            {
-                "x": "12-2024",
-                "y": 0
-            }
-        ]
-    },
-    {
-        "id": "Carvaan Mini",
-        "data": [
-            {
-                "x": "01-2024",
-                "y": 0
-            },
-            {
-                "x": "02-2024",
-                "y": 0
-            },
-            {
-                "x": "03-2024",
-                "y": 0
-            },
-            {
-                "x": "04-2024",
-                "y": 0
-            },
-            {
-                "x": "05-2024",
-                "y": 0
-            },
-            {
-                "x": "06-2024",
-                "y": 992
-            },
-            {
-                "x": "07-2024",
-                "y": 0
-            },
-            {
-                "x": "08-2024",
-                "y": 0
-            },
-            {
-                "x": "09-2024",
-                "y": 0
-            },
-            {
-                "x": "10-2024",
-                "y": 0
-            },
-            {
-                "x": "11-2024",
-                "y": 0
-            },
-            {
-                "x": "12-2024",
-                "y": 0
-            }
-        ]
-    },
-    {
-        "id": "high-density polyethylene (HDPE)3",
-        "data": [
-            {
-                "x": "01-2024",
-                "y": 0
-            },
-            {
-                "x": "02-2024",
-                "y": 0
-            },
-            {
-                "x": "03-2024",
-                "y": 0
-            },
-            {
-                "x": "04-2024",
-                "y": 0
-            },
-            {
-                "x": "05-2024",
-                "y": 0
-            },
-            {
-                "x": "06-2024",
-                "y": 0
-            },
-            {
-                "x": "07-2024",
-                "y": 0
-            },
-            {
-                "x": "08-2024",
-                "y": 990
-            },
-            {
-                "x": "09-2024",
-                "y": 0
-            },
-            {
-                "x": "10-2024",
-                "y": 0
-            },
-            {
-                "x": "11-2024",
-                "y": 0
-            },
-            {
-                "x": "12-2024",
-                "y": 0
-            }
-        ]
-    },
-    {
-        "id": "polyethylene terephthalate (PET)3",
-        "data": [
-            {
-                "x": "01-2024",
-                "y": 0
-            },
-            {
-                "x": "02-2024",
-                "y": 0
-            },
-            {
-                "x": "03-2024",
-                "y": 0
-            },
-            {
-                "x": "04-2024",
-                "y": 0
-            },
-            {
-                "x": "05-2024",
-                "y": 0
-            },
-            {
-                "x": "06-2024",
-                "y": 0
-            },
-            {
-                "x": "07-2024",
-                "y": 0
-            },
-            {
-                "x": "08-2024",
-                "y": 990
-            },
-            {
-                "x": "09-2024",
-                "y": 0
-            },
-            {
-                "x": "10-2024",
-                "y": 0
-            },
-            {
-                "x": "11-2024",
-                "y": 0
-            },
-            {
-                "x": "12-2024",
-                "y": 0
-            }
-        ]
-    },
-    {
-        "id": "9 Watt Bulb",
-        "data": [
-            {
-                "x": "01-2024",
-                "y": 0
-            },
-            {
-                "x": "02-2024",
-                "y": 0
-            },
-            {
-                "x": "03-2024",
-                "y": 0
-            },
-            {
-                "x": "04-2024",
-                "y": 0
-            },
-            {
-                "x": "05-2024",
-                "y": 0
-            },
-            {
-                "x": "06-2024",
-                "y": 96
-            },
-            {
-                "x": "07-2024",
-                "y": 0
-            },
-            {
-                "x": "08-2024",
-                "y": 0
-            },
-            {
-                "x": "09-2024",
-                "y": 0
-            },
-            {
-                "x": "10-2024",
-                "y": 0
-            },
-            {
-                "x": "11-2024",
-                "y": 0
-            },
-            {
-                "x": "12-2024",
-                "y": 0
-            }
-        ]
-    },
-    {
-        "id": "HAIR SYSTEM AMPOLLE (5DA 5ML)",
-        "data": [
-            {
-                "x": "01-2024",
-                "y": 96
-            },
-            {
-                "x": "02-2024",
-                "y": 0
-            },
-            {
-                "x": "03-2024",
-                "y": 0
-            },
-            {
-                "x": "04-2024",
-                "y": 0
-            },
-            {
-                "x": "05-2024",
-                "y": 0
-            },
-            {
-                "x": "06-2024",
-                "y": 0
-            },
-            {
-                "x": "07-2024",
-                "y": 0
-            },
-            {
-                "x": "08-2024",
-                "y": 0
-            },
-            {
-                "x": "09-2024",
-                "y": 0
-            },
-            {
-                "x": "10-2024",
-                "y": 0
-            },
-            {
-                "x": "11-2024",
-                "y": 0
-            },
-            {
-                "x": "12-2024",
-                "y": 0
-            }
-        ]
-    }
-]);
+    const { isOpen, onOpen, onClose } = useDisclosure()
+    const [clickedData, setClickedData] = useState({})
+    const [data, setData] = useState([
+        {
+            "id": "SP1001Testing3Assets553",
+            "data": [
+                {
+                    "x": "Rachhel",
+                    "y": "9450.0000"
+                },
+                {
+                    "x": "Shubham Ghosh",
+                    "y": "0"
+                },
+                {
+                    "x": "Ramen",
+                    "y": "0"
+                },
+                {
+                    "x": "Salim",
+                    "y": "0"
+                }
+            ]
+        },
+        {
+            "id": "Hero cycle",
+            "data": [
+                {
+                    "x": "Rachhel",
+                    "y": "9440.0000"
+                },
+                {
+                    "x": "Shubham Ghosh",
+                    "y": "0"
+                },
+                {
+                    "x": "Ramen",
+                    "y": "0"
+                },
+                {
+                    "x": "Salim",
+                    "y": "0"
+                }
+            ]
+        },
+        {
+            "id": "GraphTesting Service",
+            "data": [
+                {
+                    "x": "Ramen",
+                    "y": "945.0000"
+                },
+                {
+                    "x": "Shubham Ghosh",
+                    "y": "0"
+                },
+                {
+                    "x": "Rachhel",
+                    "y": "0"
+                },
+                {
+                    "x": "Salim",
+                    "y": "0"
+                }
+            ]
+        },
+        {
+            "id": "LADOO",
+            "data": [
+                {
+                    "x": "Rachhel",
+                    "y": "99960.0000"
+                },
+                {
+                    "x": "Shubham Ghosh",
+                    "y": "0"
+                },
+                {
+                    "x": "Ramen",
+                    "y": "0"
+                },
+                {
+                    "x": "Salim",
+                    "y": "0"
+                }
+            ]
+        },
+        {
+            "id": "Freight ",
+            "data": [
+                {
+                    "x": "Salim",
+                    "y": "9658.0000"
+                },
+                {
+                    "x": "Shubham Ghosh",
+                    "y": "0"
+                },
+                {
+                    "x": "Rachhel",
+                    "y": "0"
+                },
+                {
+                    "x": "Ramen",
+                    "y": "0"
+                }
+            ]
+        },
+        {
+            "id": "Canon m50 markII",
+            "data": [
+                {
+                    "x": "Rachhel",
+                    "y": "94080.0000"
+                },
+                {
+                    "x": "Shubham Ghosh",
+                    "y": "0"
+                },
+                {
+                    "x": "Ramen",
+                    "y": "0"
+                },
+                {
+                    "x": "Salim",
+                    "y": "0"
+                }
+            ]
+        },
+        {
+            "id": "Transaction Charges",
+            "data": [
+                {
+                    "x": "Ramen",
+                    "y": "94100.3100"
+                },
+                {
+                    "x": "Shubham Ghosh",
+                    "y": "0"
+                },
+                {
+                    "x": "Rachhel",
+                    "y": "0"
+                },
+                {
+                    "x": "Salim",
+                    "y": "0"
+                }
+            ]
+        },
+        {
+            "id": "County Bluetooth Speaker with Built-in FM Radio - Black",
+            "data": [
+                {
+                    "x": "Shubham Ghosh",
+                    "y": "9428.2000"
+                },
+                {
+                    "x": "Rachhel",
+                    "y": "0"
+                },
+                {
+                    "x": "Ramen",
+                    "y": "0"
+                },
+                {
+                    "x": "Salim",
+                    "y": "0"
+                }
+            ]
+        },
+        {
+            "id": "CFO SERVICE",
+            "data": [
+                {
+                    "x": "Ramen",
+                    "y": "944000.0000"
+                },
+                {
+                    "x": "Shubham Ghosh",
+                    "y": "0"
+                },
+                {
+                    "x": "Rachhel",
+                    "y": "0"
+                },
+                {
+                    "x": "Salim",
+                    "y": "0"
+                }
+            ]
+        },
+        {
+            "id": "Bullet",
+            "data": [
+                {
+                    "x": "Ramen",
+                    "y": "937860.0000"
+                },
+                {
+                    "x": "Shubham Ghosh",
+                    "y": "0"
+                },
+                {
+                    "x": "Rachhel",
+                    "y": "0"
+                },
+                {
+                    "x": "Salim",
+                    "y": "0"
+                }
+            ]
+        }
+    ]);
 
-  return (
-    <>
-      <div>TestComp</div>
-      <div style={{ width: "95%", overflowX: "scroll", height: "500px", border: "1px solid black", padding: 30, marginBottom: 20, marginTop: 20 }}>
-      <ResponsiveAreaBump
-        data={data}
-        margin={{ top: 40, right: 100, bottom: 40, left: 100 }}
-        spacing={20}
-        colors={{ scheme: 'nivo' }}
-        blendMode="multiply"
-        defs={[
-          {
-            id: 'dots',
-            type: 'patternDots',
-            background: 'inherit',
-            color: '#38bcb2',
-            size: 4,
-            padding: 1,
-            stagger: true
-          },
-          {
-            id: 'lines',
-            type: 'patternLines',
-            background: 'inherit',
-            color: '#eed312',
-            rotation: -45,
-            lineWidth: 6,
-            spacing: 10
-          }
-        ]}
-        fill={[
-          {
-            match: {
-              id: 'CoffeeScript'
-            },
-            id: 'dots'
-          },
-          {
-            match: {
-              id: 'TypeScript'
-            },
-            id: 'lines'
-          }
-        ]}
-        startLabel="id"
-        endLabel="id"
-        axisTop={{
-          tickSize: 5,
-          tickPadding: 5,
-          tickRotation: 0,
-          legend: '',
-          legendPosition: 'middle',
-          legendOffset: -36,
-          truncateTickAt: 0
-        }}
-        axisBottom={{
-          tickSize: 5,
-          tickPadding: 5,
-          tickRotation: 0,
-          legend: '',
-          legendPosition: 'middle',
-          legendOffset: 32,
-          truncateTickAt: 0
-        }}
-      />
-      </div>
-      <Drawer placement="right" onClose={onClose} isOpen={isOpen} size='lg'>
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerHeader borderBottomWidth='1px'>{clickedData.id}</DrawerHeader>
-          <DrawerBody>
-            <textarea style={{ width: '100%', height: '100%' }}>
-              {JSON.stringify(clickedData.data, null, 2)}
-            </textarea>
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
-    </>
-  )
+    return (
+        <>
+            <div>TestComp</div>
+            <div style={{ width: "95%", overflowX: "scroll", height: "500px", border: "1px solid black", padding: 30, marginBottom: 20, marginTop: 20 }}>
+                <ResponsiveHeatMap
+                    data={data}
+                    margin={{ top: 60, right: 90, bottom: 60, left: 90 }}
+                    valueFormat=">-.2s"
+                    axisTop={{
+                        tickSize: 5,
+                        tickPadding: 5,
+                        tickRotation: -90,
+                        legend: '',
+                        legendOffset: 46,
+                        truncateTickAt: 0
+                    }}
+                    axisRight={{
+                        tickSize: 5,
+                        tickPadding: 5,
+                        tickRotation: 0,
+                        legend: 'country',
+                        legendPosition: 'middle',
+                        legendOffset: 70,
+                        truncateTickAt: 0
+                    }}
+                    axisLeft={{
+                        tickSize: 5,
+                        tickPadding: 5,
+                        tickRotation: 0,
+                        legend: 'country',
+                        legendPosition: 'middle',
+                        legendOffset: -72,
+                        truncateTickAt: 0
+                    }}
+                    colors={{
+                        type: 'diverging',
+                        scheme: 'sinebow',
+                        divergeAt: 0.5,
+                        minValue: -100000,
+                        maxValue: 100000
+                    }}
+                    emptyColor="#555555"
+                    legends={[
+                        {
+                            anchor: 'bottom',
+                            translateX: 0,
+                            translateY: 30,
+                            length: 400,
+                            thickness: 8,
+                            direction: 'row',
+                            tickPosition: 'after',
+                            tickSize: 3,
+                            tickSpacing: 4,
+                            tickOverlap: false,
+                            tickFormat: '>-.2s',
+                            title: 'Value →',
+                            titleAlign: 'start',
+                            titleOffset: 4
+                        }
+                    ]}
+                />
+            </div>
+        </>
+    )
 }
 
 export default TestComp

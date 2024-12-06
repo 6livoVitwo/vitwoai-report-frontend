@@ -10,7 +10,6 @@ import { DownloadIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
-import { useSelector } from "react-redux";
 import { useGetGlobalsearchCustomerQuery } from "../slice/customerWiseSalesApi";
 import { useCustomerWiseSalesQuery } from "../slice/customerWiseSalesApi";
 import { useGetSelectedColumnscustomerQuery } from "../slice/customerWiseSalesApi";
@@ -51,12 +50,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [triggerApiCall, setTriggerApiCall] = useState(false);
   const [selectdate, setSelectdate] = useState([]);
 
-
   //........Api calling for advanced filter...........
   const { data: advancedFiltercustomer } = useCustomerWiseSalesQuery(
     { filters: localFilters },
     { skip: !triggerFilter }
-
   );
 
   // ...Export API CALL...

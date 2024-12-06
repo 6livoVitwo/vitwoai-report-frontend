@@ -73,7 +73,6 @@ import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
-import NewMyCharts from "../../dashboardNew/nivo/NewMyCharts";
 import { FiPlus, FiSettings } from "react-icons/fi";
 import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfiguration";
 import { Calendar } from "primereact/calendar";
@@ -81,7 +80,6 @@ import { useGetSelectedColumnsVerticalQuery } from "../slice/salesVerticalWiseAp
 import { useGetGlobalsearchVerticalQuery } from "../slice/salesVerticalWiseApi";
 import { useVerticalWiseSalesQuery } from "../slice/salesVerticalWiseApi";
 import { useGetexportdataSalesVerticalQuery } from "../slice/salesVerticalWiseApi"
-import { set } from "lodash";
 
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [data, setData] = useState([...newArray]);
@@ -95,8 +93,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [columnFilters, setColumnFilters] = useState({});
   const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
-  const [startDate, setStartDate] = useState();
-  const [endDate, setEndDate] = useState();
   const [configureChart, setConfigureChart] = useState({});
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const {
@@ -122,8 +118,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [localFiltersdate, setLocalFiltersdate] = useState(null);
   const [triggerApiCall, setTriggerApiCall] = useState(false);
   const [selectdate, setSelectdate] = useState([]);
-
-
   const btnRef = React.useRef();
 
   //......Advanced Filtering....
@@ -1539,7 +1533,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                           </Box>
                         </Box>
                         <Box sx={{ height: "300px" }}>
-                          <NewMyCharts chart={chart} />
+                          <DynamicChart chart={chart} />
                         </Box>
                       </Box>
                     </Box>

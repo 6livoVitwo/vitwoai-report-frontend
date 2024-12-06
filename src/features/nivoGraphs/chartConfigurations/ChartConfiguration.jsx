@@ -6,22 +6,19 @@ import { useDispatch, useSelector } from "react-redux";
 import { Accordion, AccordionTab } from "primereact/accordion";
 import { MultiSelect } from "primereact/multiselect";
 import { calculateCount, createBodyWise, setDateRange, updateBodyWise, updateCountAndWidth } from "../graphUtils/common";
-import TypingMaster from "../../dashboardNew/components/TypingMaster";
 import { useDynamicNewQuery } from "./graphApi";
 import { addWidget, getAllWidgets, updateWidget } from "./graphSlice";
 import { graphDescriptions, initialBodyWise, newEndpoint, initialStartDate, initialEndDate, newProcessFlow, chartComponents, initialChartApiConfig, yAxisOptions } from "../utils";
 import useProcessedData from "../hooks/useProcessedData";
+import TypingMaster from "../drawer/TypingMaster";
 
 const ChartConfiguration = ({ configureChart }) => {
   const { type } = configureChart;
-  const widgets = useSelector((state) => state.graphSlice.widgets);
-  console.log('🟢', { widgets })
   const toast = useToast();
   const dispatch = useDispatch();
   const { selectedWise, reportType } = useSelector((state) => state.graphSlice);
 
   // all states here
-  // const [chartDataApi, setChartDataApi] = useState([]);
   const [wise, setWise] = useState("sales");
   const [priceOrQty, setPriceOrQty] = useState("qty");
   const [valuetype, setValuetype] = useState("count");
@@ -365,7 +362,7 @@ const ChartConfiguration = ({ configureChart }) => {
             mb={6}>
             <Box
               sx={{
-                backgroundColor: "white",
+                bg: "white",
                 padding: "15px",
                 borderRadius: "8px",
                 border: "1px solid #c4c4c4",
@@ -386,7 +383,6 @@ const ChartConfiguration = ({ configureChart }) => {
               </Box>
               <Box sx={{ height: "350px", width: "100%", overflowX: "auto" }}>
                 {error && <Alert status="error">{error?.data?.message}</Alert>}
-
                 {!error && <ChartComponent
                   liveData={processedData}
                   startDate={startDate}

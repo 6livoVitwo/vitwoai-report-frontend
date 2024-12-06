@@ -1,16 +1,6 @@
 import React, { useState } from "react";
 import { Box, Heading, Flex, Button } from "@chakra-ui/react";
 import ReportsCards from "../dashboard/components/ReportsCards";
-import ProductWise from "../../asset/images/products-wise.png";
-import VendorWise from "../../asset/images/vendor-wise.png";
-import PoWise from "../../asset/images/po-wise.png";
-import SalesproductWise from "../../asset/images/sales-product-wise.png";
-import SalesCustomerWise from "../../asset/images/sales-customer-wise.png";
-import SalesVerticalWise from "../../asset/images/sales-vertical-wise.png";
-import SalesSoWise from "../../asset/images/sales-so-wise.png";
-import SalesDetailedReport from "../salesDetailsReport/components";
-import PurchaseDetailedReport from "../purchaseDetailsReport/components";
-import { Link } from "react-router-dom";
 
 const ReportDetails = () => {
 
@@ -129,7 +119,6 @@ const ReportDetails = () => {
 					</Box>
 				);
 			})}
-
     </>
   );
 };
