@@ -1084,7 +1084,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                             fontFamily="Poppins, sans-serif"
                             latterSpacing="0"
                             background="#cfd8e1a6"
-                            color="black">
+                            color="black"
+                            >
                             {formatHeader(column)}
 
                             {/* A-Z Filter  */}
