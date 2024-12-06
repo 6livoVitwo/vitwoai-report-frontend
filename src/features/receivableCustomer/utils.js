@@ -1,7 +1,7 @@
-import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import html2canvas from 'html2canvas';
+import * as XLSX from 'xlsx';
 
 export const exportToExcel = () => {
     const table = document.getElementById('receivable-table');
