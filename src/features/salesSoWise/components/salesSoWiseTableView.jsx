@@ -59,8 +59,18 @@ const SalesSoWiseTableView = () => {
   });
 
   const pageInfo = sales?.lastPage;
-
   const tableContainerRef = useRef(null);
+
+  // Function to rearrange columns
+  const arrangeColumns = (data, columnOrder) => {
+    return data.map((item) => {
+      const orderedItem = {};
+      columnOrder.forEach((key) => {
+        orderedItem[key] = item[key] || null;
+      });
+      return orderedItem;
+    });
+  };
 
   const flattenObject = (obj, prefix = "") => {
     let result = {};
@@ -94,9 +104,31 @@ const SalesSoWiseTableView = () => {
           })
           : [flattenedInvoice];
       });
-      setIndividualItems((prevItems) => [...prevItems, ...newItems]);
+      const columnOrder = [
+        "customer.trade_name",
+        "customer.customer_code",
+        "salesOrder.so_number",
+        "invoice_date",
+        "SUM(items.qty)",
+        "invoice_no",
+        "SUM(salesOrder.totalAmount)",
+        "SUM(due_amount)",
+        "SUM(cgst)",
+        "SUM(sgst)",
+        "SUM(igst)",
+        "SUM(quotation.totalAmount)",
+        "SUM(salesPgi.salesDelivery.totalAmount)",
+        "SUM(items.totalTax)",
+        "SUM(salesPgi.totalAmount)",
+        "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
+        "SUM(all_total_amt)",
+        "customer.customer_gstin",
+      ];
+      const orderedItems = arrangeColumns(newItems, columnOrder);
+      setIndividualItems((prevItems) => [...prevItems, ...orderedItems]);
     }
   }, [sales]);
+
   useEffect(() => {
     if (sales?.totalPages < page && !toastShown) {
       toast({
@@ -108,9 +140,11 @@ const SalesSoWiseTableView = () => {
         render: () => (
           <Box
             p={3}
-            bg="orange.300"
+            mb={9}
+            bg="rgba(255, 195, 0, 0.2)"
+            backdropFilter="blur(4px)"
             borderRadius="md"
-            style={{ width: "300px", height: "70px" }}
+            style={{ width: "400px", height: "70px" }}
           >
             <Box fontWeight="bold">No More Data</Box>
             <Box>You have reached the end of the list.</Box>

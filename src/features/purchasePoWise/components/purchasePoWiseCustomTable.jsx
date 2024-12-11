@@ -20,6 +20,7 @@ import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
 import { useGetexportdataPoQuery } from "../slice/purchasePoWiseApi";
 import styled from "@emotion/styled";
 import LoaderScroll from "../../analyticloader/components/LoaderScroll"
+import { size } from "lodash";
 
 
 const CssWrapper = styled.div`
@@ -145,6 +146,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     {
       label: "PO Wise",
       value: "/reports/purchase-po-wise/table-view",
+    },
+    {
+      label: "Functional Wise",
+      value: "/reports/purchase-functional-wise/table-view",
     },
   ];
 
@@ -375,6 +380,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
       data: updatedSelectedColumns,
+      size: 0,
     }));
     setSelectedColumns(updatedSelectedColumns);
     // Save selected columns to localStorage
@@ -451,6 +457,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           value: inputValue,
         })),
       ],
+      size: 50,
     };
     setFilters(updatedFilters);
     setSearchQuery(inputValue);
@@ -495,12 +502,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         render: () => (
           <Box
             p={3}
-            bg="orange.300"
+            mb={9}
+            bg="rgba(255, 195, 0, 0.2)"
+            backdropFilter="blur(4px)"
             borderRadius="md"
-            style={{ width: "300px", height: "70px" }}
+            style={{ width: "400px", height: "70px" }}
           >
-            <Box fontWeight="bold">No Results Found</Box>
-            <Box>You search did not match any data.</Box>
+            <Box fontWeight="bold" ml={5}>No Results Found</Box>
+            <Box ml={5}>You search did not match any data.</Box>
           </Box>
         ),
       });
@@ -549,17 +558,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const handleScroll = () => {
     const { scrollTop, scrollHeight, clientHeight, scrollLeft } =
       tableContainerRef.current;
-
-    // Check if horizontal scroll has changed
     if (scrollLeft !== previousScrollLeft) {
-      // Update the previous scroll left position
       previousScrollLeft = scrollLeft;
       return;
     }
-
-    // Only trigger the API call if scrolling vertically
     if (scrollTop + clientHeight >= scrollHeight - 5 && !loading) {
-      loadMoreData(); // Load more data when scrolled to the bottom
+      loadMoreData();
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        size: 50,
+      }));
     }
   };
 
@@ -714,7 +722,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             color="mainBlue"
             textTransform="capitalize"
           >
-            Purchase Product Table View
+            Purchase Po
           </Heading>
         </Box>
         <Box
@@ -1085,7 +1093,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                             latterSpacing="0"
                             background="#cfd8e1a6"
                             color="black"
-                            >
+                          >
                             {formatHeader(column)}
 
                             {/* A-Z Filter  */}

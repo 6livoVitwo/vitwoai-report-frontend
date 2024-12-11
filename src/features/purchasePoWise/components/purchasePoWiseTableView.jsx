@@ -61,6 +61,17 @@ const PurchaseProductWiseTableView = () => {
 
   const tableContainerRef = useRef(null);
 
+  // Function to rearrange columns
+  const arrangeColumns = (data, columnOrder) => {
+    return data.map((item) => {
+      const orderedItem = {};
+      columnOrder.forEach((key) => {
+        orderedItem[key] = item[key] || null;
+      });
+      return orderedItem;
+    });
+  };
+
   const flattenObject = (obj, prefix = "") => {
     let result = {};
     for (let key in obj) {
@@ -82,15 +93,6 @@ const PurchaseProductWiseTableView = () => {
     return result;
   };
 
-  const extractFields = (data, index) => ({
-    "SL No": index + 1,
-    "grnInvoice.grnPoNumber": data["grnInvoice.grnPoNumber"],
-    "grnInvoice.grnIvCode": data["grnInvoice.grnIvCode"],
-    "grnInvoice.grnType": data["grnInvoice.grnType"],
-    "Vendor Code": data["grnInvoice.vendorCode"],
-    "grnInvoice.vendorName": data["grnInvoice.vendorName"],
-  });
-
   useEffect(() => {
     if (sales?.content?.length) {
       const newItems = sales.content.flatMap((invoice) => {
@@ -102,10 +104,33 @@ const PurchaseProductWiseTableView = () => {
           })
           : [flattenedInvoice];
       });
-      setIndividualItems((prevItems) => [...prevItems, ...newItems]);
+      const columnOrder = [
+        "vendorName",
+        "vendorCode",
+        "grnCode",
+        "grnInvoice.grnPoNumber",
+        "grnCreatedBy",
+        "SUM(items.tds)",
+        "grnCreatedAt",
+        "grnType",
+        "postingDate",
+        "vendorDocumentDate",
+        "SUM(items.sgst)",
+        "grnUpdatedAt",
+        "SUM(items.goodsItems.stockSummary.movingWeightedPrice)",
+        "SUM(items.totalAmount)",
+        "SUM(items.cgst)",
+        "vendorDocumentNo",
+        "SUM(items.igst)",
+        "grnUpdatedBy",
+      ];
+      const orderedItems = arrangeColumns(newItems, columnOrder);
+      setIndividualItems((prevItems) => [...prevItems, ...orderedItems]);
     }
   }, [sales]);
+
   useEffect(() => {
+    if (!sales?.totalPages || !page) return;
     if (sales?.totalPages < page && !toastShown) {
       toast({
         title: "No More Data",
@@ -116,16 +141,18 @@ const PurchaseProductWiseTableView = () => {
         render: () => (
           <Box
             p={3}
-            bg="orange.300"
+            mb={9}
+            bg="rgba(255, 195, 0, 0.2)"
+            backdropFilter="blur(4px)"
             borderRadius="md"
-            style={{ width: "300px", height: "70px" }} 
+            style={{ width: "400px", height: "70px" }}
           >
             <Box fontWeight="bold">No More Data</Box>
             <Box>You have reached the end of the list.</Box>
           </Box>
         ),
       });
-      setToastShown(true); 
+      setToastShown(true);
     }
   }, [sales, page, toast, toastShown]);
 

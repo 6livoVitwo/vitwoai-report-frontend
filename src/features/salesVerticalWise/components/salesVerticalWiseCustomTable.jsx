@@ -80,6 +80,7 @@ import { useGetGlobalsearchVerticalQuery } from "../slice/salesVerticalWiseApi";
 import { useVerticalWiseSalesQuery } from "../slice/salesVerticalWiseApi";
 import { useGetexportdataSalesVerticalQuery } from "../slice/salesVerticalWiseApi"
 import styled from "@emotion/styled";
+import { size } from "lodash";
 const CssWrapper = styled.div`
   .p-component {
     font-size: 1.2rem;
@@ -121,7 +122,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const salesCustomerWise = useSelector((state) => state.graphSlice.widgets);
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
-  const [sortColumn, setSortColumn] = useState(" ");
+  const [sortColumn, setSortColumn] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
   const [localFilters, setLocalFilters] = useState({ ...filters });
@@ -305,10 +306,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         listName: selectedColumnsData.content[0][key]?.listName || key,
       }))
       : [];
-
-    // const uniqueColumns = Array.from(
-    //   new Set(allColumns.map((col) => col.listName))
-    // );
     const uniqueColumns = allColumns.map((col) => col.field);
 
     if (selectAll) {
@@ -336,7 +333,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
       data: updatedSelectedColumns,
-
+      size: 0,
     }));
     setSelectedColumns(updatedSelectedColumns);
     refetchSelectedColumns({ columns: updatedSelectedColumns });
@@ -390,6 +387,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           value: inputValue,
         })),
       ],
+      size:50,
     };
     setFilters(updatedFilters);
     setSearchQuery(inputValue);
@@ -621,6 +619,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     }
     if (scrollTop + clientHeight >= scrollHeight - 5 && !loading) {
       loadMoreData();
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        size: 50,
+      }));
     }
   };
 
@@ -809,7 +811,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             color="mainBlue"
             textTransform="capitalize"
           >
-            Purchase Product Table View
+            Sales Vertical
           </Heading>
         </Box>
         <Box
@@ -887,7 +889,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 handleReportChange(e);
               }}
               optionLabel="label"
-              placeholder={reportOptions.length > 0 ? reportOptions[0].label : ""}
+              placeholder={reportOptions.length > 0 ? reportOptions[2].label : ""}
               panelStyle={{ margin: "0", padding: "0.75rem 1.25rem" }}
               style={{
                 width: "175px",

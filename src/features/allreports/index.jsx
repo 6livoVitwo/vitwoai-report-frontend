@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Heading, Flex, Button } from '@chakra-ui/react';
 import ReportsCards from '../dashboard/components/ReportsCards';
-
 //Add lotifies dummy json
 import purchaseProductWise from '../../asset/imgs/purchase-product-wise.json';
 import purchaseVendorWise from '../../asset/imgs/purchase-vendor-wise.json';
@@ -12,91 +11,106 @@ import salesVerticalWise from '../../asset/imgs/sales-vertical-wise.json';
 import salesSoWise from '../../asset/imgs/sales-so-wise.json';
 import salesKamWise from '../../asset/imgs/sales-kam-wise.json';
 import salesRegionWise from '../../asset/imgs/sales-region-wise.json';
+import purchaseFunctionalWise from "../../asset/imgs/purchase-functional-Wise.json";
+import { faArrowUpLong } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 
 const Allreports = () => {
 	const cardsData = [
-    {
-      "card catagory": "Purchase Register",
-      cards: [
-        {
-          id: "9",
-          name: "Product Wise",
-          link: "/reports/purchase-product-wise/table-view",
-          imgsrc: purchaseProductWise,
-        },
-        {
-          id: "10",
-          name: "Vendor Wise",
-          link: "/reports/purchase-vendor-wise/table-view",
-          imgsrc: purchaseVendorWise,
-        },
-        {
-          id: "11",
-          name: "PO Wise",
-          link: "/reports/purchase-po-wise/table-view",
-          imgsrc: purchasePoWise,
-        },
-        {
-          id: "12",
-          name: "Functional Wise",
-          link: "/reports/purchase-po-wise/table-view",
-          imgsrc: purchasePoWise,
-        },
-      ],
-    },
-    {
-      "card catagory": "Sales Register",
-      cards: [
-        {
-          id: "21",
-          name: "Product Wise",
-          link: "/reports/sales-product-wise/table-view",
-          imgsrc: salesProductWise,
-        },
-        {
-          id: "22",
-          name: "Customer Wise",
-          link: "/reports/sales-customer-wise/table-view",
-          imgsrc: salesCustomerWise,
-        },
-        {
-          id: "23",
-          name: "Vertical Wise",
-          link: "/reports/sales-vertical-wise/table-view",
-          imgsrc: salesVerticalWise,
-        },
-        {
-          id: "24",
-          name: "So Wise",
-          link: "/reports/sales-so-wise/table-view",
-          imgsrc: salesSoWise,
-        },
-        {
-          id: "25",
-          name: "Kam Wise",
-          link: "/reports/sales-kam-wise/table-view",
-          imgsrc: salesKamWise,
-        },
-        {
-          id: "26",
-          name: "Region Wise",
-          link: "/reports/sales-region-wise/table-view",
-          imgsrc: salesRegionWise,
-        },
-      ],
-    },
-	{
-		"card catagory": "Receivable",
-		cards: [
-		  {
-			id: "27",
-			name: "Receivable Customer",
-			link: "/reports/receivable-customer/table-view",
-			imgsrc: purchaseProductWise,
-		  },
-		],
-	  },
-  ];
+		{
+			"card catagory": "Receivable",
+			cards: [
+				{
+					id: "27",
+					name: "Receivable",
+					link: "/reports/receivable-customer/table-view",
+					imgsrc: purchaseProductWise,
+					description: "Receivable is the highest Receivable in last 30 days"
+				},
+			],
+		},
+		{
+			"card catagory": "Purchase Register",
+			cards: [
+				{
+					id: "9",
+					name: "Product",
+					link: "/reports/purchase-product-wise/table-view",
+					imgsrc: purchaseProductWise,
+					description: "TVSBIKE is the highest purchased product in last 30 days"
+				},
+				{
+					id: "10",
+					name: "Vendor",
+					link: "/reports/purchase-vendor-wise/table-view",
+					imgsrc: purchaseVendorWise,
+					description: "TVSBIKE is the highest purchased vendor in last 30 days"
+				},
+				{
+					id: "11",
+					name: "Purchase Order",
+					link: "/reports/purchase-po-wise/table-view",
+					imgsrc: purchasePoWise,
+					description: "TVSBIKE is the highest purchased order in last 30 days"
+				},
+				{
+					id: "12",
+					name: "Functional Area",
+					link: "/reports/purchase-functional-wise/table-view",
+					imgsrc: purchaseFunctionalWise,
+					description: "TVSBIKE is the highest purchased functional area in last 30 days"
+				},
+			],
+		},
+		{
+			"card catagory": "Sales Register",
+			cards: [
+				{
+					id: "21",
+					name: "Product",
+					link: "/reports/sales-product-wise/table-view",
+					imgsrc: salesProductWise,
+					description: "TVSBIKE is the highest sales product in last 30 days"
+				},
+				{
+					id: "22",
+					name: "Customer",
+					link: "/reports/sales-customer-wise/table-view",
+					imgsrc: salesCustomerWise,
+					description: "TVSBIKE is the highest sales coustomer in last 30 days"
+				},
+				{
+					id: "23",
+					name: "Vertical ",
+					link: "/reports/sales-vertical-wise/table-view",
+					imgsrc: salesVerticalWise,
+					description: "TVSBIKE is the highest sales vaertical in last 30 days"
+				},
+				{
+					id: "24",
+					name: "Sales Order",
+					link: "/reports/sales-so-wise/table-view",
+					imgsrc: salesSoWise,
+					description: "TVSBIKE is the highest sales order in last 30 days"
+				},
+				{
+					id: "25",
+					name: "Key Account Manager",
+					link: "/reports/sales-kam-wise/table-view",
+					imgsrc: salesKamWise,
+					description: "TVSBIKE is the highest sales kam in last 30 days"
+				},
+				{
+					id: "26",
+					name: "Region",
+					link: "/reports/sales-region-wise/table-view",
+					imgsrc: salesRegionWise,
+					description: "TVSBIKE is the highest sales region in last 30 days"
+				},
+			],
+		},
+	];
 
 	// *****************scrollbar types button**********************
 	const handleButtonClick = (index, category) => {
@@ -113,7 +127,12 @@ const Allreports = () => {
 				overflowX='auto'
 				width='100%'
 				display='flex'
-				justifyContent='center'>
+				justifyContent='center'
+				bg='#ffffff'
+				position='sticky'
+				top='0'
+				zIndex='1'
+			>
 				<Flex
 					direction='row'
 					align='center'
@@ -137,6 +156,7 @@ const Allreports = () => {
 								}
 								bg='transparent'
 								borderWidth='1px'
+								textColor="#646262"
 								_hover={{
 									bg:
 										activeButton === index
@@ -173,17 +193,54 @@ const Allreports = () => {
 						paddingLeft='10px'
 						key={index}
 						id={data['card catagory']}>
-						<Box mb='15px'>
+						<Box mb='15px'
+							display='flex'
+							justifyContent='space-between'
+							gap='50px'
+							height='55px'
+							borderBottom={'1px solid #c4c4c475'}
+							borderBottomRadius={'5px'}
+							alignItems='center'
+						>
 							<Heading
+								display='flex'
+								alignItems='center'
 								fontWeight='500'
 								lineHeight='1.33'
-								marginBottom='10px'
-								fontSize='12px'
-								color='rgb(184 182 182)'
-								paddingBottom='5px'
+								fontSize='20px'
 								paddingLeft='2rem'>
 								{data['card catagory']}
 							</Heading>
+							{data['card catagory'] !== 'Receivable' && (
+								<Box
+									display='flex'
+								>
+									<Box
+										background="#a5e6b7fa"
+										color="#0c8f3c"
+										borderRadius="5px"
+										height="30px"
+										width="auto"
+										p='6px'
+										display="flex"
+										alignItems="center"
+										gap="4px"
+									>
+										<FontAwesomeIcon icon={faArrowUpLong} fontSize="14px" style={{
+											marginBottom: "4px",
+										}} />
+										<span style={{ fontWeight: "600", fontSize: "14px" }} >40%</span>
+									</Box>
+									<Box
+										p='5px'
+										mr='25px'
+										fontSize='12px'
+									>
+										<span>Increased compared to last month</span><br />
+										<span style={{ fontWeight: "500" }}>Current month € 50,000</span>
+									</Box>
+								</Box>
+							)}
 						</Box>
 						<Box
 							display='flex'

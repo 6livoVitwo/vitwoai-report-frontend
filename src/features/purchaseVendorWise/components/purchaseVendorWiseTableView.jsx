@@ -49,6 +49,17 @@ const PurchaseVendorWiseTableView = () => {
 
   const tableContainerRef = useRef(null);
 
+  // Function to rearrange columns
+  const arrangeColumns = (data, columnOrder) => {
+    return data.map((item) => {
+      const orderedItem = {};
+      columnOrder.forEach((key) => {
+        orderedItem[key] = item[key] || null;
+      });
+      return orderedItem;
+    });
+  };
+
   const flattenObject = (obj, prefix = "") => {
     let result = {};
     for (let key in obj) {
@@ -70,15 +81,6 @@ const PurchaseVendorWiseTableView = () => {
     return result;
   };
 
-  const extractFields = (data, index) => ({
-    "SL No": index + 1,
-    "grnInvoice.vendorName": data["grnInvoice.vendorName"],
-    "Vendor Code": data["grnInvoice.vendorCode"],
-    "SUM(grnInvoice.grnSubTotal)": data["SUM(grnInvoice.grnSubTotal)"],
-    "SUM(grnInvoice.grnTotalCgst)": data["SUM(grnInvoice.grnTotalCgst)"],
-    "SUM(grnInvoice.grnTotalSgst)": data["SUM(grnInvoice.grnTotalSgst)"],
-  });
-
   useEffect(() => {
     if (sales?.content?.length) {
       const newItems = sales.content.flatMap((invoice) => {
@@ -90,10 +92,23 @@ const PurchaseVendorWiseTableView = () => {
           })
           : [flattenedInvoice];
       });
-      setIndividualItems((prevItems) => [...prevItems, ...newItems]);
+      const columnOrder = [
+        "vendors.trade_name",
+        "vendors.vendor_code",
+        "SUM(items.totalAmount)",
+        "SUM(items.igst)",
+        "SUM(items.cgst)",
+        "SUM(items.tds)",
+        "SUM(items.sgst)",
+        "SUM(items.goodsItems.stockSummary.movingWeightedPrice)",
+      ];
+      const orderedItems = arrangeColumns(newItems, columnOrder);
+      setIndividualItems((prevItems) => [...prevItems, ...orderedItems]);
     }
   }, [sales]);
+
   useEffect(() => {
+    if (!sales?.totalPages || !page) return;
     if (sales?.totalPages < page && !toastShown) {
       toast({
         title: "No More Data",
@@ -104,16 +119,18 @@ const PurchaseVendorWiseTableView = () => {
         render: () => (
           <Box
             p={3}
-            bg="orange.300"
+            mb={9}
+            bg="rgba(255, 195, 0, 0.2)"
+            backdropFilter="blur(4px)"
             borderRadius="md"
-            style={{ width: "300px", height: "70px" }} // Set custom width and height
+            style={{ width: "400px", height: "70px" }}
           >
             <Box fontWeight="bold">No More Data</Box>
             <Box>You have reached the end of the list.</Box>
           </Box>
         ),
       });
-      setToastShown(true); // Mark the toast as shown
+      setToastShown(true);
     }
   }, [sales, page, toast, toastShown]);
 

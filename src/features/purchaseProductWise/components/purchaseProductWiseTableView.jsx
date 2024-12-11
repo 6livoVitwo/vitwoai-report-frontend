@@ -60,6 +60,17 @@ const PurchaseProductWiseTableView = () => {
 
   const tableContainerRef = useRef(null);
 
+  // Function to rearrange columns
+  const arrangeColumns = (data, columnOrder) => {
+    return data.map((item) => {
+      const orderedItem = {};
+      columnOrder.forEach((key) => {
+        orderedItem[key] = item[key] || null;
+      });
+      return orderedItem;
+    });
+  };
+
 
   const flattenObject = (obj, prefix = "") => {
     let result = {};
@@ -90,11 +101,33 @@ const PurchaseProductWiseTableView = () => {
           })
           : [flattenedInvoice];
       });
-      setIndividualItems((prevItems) => [...prevItems, ...newItems]);
+      const columnOrder = [
+        "items.goodName",
+        "SUM(items.unitPrice)",
+        "items.goodCode",
+        "SUM(items.totalAmount)",
+        "SUM(items.goodQty)",
+        "SUM(items.receivedQty)",
+        "grnCreatedAt",
+        "SUM(grnInvoice.grnTotalTds)",
+        "SUM(grnInvoice.grnTotalSgst)",
+        "SUM(grnInvoice.grnTotalIgst)",
+        "grnCreatedBy",
+        "grnCode",
+        "dueDate",
+        "grnUpdatedAt",
+        "grnUpdatedBy",
+        "SUM(grnInvoice.grnTotalCgst)",
+        "items.goodsItems.stockSummary.movingWeightedPrice",
+      ];
+      const orderedItems = arrangeColumns(newItems, columnOrder);
+      setIndividualItems((prevItems) => [...prevItems, ...orderedItems]);
     }
   }, [sales]);
 
+
   useEffect(() => {
+    if (!sales?.totalPages || !page) return;
     if (sales?.totalPages < page && !toastShown) {
       toast({
         title: "No More Data",

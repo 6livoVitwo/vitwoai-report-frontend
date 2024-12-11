@@ -252,6 +252,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
       data: updatedSelectedColumns,
+      size: 0,
     }));
     setSelectedColumns(updatedSelectedColumns);
     refetchcoustomer({ columns: updatedSelectedColumns });
@@ -328,6 +329,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           value: inputValue,
         })),
       ],
+      size: 20,
     };
     setFilters(updatedFilters);
     setSearchQuery(inputValue);
@@ -559,6 +561,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
     if (scrollTop + clientHeight >= scrollHeight - 5 && !loading) {
       loadMoreData();
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        size: 20,
+      }));
     }
   };
   useEffect(() => {
@@ -717,7 +723,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             color="mainBlue"
             textTransform="capitalize"
           >
-            Sales Customer Table View
+            Sales Customer
           </Heading>
         </Box>
         <Box

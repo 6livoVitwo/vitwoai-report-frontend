@@ -56,6 +56,18 @@ const SalesKamWiseTableView = () => {
   });
   const pageInfo = sales?.lastPage;
   const tableContainerRef = useRef(null);
+
+  // Function to rearrange columns
+  const arrangeColumns = (data, columnOrder) => {
+    return data.map((item) => {
+      const orderedItem = {};
+      columnOrder.forEach((key) => {
+        orderedItem[key] = item[key] || null;
+      });
+      return orderedItem;
+    });
+  };
+
   const flattenObject = (obj, prefix = "") => {
     let result = {};
     for (let key in obj) {
@@ -87,9 +99,30 @@ const SalesKamWiseTableView = () => {
           })
           : [flattenedInvoice];
       });
-      setIndividualItems((prevItems) => [...prevItems, ...newItems]);
+      const columnOrder = [
+        "kam.kamName",
+        "kam.kamCode",
+        "kam.designation",
+        "SUM(items.qty)",
+        "SUM(quotation.totalAmount)",
+        "invoice_date",
+        "invoice_no",
+        "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
+        "SUM(salesPgi.salesDelivery.totalAmount)",
+        "SUM(salesOrder.totalAmount)",
+        "kam.emp_code",
+        "SUM(salesPgi.totalAmount)",
+        "kam.email",
+        "SUM(all_total_amt)",
+        "kam.contact",
+        "SUM(due_amount)",
+        "SUM(items.totalTax)",
+      ];
+      const orderedItems = arrangeColumns(newItems, columnOrder);
+      setIndividualItems((prevItems) => [...prevItems, ...orderedItems]);
     }
   }, [sales]);
+
   useEffect(() => {
     if (sales?.totalPages < page && !toastShown) {
       toast({
@@ -101,9 +134,11 @@ const SalesKamWiseTableView = () => {
         render: () => (
           <Box
             p={3}
-            bg="orange.300"
+            mb={9}
+            bg="rgba(255, 195, 0, 0.2)"
+            backdropFilter="blur(4px)"
             borderRadius="md"
-            style={{ width: "300px", height: "70px" }}
+            style={{ width: "400px", height: "70px" }}
           >
             <Box fontWeight="bold">No More Data</Box>
             <Box>You have reached the end of the list.</Box>
@@ -140,12 +175,11 @@ const SalesKamWiseTableView = () => {
       </Box>
     );
   }
-  const mainData = sales?.content;
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
       {individualItems.length > 0 && (
         <CustomTable
-          newArray={mainData}
+          newArray={individualItems}
           page={page}
           setPage={setPage}
           isFetching={isFetching}
