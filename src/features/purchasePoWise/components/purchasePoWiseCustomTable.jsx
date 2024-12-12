@@ -151,6 +151,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       label: "Functional Wise",
       value: "/reports/purchase-functional-wise/table-view",
     },
+    {
+      label: "Storage Location Wise",
+      value: "/reports/purchase-storage-location-wise/table-view",
+    },
+    {
+      label: "Cost Center Wise",
+      value: "/reports/purchase-storage-location-wise/table-view",
+    },
   ];
 
   useEffect(() => {
@@ -1063,6 +1071,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         height="calc(100vh - 151px)"
         width="calc(100vw - 115px)"
         border="1px solid #ebebeb"
+        sx={{
+          "&::-webkit-scrollbar": {
+            height: "1px",
+          },
+        }}
       >
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="droppable" direction="horizontal">
