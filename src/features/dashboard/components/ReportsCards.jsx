@@ -30,14 +30,14 @@ const ReportsCards = ({ cards, setFavoriteCard }) => {
             <Link to={card.link} className="card_link">
               <Box
                 borderRadius="10px"
-                height="auto"
+                height="100%"
                 display="flex"
                 flexDirection="column"
                 padding="20px"
-                // transition="0.5s ease"
+                border="1px solid #b5b2b245"
                 _hover={{
-                  // transform: "scale(1.05)",
-                  border: "1px solid #b5b2b28a",
+                  // border: "1px solid #b5b2b28a",
+                  shadow: "0px 2px 7px -2px"
                 }}>
                 <Box
                   display="flex"
@@ -46,14 +46,14 @@ const ReportsCards = ({ cards, setFavoriteCard }) => {
                   width="100%">
                   <Text
                     fontWeight="500"
-                    color="textBlack"
-                    fontSize="14px"
+                    color="#202124"
+                    fontSize="13px"
                     _groupHover={{ color: "#003060" }}>
                     {card.name.length > 27
                       ? card.name.slice(0, 18) + "..."
                       : card.name}
                   </Text>
-                  <Box
+                  {/* <Box
                     cursor="pointer"
                     padding="5px"
                     backgroundColor="white"
@@ -64,19 +64,21 @@ const ReportsCards = ({ cards, setFavoriteCard }) => {
                       handleLike(card.name);
                     }}>
                     <FaRegBookmark size={10} color="#b4b4b4" />
-                  </Box>
+                  </Box> */}
                 </Box>
 
                 <Box
                   justifyContent="center"
                   alignContent="center"
-                  display="flex">
+                  display="flex"
+                >
                   {isLottieAnimation ? (
                     <Lottie
                       animationData={card.imgsrc}
                       loop
                       style={{
                         width: "45%",
+                        height: "100px",
                         marginTop: "10px",
                         marginBottom: "10px",
                       }}
@@ -87,14 +89,14 @@ const ReportsCards = ({ cards, setFavoriteCard }) => {
                 </Box>
 
                 <Text
-                  color="#b4b4b4"
+                  color="#434242"
                   fontSize="11px"
                   lineHeight="1.9"
                   marginTop="10px"
-                  textAlign="center">
-                  A content graph organizes digital content like articles,
-                  images, and videos into a network of connected nodes and
-                  links.
+                  marginBottom="10px"
+                  textAlign="center"
+                >
+                  {card.description}
                 </Text>
               </Box>
             </Link>

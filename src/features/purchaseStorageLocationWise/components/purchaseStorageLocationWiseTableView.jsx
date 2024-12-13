@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
-import CustomTable from "./salesSoWiseCustomTable";
+import CustomTable from "./purchaseStorageLocationWiseCustomTable";
 import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
-import { useSoWiseSalesQuery } from "../slice/salesSoWiseApi";
+import { useStorageLocationWisePurchaseQuery } from "../slice/purchaseStorageLocationWiseApi";
 import Loader from "../../analyticloader/components/Loader";
 
-const SalesSoWiseTableView = () => {
+const PurchaseProductWiseTableView = () => {
   const authData = useSelector((state) => state.auth);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(50);
@@ -14,44 +14,42 @@ const SalesSoWiseTableView = () => {
   const [toastShown, setToastShown] = useState(false);
   const toast = useToast();
 
-  const [filters, setFilters] = useState(
-    {
-      data: [
-        "customer.trade_name",
-        "customer.customer_code",
-        "salesOrder.so_number",
-        "invoice_no",
-        "invoice_date",
-        "SUM(due_amount)",
-        "SUM(cgst)",
-        "SUM(sgst)",
-        "SUM(igst)",
-        "SUM(quotation.totalAmount)",
-        "SUM(salesPgi.salesDelivery.totalAmount)",
-        "SUM(items.totalTax)",
-        "SUM(salesPgi.totalAmount)",
-        "SUM(salesOrder.totalAmount)",
-        "SUM(items.qty)",
-        "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
-        "SUM(all_total_amt)",
-        "customer.customer_gstin",
-
-      ],
-      groupBy: ["salesOrder.so_id"],
-      filter: [],
-      page: 0,
-      size: 50,
-      sortDir: "asc",
-      sortBy: "customer.trade_name",
-    }
-  )
+  const [filters, setFilters] = useState({
+    data: [
+      "items.grnStorage.storage_location_name",
+      "items.grnStorage.storage_location_code",
+      "SUM(items.unitPrice)",
+      "SUM(items.receivedQty)",
+      "SUM(items.goodQty)",
+      "SUM(items.cgst)",
+      "SUM(items.sgst)",
+      "SUM(items.igst)",
+      "SUM(items.totalAmount)",
+      "SUM(items.tds)",
+      "SUM(grnInvoice.grnInvoiceItems.goodQty)",
+      "SUM(grnInvoice.grnInvoiceItems.receivedQty)",
+      "SUM(grnInvoice.grnInvoiceItems.unitPrice)",
+      "SUM(grnInvoice.grnInvoiceItems.cgst)",
+      "SUM(grnInvoice.grnInvoiceItems.sgst)",
+      "SUM(grnInvoice.grnInvoiceItems.igst)",
+      "SUM(grnInvoice.grnInvoiceItems.tds)",
+      "SUM(grnInvoice.grnInvoiceItems.totalAmount)",
+      "SUM(grnInvoice.grnInvoiceItems.itemStocksQty)"
+    ],
+    groupBy: ["items.grnStorage.storage_location_code"],
+    filter: [],
+    page: 0,
+    size: 50,
+    sortDir: "asc",
+    sortBy: "items.grnStorage.storage_location_name",
+  });
 
   const {
     data: sales,
     isLoading,
     isFetching,
     error,
-  } = useSoWiseSalesQuery({
+  } = useStorageLocationWisePurchaseQuery({
     filters,
     page,
     size,
@@ -59,6 +57,7 @@ const SalesSoWiseTableView = () => {
   });
 
   const pageInfo = sales?.lastPage;
+
   const tableContainerRef = useRef(null);
 
   // Function to rearrange columns
@@ -105,24 +104,16 @@ const SalesSoWiseTableView = () => {
           : [flattenedInvoice];
       });
       const columnOrder = [
-        "customer.trade_name",
-        "customer.customer_code",
-        "salesOrder.so_number",
-        "invoice_date",
-        "SUM(items.qty)",
-        "invoice_no",
-        "SUM(salesOrder.totalAmount)",
-        "SUM(due_amount)",
-        "SUM(cgst)",
-        "SUM(sgst)",
-        "SUM(igst)",
-        "SUM(quotation.totalAmount)",
-        "SUM(salesPgi.salesDelivery.totalAmount)",
-        "SUM(items.totalTax)",
-        "SUM(salesPgi.totalAmount)",
-        "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
-        "SUM(all_total_amt)",
-        "customer.customer_gstin",
+        "functionalities.functionalities_name",
+        "functionalities.functionalities_id",
+        "SUM(items.unitPrice)",
+        "SUM(items.receivedQty)",
+        "SUM(items.goodQty)",
+        "SUM(items.cgst)",
+        "SUM(items.sgst)",
+        "SUM(items.igst)",
+        "SUM(items.totalAmount)",
+        "SUM(items.tds)"
       ];
       const orderedItems = arrangeColumns(newItems, columnOrder);
       setIndividualItems((prevItems) => [...prevItems, ...orderedItems]);
@@ -130,6 +121,7 @@ const SalesSoWiseTableView = () => {
   }, [sales]);
 
   useEffect(() => {
+    if (!sales?.totalPages || !page) return;
     if (sales?.totalPages < page && !toastShown) {
       toast({
         title: "No More Data",
@@ -199,9 +191,9 @@ const SalesSoWiseTableView = () => {
           filters={filters}
           setFilters={setFilters}
           alignment={{
-            "SO Total Amount": "right",
-            "SD Total Amount": "right",
-            "Base Price": "right",
+            "Total Quantity": "right",
+            "Received Quantity": "right",
+            "Total Amount": "right",
           }}
         />
       )}
@@ -209,4 +201,4 @@ const SalesSoWiseTableView = () => {
   );
 };
 
-export default SalesSoWiseTableView;
+export default PurchaseProductWiseTableView;

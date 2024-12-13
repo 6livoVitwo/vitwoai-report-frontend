@@ -36,7 +36,11 @@ import PurchaseVendorWise from "../features/purchaseVendorWise/components";
 import PurchaseVendorWiseTableView from "../features/purchaseVendorWise/components/purchaseVendorWiseTableView";
 import PurchaseFunctionalWise from "../features/purchaseFunctionalWise/components";
 import PurchaseFunctionalWiseTableView from "../features/purchaseFunctionalWise/components/purchaseFunctionalWiseTableView";
-import SalesDetails from "../features/salesDetailsReport/components";
+import PurchaseStorageLocationWiseTableView from "../features/purchaseStorageLocationWise/components";
+import PurchaseStorageLocationWise from "../features/purchaseStorageLocationWise/components/purchaseStorageLocationWiseTableView";
+import PurchaseCostCenterWiseTableView from "../features/purchaseStorageLocationWise/components";
+import PurchaseCostCenterWise from "../features/purchaseCostCenterWise/components/purchaseCostCenterWiseTableView";
+import SalesDetails from "../features/purchaseCostCenterWise/components";
 import PurchasePoWise from "../features/purchasePoWise/components";
 import PurchasePoWiseTableView from "../features/purchasePoWise/components/purchasePoWiseTableView";
 import Reportdetails from "../features/reportdetails";
@@ -260,6 +264,56 @@ const AllRoutes = () => {
                   globalLayout={globalStaticFragmennt}
                   portalId={commonPortalRef}>
                   <PurchaseFunctionalWiseTableView
+                    globalLayout={setGlobalStaticFragmennt}
+                  />
+                </PortalForLayout>
+              }
+            />
+          </Route>
+
+          <Route
+            path="/reports/purchase-storage-location-wise/table-view"
+            element={
+              <PortalForLayout
+                globalLayout={globalStaticFragmennt}
+                portalId={commonPortalRef}>
+                <PurchaseStorageLocationWise
+                  globalLayout={setGlobalStaticFragmennt}
+                />
+              </PortalForLayout>
+            }>
+            <Route
+              path="/reports/purchase-storage-location-wise/table-view"
+              element={
+                <PortalForLayout
+                  globalLayout={globalStaticFragmennt}
+                  portalId={commonPortalRef}>
+                  <PurchaseStorageLocationWiseTableView
+                    globalLayout={setGlobalStaticFragmennt}
+                  />
+                </PortalForLayout>
+              }
+            />
+          </Route>
+
+          <Route
+            path="/reports/purchase-cost-center-wise/table-view"
+            element={
+              <PortalForLayout
+                globalLayout={globalStaticFragmennt}
+                portalId={commonPortalRef}>
+                <PurchaseCostCenterWise
+                  globalLayout={setGlobalStaticFragmennt}
+                />
+              </PortalForLayout>
+            }>
+            <Route
+              path="/reports/purchase-cost-center-wise/table-view"
+              element={
+                <PortalForLayout
+                  globalLayout={globalStaticFragmennt}
+                  portalId={commonPortalRef}>
+                  <PurchaseCostCenterWiseTableView
                     globalLayout={setGlobalStaticFragmennt}
                   />
                 </PortalForLayout>

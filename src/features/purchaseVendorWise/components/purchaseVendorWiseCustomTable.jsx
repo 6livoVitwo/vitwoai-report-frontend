@@ -20,8 +20,7 @@ import { useGetSelectedColumnsVendorQuery } from "../slice/purchaseVendorWiseApi
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
 import { useGetexportdataVendorQuery } from "../slice/purchaseVendorWiseApi";
 import LoaderScroll from "../../analyticloader/components/LoaderScroll"
-
-
+import { size } from "lodash";
 const CssWrapper = styled.div`
   .p-component {
     font-size: 1.2rem;
@@ -141,6 +140,18 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       label: "PO Wise",
       value: "/reports/purchase-po-wise/table-view",
     },
+    {
+      label: "Functional Wise",
+      value: "/reports/purchase-functional-wise/table-view",
+    },
+    {
+      label: "Storage Location Wise",
+      value: "/reports/purchase-storage-location-wise/table-view",
+    },
+    {
+      label: "Cost Center Wise",
+      value: "/reports/purchase-storage-location-wise/table-view",
+    },
   ];
 
   useEffect(() => {
@@ -252,6 +263,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
       data: updatedSelectedColumns,
+      size: 0,
     }));
     setSelectedColumns(updatedSelectedColumns);
     // Save selected columns to localStorage
@@ -328,6 +340,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           value: inputValue,
         })),
       ],
+      size: 20,
     };
     setFilters(updatedFilters);
     setSearchQuery(inputValue);
@@ -492,12 +505,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         render: () => (
           <Box
             p={3}
-            bg="orange.300"
+            mb={9}
+            bg="rgba(255, 195, 0, 0.2)"
+            backdropFilter="blur(4px)"
             borderRadius="md"
-            style={{ width: "300px", height: "70px" }}
+            style={{ width: "400px", height: "70px" }}
           >
-            <Box fontWeight="bold">No Results Found</Box>
-            <Box>You search did not match any data.</Box>
+            <Box fontWeight="bold" ml={5}>No Results Found</Box>
+            <Box ml={5}>You search did not match any data.</Box>
           </Box>
         ),
       });
@@ -552,6 +567,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     }
     if (scrollTop + clientHeight >= scrollHeight - 5 && !loading) {
       loadMoreData();
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        size: 20,
+      }));
     }
   };
   useEffect(() => {
@@ -686,7 +705,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   return (
-    <Box bg="white" padding="0px 10px" borderRadius="5px">
+    <Box bg="white">
       <Box
         display="flex"
         alignItems="center"
@@ -709,7 +728,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             color="mainBlue"
             textTransform="capitalize"
           >
-            Purchase Vendor Table View
+            Purchase Vendor
           </Heading>
         </Box>
         <Box
@@ -1062,6 +1081,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         width="calc(100vw - 100px)"
         border="1px solid #ebebeb"
         borderRadius="7px"
+        sx={{
+          "&::-webkit-scrollbar": {
+            height: "1px",
+          },
+        }}
       >
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="droppable" direction="horizontal">

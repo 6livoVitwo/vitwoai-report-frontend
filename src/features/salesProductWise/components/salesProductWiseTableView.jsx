@@ -56,6 +56,17 @@ const SalesProductWiseTableView = () => {
 
   const tableContainerRef = useRef(null);
 
+  // Function to rearrange columns
+  const arrangeColumns = (data, columnOrder) => {
+    return data.map((item) => {
+      const orderedItem = {};
+      columnOrder.forEach((key) => {
+        orderedItem[key] = item[key] || null;
+      });
+      return orderedItem;
+    });
+  };
+
   const flattenObject = (obj, prefix = "") => {
     let result = {};
     for (let key in obj) {
@@ -88,7 +99,24 @@ const SalesProductWiseTableView = () => {
           })
           : [flattenedInvoice];
       });
-      setIndividualItems((prevItems) => [...prevItems, ...(sales.content ? newItems : []),]);
+      const columnOrder = [
+        "items.itemName",
+        "items.itemCode",
+        "invoice_date",
+        "SUM(items.qty)",
+        "SUM(quotation.totalAmount)",
+        "SUM(all_total_amt)",
+        "SUM(salesPgi.salesDelivery.totalAmount)",
+        "SUM(salesPgi.totalAmount)",
+        "invoice_no",
+        "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
+        "SUM(salesOrder.totalAmount)",
+        "SUM(items.totalPrice)",
+        "SUM(due_amount)",
+        "SUM(items.totalTax)",
+      ];
+      const orderedItems = arrangeColumns(newItems, columnOrder);
+      setIndividualItems((prevItems) => [...prevItems, ...orderedItems]);
     }
   }, [sales]);
 

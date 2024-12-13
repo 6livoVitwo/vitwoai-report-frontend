@@ -20,6 +20,7 @@ import { useGetGlobalsearchPurchaseQuery } from "../slice/purchaseProductWiseApi
 import { useGetexportdataQuery } from "../slice/purchaseProductWiseApi";
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
 import LoaderScroll from "../../analyticloader/components/LoaderScroll"
+import { size } from "lodash";
 
 
 const CssWrapper = styled.div`
@@ -44,14 +45,12 @@ const CssWrapper = styled.div`
 const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [data, setData] = useState([...newArray]);
   const [loading, setLoading] = useState(false);
-  // const [defaultColumns, setDefaultColumns] = useState([]);
   const [selectedColumns, setSelectedColumns] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [inputValue, setInputValue] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [columnFilters, setColumnFilters] = useState({});
-  // const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
   const [tempFilterCondition, setTempFilterCondition] = useState("");
   const [tempFilterValue, setTempFilterValue] = useState("");
@@ -60,7 +59,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [sortColumn, setSortColumn] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
-  // const [filtersApplied, setFiltersApplied] = useState(false);
   const [localFilters, setLocalFilters] = useState({ ...filters });
   const [dates, setDates] = useState(null);
   const dispatch = useDispatch();
@@ -139,7 +137,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       const oneYearInMillis = 365 * 24 * 60 * 60 * 1000;
       if (new Date(endDate) - new Date(startDate) > oneYearInMillis) {
         toast({
-          title: "No More Data",
+          title: "No More Data ",
           description: "You have reached the end of the list.",
           status: "warning",
           isClosable: true,
@@ -232,6 +230,18 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       label: "PO Wise",
       value: "/reports/purchase-po-wise/table-view",
     },
+    {
+      label: "Functional Wise",
+      value: "/reports/purchase-functional-wise/table-view",
+    },
+    {
+      label: "Storage Location Wise",
+      value: "/reports/purchase-storage-location-wise/table-view",
+    },
+    {
+      label: "Cost Center Wise",
+      value: "/reports/purchase-storage-location-wise/table-view",
+    },
   ];
 
   // Fetching columns data from API
@@ -268,7 +278,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       const moreData = [...newArray];
       setData((prevData) => {
-        const uniqueData = [...new Set([...prevData, ...moreData])];
+        const uniqueData = [...new Set([...prevData, ...moreData,])];
         return uniqueData;
       });
       setPage((prevPage) => prevPage + 1);
@@ -311,10 +321,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setSelectedColumns(newColumnsOrder);
   };
 
-  const clearPriviewColumnData = () => {
-    setPage(0);
-  };
-
   // Handle column selection
   const toggleColumn = (field) => {
     setTempSelectedColumns((prev) =>
@@ -355,10 +361,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         })
       )
     );
-    clearPriviewColumnData();
     setFilters((prevFilters) => ({
       ...prevFilters,
       data: updatedSelectedColumns,
+      size: 0,
     }));
     setSelectedColumns(updatedSelectedColumns);
     localStorage.setItem("selectedColums", JSON.stringify(updatedSelectedColumns));
@@ -432,6 +438,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           value: inputValue,
         })),
       ],
+      size: 50,
     };
     setFilters(updatedFilters);
     setSearchQuery(inputValue);
@@ -527,7 +534,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           </Box>
         ),
       });
-      // setLastPage(true);
     }
   }, [productDataFilter, toast]);
 
@@ -581,6 +587,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     }
     if (scrollTop + clientHeight >= scrollHeight - 5 && !loading) {
       loadMoreData();
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        size: 50,
+      }));
     }
   };
   useEffect(() => {
@@ -783,7 +793,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             color="mainBlue"
             textTransform="capitalize"
           >
-            Purchase Product Table View
+            Purchase Product
           </Heading>
         </Box>
         <Box
@@ -1185,6 +1195,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         height="calc(100vh - 151px)"
         width="calc(100vw - 100px)"
         border="1px solid #ebebeb"
+        sx={{
+          "&::-webkit-scrollbar": {
+            height: "1px",
+          },
+        }}
       >
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="droppable" direction="horizontal">

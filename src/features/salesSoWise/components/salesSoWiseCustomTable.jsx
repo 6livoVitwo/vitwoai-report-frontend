@@ -220,7 +220,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       }))
       : [];
 
-    // const uniqueColumns = Array.from(new Set(allColumns.map((col) => col.listName)));
     const uniqueColumns = allColumns.map((col) => col.field);
 
     if (selectAll) {
@@ -228,7 +227,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     } else {
       setTempSelectedColumns(uniqueColumns);
     }
-
     setSelectAll(!selectAll);
   };
 
@@ -250,6 +248,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
       data: updatedSelectedColumns,
+      size: 0,
     }));
     setSelectedColumns(updatedSelectedColumns);
     refetchColumnData({ columns: updatedSelectedColumns });
@@ -323,6 +322,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           value: inputValue,
         })),
       ],
+      size:50,
     };
     setFilters(updatedFilters);
     setSearchQuery(inputValue);
@@ -550,6 +550,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     }
     if (scrollTop + clientHeight >= scrollHeight - 5 && !loading) {
       loadMoreData();
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        size: 50,
+      }));
     }
   };
   useEffect(() => {
@@ -710,7 +714,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             color="mainBlue"
             textTransform="capitalize"
           >
-            Sales So Table View
+            Sales So
           </Heading>
         </Box>
         <Box

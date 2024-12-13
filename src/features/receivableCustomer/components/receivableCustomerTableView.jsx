@@ -11,7 +11,7 @@ const ReceivableCustomerTableView = () => {
   const [intervalDays, setIntervalDays] = useState(20);
   const [bucket, setBucket] = useState(5);
   const [asOnDate, setAsOnDate] = useState(new Date().toISOString().split("T")[0]);
-  
+
   const [allBuckets, setAllBuckets] = useState([
     { value: 0, label: "0-20" },
     { value: 21, label: "21-40" },
@@ -98,6 +98,10 @@ const ReceivableCustomerTableView = () => {
     }))
   }
 
+  function formatColumnName(column) {
+    return column.replace(/([A-Z])/g, ' $1');
+  }
+
   return (
     <>
       <Box
@@ -106,22 +110,27 @@ const ReceivableCustomerTableView = () => {
         alignItems="center"
         w={"95%"}
         mb={5}
+        p={3}
+        position="sticky"
+        top={0}
+        bg={"white"}
+        zIndex="10"
       >
         <Menu>
-          <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+          <MenuButton as={Button} rightIcon={<ChevronDownIcon font-size="25px" />} height={"40px"} fontSize={"12px"} >
             Export
           </MenuButton>
           <MenuList>
             <MenuItem onClick={exportToExcel}>Export to Excel</MenuItem>
-            <MenuItem onClick={exportToPDF}>Export to PDF</MenuItem>
+            {/* <MenuItem onClick={exportToPDF}>Export to PDF</MenuItem> */}
             <MenuItem onClick={exportToImage}>Export as Image</MenuItem>
           </MenuList>
         </Menu>
         <Stack direction="row">
           <Menu>
-            <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+            <MenuButton as={Button} rightIcon={<ChevronDownIcon font-size="25px" />} height={"40px"} fontSize={"12px"}>
               As on Date
-              <Text fontSize={8}>{asOnDate}</Text>
+              <Text fontSize={10}>{asOnDate}</Text>
             </MenuButton>
             <MenuList p={2}>
               <Input placeholder="As on Date" type="date" value={asOnDate} onChange={(e) => setAsOnDate(e.target.value)} />
@@ -142,7 +151,7 @@ const ReceivableCustomerTableView = () => {
             </MenuList>
           </Menu>
           <Menu>
-            <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+            <MenuButton as={Button} rightIcon={<ChevronDownIcon font-size="25px" />} height={"40px"} fontSize={"12px"}>
               Actions
             </MenuButton>
             <MenuList>
@@ -153,7 +162,6 @@ const ReceivableCustomerTableView = () => {
                 gap={0}
                 width={"100%"}
                 sx={{
-                  border: "1px solid #dee2e6",
                   borderRadius: "8px",
                   padding: "10px",
                 }}
@@ -198,61 +206,85 @@ const ReceivableCustomerTableView = () => {
       </Box>
       <TableContainer
         id="receivable-table"
-        sx={{ border: "1px solid #dee2e6", borderRadius: "8px", padding: "10px", width: "95%" }}
+        sx={{
+          border: "1px solid #dee2e6",
+          borderRadius: "8px",
+          width: "95%",
+          overflowY: "auto",
+          mt: "-12px",
+          height: "600px",
+          "&::-webkit-scrollbar": {
+            height: "1px",
+          },
+        }}
       >
-        {isLoading ? <Text>Loading...</Text> : <Table
-          size="lg"
-          sx={{
-            border: "1px solid #dee2e6",
-            borderRadius: "8px",
-            borderCollapse: "separate",
-            borderSpacing: "0 5px",
-            my: 5,
-          }}
-        >
-          <Thead sx={{ backgroundColor: "#f8f9fa" }}>
-            <Tr>
-              {columns
-                .map((column, index) => {
-                  return (
-                    <Th key={index}>{column}</Th>
-                  )
-                })}
-              {allBuckets.map((bucket, index) => (
-                <Th bg={"green.100"} key={`due-${index}`}>
-                  {bucket.label} Due
-                </Th>
-              ))}
-              {allBuckets.map((bucket, index) => (
-                <Th bg={"red.100"} key={`account-${index}`}>
-                  {bucket.label} On Account
-                </Th>
-              ))}
-            </Tr>
-          </Thead>
-          <Tbody>
-            {receivableData.map((data, index) => (
-              <Tr key={index}>
-                {columns.map((column, idx) => {
-                  return (
-                    <Td sx={{ textAlign: column === "customerName" ? "left" : "right" }} key={idx}>{data[column]}</Td>
-                  )
-                })}
-                {Object.keys(data.dueAmounts || {}).map((bucket, idx) => (
-                  <Td sx={{ textAlign: "right" }} bg={"green.50"} key={`due-value-${idx}`}>
-                    {data.dueAmounts?.[bucket] || "-"}
-                  </Td>
+        {isLoading ? (
+          <Text>Loading...</Text>
+        ) : (
+          <Table
+            size="lg"
+            sx={{
+              borderRadius: "8px",
+              borderCollapse: "separate",
+              borderSpacing: "0 5px"
+            }}
+          >
+            <Thead
+              sx={{
+                position: "sticky",
+                top: 0,
+                zIndex: 1,
+                backgroundColor: "#CFD8E1A6"
+              }}
+            >
+              <Tr>
+                {columns.map((column, index) => (
+                  <Th key={index} fontSize="13px" textTransform={"capitalize"}>
+                    {formatColumnName(column)}
+                  </Th>
                 ))}
-                {Object.keys(data.onAccountAmounts || {}).map((bucket, idx) => (
-                  <Td sx={{ textAlign: "right" }} bg={"red.50"} key={`account-value-${idx}`}>
-                    {data.onAccountAmounts?.[bucket] || "-"}
-                  </Td>
+                {allBuckets.map((bucket, index) => (
+                  <Th bg={"green.100"} key={`due-${index}`} fontSize="13px" textTransform={"capitalize"}>
+                    {bucket.label} Due
+                  </Th>
+                ))}
+                {allBuckets.map((bucket, index) => (
+                  <Th bg={"red.100"} key={`account-${index}`} fontSize="13px" textTransform={"capitalize"}>
+                    {bucket.label} On Account
+                  </Th>
                 ))}
               </Tr>
-            ))}
-          </Tbody>
-        </Table>}
+            </Thead>
+            <Tbody>
+              {receivableData.map((data, index) => (
+                <Tr key={index} fontSize="13px">
+                  {columns.map((column, idx) => (
+                    <Td
+                      sx={{
+                        textAlign: column === "customerName" ? "left" : "right"
+                      }}
+                      key={idx}
+                    >
+                      {data[column]}
+                    </Td>
+                  ))}
+                  {Object.keys(data.dueAmounts || {}).map((bucket, idx) => (
+                    <Td sx={{ textAlign: "right" }} bg={"green.50"} key={`due-value-${idx}`}>
+                      {data.dueAmounts?.[bucket] || "-"}
+                    </Td>
+                  ))}
+                  {Object.keys(data.onAccountAmounts || {}).map((bucket, idx) => (
+                    <Td sx={{ textAlign: "right" }} bg={"red.50"} key={`account-value-${idx}`}>
+                      {data.onAccountAmounts?.[bucket] || "-"}
+                    </Td>
+                  ))}
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        )}
       </TableContainer>
+
 
       <Box
         sx={{
@@ -263,7 +295,7 @@ const ReceivableCustomerTableView = () => {
           mb: 5,
         }}
       >
-        <Text mt={4}>Execution Time: {executionTime} ms</Text>
+        {/* <Text mt={4}>Execution Time: {executionTime} ms</Text> */}
         <Text mt={4}>Total Records: {totalRecords}</Text>
         <Pagination
           first={first}

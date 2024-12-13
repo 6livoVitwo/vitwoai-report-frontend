@@ -1,26 +1,25 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { Box, Button, useDisclosure, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Modal, ModalOverlay, ModalContent, Heading, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Checkbox, Input, Text, Select, useToast, Menu, MenuButton, MenuList, MenuItem, Popover, PopoverTrigger, PopoverContent, PopoverBody, PopoverCloseButton, PopoverArrow, Tooltip, Spinner } from "@chakra-ui/react";
+import { Box, Button, useDisclosure, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Modal, Heading, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Checkbox, Input, Text, Select, useToast, Menu, MenuButton, MenuList, MenuItem, Popover, PopoverTrigger, PopoverContent, PopoverBody, PopoverArrow, PopoverCloseButton, Tooltip, Spinner } from "@chakra-ui/react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import debounce from "lodash/debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGear, faChartLine, faArrowDownShortWide, faArrowUpWideShort, faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { saveAs } from "file-saver";
+import { useDispatch } from "react-redux";
+import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import { faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { DownloadIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
-import { useGetSelectedColumnsproductQuery } from "../slice/salesProductWiseApi";
-import { useProductWiseSalesQuery } from "../slice/salesProductWiseApi";
-import { useGetGlobalsearchProductQuery } from "../slice/salesProductWiseApi";
+import { useGetGlobalsearchPoQuery } from "../slice/purchaseCostCenterWiseApi";
+import { useCostCenterWisePurchaseQuery } from "../slice/purchaseCostCenterWiseApi";
+import { useGetSelectedColumnsFunctionalQuery } from "../slice/purchaseCostCenterWiseApi";
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
-import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
-import { useDispatch } from "react-redux";
-import { useGetexportdataSalesProductQuery } from "../slice/salesProductWiseApi"
+import { useGetexportdataPoQuery } from "../slice/purchaseCostCenterWiseApi";
 import styled from "@emotion/styled";
 import LoaderScroll from "../../analyticloader/components/LoaderScroll"
-import { size } from "lodash";
 
 const CssWrapper = styled.div`
   .p-component {
@@ -53,48 +52,45 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [columnFilters, setColumnFilters] = useState({});
   const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
-  const [initialized, setInitialized] = useState(false);
-  const dispatch = useDispatch();
-  const [tempFilterCondition, setTempFilterCondition] = useState("");
-  const [tempFilterValue, setTempFilterValue] = useState("");
-  const [columns, setColumns] = useState([]);
   const [sortColumn, setSortColumn] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
+  const [initialized, setInitialized] = useState(false);
+  const [tempFilterCondition, setTempFilterCondition] = useState("");
+  const [tempFilterValue, setTempFilterValue] = useState("");
   const [activeFilterColumn, setActiveFilterColumn] = useState(null);
   const [localFilters, setLocalFilters] = useState({ ...filters });
-  const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
+  const dispatch = useDispatch();
   const [dates, setDates] = useState(null);
-  const [triggerFilter, setTriggerFilter] = useState(false);
-  const [triggerSort, setTriggerSort] = useState(false);
-  const [localFiltersdate, setLocalFiltersdate] = useState(null);
-  const [triggerApiCall, setTriggerApiCall] = useState(false);
-  const [selectdate, setSelectdate] = useState([]);
+  const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const [calendarVisible, setCalendarVisible] = useState(false);
+  const [triggerSort, setTriggerSort] = useState(false);
+  const [selectdate, setSelectdate] = useState([]);
+  const [triggerApiCall, setTriggerApiCall] = useState(false);
+  const [localFiltersdate, setLocalFiltersdate] = useState(null);
+  const [triggerFilter, setTriggerFilter] = useState(false);
   const [isDatesInvalid, setIsDatesInvalid] = useState(false);
+
+
+
 
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
   };
   const isSumColumn = (column) => column.startsWith("SUM(");
 
-  //......Advanced Filtering....
-  const { data: productDataFilter, refetch: refetchsalesproductdata } = useProductWiseSalesQuery(
-    { filters: localFilters },
-    {
-      skip: !triggerFilter,
-    }
-  );
-
   // ...Export API CALL...
-  const { data: exportData } = useGetexportdataSalesProductQuery(
+  const { data: exportData } = useGetexportdataPoQuery(
     localFiltersdate || {}, { skip: !triggerApiCall });
 
-  //api call for drop-down-data columns....
-  const { data: columnData, refetch: refetchColumnData } =
-    useGetSelectedColumnsproductQuery();
+  // Advance Filter Api Calling
+  const { data: PoWiseDataFilter, refetch: refetchPoWiseDataFilter } =
+    useCostCenterWisePurchaseQuery(
+      { filters: localFilters },
+      { skip: !triggerFilter }
+    );
 
-  //.........Api call to get global search.......
-  const { data: searchData, isLoading } = useGetGlobalsearchProductQuery({
+  // api calling from global search
+  const { data: searchData, isLoading } = useGetGlobalsearchPoQuery({
     ...filters,
     sortBy: sortColumn,
     sortDir: sortOrder,
@@ -103,9 +99,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       skip: !searchQuery,
     });
 
+  // api calling from drop-down data
+  const { data: columnData, refetch: refetchColumnDatapo } = useGetSelectedColumnsFunctionalQuery();
+
   //API Calling sorting
   const { data: ProductData } =
-    useProductWiseSalesQuery({
+    useCostCenterWisePurchaseQuery({
       filters: {
         ...filters,
         sortBy: sortColumn,
@@ -118,17 +117,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   const toast = useToast();
   const tableContainerRef = useRef(null);
-  const {
-    onOpen: onOpenDownloadReportModal,
-    onClose: onCloseDownloadReportModal,
-    isOpen: isOpenDownloadReportModal,
-  } = useDisclosure();
 
-  const {
-    onOpen: onOpenGraphAddDrawer,
-    onClose: onCloseGraphAddDrawer,
-    isOpen: isOpenGraphAddDrawer,
-  } = useDisclosure();
+  const { onOpen: onOpenDownloadReportModal, onClose: onCloseDownloadReportModal, isOpen: isOpenDownloadReportModal } = useDisclosure();
+  const { onOpen: onOpenGraphAddDrawer, onClose: onCloseGraphAddDrawer, isOpen: isOpenGraphAddDrawer } = useDisclosure();
+
+  const handleGraphAddDrawer = () => {
+    onOpenGraphAddDrawer();
+    dispatch(handleGraphWise({ selectedWise: "purchase-functional-wise", reportType: 'purchase' }));
+  };
 
   const getColumnStyle = (header) => ({
     textAlign: alignment[header] || "left",
@@ -139,27 +135,27 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const reportOptions = [
     {
       label: "Product Wise",
-      value: "/reports/sales-product-wise/table-view",
+      value: "/reports/purchase-product-wise/table-view",
     },
     {
-      label: "Customer Wise",
-      value: "/reports/sales-customer-wise/table-view",
+      label: "Vendor Wise",
+      value: "/reports/purchase-vendor-wise/table-view",
     },
     {
-      label: "Vertical Wise",
-      value: "/reports/sales-vertical-wise/table-view",
+      label: "PO Wise",
+      value: "/reports/purchase-po-wise/table-view",
     },
     {
-      label: "So Wise",
-      value: "/reports/sales-so-wise/table-view",
+      label: "Functional Wise",
+      value: "/reports/purchase-functional-wise/table-view",
     },
     {
-      label: "Kam wise",
-      value: "/reports/sales-kam-Wise/table-view",
+      label: "Storage Location Wise",
+      value: "/reports/purchase-storage-location-wise/table-view",
     },
     {
-      label: "Region Wise",
-      value: "/reports/sales-region-wise/table-view",
+      label: "Cost Center Wise",
+      value: "/reports/purchase-storage-location-wise/table-view",
     },
   ];
 
@@ -173,200 +169,21 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     const selectedValue = e.value;
     setSelectedReport(selectedValue);
   };
-
-  const loadMoreData = async () => {
-    if (!loading) {
-      setLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      const moreData = [...newArray];
-      setData((prevData) => {
-        const uniqueData = [...new Set([...prevData, ...moreData])];
-        return uniqueData;
-      });
-      setPage((prevPage) => prevPage + 1);
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!initialized && data.length > 0) {
-      const initialColumns = getColumns(data)
-        .slice(0, 8)
-        .map((column) => column.field);
-      setSelectedColumns(initialColumns);
-      setTempSelectedColumns(initialColumns);
-      setInitialized(true);
-    }
-  }, [data, initialized]);
-
-  const getColumns = useCallback((data) => {
-    if (!data || data.length === 0) {
-      return [];
-    }
-    const sampleItem = data[0];
-    return Object.keys(sampleItem).map((key) => ({
-      field: key,
-      header: key,
-    }));
-  }, []);
-
-  // Fetching columns data from API
-  useEffect(() => {
-    if (columns.length) {
-      setSelectedColumns(columns.map((col) => col.field));
-    }
-  }, [columns]);
-
-  const handleDragEnd = (result) => {
-    if (!result.destination) {
-      return;
-    }
-    const newColumnsOrder = Array.from(selectedColumns);
-    const [removed] = newColumnsOrder.splice(result.source.index, 1);
-    newColumnsOrder.splice(result.destination.index, 0, removed);
-    setSelectedColumns(newColumnsOrder);
-  };
-
-  const clearPriviewColumnData = () => {
-  }
-  const toggleColumn = (field) => {
-    if (field === "SL No") return;
-    setTempSelectedColumns((prev) =>
-      prev.includes(field)
-        ? prev.filter((col) => col !== field)
-        : [...prev, field]
-    );
-  };
-
-  const handleSelectAllToggle = () => {
-    const allColumns = columnData
-      ? Object.keys(columnData?.content[0] || {}).map((key) => ({
-        field: key,
-        listName: columnData.content[0][key]?.listName || key,
-      }))
-      : [];
-    const uniqueColumns = allColumns.map((col) => col.field);
-
-    if (selectAll) {
-      setTempSelectedColumns([]);
-    } else {
-      setTempSelectedColumns(uniqueColumns);
-    }
-
-    setSelectAll(!selectAll);
-  };
-  const handleModalClose = () => {
-    setTempSelectedColumns(selectedColumns);
-    onClose();
-  };
-
-  const handleApplyChanges = () => {
-    const updatedSelectedColumns = Array.from(
-      new Set(
-        tempSelectedColumns.map((col) => {
-          const matchingColumn = columnData?.content[0][col];
-          return matchingColumn ? matchingColumn.listName || col : col;
-        })
-      )
-    ).filter((col) => col !== "SL No");
-
-    clearPriviewColumnData();
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      data: updatedSelectedColumns,
-      size: 0,
-    }));
-    setSelectedColumns(updatedSelectedColumns);
-    refetchColumnData({ columns: updatedSelectedColumns });
-    onClose();
-    localStorage.setItem("selectedColumnsSalesProduct", JSON.stringify(updatedSelectedColumns));
-    toast({
-      title: "Columns Applied Successfully",
-      status: "success",
-      isClosable: true,
-    });
-  };
-  useEffect(() => {
-    const savedColumns = localStorage.getItem("selectedColumnsSalesProduct");
-    if (savedColumns) {
-      setSelectedColumns(JSON.parse(savedColumns));
-    }
-  }, []);
-  useEffect(() => {
-    if (isOpen) {
-      const filteredColumns = columnData?.content[0]
-        ? Object.keys(columnData.content[0]).filter((key) =>
-          selectedColumns.includes(columnData.content[0][key]?.listName)
-        )
-        : [];
-      setTempSelectedColumns(filteredColumns);
-    }
-  }, [isOpen, selectedColumns, columnData]);
-
-  const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
-  useEffect(() => {
-    return () => {
-      debouncedSearchQuery.cancel();
-    };
-  }, [debouncedSearchQuery]);
-
-  useEffect(() => {
-    if (isLoading) {
-      toast({
-        title: "Loading...",
-        description: "Fetching data, please wait.",
-        status: "info",
-        duration: null,
-        isClosable: true,
-        position: "top",
-        render: () => (
-          <div style={{ display: "flex", alignItems: "center", padding: "10px" }}>
-            <Spinner size="sm" color="blue.500" mr="10px" />
-            <span>Loading...</span>
-          </div>
-        ),
-      });
-    } else {
-      toast.closeAll();
-    }
-  }, [isLoading, toast]);
-
-  const handleSearchChange = (e) => {
-    setInputValue(e.target.value);
-  };
-  const handleSearchClick = () => {
-    const filteredColumns = selectedColumns.filter(column => !column.includes('SUM'));
-    const updatedFilters = {
-      ...filters,
-      filter: [
-        ...filters.filter,
-        ...filteredColumns.map(column => ({
-          column: column,
-          operator: "like",
-          type: "string",
-          value: inputValue,
-        })),
-      ],
-      size:20,
-    };
-    setFilters(updatedFilters);
-    setSearchQuery(inputValue);
-  };
   const FiltersTrigger = () => {
     setSortColumn("");
   };
 
+  // Clear all filters
   const clearAllFilters = () => {
     setSearchQuery("");
     setInputValue("");
     setColumnFilters({});
-    setTempFilterCondition(null);
+    setSortColumn("");
+    setTempFilterCondition({});
     setTempFilterValue("");
-    setActiveFilterColumn(null);
     window.location.reload();
   };
 
-  // Clear single filter active column.... 
   const clearsingleFilter = (column) => {
     setLocalFilters((prevFilters) => {
       const updatedFilters = {
@@ -386,7 +203,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setTempFilterCondition(null);
     setTempFilterValue("");
     setActiveFilterColumn(null);
-    refetchsalesproductdata();
+    refetchPoWiseDataFilter();
   };
 
   // function date expoet Calling for date filter
@@ -425,10 +242,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       }
       setLocalFiltersdate({
         data: selectedColumns,
-        groupBy: ["items.itemName"],
+        groupBy: ["grnInvoice.grnPoNumber"],
         filter: [
           {
-            column: "invoice_date",
+            column: "grnCreatedAt",
             operator: "between",
             type: "date",
             value: selectdate,
@@ -462,7 +279,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     const formatDate = formattedDates(dates);
     setSelectdate(formatDate);
   };
-
   //hide the calendar
   const handleDateChange = (e) => {
     setDates(e.value);
@@ -471,16 +287,187 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     }
   };
 
-
-  // Sorting logic
+  //sort asc desc
   const handleSort = (column) => {
     const newSortOrder =
       sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
+    // Update sort state
     setSortColumn(column);
     setSortOrder(newSortOrder);
     setTriggerSort(true);
   };
+  const loadMoreData = async () => {
+    if (!loading) {
+      setLoading(true);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const moreData = [...newArray];
+      setData((prevData) => {
+        const uniqueData = [...new Set([...prevData, ...moreData])];
+        return uniqueData;
+      });
+      setPage((prevPage) => prevPage + 1);
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
+    if (!initialized && data.length > 0) {
+      const initialColumns = getColumns(data)
+        .slice(0, 8)
+        .map((column) => column.field);
+      setSelectedColumns(initialColumns);
+      setTempSelectedColumns(initialColumns);
+      setInitialized(true);
+    }
+  }, [data, initialized]);
+
+  const getColumns = useCallback((data) => {
+    if (!data || data.length === 0) {
+      return [];
+    }
+    const sampleItem = data[0];
+    return Object.keys(sampleItem).map((key) => ({
+      field: key,
+      header: key,
+    }));
+  }, []);
+
+  const handleDragEnd = (result) => {
+    if (!result.destination) {
+      return;
+    }
+    const newColumnsOrder = Array.from(selectedColumns);
+    const [removed] = newColumnsOrder.splice(result.source.index, 1);
+    newColumnsOrder.splice(result.destination.index, 0, removed);
+    setSelectedColumns(newColumnsOrder);
+  };
+  // Handle column selection
+  const toggleColumn = (field) => {
+    setTempSelectedColumns((prev) =>
+      prev.includes(field)
+        ? prev.filter((col) => col !== field)
+        : [...prev, field]
+    );
+  };
+
+  const handleSelectAllToggle = () => {
+    const allColumns = columnData
+      ? Object.keys(columnData?.content[0] || {}).map((key) => ({
+        field: key,
+        listName: columnData.content[0][key]?.listName || key,
+      }))
+      : [];
+
+    const uniqueColumns = allColumns.map((col) => col.field);
+
+    if (selectAll) {
+      setTempSelectedColumns([]);
+    } else {
+      setTempSelectedColumns(uniqueColumns);
+    }
+
+    setSelectAll(!selectAll);
+  };
+
+  const handleModalClose = () => {
+    setTempSelectedColumns(selectedColumns);
+    onClose();
+  };
+
+  const handleApplyChanges = () => {
+    const updatedSelectedColumns = Array.from(
+      new Set(
+        tempSelectedColumns.map((col) => {
+          const matchingColumn = columnData?.content[0][col];
+          return matchingColumn ? matchingColumn.listName || col : col;
+        })
+      )
+    )
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      data: updatedSelectedColumns,
+      size: 0,
+    }));
+    setSelectedColumns(updatedSelectedColumns);
+    // Save selected columns to localStorage
+    localStorage.setItem("selectedColumnsFunctionalWise", JSON.stringify(updatedSelectedColumns));
+    refetchColumnDatapo({ columns: updatedSelectedColumns });
+    onClose();
+    toast({
+      title: "Columns Applied Successfully",
+      status: "success",
+      isClosable: true,
+    });
+  };
+  // Load selected columns from localStorage 
+  useEffect(() => {
+    const savedColumns = localStorage.getItem("selectedColumnsFunctionalWise");
+    if (savedColumns) {
+      setSelectedColumns(JSON.parse(savedColumns));
+    }
+  }, []);
+  useEffect(() => {
+    if (isOpen) {
+      const filteredColumns = columnData?.content[0]
+        ? Object.keys(columnData.content[0]).filter((key) =>
+          selectedColumns.includes(columnData.content[0][key]?.listName)
+        )
+        : [];
+      setTempSelectedColumns(filteredColumns);
+    }
+  }, [isOpen, selectedColumns, columnData]);
+
+  //search query
+  const debouncedSearchQuery = useMemo(() => debounce(setSearchQuery, 300), []);
+  useEffect(() => {
+    return () => {
+      debouncedSearchQuery.cancel();
+    };
+  }, [debouncedSearchQuery]);
+  useEffect(() => {
+    if (isLoading) {
+      toast({
+        title: "Loading...",
+        description: "Fetching data, please wait.",
+        status: "info",
+        duration: null,
+        isClosable: true,
+        position: "top",
+        render: () => (
+          <div style={{ display: "flex", alignItems: "center", padding: "10px" }}>
+            <Spinner size="sm" color="blue.500" mr="10px" />
+
+            {/* <Loader width={100} height={100} objectFit="contain" /> */}
+            <span>Loading...</span>
+          </div>
+        ),
+      });
+    } else {
+      toast.closeAll();
+    }
+  }, [isLoading, toast]);
+
+  const handleSearchChange = (e) => {
+    setInputValue(e.target.value);
+  };
+  const handleSearchClick = () => {
+    const filteredColumns = selectedColumns.filter(column => !column.includes('SUM'));
+    const updatedFilters = {
+      ...filters,
+      filter: [
+        ...filters.filter,
+        ...filteredColumns.map(column => ({
+          column: column,
+          operator: "like",
+          type: "string",
+          value: inputValue,
+        })),
+      ],
+      size: 50,
+    };
+    setFilters(updatedFilters);
+    setSearchQuery(inputValue);
+  };
 
   const filteredItems = useMemo(() => {
     let filteredData = [...newArray];
@@ -498,20 +485,20 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       });
     }
     // Advanced filters
-    else if (productDataFilter?.content && productDataFilter?.content.length > 0) {
-      filteredData = productDataFilter.content;
+    else if (PoWiseDataFilter?.content && PoWiseDataFilter?.content.length > 0) {
+      filteredData = PoWiseDataFilter.content;
     }
     return filteredData;
   }, [
     newArray,
+    searchData,
     sortColumn,
     sortOrder,
-    searchData,
-    productDataFilter,
+    PoWiseDataFilter,
     ProductData
   ]);
   useEffect(() => {
-    if (productDataFilter?.content && productDataFilter.content.length === 0) {
+    if (PoWiseDataFilter?.content && PoWiseDataFilter.content.length === 0) {
       toast({
         title: " No Results Found ",
         description: "You search did not match any data.",
@@ -521,17 +508,19 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         render: () => (
           <Box
             p={3}
-            bg="orange.300"
+            mb={9}
+            bg="rgba(255, 195, 0, 0.2)"
+            backdropFilter="blur(4px)"
             borderRadius="md"
-            style={{ width: "300px", height: "70px" }}
+            style={{ width: "400px", height: "70px" }}
           >
-            <Box fontWeight="bold">No Results Found</Box>
-            <Box>You search did not match any data.</Box>
+            <Box fontWeight="bold" ml={5}>No Results Found</Box>
+            <Box ml={5}>You search did not match any data.</Box>
           </Box>
         ),
       });
     }
-  }, [productDataFilter, toast]);
+  }, [PoWiseDataFilter, toast]);
 
   useEffect(() => {
     if (searchData?.content && searchData.content.length === 0) {
@@ -571,7 +560,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     return column;
   };
 
-  //scroll logic
   let previousScrollLeft = 0;
   const handleScroll = () => {
     const { scrollTop, scrollHeight, clientHeight, scrollLeft } =
@@ -584,20 +572,22 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       loadMoreData();
       setFilters((prevFilters) => ({
         ...prevFilters,
-        size: 20,
+        size: 50,
       }));
     }
   };
+
   useEffect(() => {
     const container = tableContainerRef.current;
     if (container) {
       const debouncedHandleScroll = debounce(handleScroll, 200);
       container.addEventListener("scroll", debouncedHandleScroll);
-      return () => container.removeEventListener("scroll", debouncedHandleScroll);
+      return () =>
+        container.removeEventListener("scroll", debouncedHandleScroll);
     }
   }, [loading, lastPage]);
 
-  //function for filter
+  // Filter functions
   const handleTempFilterConditionChange = (e) => {
     const value = e?.target?.value;
     if (value !== undefined) {
@@ -640,7 +630,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setTempFilterCondition(null);
       setTempFilterValue("");
       setActiveFilterColumn(null);
-      // refetchsalesproductdata();
     } else {
       console.error("Filter condition, value, or column is missing");
     }
@@ -654,11 +643,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   useEffect(() => {
     if (exportData) {
-      exportToExcelDaterange(exportData);
+      ExportToExcelDaterange(exportData);
     }
-  }, [exportData])
+  }, [exportData]);
 
-  const exportToExcelDaterange = (data) => {
+  const ExportToExcelDaterange = (data) => {
+    console.log("object", data);
     import("xlsx").then((xlsx) => {
       const formattedData = data?.content?.map((item) => {
         const formattedItem = {};
@@ -684,6 +674,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       );
     });
   };
+
+
   const exportToExcel = () => {
     import("xlsx").then((xlsx) => {
       const formattedData = filteredItems.map((item) => {
@@ -711,20 +703,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     });
   };
 
-  const handleGraphViewDrawer = () => {
-    onOpenGraphAddDrawer();
-    dispatch(handleGraphWise({ selectedWise: "sales-product-wise", reportType: 'sales' }));
-  }
-
   return (
-    <Box bg="white">
+    <Box bg="white" padding="0px 10px" borderRadius="5px">
       <Box
         display="flex"
+        borderRadius="5px"
         alignItems="center"
         justifyContent="space-between"
-        gap="10px"
-        padding="10px 20px"
+        padding="10px"
         marginBottom="10px"
+        boxShadow="1px 2px 15px 2px #00000012"
         position="relative"
         zIndex="999"
         sx={{
@@ -740,7 +728,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             color="mainBlue"
             textTransform="capitalize"
           >
-            Sales Product
+            Purchase Cost Center
           </Heading>
         </Box>
         <Box
@@ -748,16 +736,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           justifyContent="flex-end"
           gap="10px"
           alignItems="center"
-          sx={{
-            "& .react-datepicker-wrapper input": {
-              bg: "#dedede",
-              padding: "5px 10px",
-              fontSize: "12px",
-              width: "100px",
-              borderRadius: "5px",
-              outline: "none",
-            },
-          }}
         >
           <Box display="flex" alignItems="center" w="175px" position="relative">
             <Input
@@ -815,7 +793,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 handleReportChange(e);
               }}
               optionLabel="label"
-              placeholder={reportOptions.length > 0 ? reportOptions[0].label : ""}
+              placeholder={reportOptions.length > 0 ? reportOptions[5].label : ""}
               panelStyle={{ margin: "0", padding: "0.75rem 1.25rem" }}
               style={{
                 width: "175px",
@@ -844,6 +822,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               }}
             />
           </CssWrapper>
+          {/* Clear Alll */}
           <Tooltip
             label="Clear All"
             hasArrow
@@ -854,8 +833,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             borderRadius="7px"
           >
             <Button
-              borderRadius="5px"
               onClick={clearAllFilters}
+              borderRadius="5px"
               w="30px"
               h="30px"
               bg="#0d3a6833"
@@ -879,7 +858,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             borderRadius="7px"
           >
             <Button
-              onClick={handleGraphViewDrawer}
+              onClick={handleGraphAddDrawer}
               aria-label="Graph View"
               borderRadius="5px"
               width="30px"
@@ -899,6 +878,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               <FontAwesomeIcon icon={faChartLine} fontSize="20px" />
             </Button>
           </Tooltip>
+
           <Tooltip
             label="Select Columns to Show"
             hasArrow
@@ -922,7 +902,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               <FontAwesomeIcon icon={faGear} fontSize="1.8rem" />
             </Button>
           </Tooltip>
-
           <Menu zIndex="1000" >
             <Tooltip
               label="Export"
@@ -1082,7 +1061,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           </Menu>
         </Box>
       </Box>
-
       <TableContainer
         ref={tableContainerRef}
         className="table-tableContainerRef"
@@ -1091,6 +1069,11 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         height="calc(100vh - 151px)"
         width="calc(100vw - 115px)"
         border="1px solid #ebebeb"
+        sx={{
+          "&::-webkit-scrollbar": {
+            height: "1px",
+          },
+        }}
       >
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="droppable" direction="horizontal">
@@ -1098,16 +1081,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               <Table
                 {...provided.droppableProps}
                 ref={provided.innerRef}
-                variant="simple"
-              >
-                <Thead style={{ position: "sticky", top: 0 }}>
+                variant="simple">
+                <Thead
+                  style={{ position: "sticky", top: 0 }}
+                >
                   <Tr bg="#ffffff">
                     {selectedColumns.map((column, index) => (
                       <Draggable
                         key={column}
                         draggableId={column}
-                        index={index}
-                      >
+                        index={index}>
                         {(provided) => (
                           <Th
                             ref={provided.innerRef}
@@ -1118,28 +1101,26 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                             fontWeight="500"
                             textTransform="capitalize"
                             fontFamily="Poppins, sans-serif"
-                            color="black"
-                            letterSpacing="0"
+                            latterSpacing="0"
                             background="#cfd8e1a6"
+                            color="black"
                           >
-                            {/* A-Z Filter  */}
                             {formatHeader(column)}
+
+                            {/* A-Z Filter  */}
                             {column !== "SL No" && !column.toLowerCase().includes("sum") && (
                               <Button
                                 className="A_to_Z"
                                 bg="none"
                                 _hover={{ bg: "none" }}
-                                onClick={() => handleSort(column)}
-                              >
+                                onClick={() => handleSort(column)}>
                                 {sortColumn === column ? (
                                   sortOrder === "asc" ? (
                                     <FontAwesomeIcon
                                       icon={faArrowDownShortWide}
                                     />
                                   ) : (
-                                    <FontAwesomeIcon
-                                      icon={faArrowUpWideShort}
-                                    />
+                                    <FontAwesomeIcon icon={faArrowUpWideShort} />
                                   )
                                 ) : (
                                   <FontAwesomeIcon
@@ -1150,7 +1131,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                 )}
                               </Button>
                             )}
-                            {column !== "SL No" && !column.toLowerCase().includes("sum") && (
+                            {column !== "SL No" && column !== "grnCreatedBy" && !column.toLowerCase().includes("sum") && (
                               <Popover
                                 isOpen={activeFilterColumn === column}
                                 onClose={() => setActiveFilterColumn(null)}
@@ -1178,9 +1159,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                       bg="transparent"
                                       onClick={() => {
                                         handlePopoverClick(column)
-                                        setDates();
                                         setCalendarVisible(false);
-                                        setTempFilterCondition("");
+                                        setDates();
                                       }}
                                     >
                                       <i
@@ -1236,7 +1216,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                               <option value="greaterThanOrEqual">Greater Than or Equal</option>
                                               <option value="lessThan">Less Than</option>
                                               <option value="lessThanOrEqual">Less Than or Equal</option>
-                                              {(column === "invoice_date") && (
+                                              {(column === "grnCreatedAt" || column === "grnUpdatedAt" || column === "postingDate") && (
                                                 <option value="between">Between</option>
                                               )}
                                             </Select>
@@ -1285,7 +1265,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                                                 type={tempFilterCondition === "like" ? "string" : "integer"}
                                               />
                                             )}
-
                                           </Box>
                                         </Box>
                                       </Box>
@@ -1336,24 +1315,22 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                             padding="12px 15px"
                             borderBottom="1px solid #e1e1e1"
                             borderTop="1px solid #e1e1e1"
-                            style={getColumnStyle(column)}
-                          >
+                            style={getColumnStyle(column)}>
                             <Text
                               fontSize="1.4rem"
-                              justifyItems="center"
-                              fontWeight={column === "items.itemName" ? "600" : "400"}
                               whiteSpace="nowrap"
                               color="#4e4e4e"
+                              fontWeight={column === "vendorName" ? "600" : "400"}
                               width={
                                 column === "description"
                                   ? "300px"
-                                  : column === "items.itemName"
+                                  : column === "vendorName"
                                     ? "250px"
                                     : "auto"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis"
-                              title={column === "items.itemName" ? item[column] : undefined}
+                              title={column === "vendorName" ? item[column] : undefined}
                               textAlign={isSumColumn(column) ? "right" : "left"}
                             >
                               {item[column] || "-"}
@@ -1383,7 +1360,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         </DragDropContext>
       </TableContainer>
 
-      {/* Main body drawer */}
+      {/* main drawer body */}
       <MainBodyDrawer
         isOpenGraphAddDrawer={isOpenGraphAddDrawer}
         onCloseGraphAddDrawer={onCloseGraphAddDrawer}
@@ -1397,8 +1374,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             bg="mainBlue"
             color="white"
             fontSize="16px"
-            padding="12px"
-          >
+            padding="12px">
             Select Columns to Show
           </ModalHeader>
           <ModalCloseButton mt="5px" color="white" size="lg" />
@@ -1409,8 +1385,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 onChange={handleSelectAllToggle}
                 mb={4}
                 size="lg"
-                fontWeight="600"
-              >
+                fontWeight="600">
                 Select All
               </Checkbox>
             </Box>
@@ -1425,8 +1400,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 "& .columnCheckBox:nth-of-type(odd)": {
                   bg: "borderGrayLight",
                 },
-              }}
-            >
+              }}>
               {columnData?.content && columnData.content.length > 0
                 ? Object.keys(columnData.content[0]).map((key) => ({
                   field: key,
@@ -1434,6 +1408,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 }))
                   .map((column) => {
                     const formattedHeader = formatHeader(column.field || column.header);
+
                     return (
                       <Box
                         key={column.field}
@@ -1441,13 +1416,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                         padding="5px"
                         bg="rgba(231,231,231,1)"
                         borderRadius="5px"
-                        width="48%"
-                      >
+                        width="48%">
                         <Checkbox
                           size="lg"
                           display="flex"
                           padding="5px"
                           borderColor="mainBluemedium"
+                          key={column.field}
                           defaultChecked={tempSelectedColumns.includes(
                             column.field
                           )}
@@ -1458,8 +1433,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                             fontWeight="500"
                             ml="10px"
                             fontSize="12px"
-                            color="textBlackDeep"
-                          >
+                            color="textBlackDeep">
                             {formattedHeader}
                           </Text>
                         </Checkbox>
@@ -1479,8 +1453,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               _hover={{
                 bg: "var(--chakra-colors-mainBlue)",
               }}
-              onClick={handleModalClose}
-            >
+              onClick={handleModalClose}>
               Cancel
             </Button>
             <Button
@@ -1491,15 +1464,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                 bg: "var(--chakra-colors-mainBlue)",
               }}
               color="white"
-              onClick={handleApplyChanges}
-            >
+              onClick={handleApplyChanges}>
               Apply Changes
             </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
-
-      <Box></Box>
     </Box>
   );
 };

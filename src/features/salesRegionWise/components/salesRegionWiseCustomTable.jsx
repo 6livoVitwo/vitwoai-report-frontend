@@ -19,9 +19,10 @@ import { useGetselectedStateWiseQuery } from "../slice/salesRegionWiseApi";
 import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice";
 import ChartConfiguration from "../../nivoGraphs/chartConfigurations/ChartConfiguration";
 import { useDispatch } from "react-redux";
-import { useGetGlobalsearchStateQuery} from "../slice/salesRegionWiseApi";
+import { useGetGlobalsearchStateQuery } from "../slice/salesRegionWiseApi";
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
 import styled from "@emotion/styled";
+import { size } from "lodash";
 const CssWrapper = styled.div`
   .p-component {
     font-size: 1.2rem;
@@ -437,6 +438,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           value: inputValue,
         })),
       ],
+      size:100,
     };
     setFilters(updatedFilters);
     setSearchQuery(inputValue);
@@ -804,7 +806,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             color="mainBlue"
             textTransform="capitalize"
           >
-            Sales Ragion Table View
+            Sales Region 
           </Heading>
         </Box>
         <Box
@@ -880,6 +882,41 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
               }}
               optionLabel="label"
               placeholder={reportOptions.length > 0 ? reportOptions[5].label : ""}
+              panelStyle={{ margin: "0", padding: "0.75rem 1.25rem" }}
+              style={{
+                width: "175px",
+                border: "1px solid #00000061",
+                display: "flex",
+                alignItems: "center",
+                height: "32px",
+                borderColor: "#dedede",
+              }}
+              sx={{
+                "& .p-dropdown-label": {
+                  color: "blue",
+                  fontSize: "1.2rem",
+                },
+                "&:focus": {
+                  outline: "none",
+                  borderColor: "#cccccc61",
+                  boxShadow: "none",
+                },
+                "& .p-dropdown-trigger": {
+                  color: "#00000061",
+                },
+                "& .p-dropdown .p-dropdown-label.p-placeholder": {
+                  color: "red",
+                },
+              }}
+            />
+          </CssWrapper>
+          <CssWrapper>
+            <Dropdown
+              options={RerionType}
+              optionLabel="label"
+              placeholder={"Region"}
+              value={selectedRegion}
+              onChange={handleRegionChange}
               panelStyle={{ margin: "0", padding: "0.75rem 1.25rem" }}
               style={{
                 width: "175px",

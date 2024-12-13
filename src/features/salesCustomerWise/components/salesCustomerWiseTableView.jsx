@@ -60,6 +60,17 @@ const SalesCustomerWiseTableView = () => {
 
   const tableContainerRef = useRef(null);
 
+  // Function to rearrange columns
+  const arrangeColumns = (data, columnOrder) => {
+    return data.map((item) => {
+      const orderedItem = {};
+      columnOrder.forEach((key) => {
+        orderedItem[key] = item[key] || null;
+      });
+      return orderedItem;
+    });
+  };
+
   const flattenObject = (obj, prefix = "") => {
     let result = {};
     for (let key in obj) {
@@ -81,24 +92,6 @@ const SalesCustomerWiseTableView = () => {
     return result;
   };
 
-  const extractFields = (data, index) => ({
-    "SL No": index + 1,
-    "customer.trade_name": data["customer.trade_name"],
-    "customer.customer_code": data["customer.customer_code"],
-    "Customer GSTIN": data["customer.customer_gstin"],
-    IGST: data["SUM(igst)"],
-    SGST: data["SUM(sgst)"],
-    CGST: data["SUM(cgst)"],
-    "Due Amount": data["SUM(due_amount)"],
-    "Sales Delivery": data["SUM(salesPgi.salesDelivery.totalAmount)"],
-    "Sales PGI TotalAmount": data["SUM(salesPgi.totalAmount)"],
-    Quotation: data["SUM(quotation.totalAmount)"],
-    "Sales Order Total Amount": data["SUM(salesOrder.totalAmount)"],
-    "Items Quantity": data["SUM(items.qty)"],
-    "Best Price": data["SUM(items.basePrice - items.totalDiscountAmt)"],
-    "Total Amount": data["SUM(all_total_amt)"],
-  });
-
   useEffect(() => {
     if (sales?.content?.length) {
       const newItems = sales.content.flatMap((invoice) => {
@@ -110,9 +103,30 @@ const SalesCustomerWiseTableView = () => {
           })
           : [flattenedInvoice];
       });
-      setIndividualItems((prevItems) => [...prevItems, ...newItems]);
+      const columnOrder = [
+        "customer.trade_name",
+        "customer.customer_code",
+        "invoice_date",
+        "SUM(items.qty)",
+        "SUM(quotation.totalAmount)",
+        "customer.customer_gstin",
+        "SUM(igst)",
+        "SUM(sgst)",
+        "SUM(cgst)",
+        "SUM(due_amount)",
+        "SUM(salesPgi.salesDelivery.totalAmount)",
+        "SUM(salesPgi.totalAmount)",
+        "SUM(items.basePrice - items.totalDiscountAmt - items.cashDiscountAmount)",
+        "SUM(salesOrder.totalAmount)",
+        "SUM(all_total_amt)",
+        "invoice_no",
+        "SUM(items.totalTax)",
+      ];
+      const orderedItems = arrangeColumns(newItems, columnOrder);
+      setIndividualItems((prevItems) => [...prevItems, ...orderedItems]);
     }
   }, [sales]);
+
   useEffect(() => {
     if (sales?.totalPages < page && !toastShown) {
       toast({
@@ -124,9 +138,11 @@ const SalesCustomerWiseTableView = () => {
         render: () => (
           <Box
             p={3}
-            bg="orange.300"
+            mb={9}
+            bg="rgba(255, 195, 0, 0.2)"
+            backdropFilter="blur(4px)"
             borderRadius="md"
-            style={{ width: "300px", height: "70px" }} // Set custom width and height
+            style={{ width: "400px", height: "70px" }}
           >
             <Box fontWeight="bold">No More Data</Box>
             <Box>You have reached the end of the list.</Box>
