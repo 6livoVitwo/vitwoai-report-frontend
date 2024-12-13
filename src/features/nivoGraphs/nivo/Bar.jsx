@@ -3,10 +3,16 @@ import React from 'react';
 import { barChartData } from "../jsonData/chartData";
 
 const Bar = ({ data = barChartData, dynamicWidth }) => {
-  
+  console.log('in bar chart: ', { dynamicWidth })
   const dataKeys = Object.keys(data[0] || {});
   const keysCommaSeparated = dataKeys.join(',');
   const keys = keysCommaSeparated.split(',').filter(key => key !== 'xaxis');
+
+  const splitkeys = keys.map((key) => key.split('.')[1]);
+  // const splitkeys = keys.map((key) => {
+  //   return { key: key, label: key.split('.')[1] }
+  // });
+  console.log('splitkeys', splitkeys)
 
   const truncateLabel = (label, maxLength = 10) => {
     if (label?.length > maxLength) {
@@ -19,8 +25,7 @@ const Bar = ({ data = barChartData, dynamicWidth }) => {
     <>
       <ResponsiveBar
         data={data}
-        // {...(dynamicWidth > 0 && { height: 600 })}
-        {...(dynamicWidth > 800 ? { width: dynamicWidth } : { width: 800 })}
+        {...(dynamicWidth > 800 ? { width: 2000 } : { width: 800 })}
         {...(dynamicWidth > 0 ? { keys: keys } : {
           keys: [
             'hot dog',
@@ -32,7 +37,7 @@ const Bar = ({ data = barChartData, dynamicWidth }) => {
           ]
         })}
         {...(dynamicWidth > 0 ? { indexBy: 'xaxis' } : { indexBy: 'country' })}
-        margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
+        margin={{ top: 50, right: 330, bottom: 50, left: 60 }}
         padding={0.3}
         groupMode="grouped"
         valueScale={{ type: 'linear' }}
@@ -134,7 +139,7 @@ const Bar = ({ data = barChartData, dynamicWidth }) => {
                   itemOpacity: 1
                 }
               }
-            ]
+            ],
           }
         ]}
         role="application"

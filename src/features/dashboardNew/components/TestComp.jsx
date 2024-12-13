@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { format, eachDayOfInterval, parseISO } from 'date-fns';
 import { ResponsiveHeatMap } from '@nivo/heatmap';
 import { ResponsivePie } from '@nivo/pie';
+import { ResponsiveBar } from '@nivo/bar';
 
 
 const TestComp = () => {
@@ -11,214 +12,74 @@ const TestComp = () => {
     const [clickedData, setClickedData] = useState({})
     const [data, setData] = useState([
         {
-            "id": "SP1001Testing3Assets553",
-            "data": [
-                {
-                    "x": "Rachhel",
-                    "y": "9450.0000"
-                },
-                {
-                    "x": "Shubham Ghosh",
-                    "y": "0"
-                },
-                {
-                    "x": "Ramen",
-                    "y": "0"
-                },
-                {
-                    "x": "Salim",
-                    "y": "0"
-                }
-            ]
+            "country": null,
+            "grnTotalCgst": 0,
+            "grnSubTotal": 0,
+            "grnTotalAmount": 0,
+            "grnTotalIgst": 0
         },
         {
-            "id": "Hero cycle",
-            "data": [
-                {
-                    "x": "Rachhel",
-                    "y": "9440.0000"
-                },
-                {
-                    "x": "Shubham Ghosh",
-                    "y": "0"
-                },
-                {
-                    "x": "Ramen",
-                    "y": "0"
-                },
-                {
-                    "x": "Salim",
-                    "y": "0"
-                }
-            ]
+            "country": "Carvaan Mini",
+            "grnTotalCgst": 1,
+            "grnSubTotal": 1,
+            "grnTotalAmount": 1,
+            "grnTotalIgst": 1
         },
         {
-            "id": "GraphTesting Service",
-            "data": [
-                {
-                    "x": "Ramen",
-                    "y": "945.0000"
-                },
-                {
-                    "x": "Shubham Ghosh",
-                    "y": "0"
-                },
-                {
-                    "x": "Rachhel",
-                    "y": "0"
-                },
-                {
-                    "x": "Salim",
-                    "y": "0"
-                }
-            ]
+            "country": "Wire",
+            "grnTotalCgst": 1,
+            "grnSubTotal": 1,
+            "grnTotalAmount": 1,
+            "grnTotalIgst": 1
         },
         {
-            "id": "LADOO",
-            "data": [
-                {
-                    "x": "Rachhel",
-                    "y": "99960.0000"
-                },
-                {
-                    "x": "Shubham Ghosh",
-                    "y": "0"
-                },
-                {
-                    "x": "Ramen",
-                    "y": "0"
-                },
-                {
-                    "x": "Salim",
-                    "y": "0"
-                }
-            ]
+            "country": "monitor",
+            "grnTotalCgst": 2,
+            "grnSubTotal": 2,
+            "grnTotalAmount": 2,
+            "grnTotalIgst": 2
         },
         {
-            "id": "Freight ",
-            "data": [
-                {
-                    "x": "Salim",
-                    "y": "9658.0000"
-                },
-                {
-                    "x": "Shubham Ghosh",
-                    "y": "0"
-                },
-                {
-                    "x": "Rachhel",
-                    "y": "0"
-                },
-                {
-                    "x": "Ramen",
-                    "y": "0"
-                }
-            ]
+            "country": " lead",
+            "grnTotalCgst": 5,
+            "grnSubTotal": 5,
+            "grnTotalAmount": 5,
+            "grnTotalIgst": 5
         },
         {
-            "id": "Canon m50 markII",
-            "data": [
-                {
-                    "x": "Rachhel",
-                    "y": "94080.0000"
-                },
-                {
-                    "x": "Shubham Ghosh",
-                    "y": "0"
-                },
-                {
-                    "x": "Ramen",
-                    "y": "0"
-                },
-                {
-                    "x": "Salim",
-                    "y": "0"
-                }
-            ]
+            "country": "Flexy Plastic",
+            "grnTotalCgst": 3,
+            "grnSubTotal": 3,
+            "grnTotalAmount": 3,
+            "grnTotalIgst": 3
         },
         {
-            "id": "Transaction Charges",
-            "data": [
-                {
-                    "x": "Ramen",
-                    "y": "94100.3100"
-                },
-                {
-                    "x": "Shubham Ghosh",
-                    "y": "0"
-                },
-                {
-                    "x": "Rachhel",
-                    "y": "0"
-                },
-                {
-                    "x": "Salim",
-                    "y": "0"
-                }
-            ]
+            "country": "Ribbon",
+            "grnTotalCgst": 5,
+            "grnSubTotal": 5,
+            "grnTotalAmount": 5,
+            "grnTotalIgst": 5
         },
         {
-            "id": "County Bluetooth Speaker with Built-in FM Radio - Black",
-            "data": [
-                {
-                    "x": "Shubham Ghosh",
-                    "y": "9428.2000"
-                },
-                {
-                    "x": "Rachhel",
-                    "y": "0"
-                },
-                {
-                    "x": "Ramen",
-                    "y": "0"
-                },
-                {
-                    "x": "Salim",
-                    "y": "0"
-                }
-            ]
+            "country": "Stainless Steel Pipe",
+            "grnTotalCgst": 2,
+            "grnSubTotal": 2,
+            "grnTotalAmount": 2,
+            "grnTotalIgst": 2
         },
         {
-            "id": "CFO SERVICE",
-            "data": [
-                {
-                    "x": "Ramen",
-                    "y": "944000.0000"
-                },
-                {
-                    "x": "Shubham Ghosh",
-                    "y": "0"
-                },
-                {
-                    "x": "Rachhel",
-                    "y": "0"
-                },
-                {
-                    "x": "Salim",
-                    "y": "0"
-                }
-            ]
+            "country": "Rubber Finials ",
+            "grnTotalCgst": 1,
+            "grnSubTotal": 1,
+            "grnTotalAmount": 1,
+            "grnTotalIgst": 1
         },
         {
-            "id": "Bullet",
-            "data": [
-                {
-                    "x": "Ramen",
-                    "y": "937860.0000"
-                },
-                {
-                    "x": "Shubham Ghosh",
-                    "y": "0"
-                },
-                {
-                    "x": "Rachhel",
-                    "y": "0"
-                },
-                {
-                    "x": "Salim",
-                    "y": "0"
-                }
-            ]
+            "country": "Paper Tube",
+            "grnTotalCgst": 1,
+            "grnSubTotal": 1,
+            "grnTotalAmount": 1,
+            "grnTotalIgst": 1
         }
     ]);
 
@@ -226,62 +87,123 @@ const TestComp = () => {
         <>
             <div>TestComp</div>
             <div style={{ width: "95%", overflowX: "scroll", height: "500px", border: "1px solid black", padding: 30, marginBottom: 20, marginTop: 20 }}>
-                <ResponsiveHeatMap
+                <ResponsiveBar
                     data={data}
-                    margin={{ top: 60, right: 90, bottom: 60, left: 90 }}
-                    valueFormat=">-.2s"
-                    axisTop={{
-                        tickSize: 5,
-                        tickPadding: 5,
-                        tickRotation: -90,
-                        legend: '',
-                        legendOffset: 46,
-                        truncateTickAt: 0
+                    width={2000}
+                    keys={[
+                        'grnTotalCgst',
+                        'grnSubTotal',
+                        'grnTotalAmount',
+                        'grnTotalIgst'
+                    ]}
+                    indexBy="country"
+                    margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
+                    padding={0.3}
+                    groupMode="grouped"
+                    valueScale={{ type: 'linear' }}
+                    indexScale={{ type: 'band', round: true }}
+                    colors={{ scheme: 'nivo' }}
+                    defs={[
+                        {
+                            id: 'dots',
+                            type: 'patternDots',
+                            background: 'inherit',
+                            color: '#38bcb2',
+                            size: 4,
+                            padding: 1,
+                            stagger: true
+                        },
+                        {
+                            id: 'lines',
+                            type: 'patternLines',
+                            background: 'inherit',
+                            color: '#eed312',
+                            rotation: -45,
+                            lineWidth: 6,
+                            spacing: 10
+                        }
+                    ]}
+                    fill={[
+                        {
+                            match: {
+                                id: 'fries'
+                            },
+                            id: 'dots'
+                        },
+                        {
+                            match: {
+                                id: 'sandwich'
+                            },
+                            id: 'lines'
+                        }
+                    ]}
+                    borderColor={{
+                        from: 'color',
+                        modifiers: [
+                            [
+                                'darker',
+                                1.6
+                            ]
+                        ]
                     }}
-                    axisRight={{
+                    axisTop={null}
+                    axisRight={null}
+                    axisBottom={{
                         tickSize: 5,
                         tickPadding: 5,
                         tickRotation: 0,
                         legend: 'country',
                         legendPosition: 'middle',
-                        legendOffset: 70,
+                        legendOffset: 32,
                         truncateTickAt: 0
                     }}
                     axisLeft={{
                         tickSize: 5,
                         tickPadding: 5,
                         tickRotation: 0,
-                        legend: 'country',
+                        legend: 'food',
                         legendPosition: 'middle',
-                        legendOffset: -72,
+                        legendOffset: -40,
                         truncateTickAt: 0
                     }}
-                    colors={{
-                        type: 'diverging',
-                        scheme: 'sinebow',
-                        divergeAt: 0.5,
-                        minValue: -100000,
-                        maxValue: 100000
+                    labelSkipWidth={12}
+                    labelSkipHeight={12}
+                    labelTextColor={{
+                        from: 'color',
+                        modifiers: [
+                            [
+                                'darker',
+                                1.6
+                            ]
+                        ]
                     }}
-                    emptyColor="#555555"
                     legends={[
                         {
-                            anchor: 'bottom',
-                            translateX: 0,
-                            translateY: 30,
-                            length: 400,
-                            thickness: 8,
-                            direction: 'row',
-                            tickPosition: 'after',
-                            tickSize: 3,
-                            tickSpacing: 4,
-                            tickOverlap: false,
-                            tickFormat: '>-.2s',
-                            title: 'Value →',
-                            titleAlign: 'start',
-                            titleOffset: 4
+                            dataFrom: 'keys',
+                            anchor: 'bottom-right',
+                            direction: 'column',
+                            justify: false,
+                            translateX: 120,
+                            translateY: 0,
+                            itemsSpacing: 2,
+                            itemWidth: 100,
+                            itemHeight: 20,
+                            itemDirection: 'left-to-right',
+                            itemOpacity: 0.85,
+                            symbolSize: 20,
+                            effects: [
+                                {
+                                    on: 'hover',
+                                    style: {
+                                        itemOpacity: 1
+                                    }
+                                }
+                            ]
                         }
                     ]}
+                    role="application"
+                    ariaLabel="Nivo bar chart demo"
+                    barAriaLabel={e => e.id + ": " + e.formattedValue + " in country: " + e.indexValue}
                 />
             </div>
         </>

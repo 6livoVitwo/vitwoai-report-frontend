@@ -10,7 +10,8 @@ const Pie = ({ data = pieChartData, dynamicWidth }) => {
   return (
     <ResponsivePie
       data={data}
-      margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
+      margin={{ top: 40, right: 280, bottom: 80, left: 80 }}
+      width={600}
       innerRadius={0.5}
       padAngle={0.7}
       cornerRadius={3}
@@ -113,12 +114,12 @@ const Pie = ({ data = pieChartData, dynamicWidth }) => {
       ]}
       legends={[
         {
-          anchor: 'bottom',
-          direction: 'row',
+          anchor: 'right',
+          direction: 'column',
           justify: false,
-          translateX: 0,
-          translateY: 56,
-          itemsSpacing: 0,
+          translateX: 120,
+          translateY: 0,
+          itemsSpacing: 10,
           itemWidth: 100,
           itemHeight: 18,
           itemTextColor: '#999',

@@ -8,7 +8,7 @@ const Line = ({ data = lineChartData, dynamicWidth }) => {
     <>
       <ResponsiveLine
         data={data}
-        {...(dynamicWidth > 800 ? { width: dynamicWidth } : { width: 800 })}
+        {...(dynamicWidth > 900 ? { width: dynamicWidth } : { width: 900 })}
         margin={{ top: 50, right: 410, bottom: 50, left: 60 }}
         xScale={{ type: "point" }}
         colors={{ scheme: "nivo" }}

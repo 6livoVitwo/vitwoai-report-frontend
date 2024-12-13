@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { chartGroup, chartsData } from './fakeData'
-import { Badge, Box, Button, Card, HStack, Stack, Tag, TagCloseButton, TagLabel, TagRightIcon, Text, useDisclosure } from '@chakra-ui/react'
+import { Badge, Box, Button, HStack, Stack, Tag, TagLabel, TagRightIcon, Text, useDisclosure } from '@chakra-ui/react'
 import MyCharts from './nivoCharts/MyCharts';
 import { FiSettings } from 'react-icons/fi';
 import GraphViewSettings from './components/graphViewSettings';

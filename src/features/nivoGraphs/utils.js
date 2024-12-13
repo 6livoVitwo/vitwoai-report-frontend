@@ -6,6 +6,7 @@ import FunnelChart from "./chartSettings/FunnelChart";
 import HeatMapChart from "./chartSettings/HeatMapChart";
 import BarChart from "./chartSettings/BarChart";
 import PieChart from "./chartSettings/PieChart";
+import { formatedEndDate, formatedEndMonth, formatedStartDate, formatedStartMonth } from "./graphUtils/common";
 
 // all chart components here
 export const chartComponents = {
@@ -89,7 +90,8 @@ export const initialBodyWise = (
     startDate = "",
     endDate = "",
     regionWise = "",
-    reportType = ""
+    reportType = "",
+    valuetype = ""
 ) => {
     if (selectedWise === "sales-product-wise") {
         if (type === "bump" || type === "areaBump" || type === "line") {
@@ -111,7 +113,7 @@ export const initialBodyWise = (
                     "all_total_amt",
                 ],
                 groupBy: ["items.itemName"],
-                valuetype: "count",
+                valuetype: 'count',
                 filter: [
                     {
                         column: "invoice_date",
@@ -337,6 +339,7 @@ export const initialBodyWise = (
                     "grnInvoice.grnSubTotal",
                     "grnInvoice.grnTotalCgst",
                     "grnInvoice.grnTotalIgst",
+                    "grnInvoice.grnTotalSgst",
                     "grnInvoice.grnTotalAmount",
                 ],
                 groupBy: ["items.goodCode"],
@@ -383,6 +386,7 @@ export const initialBodyWise = (
                     "grnInvoice.grnSubTotal",
                     "grnInvoice.grnTotalCgst",
                     "grnInvoice.grnTotalIgst",
+                    "grnInvoice.grnTotalSgst",
                     "grnInvoice.grnTotalAmount"
                 ],
                 "groupBy": [
@@ -405,6 +409,7 @@ export const initialBodyWise = (
                     "grnInvoice.grnSubTotal",
                     "grnInvoice.grnTotalCgst",
                     "grnInvoice.grnTotalIgst",
+                    "grnInvoice.grnTotalSgst",
                     "grnInvoice.grnTotalAmount"
                 ],
                 "groupBy": [
@@ -429,6 +434,7 @@ export const initialBodyWise = (
                     "grnInvoice.grnSubTotal",
                     "grnInvoice.grnTotalCgst",
                     "grnInvoice.grnTotalIgst",
+                    "grnInvoice.grnTotalSgst",
                     "grnInvoice.grnTotalAmount"
                 ],
                 "groupBy": [
@@ -451,6 +457,7 @@ export const initialBodyWise = (
                     "grnInvoice.grnSubTotal",
                     "grnInvoice.grnTotalCgst",
                     "grnInvoice.grnTotalIgst",
+                    "grnInvoice.grnTotalSgst",
                     "grnInvoice.grnTotalAmount"
                 ],
                 "groupBy": [
@@ -480,28 +487,28 @@ export const initialBodyWise = (
 
 export const initialStartDate = (inputType, type) => {
     if (type === "bar" || type === "pie") {
-        return "2024-05-20";
+        return formatedStartDate;
     } else {
         if (inputType === "month") {
-            return "2024-01";
+            return formatedStartMonth;
         } else if (inputType === "year") {
             return "2021";
         } else if (inputType === "date") {
-            return "2024-01-01";
+            return formatedStartDate
         }
     }
 };
 
 export const initialEndDate = (inputType, type) => {
     if (type === "bar" || type === "pie") {
-        return "2024-05-31";
+        return formatedEndDate;
     } else {
         if (inputType === "month") {
-            return "2024-12";
+            return formatedEndMonth;
         } else if (inputType === "year") {
             return "2021";
         } else if (inputType === "date") {
-            return "2024-01-01";
+            return formatedEndDate;
         }
     }
 };
@@ -595,6 +602,7 @@ export const yAxisOptions = (reportType) => {
             },
             { value: "grnInvoice.grnTotalCgst", label: "GRN Total CGST" },
             { value: "grnInvoice.grnTotalIgst", label: "GRN Total IGST" },
+            { value: "grnInvoice.grnTotalSgst", label: "GRN Total SGST" },
             { value: "grnInvoice.grnTotalAmount", label: "GRN Total Amount" },
         ];
     }

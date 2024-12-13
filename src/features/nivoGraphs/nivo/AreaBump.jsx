@@ -17,7 +17,7 @@ const AreaBump = ({ data = areaBumpData, dynamicWidth }) => {
         data={data}
         margin={{ top: 40, right: 100, bottom: 40, left: 100 }}
         spacing={20}
-        {...(dynamicWidth > 800 ? { width: dynamicWidth } : { width: 800 })}
+        {...(dynamicWidth > 600 ? { width: dynamicWidth } : { width: 600 })}
         colors={{ scheme: 'nivo' }}
         blendMode="multiply"
         defs={[
