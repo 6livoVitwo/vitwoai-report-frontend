@@ -104,8 +104,8 @@ const PurchaseProductWiseTableView = () => {
                     : [flattenedInvoice];
             });
             const columnOrder = [
-                "functionalities.functionalities_name",
-                "functionalities.functionalities_id",
+                "items.grnCostCenter.CostCenter_desc",
+                "items.grnCostCenter.CostCenter_code",
                 "SUM(items.unitPrice)",
                 "SUM(items.receivedQty)",
                 "SUM(items.goodQty)",
@@ -113,7 +113,16 @@ const PurchaseProductWiseTableView = () => {
                 "SUM(items.sgst)",
                 "SUM(items.igst)",
                 "SUM(items.totalAmount)",
-                "SUM(items.tds)"
+                "SUM(items.tds)",
+                "SUM(grnInvoice.grnInvoiceItems.goodQty)",
+                "SUM(grnInvoice.grnInvoiceItems.receivedQty)",
+                "SUM(grnInvoice.grnInvoiceItems.unitPrice)",
+                "SUM(grnInvoice.grnInvoiceItems.cgst)",
+                "SUM(grnInvoice.grnInvoiceItems.sgst)",
+                "SUM(grnInvoice.grnInvoiceItems.igst)",
+                "SUM(grnInvoice.grnInvoiceItems.tds)",
+                "SUM(grnInvoice.grnInvoiceItems.totalAmount)",
+                "SUM(grnInvoice.grnInvoiceItems.itemStocksQty)"
             ];
             const orderedItems = arrangeColumns(newItems, columnOrder);
             setIndividualItems((prevItems) => [...prevItems, ...orderedItems]);

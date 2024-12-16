@@ -16,6 +16,21 @@ export const allReportsApi = apiSlice.injectEndpoints({
                 method: "GET",
             }),
         }),
+        // //Api call for Po description
+        getAllReportsPo: builder.query({
+            query: () => ({
+                url: "purchase/po-desc",
+                method: "GET",
+            }),
+        }),
+        //Api call for functional area description
+        getAllReportsFunctional: builder.query({
+            query: () => ({
+                url: "/purchase/functional-area-desc",
+                method: "GET",
+            }),
+        }),
+        
         //Api call for Sales product description
         getAllReportsSalesProduct: builder.query({
             query: () => ({
@@ -37,14 +52,39 @@ export const allReportsApi = apiSlice.injectEndpoints({
                 method: "GET",
             }),
         }),
+        // //Api call for Sales vertical description
+        getAllReportsSalesVertical: builder.query({
+            query: () => ({
+                url: "/sales/vertical-desc",
+                method: "GET",
+            }),
+        }),
+        // //Api call for Sales So description
+        getAllReportsSalesSo: builder.query({
+            query: () => ({
+                url: "/sales/so-desc",
+                method: "GET",
+            }),
+        }),
+        //Api call for Sales region  description
+        getAllReportsSalesRegion: builder.query({
+            query: () => ({
+                url: "/sales/region-desc",
+                method: "GET",
+            }),
+        }),
     }),
 });
 
 export const {
     useGetAllReportsProductQuery,
     useGetAllReportsVendorQuery,
+    useGetAllReportsPoQuery,
+    useGetAllReportsFunctionalQuery,
     useGetAllReportsSalesProductQuery,
     useGetAllReportsSalesCustomerQuery,
     useGetAllReportsSalesKamQuery,
-
+    useGetAllReportsSalesVerticalQuery,
+    useGetAllReportsSalesSoQuery,
+    useGetAllReportsSalesRegionQuery,
 } = allReportsApi;

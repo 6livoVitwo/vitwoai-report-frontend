@@ -234,7 +234,7 @@ const ReceivableCustomerTableView = () => {
                 position: "sticky",
                 top: 0,
                 zIndex: 1,
-                backgroundColor: "#CFD8E1A6"
+                backgroundColor: "#b9b8b8"
               }}
             >
               <Tr>

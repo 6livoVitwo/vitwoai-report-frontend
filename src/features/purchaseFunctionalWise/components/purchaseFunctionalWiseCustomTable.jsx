@@ -13,11 +13,11 @@ import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
-import { useGetGlobalsearchPoQuery } from "../slice/purchaseFunctionalWiseApi";
-import { usePoWisePurchaseQuery } from "../slice/purchaseFunctionalWiseApi";
+import { useGetGlobalsearchFunctionalQuery } from "../slice/purchaseFunctionalWiseApi";
+import { useFunctionalWisePurchaseQuery } from "../slice/purchaseFunctionalWiseApi";
 import { useGetSelectedColumnsFunctionalQuery } from "../slice/purchaseFunctionalWiseApi";
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
-import { useGetexportdataPoQuery } from "../slice/purchaseFunctionalWiseApi";
+import { useGetexportdataFunctionalQuery } from "../slice/purchaseFunctionalWiseApi";
 import styled from "@emotion/styled";
 import LoaderScroll from "../../analyticloader/components/LoaderScroll"
 
@@ -79,18 +79,18 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const isSumColumn = (column) => column.startsWith("SUM(");
 
   // ...Export API CALL...
-  const { data: exportData } = useGetexportdataPoQuery(
+  const { data: exportData } = useGetexportdataFunctionalQuery(
     localFiltersdate || {}, { skip: !triggerApiCall });
 
   // Advance Filter Api Calling
   const { data: PoWiseDataFilter, refetch: refetchPoWiseDataFilter } =
-    usePoWisePurchaseQuery(
+  useFunctionalWisePurchaseQuery(
       { filters: localFilters },
       { skip: !triggerFilter }
     );
 
   // api calling from global search
-  const { data: searchData, isLoading } = useGetGlobalsearchPoQuery({
+  const { data: searchData, isLoading } = useGetGlobalsearchFunctionalQuery({
     ...filters,
     sortBy: sortColumn,
     sortDir: sortOrder,
@@ -104,7 +104,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   //API Calling sorting
   const { data: ProductData } =
-    usePoWisePurchaseQuery({
+  useFunctionalWisePurchaseQuery({
       filters: {
         ...filters,
         sortBy: sortColumn,
@@ -451,7 +451,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setInputValue(e.target.value);
   };
   const handleSearchClick = () => {
-    const filteredColumns = selectedColumns.filter(column => !column.includes('SUM'));
+    const filteredColumns = selectedColumns.filter(column => !column.includes('functionalities.functionalities_id') && !column.includes('SUM'));
     const updatedFilters = {
       ...filters,
       filter: [
@@ -728,7 +728,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             color="mainBlue"
             textTransform="capitalize"
           >
-            Purchase Functional
+            Functional Area
           </Heading>
         </Box>
         <Box
@@ -1320,17 +1320,17 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                               fontSize="1.4rem"
                               whiteSpace="nowrap"
                               color="#4e4e4e"
-                              fontWeight={column === "vendorName" ? "600" : "400"}
+                              fontWeight={column === "functionalities.functionalities_name" ? "600" : "400"}
                               width={
                                 column === "description"
                                   ? "300px"
-                                  : column === "vendorName"
+                                  : column === "functionalities.functionalities_name"
                                     ? "250px"
                                     : "auto"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis"
-                              title={column === "vendorName" ? item[column] : undefined}
+                              title={column === "functionalities.functionalities_name" ? item[column] : undefined}
                               textAlign={isSumColumn(column) ? "right" : "left"}
                             >
                               {item[column] || "-"}

@@ -13,11 +13,11 @@ import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
-import { useGetGlobalsearchPoQuery } from "../slice/purchaseStorageLocationWiseApi";
+import { useGetGlobalsearchStorageLocationQuery } from "../slice/purchaseStorageLocationWiseApi";
 import { useStorageLocationWisePurchaseQuery } from "../slice/purchaseStorageLocationWiseApi";
-import { useGetSelectedColumnsFunctionalQuery } from "../slice/purchaseStorageLocationWiseApi";
+import { useGetSelectedColumnsStorageLocationQuery } from "../slice/purchaseStorageLocationWiseApi";
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
-import { useGetexportdataPoQuery } from "../slice/purchaseStorageLocationWiseApi";
+import { useGetexportdataStorageLocationQuery } from "../slice/purchaseStorageLocationWiseApi";
 import styled from "@emotion/styled";
 import LoaderScroll from "../../analyticloader/components/LoaderScroll"
 
@@ -79,7 +79,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const isSumColumn = (column) => column.startsWith("SUM(");
 
   // ...Export API CALL...
-  const { data: exportData } = useGetexportdataPoQuery(
+  const { data: exportData } = useGetexportdataStorageLocationQuery(
     localFiltersdate || {}, { skip: !triggerApiCall });
 
   // Advance Filter Api Calling
@@ -90,7 +90,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     );
 
   // api calling from global search
-  const { data: searchData, isLoading } = useGetGlobalsearchPoQuery({
+  const { data: searchData, isLoading } = useGetGlobalsearchStorageLocationQuery({
     ...filters,
     sortBy: sortColumn,
     sortDir: sortOrder,
@@ -100,7 +100,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     });
 
   // api calling from drop-down data
-  const { data: columnData, refetch: refetchColumnDatapo } = useGetSelectedColumnsFunctionalQuery();
+  const { data: columnData, refetch: refetchColumnDatapo } = useGetSelectedColumnsStorageLocationQuery();
 
   //API Calling sorting
   const { data: ProductData } =
@@ -390,7 +390,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     }));
     setSelectedColumns(updatedSelectedColumns);
     // Save selected columns to localStorage
-    localStorage.setItem("selectedColumnsFunctionalWise", JSON.stringify(updatedSelectedColumns));
+    localStorage.setItem("selectedColumnsStorageLocationWise", JSON.stringify(updatedSelectedColumns));
     refetchColumnDatapo({ columns: updatedSelectedColumns });
     onClose();
     toast({
@@ -401,7 +401,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
   // Load selected columns from localStorage 
   useEffect(() => {
-    const savedColumns = localStorage.getItem("selectedColumnsFunctionalWise");
+    const savedColumns = localStorage.getItem("selectedColumnsStorageLocationWise");
     if (savedColumns) {
       setSelectedColumns(JSON.parse(savedColumns));
     }
@@ -1320,17 +1320,17 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                               fontSize="1.4rem"
                               whiteSpace="nowrap"
                               color="#4e4e4e"
-                              fontWeight={column === "vendorName" ? "600" : "400"}
+                              fontWeight={column === "items.grnStorage.storage_location_name" ? "600" : "400"}
                               width={
                                 column === "description"
                                   ? "300px"
-                                  : column === "vendorName"
+                                  : column === "items.grnStorage.storage_location_name"
                                     ? "250px"
                                     : "auto"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis"
-                              title={column === "vendorName" ? item[column] : undefined}
+                              title={column === "items.grnStorage.storage_location_name" ? item[column] : undefined}
                               textAlign={isSumColumn(column) ? "right" : "left"}
                             >
                               {item[column] || "-"}

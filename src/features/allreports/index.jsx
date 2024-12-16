@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Heading, Flex, Button } from '@chakra-ui/react';
+import { SkeletonText } from '@chakra-ui/react';
 import ReportsCards from '../dashboard/components/ReportsCards';
 //Add lotifies dummy json
 import purchaseProductWise from '../../asset/imgs/purchase-product-wise.json';
@@ -19,6 +20,11 @@ import { useGetAllReportsVendorQuery } from "../allreports/slice/allreportsAPi";
 import { useGetAllReportsSalesProductQuery } from "../allreports/slice/allreportsAPi";
 import { useGetAllReportsSalesCustomerQuery } from "../allreports/slice/allreportsAPi";
 import { useGetAllReportsSalesKamQuery } from "../allreports/slice/allreportsAPi";
+import { useGetAllReportsPoQuery } from "../allreports/slice/allreportsAPi"
+import { useGetAllReportsSalesVerticalQuery } from "../allreports/slice/allreportsAPi"
+import { useGetAllReportsSalesSoQuery } from "../allreports/slice/allreportsAPi"
+import { useGetAllReportsSalesRegionQuery } from "../allreports/slice/allreportsAPi"
+import { useGetAllReportsFunctionalQuery } from "../allreports/slice/allreportsAPi"
 
 
 const Allreports = () => {
@@ -57,28 +63,28 @@ const Allreports = () => {
 					name: "Purchase Order",
 					link: "/reports/purchase-po-wise/table-view",
 					imgsrc: purchasePoWise,
-					description: "TVSBIKE is the highest purchased order in last 30 days",
+					description: "",
 				},
 				{
 					id: "12",
 					name: "Functional Area",
 					link: "/reports/purchase-functional-wise/table-view",
 					imgsrc: purchaseFunctionalWise,
-					description: "TVSBIKE is the highest purchased functional area in last 30 days",
+					description: "",
 				},
 				{
 					id: "13",
 					name: "Storage Location",
 					link: "/reports/purchase-storage-location-wise/table-view",
 					imgsrc: purchaseFunctionalWise,
-					description: "TVSBIKE is the highest purchased functional area in last 30 days",
+					description: "",
 				},
 				{
 					id: "14",
 					name: "Cost Center",
 					link: "/reports/purchase-cost-center-wise/table-view",
 					imgsrc: purchaseFunctionalWise,
-					description: "TVSBIKE is the highest purchased functional area in last 30 days",
+					description: "",
 				},
 			],
 		},
@@ -104,14 +110,14 @@ const Allreports = () => {
 					name: "Vertical",
 					link: "/reports/sales-vertical-wise/table-view",
 					imgsrc: salesVerticalWise,
-					description: "TVSBIKE is the highest sales vaertical in last 30 days",
+					description: "",
 				},
 				{
 					id: "24",
 					name: "Sales Order",
 					link: "/reports/sales-so-wise/table-view",
 					imgsrc: salesSoWise,
-					description: "TVSBIKE is the highest sales order in last 30 days",
+					description: "",
 				},
 				{
 					id: "25",
@@ -125,43 +131,46 @@ const Allreports = () => {
 					name: "Region",
 					link: "/reports/sales-region-wise/table-view",
 					imgsrc: salesRegionWise,
-					description: "TVSBIKE is the highest sales region in last 30 days",
+					description: "",
 				},
 			],
 		},
 	]);
 
 	// api call allReports product
-	const { data: allReports } = useGetAllReportsProductQuery();
+	const { data: allReports, isLoading: isLoadingProduct } = useGetAllReportsProductQuery();
 	// api call allReports vendor
-	const { data: allReportsVendor } = useGetAllReportsVendorQuery();
+	const { data: allReportsVendor, isLoading: isLoadingVendor } = useGetAllReportsVendorQuery();
+	// api call allReports purchase po
+	const { data: allReportsPo, isLoading: isLoadingPo } = useGetAllReportsPoQuery();
+	//api call allReports functional area
+	const { data: allReportsFunctional, isLoading: isLoadingFunctional } = useGetAllReportsFunctionalQuery();
+
 	// api call allReports sales product
-	const { data: allReportsSalesProduct } = useGetAllReportsSalesProductQuery();
+	const { data: allReportsSalesProduct, isLoading: isLoadingSalesProduct } = useGetAllReportsSalesProductQuery();
 	// api call allReports sales customer
-	const { data: allReportsSalesCustomer } = useGetAllReportsSalesCustomerQuery();
+	const { data: allReportsSalesCustomer, isLoading: isLoadingSalesCustomer } = useGetAllReportsSalesCustomerQuery();
 	// api call allReports sales kam
-	const { data: allReportsSalesKam } = useGetAllReportsSalesKamQuery();
+	const { data: allReportsSalesKam, isLoading: isLoadingSalesKam } = useGetAllReportsSalesKamQuery();
+	// api call allReports sales vertical
+	const { data: allReportsSalesVertical, isLoading: isLoadingSalesVertical } = useGetAllReportsSalesVerticalQuery();
+	//api call allReports sales so
+	const { data: allReportsSalesSo, isLoading: isLoadingSalesSo } = useGetAllReportsSalesSoQuery();
+	// //api call allReports sales region
+	const { data: allReportsSalesRegion, isLoading: isLoadingSalesRegion } = useGetAllReportsSalesRegionQuery();
+
 
 	// Dynamically update descriptions Purchase Register
 	useEffect(() => {
-		if (allReports && allReportsVendor) {
+		const updateCardDescription = async (cardName, description) => {
 			setCardsData((prevCardsData) =>
 				prevCardsData.map((category) => {
 					if (category["card catagory"] === "Purchase Register") {
 						return {
 							...category,
 							cards: category.cards.map((card) => {
-								if (card.name === "Product") {
-									return {
-										...card,
-										description: allReports.desc,
-									};
-								}
-								if (card.name === "Vendor") {
-									return {
-										...card,
-										description: allReportsVendor.desc,
-									};
+								if (card.name === cardName) {
+									return { ...card, description };
 								}
 								return card;
 							}),
@@ -170,35 +179,47 @@ const Allreports = () => {
 					return category;
 				})
 			);
-		}
-	}, [allReports, allReportsVendor]);
+		};
+		const updateSalesRegisterDescriptions = () => {
+			updateCardDescription(
+				"Product",
+				isLoadingProduct ? <Box>
+					<SkeletonText height="20px" spacing="3" />
+				</Box> : allReports?.desc || ""
+			);
+			updateCardDescription(
+				"Vendor",
+				isLoadingVendor ? <Box>
+					<SkeletonText height="20px" spacing="3" />
+				</Box> : allReportsVendor?.desc || ""
+			);
+			updateCardDescription(
+				"Purchase Order",
+				isLoadingPo ? <Box>
+					<SkeletonText height="20px" spacing="3" />
+				</Box> : allReportsPo?.desc || ""
+			);
+			updateCardDescription(
+				"Functional Area",
+				isLoadingFunctional ? <Box>
+					<SkeletonText height="20px" spacing="3" />
+				</Box> : allReportsFunctional?.desc || ""
+			);
+		};
+		updateSalesRegisterDescriptions();
+	}, [allReports, allReportsVendor, allReportsPo, allReportsFunctional]);
 
 	// // Dynamically update descriptions sales Register
 	useEffect(() => {
-		if (allReportsSalesProduct && allReportsSalesCustomer && allReportsSalesKam) {
+		const updateCardDescription = async (cardName, description) => {
 			setCardsData((prevCardsData) =>
 				prevCardsData.map((category) => {
 					if (category["card catagory"] === "Sales Register") {
 						return {
 							...category,
 							cards: category.cards.map((card) => {
-								if (card.name === "Product") {
-									return {
-										...card,
-										description: allReportsSalesProduct.desc,
-									};
-								}
-								if (card.name === "Customer") {
-									return {
-										...card,
-										description: allReportsSalesCustomer.desc,
-									};
-								}
-								if (card.name === "Key Account Manager") {
-									return {
-										...card,
-										description: allReportsSalesKam.desc,
-									};
+								if (card.name === cardName) {
+									return { ...card, description };
 								}
 								return card;
 							}),
@@ -207,9 +228,56 @@ const Allreports = () => {
 					return category;
 				})
 			);
-		}
-	}, [allReports, allReportsVendor]);
-
+		};
+		const updateSalesRegisterDescriptions = () => {
+			updateCardDescription(
+				"Product",
+				isLoadingSalesProduct ? <Box>
+					<SkeletonText height="20px" spacing="3" />
+				</Box> : allReportsSalesProduct?.desc || ""
+			);
+			updateCardDescription(
+				"Customer",
+				isLoadingSalesCustomer ? <Box>
+					<SkeletonText height="20px" spacing="3" />
+				</Box> : allReportsSalesCustomer?.desc || ""
+			);
+			updateCardDescription(
+				"Key Account Manager",
+				isLoadingSalesKam ? <Box>
+					<SkeletonText height="20px" spacing="3" />
+				</Box> : allReportsSalesKam?.desc || ""
+			);
+			updateCardDescription(
+				"Vertical",
+				isLoadingSalesVertical ? <Box>
+					<SkeletonText height="20px" spacing="3" />
+				</Box> : allReportsSalesVertical?.desc || ""
+			);
+			updateCardDescription(
+				"Sales Order",
+				isLoadingSalesSo ? <Box>
+					<SkeletonText height="20px" spacing="3" />
+				</Box> : allReportsSalesSo?.desc || ""
+			);
+			updateCardDescription(
+				"Region",
+				isLoadingSalesRegion ? <Box>
+					<SkeletonText height="20px" spacing="3" />
+				</Box> : allReportsSalesRegion?.desc || ""
+			);
+		};
+		// Call the function
+		updateSalesRegisterDescriptions();
+	}, [
+		allReportsSalesProduct,
+		allReportsSalesCustomer,
+		allReportsSalesKam,
+		allReportsSalesVertical,
+		allReportsSalesSo,
+		allReportsSalesRegion,
+		isLoadingSalesRegion
+	]);
 
 
 	// *****************scrollbar types button**********************

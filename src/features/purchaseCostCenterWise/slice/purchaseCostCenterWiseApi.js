@@ -1,6 +1,6 @@
 import { apiSlice } from "../../apis/apiSlice";
 
-export const purchasePoWiseApi = apiSlice.injectEndpoints({
+export const purchaseCostCenterWiseApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     costCenterWisePurchase: builder.query({
       query: ({ filters, page }) => {
@@ -16,26 +16,26 @@ export const purchasePoWiseApi = apiSlice.injectEndpoints({
       },
     }),
     // Query to get global search
-    getGlobalsearchPo: builder.query({
+    getGlobalsearchCostCenter: builder.query({
       query: (body) => {
         return {
-          url: "/purchase/global-search/po",
+          url: "/purchase/global-search/cost-center",
           method: "POST",
           body: JSON.stringify(body),
         };
       },
     }),
     // Query to get selected columns
-    getSelectedColumnsFunctional: builder.query({
+    getSelectedColumnsCostCenter: builder.query({
       query: () => {
         return {
-          url: "/purchase/drop-down-data/functional-area",
+          url: "/purchase/drop-down-data/cost-center",
           method: "GET",
         };
       },
     }),
     //export to excel date wise
-    getexportdataPo: builder.query({
+    getexportdataCostCenter: builder.query({
       query: (body) => {
         return {
           url: "/purchase/download-data",
@@ -49,7 +49,7 @@ export const purchasePoWiseApi = apiSlice.injectEndpoints({
 
 export const {
   useCostCenterWisePurchaseQuery,
-  useGetGlobalsearchPoQuery,
-  useGetSelectedColumnsFunctionalQuery,
-  useGetexportdataPoQuery,
-} = purchasePoWiseApi;
+  useGetGlobalsearchCostCenterQuery,
+  useGetSelectedColumnsCostCenterQuery,
+  useGetexportdataCostCenterQuery,
+} = purchaseCostCenterWiseApi;
