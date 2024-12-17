@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Alert, AlertIcon, Box, Button, Divider, Grid, Heading, Select, Spinner, Stack, useToast, Text, Badge, Card, CardFooter, CardBody } from "@chakra-ui/react";
+import { Alert, Box, Button, Divider, Grid, Heading, Select, Spinner, Stack, useToast, Text, Badge, Card, CardFooter, CardBody } from "@chakra-ui/react";
 import { capitalizeWord } from "../../../utils/common";
-import { MdRemoveRedEye, MdSave } from "react-icons/md";
+import { MdSave } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { Accordion, AccordionTab } from "primereact/accordion";
 import { MultiSelect } from "primereact/multiselect";
@@ -17,12 +17,11 @@ const ChartConfiguration = ({ configureChart }) => {
   const toast = useToast();
   const dispatch = useDispatch();
   const { selectedWise, reportType } = useSelector((state) => state.graphSlice);
-
+  
   // all states here
   const [wise, setWise] = useState("sales");
   const [priceOrQty, setPriceOrQty] = useState("qty");
   const [valuetype, setValuetype] = useState("count");
-  const [previewLoading, setPreviewLoading] = useState(false);
   const [inputType, setInputType] = useState("month");
   const [dynamicWidth, setDynamicWidth] = useState(1200);
   const [regionWise, setRegionWise] = useState("pincode");
@@ -31,7 +30,7 @@ const ChartConfiguration = ({ configureChart }) => {
   const currentDescription = graphDescriptions[type];
   const [processFlow, setProcessFlow] = useState(newProcessFlow(selectedWise));
   const [dynamicHeight, setDynamicHeight] = useState(4000);
-  const [bodyWise, setBodyWise] = useState(initialBodyWise(selectedWise, type, priceOrQty, startDate, endDate, regionWise, reportType));
+  const [bodyWise, setBodyWise] = useState(initialBodyWise(selectedWise, type, priceOrQty, startDate, endDate, regionWise, reportType, valuetype));
   const [chartApiConfig, setChartApiConfig] = useState(initialChartApiConfig(selectedWise, type, processFlow, bodyWise));
   const [selectedValues, setSelectedValues] = useState(null);
   const [selectedPieValues, setSelectedPieValues] = useState(null);
@@ -39,6 +38,7 @@ const ChartConfiguration = ({ configureChart }) => {
   const [yearError, setYearError] = useState(null);
   const [fromYear, setFromYear] = useState(2021);
   const [toYear, setToYear] = useState(null);
+  const [dateValidation, setDateValidation] = useState(null);
   // decode data from token
   const decodedToken = useMemo(() => {
     return token ? JSON.parse(atob(token.split('.')[1])) : null;
@@ -68,7 +68,10 @@ const ChartConfiguration = ({ configureChart }) => {
   const handleValueTypeChange = (e) => {
     const selectedValueType = e.target.value;
     setValuetype(selectedValueType);
-
+    setBodyWise((prevBodyWise) => ({
+      ...prevBodyWise,
+      valuetype: selectedValueType,
+    }))
     setChartApiConfig((prevConfig) => ({
       ...prevConfig,
       [type]: prevConfig[type].map((config) => ({
@@ -81,10 +84,12 @@ const ChartConfiguration = ({ configureChart }) => {
     }));
   };
 
+  console.log('outsidebody: ', { bodyWise })
   const handleDateUpdate = (dateType, data, type, reportType) => {
     let newStartDate = dateType === "from" ? data : startDate;
     let newEndDate = dateType === "to" ? data : endDate;
 
+    console.log('insidebody: ', { bodyWise })
     const updatedBodyWise = updateBodyWise(inputType, newStartDate, newEndDate, bodyWise, type, reportType, selectedWise);
 
     if (dateType === "from") {
@@ -93,40 +98,51 @@ const ChartConfiguration = ({ configureChart }) => {
       setEndDate(data);
     }
 
-    updateCountAndWidth(inputType, newStartDate, newEndDate, setDynamicWidth);
+    updateCountAndWidth(inputType, newStartDate, newEndDate, setDynamicWidth, 200);
     setBodyWise(updatedBodyWise);
     updateChartApiConfig(updatedBodyWise);
+    console.log('updatedBodyWise: ', { updatedBodyWise })
   };
 
   const handleFromDate = (data) => {
-    const yearRegex = /^(19|20)\d{2}$/; // Accepts years between 1900 and 2099
+    if (endDate && data >= endDate) {
+      setDateValidation("From date cannot be greater than or equal to To date");
+    } else {
+      const yearRegex = /^(19|20)\d{2}$/; // Accepts years between 1900 and 2099
 
-    if (inputType === "year") {
-      if (data === "" || yearRegex.test(data)) {
-        setFromYear(data);
-        setYearError(""); // Clear any previous error
-      } else {
-        setYearError("Please enter a valid year (e.g., 2021)");
+      if (inputType === "year") {
+        if (data === "" || yearRegex.test(data)) {
+          setFromYear(data);
+          setYearError(""); // Clear any previous error
+        } else {
+          setYearError("Please enter a valid year (e.g., 2021)");
+        }
       }
+      handleDateUpdate("from", data, type, reportType);
+      setDateValidation(null);
     }
-    handleDateUpdate("from", data, type, reportType);
   };
 
   const handleToDate = (data) => {
-    const yearRegex = /^(19|20)\d{2}$/; // Accepts years between 1900 and 2099
-    if (inputType === "year") {
-      if (data === "" || yearRegex.test(data)) {
-        if (fromYear && parseInt(data, 10) <= parseInt(fromYear, 10)) {
-          setYearError("To year cannot be less than or equal to From year");
+    if (startDate && data <= startDate) {
+      setDateValidation("To date cannot be less than or equal to From date");
+    } else {
+      const yearRegex = /^(19|20)\d{2}$/; // Accepts years between 1900 and 2099
+      if (inputType === "year") {
+        if (data === "" || yearRegex.test(data)) {
+          if (fromYear && parseInt(data, 10) <= parseInt(fromYear, 10)) {
+            setYearError("To year cannot be less than or equal to From year");
+          } else {
+            setToYear(data);
+            setYearError("");
+          }
         } else {
-          setToYear(data);
-          setYearError("");
+          setYearError("Please enter a valid year (e.g., 2021)");
         }
-      } else {
-        setYearError("Please enter a valid year (e.g., 2021)");
       }
+      handleDateUpdate("to", data, type, reportType);
+      setDateValidation(null);
     }
-    handleDateUpdate("to", data, type, reportType);
   };
 
   const handleYAxisChange = (e) => {
@@ -208,7 +224,7 @@ const ChartConfiguration = ({ configureChart }) => {
 
   const chartConfig = chartApiConfig[type];
   const { endpoint, body, method } = chartConfig ? chartConfig.find((config) => config.wise === wise) : {};
-  const { data: graphData, isLoading, isError, error } = useDynamicNewQuery(endpoint ? { endpoint: type === "funnel" ? processFlow : endpoint, body, method } : null, { skip: !endpoint });
+  const { data: graphData, isLoading, error } = useDynamicNewQuery(endpoint ? { endpoint: type === "funnel" ? processFlow : endpoint, body, method } : null, { skip: !endpoint });
   console.log('In the chart config:: ', { graphData });
   const finalData = useMemo(() => {
     if (type === "funnel") {
@@ -228,6 +244,15 @@ const ChartConfiguration = ({ configureChart }) => {
       setInputType("date");
     }
   }, [type]);
+
+  useEffect(() => {
+    const yAxisOptionss = yAxisOptions(reportType)
+    let selectedArr = [];
+    yAxisOptionss && yAxisOptionss.map((item) => {
+      return selectedArr.push(item.value)
+    })
+    setSelectedValues(selectedArr)
+  }, [])
 
   const processedData = useProcessedData(finalData, type);
   console.log({ processedData, finalData });
@@ -250,14 +275,6 @@ const ChartConfiguration = ({ configureChart }) => {
   if (!ChartComponent) {
     return <Alert status="error">No valid chart type provided</Alert>;
   }
-
-  // handle preview button
-  const handlePreviewBtn = () => {
-    setPreviewLoading(true);
-    setTimeout(() => {
-      setPreviewLoading(false);
-    }, 500);
-  };
 
   // handle save button
   const handleSaveBtn = () => {
@@ -298,6 +315,8 @@ const ChartConfiguration = ({ configureChart }) => {
       userId
     };
 
+    console.log({widgetData})
+
     const saveWidgetsToLocalStorage = (widgets) => {
       localStorage.setItem("widgets", JSON.stringify(widgets));
     }
@@ -313,7 +332,9 @@ const ChartConfiguration = ({ configureChart }) => {
         isClosable: true,
       });
     } else {
+      saveWidgetsToLocalStorage(updatedWidgets);      
       dispatch(updateWidget({ id, data: widgetData }));
+      // dispatch(getAllWidgets());
       toast({
         title: "Chart Updated Successfully",
         status: "success",
@@ -381,7 +402,7 @@ const ChartConfiguration = ({ configureChart }) => {
                   {type}
                 </Badge>
               </Box>
-              <Box sx={{ height: "350px", width: "100%", overflowX: "auto" }}>
+              <Box sx={{ display: 'flex', flexDirection: 'row', height: "350px", width: "100%", overflowX: "auto" }}>
                 {error && <Alert status="error">{error?.data?.message}</Alert>}
                 {!error && <ChartComponent
                   liveData={processedData}
@@ -541,7 +562,9 @@ const ChartConfiguration = ({ configureChart }) => {
 
                     {(type === "bar" || type === "pie") && (
                       <Grid templateColumns="repeat(1, 1fr)" gap={6} >
-                        <Stack spacing={3} >
+                        <Stack spacing={3} sx={{
+                          width: '80%'
+                        }} >
                           <Text fontSize="sm" fontWeight="500">
                             Y Axis
                           </Text>
@@ -581,7 +604,7 @@ const ChartConfiguration = ({ configureChart }) => {
                             />
                           )}
                         </Stack>
-                        <Stack spacing={3} >
+                        <Stack spacing={3} sx={{ width: '80%' }} >
                           <Text fontSize="sm" fontWeight="500">
                             Filter
                           </Text>
@@ -654,6 +677,7 @@ const ChartConfiguration = ({ configureChart }) => {
                           </Stack>
                         </Grid>
                         {yearError && <p style={{ fontSize: "8px", color: "red", marginTop: "4px" }}>{yearError}</p>}
+                        {dateValidation && <p style={{ fontSize: "8px", color: "red", marginTop: "4px" }}>{dateValidation}</p>}
                       </Stack>
                     )}
                   </Box>
@@ -667,18 +691,6 @@ const ChartConfiguration = ({ configureChart }) => {
       <Divider my={6} sx={{ border: "1px solid #e4e4e4" }} />
       <CardFooter sx={{ display: "flex", justifyContent: "flex-end" }}>
         <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-          <Button
-            variant="outline"
-            colorScheme="pink"
-            leftIcon={previewLoading ? <Spinner /> : <MdRemoveRedEye />}
-            sx={{
-              p: "20px 20px",
-              fontSize: "14px",
-            }}
-            mr={3}
-            onClick={handlePreviewBtn}>
-            Preview
-          </Button>
           <Button
             variant="solid"
             colorScheme="teal"

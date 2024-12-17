@@ -1,19 +1,19 @@
-import { Alert, Badge, Box, Button, Divider, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay, HStack, Skeleton, SkeletonCircle, Spinner, Stack, Text, useDisclosure } from '@chakra-ui/react';
-import React, { useMemo, useState } from 'react'
+import { Alert, Badge, Box, Button, Divider, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay, Text, useDisclosure } from '@chakra-ui/react';
+import React, { useEffect, useMemo, useState } from 'react'
 import { FiPlus, FiSettings } from 'react-icons/fi';
+import { MdFullscreen } from 'react-icons/md';
 import DynamicChart from '../chartConfigurations/DynamicChart';
 import ChartConfiguration from '../chartConfigurations/ChartConfiguration';
 import { useSelector } from 'react-redux';
 import { chartsData } from '../jsonData/graphSkeleton';
 import { BreadCrumb } from 'primereact/breadcrumb';
+import { RxCross1 } from "react-icons/rx";
 import { capitalizeWord, formatWordBetweenDashes } from '../../../utils/common';
 import { Sidebar } from 'primereact/sidebar';
 import { useDispatch } from 'react-redux';
 import { removeWidget } from '../chartConfigurations/graphSlice';
-import ChartWrapper from './ChartWrapper';
-import { RxCross1 } from 'react-icons/rx';
-import { MdFullscreen } from 'react-icons/md';
-import ChartSkeleton from './ChartSkeleton';
+import { useDynamicNewQuery } from '../chartConfigurations/graphApi';
+import ChartWrapper, { useChartQueries } from './ChartWrapper';
 
 const MainBodyDrawer = (props) => {
     const [visible, setVisible] = useState(false);
@@ -49,6 +49,10 @@ const MainBodyDrawer = (props) => {
         });
     }, [checkWidgets, selectedWise, reportType, companyId, branchId, locationId, userId]);
 
+    // const filteredCharts = checkWidgets?.filter((chart) => {
+    //     return chart.selectedWise === selectedWise && chart.reportType === reportType && chart.companyId === companyId && chart.branchId === branchId && chart.locationId === locationId && chart.userId === userId;
+    // });
+
     const btnRef = React.useRef();
     const { onOpen: onOpenGraphSettingDrawer, onClose: onCloseGraphSettingDrawer, isOpen: isOpenGraphSettingDrawer } = useDisclosure();
     const { isOpen: isOpenGraphSettingsModal, onOpen: onOpenGraphSettingsModal, onClose: onCloseGraphSettingsModal } = useDisclosure();
@@ -56,6 +60,8 @@ const MainBodyDrawer = (props) => {
 
     const items = [{ label: reportType }, { label: selectedWise }];
     const home = { icon: 'pi pi-home', url: '#' }
+
+    const [chart, setChart] = useState({ endpoint: '', body: {}, method: '', type: '', processFlow: '' });
 
     const handleGraphAddDrawer = () => {
         onOpenGraphSettingDrawer();
@@ -83,7 +89,9 @@ const MainBodyDrawer = (props) => {
         setVisible(true);
     };
 
+
     const handleWidgetDelete = (id) => {
+        console.log('id', id)
         dispatch(removeWidget(id));
     }
 
@@ -92,17 +100,25 @@ const MainBodyDrawer = (props) => {
 
         return filteredCharts.map((chart) => {
             return (
+                // <ChartWrapper
+                //     key={chart.id}
+                //     chart={chart}
+                //     handleConfigure={handleConfigure}
+                //     handleFullScreen={handleFullScreen}
+                //     handleWidgetDelete={handleWidgetDelete}
+                // />
                 <ChartWrapper
                     key={chart.id}
                     chart={chart}
-                    handleConfigure={handleConfigure}
-                    handleFullScreen={handleFullScreen}
-                    handleWidgetDelete={handleWidgetDelete}
                 />
             )
         });
     }, [filteredCharts]);
 
+    console.log('chartData::', chartData)
+
+    console.log('🗑️ Redux Store', widgets);
+    console.log('🫙 LocalStorage', localStorageWidgets)
     return (
         <>
             <Drawer
@@ -168,7 +184,134 @@ const MainBodyDrawer = (props) => {
 
                         {/* Update sales graph details report */}
                         <Box display="flex" flexWrap="wrap" justifyContent="space-between">
-                            {chartData && chartData.length > 0 ? chartData : <Alert status="error">No data available to display.</Alert>}
+                            {filteredCharts && filteredCharts?.length === 0 && (
+                                <Alert
+                                    status="error"
+                                    sx={{
+                                        fontSize: "16px",
+                                        padding: "5px",
+                                        borderRadius: "5px",
+                                        height: "30px",
+                                        px: "10px",
+                                    }}
+                                >
+                                    No Sales Graph are there
+                                </Alert>
+                            )}
+                            {filteredCharts &&
+                                filteredCharts?.map((chart, index) => {
+                                    return (
+                                        <Box
+                                            key={index}
+                                            width={{
+                                                base: "100%",
+                                                lg: "49%",
+                                            }}
+                                            mb={6}
+                                        >
+                                            <Box
+                                                sx={{
+                                                    backgroundColor: "white",
+                                                    padding: "15px",
+                                                    my: 2.5,
+                                                    borderRadius: "8px",
+                                                    transition: "box-shadow 0.3s ease-in-out",
+                                                    border: "1px solid #dee2e6",
+                                                    "&:hover": {
+                                                        boxShadow: "0 4px 4px rgba(0, 0, 0, 0.2)",
+                                                    },
+                                                }}
+                                                mb={3}
+                                            >
+                                                <Box
+                                                    display="flex"
+                                                    justifyContent="space-between"
+                                                    alignItems="center"
+                                                    mb={8}
+                                                >
+                                                    <Box
+                                                        style={{
+                                                            padding: "10px",
+                                                            fontWeight: 600,
+                                                            color: "black",
+                                                        }}
+                                                    >
+                                                        {chart.chartName}
+                                                        <Text
+                                                            sx={{
+                                                                color: "#718296",
+                                                                fontSize: "10px",
+                                                            }}
+                                                        >
+                                                            {chart.description}
+                                                        </Text>
+                                                    </Box>
+                                                    <Box
+                                                        style={{
+                                                            padding: "10px",
+                                                            fontWeight: 600,
+                                                            color: "black",
+                                                        }}
+                                                    >
+                                                        <Button
+                                                            variant="outline"
+                                                            colorScheme='green'
+                                                            style={{
+                                                                padding: "15px 10px",
+                                                                fontSize: "12px"
+                                                            }}
+                                                            mr={3}
+                                                            onClick={() => handleConfigure(chart)}
+                                                        >
+                                                            <FiSettings />
+                                                        </Button>
+
+                                                        {/* <Button
+                                                            variant="outline"
+                                                            colorScheme='purple'
+                                                            sx={{
+                                                                p: "15px 10px",
+                                                                fontSize: "12px"
+                                                            }}
+                                                            mr={3}
+                                                            onClick={() => handleRefreshWidget(chart)}
+                                                        >
+                                                            <MdRefresh />
+                                                        </Button> */}
+                                                        <Button
+                                                            variant="outline"
+                                                            colorScheme='blue'
+                                                            sx={{
+                                                                p: "15px 10px",
+                                                                fontSize: "12px"
+                                                            }}
+                                                            mr={3}
+                                                            onClick={() => handleFullScreen(chart)}
+                                                        >
+                                                            <MdFullscreen />
+                                                        </Button>
+
+                                                        <Button
+                                                            variant="outline"
+                                                            colorScheme='red'
+                                                            sx={{
+                                                                p: "15px 10px",
+                                                                fontSize: "12px",
+                                                                fontWeight: 'bold'
+                                                            }}
+                                                            onClick={() => handleWidgetDelete(chart.id)}
+                                                        >
+                                                            <RxCross1 />
+                                                        </Button>
+                                                    </Box>
+                                                </Box>
+                                                <Box sx={{ height: "250px", width: "100%", overflow: "auto" }}>
+                                                    <DynamicChart chart={chart} />
+                                                </Box>
+                                            </Box>
+                                        </Box>
+                                    );
+                                })}
                         </Box>
                         {/* //sales-product-wise graph settings */}
                         <Drawer
@@ -337,9 +480,23 @@ const MainBodyDrawer = (props) => {
                                         </DrawerContent>
                                     </Drawer>
                                 </DrawerBody>
+
+                                {/* <DrawerFooter>
+                                    <Button variant="outline" mr={3} onClick={onClose}>
+                                        Cancel
+                                    </Button>
+                                    <Button colorScheme="blue">Save</Button>
+                                </DrawerFooter> */}
                             </DrawerContent>
                         </Drawer>
                     </DrawerBody>
+
+                    {/* <DrawerFooter>
+                        <Button variant="outline" mr={3} onClick={onClose}>
+                            Cancel
+                        </Button>
+                        <Button colorScheme="blue">Save</Button>
+                    </DrawerFooter> */}
                 </DrawerContent>
             </Drawer>
             <div className="card flex justify-content-center">

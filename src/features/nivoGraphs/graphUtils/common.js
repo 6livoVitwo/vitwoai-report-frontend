@@ -1,5 +1,21 @@
-import { eachDayOfInterval, eachMonthOfInterval, eachYearOfInterval, format, parseISO } from "date-fns";
+import { eachDayOfInterval, eachMonthOfInterval, eachYearOfInterval, format, parseISO, sub } from "date-fns";
 import { split } from "lodash";
+
+
+// formate data
+const todayDate = new Date();
+const startDateLast30Days = sub(todayDate, { days: 30 });
+const startMonthLast6Months = sub(todayDate, { months: 6 });
+const startYearLast5Years = sub(todayDate, { years: 5 });
+
+export const formatedStartDate = format(startDateLast30Days, 'yyyy-MM-dd');
+export const formatedEndDate = format(todayDate, 'yyyy-MM-dd');
+
+export const formatedStartMonth = format(startMonthLast6Months, 'yyyy-MM');
+export const formatedEndMonth = format(todayDate, 'yyyy-MM');
+
+export const formatedStartYear = format(startYearLast5Years, 'yyyy');
+export const formatedEndYear = format(todayDate, 'yyyy');
 
 export const getDateDifference = (start, end) => {
     const startDate = new Date(start);
@@ -31,24 +47,23 @@ export const getYearDifference = (startYear, endYear) => {
 export const setDateRange = (data) => {
     if (data === 'month') {
         return {
-            startDate: '2024-01',
-            endDate: '2024-12',
+            startDate: formatedStartMonth,
+            endDate: formatedEndMonth,
         }
     } else if (data === 'year') {
         return {
-            startDate: '2021',
-            endDate: '2026',
+            startDate: formatedStartYear,
+            endDate: formatedEndYear,
         }
     } else {
         return {
-            startDate: '2024-01-01',
-            endDate: '2024-01-20',
+            startDate: formatedStartDate,
+            endDate: formatedEndDate,
         }
     }
 }
 
-export const createBodyWise = (data, startDate, endDate, selectData, type = "", selectedWise = '', reportType = '') => {
-    console.log('hey -> 💚', {data, startDate, endDate, selectData, type, selectedWise, reportType})
+export const createBodyWise = (data, startDate, endDate, selectData, type = "", selectedWise = '', reportType = '') => {    
     if (data === 'month') {
         return {
             "priceOrQty": `${selectData}`,
@@ -128,13 +143,13 @@ export const calculateCount = (data, startDate, endDate) => {
     }
 }
 
-export const updateCountAndWidth = (inputType, startDate, endDate, setDynamicWidth) => {
+export const updateCountAndWidth = (inputType, startDate, endDate, setDynamicWidth, value) => {
     const count = inputType === 'month' ? getMonthDifference(startDate, endDate) : inputType === 'year' ? getYearDifference(startDate, endDate) : getDateDifference(startDate, endDate);
-    setDynamicWidth(200 * count);
+    setDynamicWidth(value * count);
 };
 
 export const updateBodyWise = (inputType, startDate, endDate, bodyWise, type = "", reportType = '', selectedWise = '') => {
-    console.log('hey -> 💚', {inputType, startDate, endDate, bodyWise, type, reportType, selectedWise})
+    
     if (inputType === 'month') {
         return {
             ...bodyWise,
@@ -151,6 +166,32 @@ export const updateBodyWise = (inputType, startDate, endDate, bodyWise, type = "
         };
     } else if (inputType === 'date') {
         if (type === "bar") {
+            if (reportType === "sales") {
+                return {
+                    ...bodyWise,
+                    filter: [
+                        {
+                            column: "invoice_date",
+                            operator: "between",
+                            type: "date",
+                            value: [startDate, endDate],
+                        },
+                    ],
+                }
+            }else if (reportType === "purchase") {
+                return {
+                    ...bodyWise,
+                    filter: [
+                        {
+                            column: "vendorDocumentDate",
+                            operator: "between",
+                            type: "date",
+                            value: [startDate, endDate],
+                        },
+                    ],
+                }
+            }
+        }else if (type === "pie") {
             if (reportType === "sales") {
                 return {
                     ...bodyWise,
