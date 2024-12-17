@@ -6,25 +6,29 @@ import ReportsCards from '../dashboard/components/ReportsCards';
 import purchaseProductWise from '../../asset/imgs/purchase-product-wise.json';
 import purchaseVendorWise from '../../asset/imgs/purchase-vendor-wise.json';
 import purchasePoWise from "../../asset/imgs/purchase-po-wise.json";
+import purchaseFunctionalWise from "../../asset/imgs/functional.json";
+import purchaseStorageLocationWise from "../../asset/imgs/purchase-functional-Wise.json";
 import salesProductWise from "../../asset/imgs/sales-product-wise.json";
 import salesCustomerWise from "../../asset/imgs/sales-customer-wise.json";
 import salesVerticalWise from '../../asset/imgs/sales-vertical-wise.json';
 import salesSoWise from '../../asset/imgs/sales-so-wise.json';
 import salesKamWise from '../../asset/imgs/sales-kam-wise.json';
 import salesRegionWise from '../../asset/imgs/sales-region-wise.json';
-import purchaseFunctionalWise from "../../asset/imgs/purchase-functional-Wise.json";
-import { faArrowUpLong } from "@fortawesome/free-solid-svg-icons";
+import { faArrowUpLong, faArrowDownLong,faIndianRupeeSign} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useGetAllReportsProductQuery } from "../allreports/slice/allreportsAPi";
+import { useGetAllReportsProductQuery} from "../allreports/slice/allreportsAPi";
 import { useGetAllReportsVendorQuery } from "../allreports/slice/allreportsAPi";
 import { useGetAllReportsSalesProductQuery } from "../allreports/slice/allreportsAPi";
 import { useGetAllReportsSalesCustomerQuery } from "../allreports/slice/allreportsAPi";
 import { useGetAllReportsSalesKamQuery } from "../allreports/slice/allreportsAPi";
-import { useGetAllReportsPoQuery } from "../allreports/slice/allreportsAPi"
-import { useGetAllReportsSalesVerticalQuery } from "../allreports/slice/allreportsAPi"
-import { useGetAllReportsSalesSoQuery } from "../allreports/slice/allreportsAPi"
-import { useGetAllReportsSalesRegionQuery } from "../allreports/slice/allreportsAPi"
-import { useGetAllReportsFunctionalQuery } from "../allreports/slice/allreportsAPi"
+import { useGetAllReportsPoQuery } from "../allreports/slice/allreportsAPi";
+import { useGetAllReportsSalesVerticalQuery } from "../allreports/slice/allreportsAPi";
+import { useGetAllReportsSalesSoQuery } from "../allreports/slice/allreportsAPi";
+import { useGetAllReportsSalesRegionQuery } from "../allreports/slice/allreportsAPi";
+import { useGetAllReportsFunctionalQuery } from "../allreports/slice/allreportsAPi";
+import { useGetAllReportsPurchasePercentageQuery } from "../allreports/slice/allreportsAPi";
+import { useGetAllReportsSalesPercentageQuery } from "../allreports/slice/allreportsAPi"
+import { current } from '@reduxjs/toolkit';
 
 
 const Allreports = () => {
@@ -76,7 +80,7 @@ const Allreports = () => {
 					id: "13",
 					name: "Storage Location",
 					link: "/reports/purchase-storage-location-wise/table-view",
-					imgsrc: purchaseFunctionalWise,
+					imgsrc: purchaseStorageLocationWise,
 					description: "",
 				},
 				{
@@ -158,6 +162,15 @@ const Allreports = () => {
 	const { data: allReportsSalesSo, isLoading: isLoadingSalesSo } = useGetAllReportsSalesSoQuery();
 	// //api call allReports sales region
 	const { data: allReportsSalesRegion, isLoading: isLoadingSalesRegion } = useGetAllReportsSalesRegionQuery();
+
+	// API hooks to fetch data Percentage 
+	const { data: allReportsPurchasePercentage } = useGetAllReportsPurchasePercentageQuery();
+	const { data: allReportsSalesPercentage } = useGetAllReportsSalesPercentageQuery();
+
+	// Current month data
+	const currentMonthAmountPurchase = allReportsPurchasePercentage?.currentMonth;
+	const currentMonthAmountSales = allReportsSalesPercentage?.currentMonth;
+
 
 
 	// Dynamically update descriptions Purchase Register
@@ -353,6 +366,16 @@ const Allreports = () => {
 			</Box>
 
 			{cardsData.map((data, index) => {
+				let categoryPercentage = 0;
+				let categoryCurrentMonth = 0;
+
+				if (data['card catagory'] === 'Purchase Register') {
+					categoryPercentage = allReportsPurchasePercentage?.percentage || 0;
+					categoryCurrentMonth = currentMonthAmountPurchase || 0;
+				} else if (data['card catagory'] === 'Sales Register') {
+					categoryPercentage = allReportsSalesPercentage?.percentage || 0;
+					categoryCurrentMonth = currentMonthAmountSales || 0;
+				}
 				return (
 					<Box
 						color='mainBlue'
@@ -384,8 +407,8 @@ const Allreports = () => {
 									display='flex'
 								>
 									<Box
-										background="#a5e6b7fa"
-										color="#0c8f3c"
+										background={categoryPercentage > 0 ? "#e6f4ea" : "#fce8e6"}
+										color={categoryPercentage > 0 ? "#137333" : "#a50e0e"}
 										borderRadius="5px"
 										height="30px"
 										width="auto"
@@ -394,18 +417,26 @@ const Allreports = () => {
 										alignItems="center"
 										gap="4px"
 									>
-										<FontAwesomeIcon icon={faArrowUpLong} fontSize="14px" style={{
-											marginBottom: "4px",
-										}} />
-										<span style={{ fontWeight: "600", fontSize: "14px" }} >40%</span>
+										{categoryPercentage > 0 ? (
+											<FontAwesomeIcon icon={faArrowUpLong} fontSize="15px" style={{ transform: 'scale(1.2)' }} />
+										) : (
+											<FontAwesomeIcon icon={faArrowDownLong} fontSize="15px" style={{ transform: 'scale(1.2)' }} />
+										)}
+										<span style={{ fontWeight: "700", fontSize: "14px" }} >
+											{categoryPercentage.toFixed(2)}%
+										</span>
 									</Box>
 									<Box
 										p='5px'
 										mr='25px'
 										fontSize='12px'
 									>
-										<span>Increased compared to last month</span><br />
-										<span style={{ fontWeight: "500" }}>Current month € 50,000</span>
+										{categoryPercentage > 0 ? "Increased compared to last month" : "Decreased compared to last month"}<br/>
+										<span style={{ fontWeight: "500"}}>Current month
+											<FontAwesomeIcon icon={faIndianRupeeSign} style={{ padding: "0px 5px" }}/>
+											<span style={{
+												fontWeight: "700"
+											}}>{categoryCurrentMonth}</span></span>
 									</Box>
 								</Box>
 							)}
@@ -417,7 +448,7 @@ const Allreports = () => {
 							gap='15px'>
 							<ReportsCards cards={data.cards} />
 						</Box>
-					</Box>
+					</Box >
 				);
 			})}
 		</>

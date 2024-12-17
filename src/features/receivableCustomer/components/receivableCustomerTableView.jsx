@@ -212,7 +212,7 @@ const ReceivableCustomerTableView = () => {
           width: "95%",
           overflowY: "auto",
           mt: "-12px",
-          height: "600px",
+          height: "530px",
           "&::-webkit-scrollbar": {
             height: "1px",
           },
@@ -232,7 +232,7 @@ const ReceivableCustomerTableView = () => {
             <Thead
               sx={{
                 position: "sticky",
-                top: 0,
+                top:0,
                 zIndex: 1,
                 backgroundColor: "#b9b8b8"
               }}

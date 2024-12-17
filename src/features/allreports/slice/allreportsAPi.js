@@ -1,3 +1,4 @@
+import { get } from "lodash";
 import { apiSlice } from "../../apis/apiSlice";
 
 export const allReportsApi = apiSlice.injectEndpoints({
@@ -73,6 +74,20 @@ export const allReportsApi = apiSlice.injectEndpoints({
                 method: "GET",
             }),
         }),
+        // //Api call for percentage-profit-loss
+        getAllReportsPurchasePercentage: builder.query({
+            query: () => ({
+                url: "/purchase/percentage-profit-loss",
+                method: "GET",
+            }),
+        }),
+        // Api call for percentage-profit-loss Sales
+        getAllReportsSalesPercentage: builder.query({
+            query: () => ({
+                url: "/sales/percentage-profit-loss",
+                method: "GET",
+            }),
+        })
     }),
 });
 
@@ -87,4 +102,6 @@ export const {
     useGetAllReportsSalesVerticalQuery,
     useGetAllReportsSalesSoQuery,
     useGetAllReportsSalesRegionQuery,
+    useGetAllReportsPurchasePercentageQuery,
+    useGetAllReportsSalesPercentageQuery,
 } = allReportsApi;
