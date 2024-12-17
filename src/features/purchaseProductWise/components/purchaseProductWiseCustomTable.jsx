@@ -426,7 +426,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setInputValue(e.target.value);
   };
   const handleSearchClick = () => {
-    const filteredColumns = selectedColumns.filter(column => !column.includes('SUM'));
+    const filteredColumns = selectedColumns.filter(column => !column.includes("items.goodsItems.stockSummary.movingWeightedPrice") && !column.includes('SUM'));
     const updatedFilters = {
       ...filters,
       filter: [

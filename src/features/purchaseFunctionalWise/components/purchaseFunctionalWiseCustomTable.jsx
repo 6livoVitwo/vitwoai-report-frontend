@@ -1101,7 +1101,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                             fontWeight="500"
                             textTransform="capitalize"
                             fontFamily="Poppins, sans-serif"
-                            latterSpacing="0"
+                            // latterSpacing="0"
                             background="#cfd8e1a6"
                             color="black"
                           >

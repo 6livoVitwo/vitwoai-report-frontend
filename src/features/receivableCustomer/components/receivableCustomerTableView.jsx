@@ -117,7 +117,7 @@ const ReceivableCustomerTableView = () => {
         zIndex="10"
       >
         <Menu>
-          <MenuButton as={Button} rightIcon={<ChevronDownIcon font-size="25px" />} height={"40px"} fontSize={"12px"} >
+          <MenuButton as={Button} rightIcon={<ChevronDownIcon fontSize="25px" />} height={"40px"} fontSize={"12px"} >
             Export
           </MenuButton>
           <MenuList>
@@ -128,7 +128,7 @@ const ReceivableCustomerTableView = () => {
         </Menu>
         <Stack direction="row">
           <Menu>
-            <MenuButton as={Button} rightIcon={<ChevronDownIcon font-size="25px" />} height={"40px"} fontSize={"12px"}>
+            <MenuButton as={Button} rightIcon={<ChevronDownIcon fontSize="25px" />} height={"40px"} fontSize={"12px"}>
               As on Date
               <Text fontSize={10}>{asOnDate}</Text>
             </MenuButton>
@@ -151,7 +151,7 @@ const ReceivableCustomerTableView = () => {
             </MenuList>
           </Menu>
           <Menu>
-            <MenuButton as={Button} rightIcon={<ChevronDownIcon font-size="25px" />} height={"40px"} fontSize={"12px"}>
+            <MenuButton as={Button} rightIcon={<ChevronDownIcon fontSize="25px" />} height={"40px"} fontSize={"12px"}>
               Actions
             </MenuButton>
             <MenuList>
@@ -206,13 +206,14 @@ const ReceivableCustomerTableView = () => {
       </Box>
       <TableContainer
         id="receivable-table"
+        m={2}
         sx={{
           border: "1px solid #dee2e6",
           borderRadius: "8px",
           width: "95%",
           overflowY: "auto",
           mt: "-12px",
-          height: "530px",
+          height: "600px",
           "&::-webkit-scrollbar": {
             height: "1px",
           },
