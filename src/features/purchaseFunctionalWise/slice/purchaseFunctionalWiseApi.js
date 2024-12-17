@@ -1,8 +1,8 @@
 import { apiSlice } from "../../apis/apiSlice";
 
-export const purchasePoWiseApi = apiSlice.injectEndpoints({
+export const purchaseFunctionalWiseApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    poWisePurchase: builder.query({
+    functionalWisePurchase: builder.query({
       query: ({ filters, page }) => {
         const body = JSON.stringify({ ...filters, page });
         return {
@@ -16,10 +16,10 @@ export const purchasePoWiseApi = apiSlice.injectEndpoints({
       },
     }),
     // Query to get global search
-    getGlobalsearchPo: builder.query({
+    getGlobalsearchFunctional: builder.query({
       query: (body) => {
         return {
-          url: "/purchase/global-search/po",
+          url: "/purchase/global-search/functional-area",
           method: "POST",
           body: JSON.stringify(body),
         };
@@ -35,7 +35,7 @@ export const purchasePoWiseApi = apiSlice.injectEndpoints({
       },
     }),
     //export to excel date wise
-    getexportdataPo: builder.query({
+    getexportdataFunctional: builder.query({
       query: (body) => {
         return {
           url: "/purchase/download-data",
@@ -48,8 +48,8 @@ export const purchasePoWiseApi = apiSlice.injectEndpoints({
 });
 
 export const {
-  usePoWisePurchaseQuery,
-  useGetGlobalsearchPoQuery,
+  useFunctionalWisePurchaseQuery,
+  useGetGlobalsearchFunctionalQuery,
   useGetSelectedColumnsFunctionalQuery,
-  useGetexportdataPoQuery,
-} = purchasePoWiseApi;
+  useGetexportdataFunctionalQuery,
+} = purchaseFunctionalWiseApi;

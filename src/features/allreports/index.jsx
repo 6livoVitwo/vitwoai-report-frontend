@@ -1,24 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Heading, Flex, Button } from '@chakra-ui/react';
+import { SkeletonText } from '@chakra-ui/react';
 import ReportsCards from '../dashboard/components/ReportsCards';
 //Add lotifies dummy json
 import purchaseProductWise from '../../asset/imgs/purchase-product-wise.json';
 import purchaseVendorWise from '../../asset/imgs/purchase-vendor-wise.json';
 import purchasePoWise from "../../asset/imgs/purchase-po-wise.json";
+import purchaseFunctionalWise from "../../asset/imgs/functional.json";
+import purchaseStorageLocationWise from "../../asset/imgs/purchase-functional-Wise.json";
 import salesProductWise from "../../asset/imgs/sales-product-wise.json";
 import salesCustomerWise from "../../asset/imgs/sales-customer-wise.json";
 import salesVerticalWise from '../../asset/imgs/sales-vertical-wise.json';
 import salesSoWise from '../../asset/imgs/sales-so-wise.json';
 import salesKamWise from '../../asset/imgs/sales-kam-wise.json';
 import salesRegionWise from '../../asset/imgs/sales-region-wise.json';
-import purchaseFunctionalWise from "../../asset/imgs/purchase-functional-Wise.json";
-import { faArrowUpLong } from "@fortawesome/free-solid-svg-icons";
+import { faArrowUpLong, faArrowDownLong,faIndianRupeeSign} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useGetAllReportsProductQuery } from "../allreports/slice/allreportsAPi";
+import { useGetAllReportsProductQuery} from "../allreports/slice/allreportsAPi";
 import { useGetAllReportsVendorQuery } from "../allreports/slice/allreportsAPi";
 import { useGetAllReportsSalesProductQuery } from "../allreports/slice/allreportsAPi";
 import { useGetAllReportsSalesCustomerQuery } from "../allreports/slice/allreportsAPi";
 import { useGetAllReportsSalesKamQuery } from "../allreports/slice/allreportsAPi";
+import { useGetAllReportsPoQuery } from "../allreports/slice/allreportsAPi";
+import { useGetAllReportsSalesVerticalQuery } from "../allreports/slice/allreportsAPi";
+import { useGetAllReportsSalesSoQuery } from "../allreports/slice/allreportsAPi";
+import { useGetAllReportsSalesRegionQuery } from "../allreports/slice/allreportsAPi";
+import { useGetAllReportsFunctionalQuery } from "../allreports/slice/allreportsAPi";
+import { useGetAllReportsPurchasePercentageQuery } from "../allreports/slice/allreportsAPi";
+import { useGetAllReportsSalesPercentageQuery } from "../allreports/slice/allreportsAPi"
+import { current } from '@reduxjs/toolkit';
 
 
 const Allreports = () => {
@@ -57,28 +67,28 @@ const Allreports = () => {
 					name: "Purchase Order",
 					link: "/reports/purchase-po-wise/table-view",
 					imgsrc: purchasePoWise,
-					description: "TVSBIKE is the highest purchased order in last 30 days",
+					description: "",
 				},
 				{
 					id: "12",
 					name: "Functional Area",
 					link: "/reports/purchase-functional-wise/table-view",
 					imgsrc: purchaseFunctionalWise,
-					description: "TVSBIKE is the highest purchased functional area in last 30 days",
+					description: "",
 				},
 				{
 					id: "13",
 					name: "Storage Location",
 					link: "/reports/purchase-storage-location-wise/table-view",
-					imgsrc: purchaseFunctionalWise,
-					description: "TVSBIKE is the highest purchased functional area in last 30 days",
+					imgsrc: purchaseStorageLocationWise,
+					description: "",
 				},
 				{
 					id: "14",
 					name: "Cost Center",
 					link: "/reports/purchase-cost-center-wise/table-view",
 					imgsrc: purchaseFunctionalWise,
-					description: "TVSBIKE is the highest purchased functional area in last 30 days",
+					description: "",
 				},
 			],
 		},
@@ -104,14 +114,14 @@ const Allreports = () => {
 					name: "Vertical",
 					link: "/reports/sales-vertical-wise/table-view",
 					imgsrc: salesVerticalWise,
-					description: "TVSBIKE is the highest sales vaertical in last 30 days",
+					description: "",
 				},
 				{
 					id: "24",
 					name: "Sales Order",
 					link: "/reports/sales-so-wise/table-view",
 					imgsrc: salesSoWise,
-					description: "TVSBIKE is the highest sales order in last 30 days",
+					description: "",
 				},
 				{
 					id: "25",
@@ -125,43 +135,55 @@ const Allreports = () => {
 					name: "Region",
 					link: "/reports/sales-region-wise/table-view",
 					imgsrc: salesRegionWise,
-					description: "TVSBIKE is the highest sales region in last 30 days",
+					description: "",
 				},
 			],
 		},
 	]);
 
 	// api call allReports product
-	const { data: allReports } = useGetAllReportsProductQuery();
+	const { data: allReports, isLoading: isLoadingProduct } = useGetAllReportsProductQuery();
 	// api call allReports vendor
-	const { data: allReportsVendor } = useGetAllReportsVendorQuery();
+	const { data: allReportsVendor, isLoading: isLoadingVendor } = useGetAllReportsVendorQuery();
+	// api call allReports purchase po
+	const { data: allReportsPo, isLoading: isLoadingPo } = useGetAllReportsPoQuery();
+	//api call allReports functional area
+	const { data: allReportsFunctional, isLoading: isLoadingFunctional } = useGetAllReportsFunctionalQuery();
+
 	// api call allReports sales product
-	const { data: allReportsSalesProduct } = useGetAllReportsSalesProductQuery();
+	const { data: allReportsSalesProduct, isLoading: isLoadingSalesProduct } = useGetAllReportsSalesProductQuery();
 	// api call allReports sales customer
-	const { data: allReportsSalesCustomer } = useGetAllReportsSalesCustomerQuery();
+	const { data: allReportsSalesCustomer, isLoading: isLoadingSalesCustomer } = useGetAllReportsSalesCustomerQuery();
 	// api call allReports sales kam
-	const { data: allReportsSalesKam } = useGetAllReportsSalesKamQuery();
+	const { data: allReportsSalesKam, isLoading: isLoadingSalesKam } = useGetAllReportsSalesKamQuery();
+	// api call allReports sales vertical
+	const { data: allReportsSalesVertical, isLoading: isLoadingSalesVertical } = useGetAllReportsSalesVerticalQuery();
+	//api call allReports sales so
+	const { data: allReportsSalesSo, isLoading: isLoadingSalesSo } = useGetAllReportsSalesSoQuery();
+	// //api call allReports sales region
+	const { data: allReportsSalesRegion, isLoading: isLoadingSalesRegion } = useGetAllReportsSalesRegionQuery();
+
+	// API hooks to fetch data Percentage 
+	const { data: allReportsPurchasePercentage } = useGetAllReportsPurchasePercentageQuery();
+	const { data: allReportsSalesPercentage } = useGetAllReportsSalesPercentageQuery();
+
+	// Current month data
+	const currentMonthAmountPurchase = allReportsPurchasePercentage?.currentMonth;
+	const currentMonthAmountSales = allReportsSalesPercentage?.currentMonth;
+
+
 
 	// Dynamically update descriptions Purchase Register
 	useEffect(() => {
-		if (allReports && allReportsVendor) {
+		const updateCardDescription = async (cardName, description) => {
 			setCardsData((prevCardsData) =>
 				prevCardsData.map((category) => {
 					if (category["card catagory"] === "Purchase Register") {
 						return {
 							...category,
 							cards: category.cards.map((card) => {
-								if (card.name === "Product") {
-									return {
-										...card,
-										description: allReports.desc,
-									};
-								}
-								if (card.name === "Vendor") {
-									return {
-										...card,
-										description: allReportsVendor.desc,
-									};
+								if (card.name === cardName) {
+									return { ...card, description };
 								}
 								return card;
 							}),
@@ -170,35 +192,47 @@ const Allreports = () => {
 					return category;
 				})
 			);
-		}
-	}, [allReports, allReportsVendor]);
+		};
+		const updateSalesRegisterDescriptions = () => {
+			updateCardDescription(
+				"Product",
+				isLoadingProduct ? <Box>
+					<SkeletonText height="20px" spacing="3" />
+				</Box> : allReports?.desc || ""
+			);
+			updateCardDescription(
+				"Vendor",
+				isLoadingVendor ? <Box>
+					<SkeletonText height="20px" spacing="3" />
+				</Box> : allReportsVendor?.desc || ""
+			);
+			updateCardDescription(
+				"Purchase Order",
+				isLoadingPo ? <Box>
+					<SkeletonText height="20px" spacing="3" />
+				</Box> : allReportsPo?.desc || ""
+			);
+			updateCardDescription(
+				"Functional Area",
+				isLoadingFunctional ? <Box>
+					<SkeletonText height="20px" spacing="3" />
+				</Box> : allReportsFunctional?.desc || ""
+			);
+		};
+		updateSalesRegisterDescriptions();
+	}, [allReports, allReportsVendor, allReportsPo, allReportsFunctional]);
 
 	// // Dynamically update descriptions sales Register
 	useEffect(() => {
-		if (allReportsSalesProduct && allReportsSalesCustomer && allReportsSalesKam) {
+		const updateCardDescription = async (cardName, description) => {
 			setCardsData((prevCardsData) =>
 				prevCardsData.map((category) => {
 					if (category["card catagory"] === "Sales Register") {
 						return {
 							...category,
 							cards: category.cards.map((card) => {
-								if (card.name === "Product") {
-									return {
-										...card,
-										description: allReportsSalesProduct.desc,
-									};
-								}
-								if (card.name === "Customer") {
-									return {
-										...card,
-										description: allReportsSalesCustomer.desc,
-									};
-								}
-								if (card.name === "Key Account Manager") {
-									return {
-										...card,
-										description: allReportsSalesKam.desc,
-									};
+								if (card.name === cardName) {
+									return { ...card, description };
 								}
 								return card;
 							}),
@@ -207,9 +241,56 @@ const Allreports = () => {
 					return category;
 				})
 			);
-		}
-	}, [allReports, allReportsVendor]);
-
+		};
+		const updateSalesRegisterDescriptions = () => {
+			updateCardDescription(
+				"Product",
+				isLoadingSalesProduct ? <Box>
+					<SkeletonText height="20px" spacing="3" />
+				</Box> : allReportsSalesProduct?.desc || ""
+			);
+			updateCardDescription(
+				"Customer",
+				isLoadingSalesCustomer ? <Box>
+					<SkeletonText height="20px" spacing="3" />
+				</Box> : allReportsSalesCustomer?.desc || ""
+			);
+			updateCardDescription(
+				"Key Account Manager",
+				isLoadingSalesKam ? <Box>
+					<SkeletonText height="20px" spacing="3" />
+				</Box> : allReportsSalesKam?.desc || ""
+			);
+			updateCardDescription(
+				"Vertical",
+				isLoadingSalesVertical ? <Box>
+					<SkeletonText height="20px" spacing="3" />
+				</Box> : allReportsSalesVertical?.desc || ""
+			);
+			updateCardDescription(
+				"Sales Order",
+				isLoadingSalesSo ? <Box>
+					<SkeletonText height="20px" spacing="3" />
+				</Box> : allReportsSalesSo?.desc || ""
+			);
+			updateCardDescription(
+				"Region",
+				isLoadingSalesRegion ? <Box>
+					<SkeletonText height="20px" spacing="3" />
+				</Box> : allReportsSalesRegion?.desc || ""
+			);
+		};
+		// Call the function
+		updateSalesRegisterDescriptions();
+	}, [
+		allReportsSalesProduct,
+		allReportsSalesCustomer,
+		allReportsSalesKam,
+		allReportsSalesVertical,
+		allReportsSalesSo,
+		allReportsSalesRegion,
+		isLoadingSalesRegion
+	]);
 
 
 	// *****************scrollbar types button**********************
@@ -285,6 +366,16 @@ const Allreports = () => {
 			</Box>
 
 			{cardsData.map((data, index) => {
+				let categoryPercentage = 0;
+				let categoryCurrentMonth = 0;
+
+				if (data['card catagory'] === 'Purchase Register') {
+					categoryPercentage = allReportsPurchasePercentage?.percentage || 0;
+					categoryCurrentMonth = currentMonthAmountPurchase || 0;
+				} else if (data['card catagory'] === 'Sales Register') {
+					categoryPercentage = allReportsSalesPercentage?.percentage || 0;
+					categoryCurrentMonth = currentMonthAmountSales || 0;
+				}
 				return (
 					<Box
 						color='mainBlue'
@@ -316,8 +407,8 @@ const Allreports = () => {
 									display='flex'
 								>
 									<Box
-										background="#a5e6b7fa"
-										color="#0c8f3c"
+										background={categoryPercentage > 0 ? "#e6f4ea" : "#fce8e6"}
+										color={categoryPercentage > 0 ? "#137333" : "#a50e0e"}
 										borderRadius="5px"
 										height="30px"
 										width="auto"
@@ -326,18 +417,26 @@ const Allreports = () => {
 										alignItems="center"
 										gap="4px"
 									>
-										<FontAwesomeIcon icon={faArrowUpLong} fontSize="14px" style={{
-											marginBottom: "4px",
-										}} />
-										<span style={{ fontWeight: "600", fontSize: "14px" }} >40%</span>
+										{categoryPercentage > 0 ? (
+											<FontAwesomeIcon icon={faArrowUpLong} fontSize="15px" style={{ transform: 'scale(1.2)' }} />
+										) : (
+											<FontAwesomeIcon icon={faArrowDownLong} fontSize="15px" style={{ transform: 'scale(1.2)' }} />
+										)}
+										<span style={{ fontWeight: "700", fontSize: "14px" }} >
+											{categoryPercentage.toFixed(2)}%
+										</span>
 									</Box>
 									<Box
 										p='5px'
 										mr='25px'
 										fontSize='12px'
 									>
-										<span>Increased compared to last month</span><br />
-										<span style={{ fontWeight: "500" }}>Current month € 50,000</span>
+										{categoryPercentage > 0 ? "Increased compared to last month" : "Decreased compared to last month"}<br/>
+										<span style={{ fontWeight: "500"}}>Current month
+											<FontAwesomeIcon icon={faIndianRupeeSign} style={{ padding: "0px 5px" }}/>
+											<span style={{
+												fontWeight: "700"
+											}}>{categoryCurrentMonth}</span></span>
 									</Box>
 								</Box>
 							)}
@@ -349,7 +448,7 @@ const Allreports = () => {
 							gap='15px'>
 							<ReportsCards cards={data.cards} />
 						</Box>
-					</Box>
+					</Box >
 				);
 			})}
 		</>

@@ -1,6 +1,6 @@
 import { apiSlice } from "../../apis/apiSlice";
 
-export const purchasePoWiseApi = apiSlice.injectEndpoints({
+export const purchaseStorageLocationWiseApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     storageLocationWisePurchase: builder.query({
       query: ({ filters, page }) => {
@@ -16,26 +16,26 @@ export const purchasePoWiseApi = apiSlice.injectEndpoints({
       },
     }),
     // Query to get global search
-    getGlobalsearchPo: builder.query({
+    getGlobalsearchStorageLocation: builder.query({
       query: (body) => {
         return {
-          url: "/purchase/global-search/po",
+          url: "/purchase/global-search/storage-location",
           method: "POST",
           body: JSON.stringify(body),
         };
       },
     }),
     // Query to get selected columns
-    getSelectedColumnsFunctional: builder.query({
+    getSelectedColumnsStorageLocation: builder.query({
       query: () => {
         return {
-          url: "/purchase/drop-down-data/functional-area",
+          url: "/purchase/drop-down-data/storage-location",
           method: "GET",
         };
       },
     }),
     //export to excel date wise
-    getexportdataPo: builder.query({
+    getexportdataStorageLocation: builder.query({
       query: (body) => {
         return {
           url: "/purchase/download-data",
@@ -49,7 +49,7 @@ export const purchasePoWiseApi = apiSlice.injectEndpoints({
 
 export const {
   useStorageLocationWisePurchaseQuery,
-  useGetGlobalsearchPoQuery,
-  useGetSelectedColumnsFunctionalQuery,
-  useGetexportdataPoQuery,
-} = purchasePoWiseApi;
+  useGetGlobalsearchStorageLocationQuery,
+  useGetSelectedColumnsStorageLocationQuery,
+  useGetexportdataStorageLocationQuery,
+} = purchaseStorageLocationWiseApi;

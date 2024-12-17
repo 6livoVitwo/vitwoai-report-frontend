@@ -88,7 +88,7 @@ const ReportsCards = ({ cards, setFavoriteCard }) => {
                   )}
                 </Box>
 
-                <Text
+                <Box
                   color="#434242"
                   fontSize="11px"
                   lineHeight="1.9"
@@ -96,8 +96,8 @@ const ReportsCards = ({ cards, setFavoriteCard }) => {
                   marginBottom="10px"
                   textAlign="center"
                 >
-                  {card.description}
-                </Text>
+                  <span>{card.description}</span>
+                </Box>
               </Box>
             </Link>
           </Box>

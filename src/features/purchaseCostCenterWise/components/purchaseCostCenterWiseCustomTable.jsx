@@ -13,11 +13,11 @@ import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
-import { useGetGlobalsearchPoQuery } from "../slice/purchaseCostCenterWiseApi";
+import { useGetGlobalsearchCostCenterQuery } from "../slice/purchaseCostCenterWiseApi";
 import { useCostCenterWisePurchaseQuery } from "../slice/purchaseCostCenterWiseApi";
-import { useGetSelectedColumnsFunctionalQuery } from "../slice/purchaseCostCenterWiseApi";
+import { useGetSelectedColumnsCostCenterQuery } from "../slice/purchaseCostCenterWiseApi";
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
-import { useGetexportdataPoQuery } from "../slice/purchaseCostCenterWiseApi";
+import { useGetexportdataCostCenterQuery } from "../slice/purchaseCostCenterWiseApi";
 import styled from "@emotion/styled";
 import LoaderScroll from "../../analyticloader/components/LoaderScroll"
 
@@ -79,7 +79,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const isSumColumn = (column) => column.startsWith("SUM(");
 
   // ...Export API CALL...
-  const { data: exportData } = useGetexportdataPoQuery(
+  const { data: exportData } = useGetexportdataCostCenterQuery(
     localFiltersdate || {}, { skip: !triggerApiCall });
 
   // Advance Filter Api Calling
@@ -90,7 +90,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     );
 
   // api calling from global search
-  const { data: searchData, isLoading } = useGetGlobalsearchPoQuery({
+  const { data: searchData, isLoading } = useGetGlobalsearchCostCenterQuery({
     ...filters,
     sortBy: sortColumn,
     sortDir: sortOrder,
@@ -100,7 +100,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     });
 
   // api calling from drop-down data
-  const { data: columnData, refetch: refetchColumnDatapo } = useGetSelectedColumnsFunctionalQuery();
+  const { data: columnData, refetch: refetchColumnDatapo } = useGetSelectedColumnsCostCenterQuery();
 
   //API Calling sorting
   const { data: ProductData } =
@@ -390,7 +390,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     }));
     setSelectedColumns(updatedSelectedColumns);
     // Save selected columns to localStorage
-    localStorage.setItem("selectedColumnsFunctionalWise", JSON.stringify(updatedSelectedColumns));
+    localStorage.setItem("selectedColumnsCostCenter", JSON.stringify(updatedSelectedColumns));
     refetchColumnDatapo({ columns: updatedSelectedColumns });
     onClose();
     toast({
@@ -401,7 +401,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
   // Load selected columns from localStorage 
   useEffect(() => {
-    const savedColumns = localStorage.getItem("selectedColumnsFunctionalWise");
+    const savedColumns = localStorage.getItem("selectedColumnsCostCenter");
     if (savedColumns) {
       setSelectedColumns(JSON.parse(savedColumns));
     }
@@ -1101,7 +1101,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                             fontWeight="500"
                             textTransform="capitalize"
                             fontFamily="Poppins, sans-serif"
-                            latterSpacing="0"
+                            // latterSpacing="0"
                             background="#cfd8e1a6"
                             color="black"
                           >
@@ -1320,17 +1320,17 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
                               fontSize="1.4rem"
                               whiteSpace="nowrap"
                               color="#4e4e4e"
-                              fontWeight={column === "vendorName" ? "600" : "400"}
+                              fontWeight={column === "items.grnCostCenter.CostCenter_desc" ? "600" : "400"}
                               width={
                                 column === "description"
                                   ? "300px"
-                                  : column === "vendorName"
+                                  : column === "items.grnCostCenter.CostCenter_desc"
                                     ? "250px"
                                     : "auto"
                               }
                               overflow="hidden"
                               textOverflow="ellipsis"
-                              title={column === "vendorName" ? item[column] : undefined}
+                              title={column === "items.grnCostCenter.CostCenter_desc" ? item[column] : undefined}
                               textAlign={isSumColumn(column) ? "right" : "left"}
                             >
                               {item[column] || "-"}

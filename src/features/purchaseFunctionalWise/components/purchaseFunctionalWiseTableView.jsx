@@ -3,7 +3,7 @@ import CustomTable from "./purchaseFunctionalWiseCustomTable";
 import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
-import { usePoWisePurchaseQuery } from "../slice/purchaseFunctionalWiseApi";
+import { useFunctionalWisePurchaseQuery } from "../slice/purchaseFunctionalWiseApi";
 import Loader from "../../analyticloader/components/Loader";
 
 const PurchaseProductWiseTableView = () => {
@@ -40,7 +40,7 @@ const PurchaseProductWiseTableView = () => {
     isLoading,
     isFetching,
     error,
-  } = usePoWisePurchaseQuery({
+  } = useFunctionalWisePurchaseQuery({
     filters,
     page,
     size,
