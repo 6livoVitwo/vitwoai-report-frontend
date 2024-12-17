@@ -407,8 +407,8 @@ const Allreports = () => {
 									display='flex'
 								>
 									<Box
-										background={categoryPercentage > 0 ? "#e6f4ea" : "#fce8e6"}
-										color={categoryPercentage > 0 ? "#137333" : "#a50e0e"}
+										background={categoryPercentage > -1 ? "#e6f4ea" : "#fce8e6"}
+										color={categoryPercentage > -1 ? "#137333" : "#a50e0e"}
 										borderRadius="5px"
 										height="30px"
 										width="auto"
@@ -417,7 +417,7 @@ const Allreports = () => {
 										alignItems="center"
 										gap="4px"
 									>
-										{categoryPercentage > 0 ? (
+										{categoryPercentage > -1 ? (
 											<FontAwesomeIcon icon={faArrowUpLong} fontSize="15px" style={{ transform: 'scale(1.2)' }} />
 										) : (
 											<FontAwesomeIcon icon={faArrowDownLong} fontSize="15px" style={{ transform: 'scale(1.2)' }} />
@@ -431,7 +431,7 @@ const Allreports = () => {
 										mr='25px'
 										fontSize='12px'
 									>
-										{categoryPercentage > 0 ? "Increased compared to last month" : "Decreased compared to last month"}<br/>
+										{categoryPercentage > -1 ? "Increased compared to last month" : "Decreased compared to last month"}<br/>
 										<span style={{ fontWeight: "500"}}>Current month
 											<FontAwesomeIcon icon={faIndianRupeeSign} style={{ padding: "0px 5px" }}/>
 											<span style={{
