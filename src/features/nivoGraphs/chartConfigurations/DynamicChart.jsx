@@ -9,7 +9,7 @@ import FunnelChart from "../chartSettings/FunnelChart";
 const DynamicChart = ({ chart = {} }) => {
   const { type, data, startDate, endDate, inputType, dynamicWidth=600, dynamicHeight, skeleton= 'no' } = chart;
   let chartData = null;
-
+  console.log('🔵',{ chart });
   if (type === "bar") {
     chartData = <BarChart liveData={data} startDate={startDate} endDate={endDate} {...(skeleton=== 'no' && {dynamicWidth:dynamicWidth})} inputType={inputType} />;
   } else if (type === "areaBump") {

@@ -17,7 +17,7 @@ const ChartConfiguration = ({ configureChart }) => {
   const toast = useToast();
   const dispatch = useDispatch();
   const { selectedWise, reportType } = useSelector((state) => state.graphSlice);
-
+  
   // all states here
   const [wise, setWise] = useState("sales");
   const [priceOrQty, setPriceOrQty] = useState("qty");
@@ -315,6 +315,8 @@ const ChartConfiguration = ({ configureChart }) => {
       userId
     };
 
+    console.log({widgetData})
+
     const saveWidgetsToLocalStorage = (widgets) => {
       localStorage.setItem("widgets", JSON.stringify(widgets));
     }
@@ -330,7 +332,9 @@ const ChartConfiguration = ({ configureChart }) => {
         isClosable: true,
       });
     } else {
+      saveWidgetsToLocalStorage(updatedWidgets);      
       dispatch(updateWidget({ id, data: widgetData }));
+      // dispatch(getAllWidgets());
       toast({
         title: "Chart Updated Successfully",
         status: "success",
