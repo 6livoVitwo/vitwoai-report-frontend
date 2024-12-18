@@ -20,8 +20,6 @@ import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
 import { useGetexportdataPoQuery } from "../slice/purchasePoWiseApi";
 import styled from "@emotion/styled";
 import LoaderScroll from "../../analyticloader/components/LoaderScroll"
-import { size } from "lodash";
-
 
 const CssWrapper = styled.div`
   .p-component {
@@ -54,7 +52,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [columnFilters, setColumnFilters] = useState({});
   const [lastPage, setLastPage] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
-  const [sortColumn, setSortColumn] = useState("grnInvoice.grnPoNumber");
+  const [sortColumn, setSortColumn] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [initialized, setInitialized] = useState(false);
   const [tempFilterCondition, setTempFilterCondition] = useState("");
@@ -71,6 +69,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [localFiltersdate, setLocalFiltersdate] = useState(null);
   const [triggerFilter, setTriggerFilter] = useState(false);
   const [isDatesInvalid, setIsDatesInvalid] = useState(false);
+  const [isBodyScaled, setIsBodyScaled] = useState(false);
+
 
 
 
@@ -92,7 +92,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     );
 
   // api calling from global search
-  const { data: searchData, isLoading } = useGetGlobalsearchPoQuery({
+  const { data: searchData, isFetching } = useGetGlobalsearchPoQuery({
     ...filters,
     sortBy: sortColumn,
     sortDir: sortOrder,
@@ -124,8 +124,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const { onOpen: onOpenGraphAddDrawer, onClose: onCloseGraphAddDrawer, isOpen: isOpenGraphAddDrawer } = useDisclosure();
 
   const handleGraphAddDrawer = () => {
+    setIsBodyScaled(true);
     onOpenGraphAddDrawer();
     dispatch(handleGraphWise({ selectedWise: "purchase-po-wise", reportType: 'purchase' }));
+  };
+
+  const handleDrawerClose = () => {
+    setIsBodyScaled(false);
+    onCloseGraphAddDrawer();
   };
 
   const getColumnStyle = (header) => ({
@@ -373,8 +379,15 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   const handleModalClose = () => {
     setTempSelectedColumns(selectedColumns);
+    setIsBodyScaled(false);
     onClose();
   };
+
+  const handleOpenColumnModal = () => {
+    setIsBodyScaled(true);
+    onOpen();
+  };
+
 
   const handleApplyChanges = () => {
     const updatedSelectedColumns = Array.from(
@@ -427,7 +440,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     };
   }, [debouncedSearchQuery]);
   useEffect(() => {
-    if (isLoading) {
+    if (isFetching) {
       toast({
         title: "Loading...",
         description: "Fetching data, please wait.",
@@ -447,7 +460,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     } else {
       toast.closeAll();
     }
-  }, [isLoading, toast]);
+  }, [isFetching, toast]);
 
   const handleSearchChange = (e) => {
     setInputValue(e.target.value);
@@ -706,15 +719,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   return (
-    <Box bg="white" padding="0px 10px" borderRadius="5px">
+    <Box bg="white">
       <Box
         display="flex"
-        borderRadius="5px"
         alignItems="center"
         justifyContent="space-between"
-        padding="10px"
+        gap="10px"
+        padding="10px 20px"
         marginBottom="10px"
-        boxShadow="1px 2px 15px 2px #00000012"
         position="relative"
         zIndex="999"
         sx={{
@@ -738,6 +750,16 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           justifyContent="flex-end"
           gap="10px"
           alignItems="center"
+          sx={{
+            "& .react-datepicker-wrapper input": {
+              bg: "#dedede",
+              padding: "5px 10px",
+              fontSize: "12px",
+              width: "100px",
+              borderRadius: "5px",
+              outline: "none",
+            },
+          }}
         >
           <Box display="flex" alignItems="center" w="175px" position="relative">
             <Input
@@ -890,7 +912,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             p="5px 10px"
             borderRadius="7px">
             <Button
-              onClick={onOpen}
+              onClick={handleOpenColumnModal}
               fontSize="0.9rem"
               height="30px"
               color="mainBlue"
@@ -1065,7 +1087,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       </Box>
       <TableContainer
         ref={tableContainerRef}
-        className="table-tableContainerRef"
+        className={`table-tableContainerRef ${isBodyScaled ? 'table-tableContainerRef-scaled' : ''}`}
         margin="0 auto"
         overflowY="auto"
         height="calc(100vh - 151px)"
@@ -1365,7 +1387,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       {/* main drawer body */}
       <MainBodyDrawer
         isOpenGraphAddDrawer={isOpenGraphAddDrawer}
-        onCloseGraphAddDrawer={onCloseGraphAddDrawer}
+        onCloseGraphAddDrawer={handleDrawerClose}
       />
 
       <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered>

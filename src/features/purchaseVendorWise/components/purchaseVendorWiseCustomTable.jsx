@@ -20,7 +20,7 @@ import { useGetSelectedColumnsVendorQuery } from "../slice/purchaseVendorWiseApi
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
 import { useGetexportdataVendorQuery } from "../slice/purchaseVendorWiseApi";
 import LoaderScroll from "../../analyticloader/components/LoaderScroll"
-import { size } from "lodash";
+
 const CssWrapper = styled.div`
   .p-component {
     font-size: 1.2rem;
@@ -60,6 +60,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [tempSelectedColumns, setTempSelectedColumns] = useState([]);
   const [tableData, setTableData] = useState([]);
   const [dates, setDates] = useState(null);
+  const [isBodyScaled, setIsBodyScaled] = useState(false);
   const [triggerFilter, setTriggerFilter] = useState(false);
   const [triggerSort, setTriggerSort] = useState(false);
   const [initialized, setInitialized] = useState(false);
@@ -85,7 +86,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   );
 
   // api calling from global search
-  const { data: searchData, isLoading } = useGetGlobalsearchVendorQuery({
+  const { data: searchData, isLoading, isFetching } = useGetGlobalsearchVendorQuery({
     ...filters,
     sortBy: sortColumn,
     sortDir: sortOrder,
@@ -248,7 +249,13 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   const handleModalClose = () => {
     setTempSelectedColumns(selectedColumns);
+    setIsBodyScaled(false);
     onClose();
+  };
+
+  const handleOpenColumnModal = () => {
+    setIsBodyScaled(true);
+    onOpen();
   };
 
   const handleApplyChanges = () => {
@@ -303,7 +310,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   }, [debouncedSearchQuery]);
 
   useEffect(() => {
-    if (isLoading) {
+    if (isFetching) {
       toast({
         title: "Loading...",
         description: "Fetching data, please wait.",
@@ -314,7 +321,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
         render: () => (
           <div style={{ display: "flex", alignItems: "center", padding: "10px" }}>
             <Spinner size="sm" color="blue.500" mr="10px" />
-            {/* <Loader width={100} height={100} objectFit="contain" /> */}
             <span>Loading...</span>
           </div>
         ),
@@ -322,7 +328,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     } else {
       toast.closeAll();
     }
-  }, [isLoading, toast]);
+  }, [isFetching, toast]);
 
   const handleSearchChange = (e) => {
     setInputValue(e.target.value);
@@ -700,8 +706,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   const handleGraphAddDrawer = () => {
+    setIsBodyScaled(true);
     onOpenGraphAddDrawer();
     dispatch(handleGraphWise({ selectedWise: "purchase-vendor-wise", reportType: 'purchase' }));
+  };
+
+  const handleDrawerClose = () => {
+    setIsBodyScaled(false);
+    onCloseGraphAddDrawer();
   };
 
   return (
@@ -896,7 +908,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             p="5px 10px"
             borderRadius="7px">
             <Button
-              onClick={onOpen}
+              onClick={handleOpenColumnModal}
               fontSize="0.9rem"
               height="30px"
               color="mainBlue"
@@ -1074,7 +1086,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
       <TableContainer
         ref={tableContainerRef}
-        className="table-tableContainerRef"
+        className={`table-tableContainerRef ${isBodyScaled ? 'table-tableContainerRef-scaled' : ''}`}
         overflowY="auto"
         margin="0 auto"
         height="calc(100vh - 151px)"
@@ -1371,7 +1383,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       {/* main drawer body */}
       <MainBodyDrawer
         isOpenGraphAddDrawer={isOpenGraphAddDrawer}
-        onCloseGraphAddDrawer={onCloseGraphAddDrawer}
+        onCloseGraphAddDrawer={handleDrawerClose}
       />
 
       <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered>

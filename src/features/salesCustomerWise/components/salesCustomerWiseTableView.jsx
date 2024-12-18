@@ -149,7 +149,7 @@ const SalesCustomerWiseTableView = () => {
           </Box>
         ),
       });
-      setToastShown(true); // Mark the toast as shown
+      setToastShown(true);
     }
   }, [sales, page, toast, toastShown]);
   if (isLoading) {
@@ -180,7 +180,9 @@ const SalesCustomerWiseTableView = () => {
   }
 
   return (
-    <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
+    <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="hidden"
+      className="table-tableContainerRefSacled"
+    >
       {individualItems.length > 0 && (
         <CustomTable
           newArray={individualItems}

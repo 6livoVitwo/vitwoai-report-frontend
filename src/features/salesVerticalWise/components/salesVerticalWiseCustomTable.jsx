@@ -80,7 +80,7 @@ import { useGetGlobalsearchVerticalQuery } from "../slice/salesVerticalWiseApi";
 import { useVerticalWiseSalesQuery } from "../slice/salesVerticalWiseApi";
 import { useGetexportdataSalesVerticalQuery } from "../slice/salesVerticalWiseApi"
 import styled from "@emotion/styled";
-import { size } from "lodash";
+
 const CssWrapper = styled.div`
   .p-component {
     font-size: 1.2rem;
@@ -135,6 +135,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [triggerApiCall, setTriggerApiCall] = useState(false);
   const [selectdate, setSelectdate] = useState([]);
   const [isDatesInvalid, setIsDatesInvalid] = useState(false);
+  const [isBodyScaled, setIsBodyScaled] = useState(false);
   const btnRef = React.useRef();
   const isSumColumn = (column) => column.startsWith("SUM(");
 
@@ -158,7 +159,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
 
   //.........Api call to get global search.......
-  const { data: searchData } = useGetGlobalsearchVerticalQuery({
+  const { data: searchData, isFetching } = useGetGlobalsearchVerticalQuery({
     ...filters,
     sortBy: sortColumn,
     sortDir: sortOrder,
@@ -318,7 +319,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   const handleModalClose = () => {
     setTempSelectedColumns(selectedColumns);
+    setIsBodyScaled(false);
     onClose();
+  };
+  const handleOpenColumnModal = () => {
+    setIsBodyScaled(true);
+    onOpen();
   };
 
   const handleApplyChanges = () => {
@@ -370,6 +376,27 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       debouncedSearchQuery.cancel();
     };
   }, [debouncedSearchQuery]);
+  useEffect(() => {
+    if (isFetching) {
+      toast({
+        title: "Loading...",
+        description: "Fetching data, please wait.",
+        status: "info",
+        duration: null,
+        isClosable: true,
+        position: "top",
+        render: () => (
+          <div style={{ display: "flex", alignItems: "center", padding: "10px" }}>
+            <Spinner size="sm" color="blue.500" mr="10px" />
+
+            <span>Loading...</span>
+          </div>
+        ),
+      });
+    } else {
+      toast.closeAll();
+    }
+  }, [isFetching, toast]);
 
   const handleSearchChange = (e) => {
     setInputValue(e.target.value);
@@ -387,7 +414,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           value: inputValue,
         })),
       ],
-      size:50,
+      size: 50,
     };
     setFilters(updatedFilters);
     setSearchQuery(inputValue);
@@ -570,6 +597,31 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       });
     }
   }, [advancedFilterVertical, toast]);
+
+  useEffect(() => {
+    if (searchData?.content && searchData.content.length === 0) {
+      toast({
+        title: " No Results Found ",
+        description: "You search did not match any data.",
+        status: "warning",
+        isClosable: true,
+        duration: 4000,
+        render: () => (
+          <Box
+            p={3}
+            mb={9}
+            bg="rgba(255, 195, 0, 0.2)"
+            backdropFilter="blur(4px)"
+            borderRadius="md"
+            style={{ width: "400px", height: "70px" }}
+          >
+            <Box fontWeight="bold" ml={5}>No Results Found</Box>
+            <Box ml={5}>You search did not match any data.</Box>
+          </Box>
+        ),
+      });
+    }
+  }, [searchData, toast]);
 
   const removeProperty = (object) => {
     if (!object) {
@@ -781,10 +833,10 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   const handleGraphAddDrawer = () => {
+    setIsBodyScaled(true);
     onOpenGraphSettingDrawer();
     dispatch(handleGraphWise({ selectedWise: "sales-customer-wise", reportType: 'sales' }));
   };
-
 
   return (
     <Box bg="white" padding="0px 10px" borderRadius="5px">
@@ -993,7 +1045,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             borderRadius="7px"
           >
             <Button
-              onClick={onOpen}
+              onClick={handleOpenColumnModal}
               fontSize="0.9rem"
               height="30px"
               color="mainBlue"
@@ -1172,7 +1224,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
       <TableContainer
         ref={tableContainerRef}
-        className="table-tableContainerRef"
+        className={`table-tableContainerRef ${isBodyScaled ? 'table-tableContainerRef-scaled' : ''}`}
         margin="0 auto"
         overflowY="auto"
         height="calc(100vh - 151px)"

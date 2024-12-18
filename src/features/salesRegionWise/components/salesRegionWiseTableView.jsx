@@ -142,8 +142,6 @@ const SalesRegionWiseTableView = () => {
       </Box>
     );
   }
-
-  const mainData = sales?.content;
   return (
     <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
       {individualItems.length > 0 && (

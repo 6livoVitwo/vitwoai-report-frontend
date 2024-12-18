@@ -68,6 +68,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [triggerApiCall, setTriggerApiCall] = useState(false);
   const [selectdate, setSelectdate] = useState([]);
   const [isDatesInvalid, setIsDatesInvalid] = useState(false);
+  const [isBodyScaled, setIsBodyScaled] = useState(false);
+
 
   const isSumColumn = (column) => column.startsWith("SUM(");
 
@@ -97,7 +99,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const { data: ColumnsData, refetch: refetchColumnData } = useGetSelectedColumnsSoQuery();
 
   //.........Api call to get global search.......
-  const { data: searchData, isLoading } = useGetGlobalsearchQuery({
+  const { data: searchData, isFetching } = useGetGlobalsearchQuery({
     ...filters,
     sortBy: sortColumn,
     sortDir: sortOrder,
@@ -161,7 +163,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setLoading(true);
       await new Promise((resolve) => setTimeout(resolve, 2000));
       // Fetch or generate new data
-      const moreData = [...newArray]; // Assuming newArray contains new data
+      const moreData = [...newArray];
       setData((prevData) => {
         const uniqueData = [...new Set([...prevData, ...moreData])];
         return uniqueData;
@@ -170,7 +172,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     if (!initialized && data.length > 0) {
       const initialColumns = getColumns(data)
@@ -232,7 +233,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   const handleModalClose = () => {
     setSelectedColumns(defaultColumns);
+    setIsBodyScaled(false);
     onClose();
+  };
+  const handleOpenColumnModal = () => {
+    setIsBodyScaled(true);
+    onOpen();
   };
 
   const handleApplyChanges = () => {
@@ -285,7 +291,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     };
   }, [debouncedSearchQuery]);
   useEffect(() => {
-    if (isLoading) {
+    if (isFetching) {
       toast({
         title: "Loading...",
         description: "Fetching data, please wait.",
@@ -304,7 +310,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     } else {
       toast.closeAll();
     }
-  }, [isLoading, toast]);
+  }, [isFetching, toast]);
 
   const handleSearchChange = (e) => {
     setInputValue(e.target.value);
@@ -322,7 +328,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           value: inputValue,
         })),
       ],
-      size:50,
+      size: 50,
     };
     setFilters(updatedFilters);
     setSearchQuery(inputValue);
@@ -479,6 +485,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     SoWiseFilter,
     SoWise,
   ]);
+  //toast message for no data filter
   useEffect(() => {
     if (SoWiseFilter?.content && SoWiseFilter.content.length === 0) {
       toast({
@@ -502,6 +509,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     }
   }, [SoWiseFilter, toast]);
 
+  //toast message for no data search
   useEffect(() => {
     if (searchData?.content && searchData.content.length === 0) {
       toast({
@@ -686,10 +694,14 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   const handleGraphViewDrawer = () => {
+    setIsBodyScaled(true);
     onOpenGraphAddDrawer();
     dispatch(handleGraphWise({ selectedWise: "sales-so-wise", reportType: 'sales' }));
   }
-
+  const handleDrawerClose = () => {
+    setIsBodyScaled(false);
+    onCloseGraphAddDrawer();
+  };
   return (
     <Box bg="white" padding="0px 10px" borderRadius="5px">
       <Box
@@ -882,7 +894,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             p="5px 10px"
             borderRadius="7px">
             <Button
-              onClick={onOpen}
+              onClick={handleOpenColumnModal}
               fontSize="0.9rem"
               height="30px"
               color="mainBlue"
@@ -1060,7 +1072,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
       <TableContainer
         ref={tableContainerRef}
-        className="table-tableContainerRef"
+        className={`table-tableContainerRef ${isBodyScaled ? 'table-tableContainerRef-scaled' : ''}`}
         margin="0 auto"
         overflowY="auto"
         height="calc(100vh - 151px)"
@@ -1360,7 +1372,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       {/* Main Drawer  */}
       <MainBodyDrawer
         isOpenGraphAddDrawer={isOpenGraphAddDrawer}
-        onCloseGraphAddDrawer={onCloseGraphAddDrawer}
+        onCloseGraphAddDrawer={handleDrawerClose}
       />
 
       {/* sales graph view details */}

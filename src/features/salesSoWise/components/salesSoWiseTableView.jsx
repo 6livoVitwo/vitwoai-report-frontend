@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import CustomTable from "./salesSoWiseCustomTable";
-import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
+import { Box,Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useSoWiseSalesQuery } from "../slice/salesSoWiseApi";
@@ -182,12 +182,9 @@ const SalesSoWiseTableView = () => {
       </Box>
     );
   }
-  // const newArray = individualItems.map((data, index) =>
-  //   extractFields(data, index)
-  // );
-
   return (
-    <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
+    <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="hidden"
+      className="table-tableContainerRefSacled">
       {individualItems.length > 0 && (
         <CustomTable
           newArray={individualItems}

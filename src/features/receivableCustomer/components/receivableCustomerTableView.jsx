@@ -134,14 +134,12 @@ const ReceivableCustomerTableView = () => {
             </MenuButton>
             <MenuList p={2}>
               <Input placeholder="As on Date" type="date" value={asOnDate} onChange={(e) => setAsOnDate(e.target.value)} />
-              <MenuItem
-                mt={4}
-                onClick={handleAsOnDateButton}
-                disabled={loading}
-                isLoading={loading}
-                loadingText="Creating Buckets..."
-              >
+              <MenuItem mt={4}>
                 <Button
+                  onClick={handleAsOnDateButton}
+                  isLoading={loading}
+                  loadingText="Creating Buckets..."
+                  disabled={loading}
                   colorScheme="green"
                   width={"100%"}
                 >
@@ -185,14 +183,12 @@ const ReceivableCustomerTableView = () => {
                     setBucket(value > 10 ? 10 : value || 0);
                   }}
                 />
-                <MenuItem
-                  mt={4}
-                  onClick={handleBucketCreateButton}
-                  disabled={loading}
-                  isLoading={loading}
-                  loadingText="Creating Buckets..."
-                >
+                <MenuItem mt={4}>
                   <Button
+                    onClick={handleBucketCreateButton}
+                    isLoading={loading}
+                    loadingText="Creating Buckets..."
+                    disabled={loading}
                     colorScheme="green"
                     width={"100%"}
                   >
@@ -233,7 +229,7 @@ const ReceivableCustomerTableView = () => {
             <Thead
               sx={{
                 position: "sticky",
-                top:0,
+                top: 0,
                 zIndex: 1,
                 backgroundColor: "#b9b8b8"
               }}

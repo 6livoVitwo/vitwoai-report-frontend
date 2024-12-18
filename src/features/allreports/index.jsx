@@ -14,9 +14,9 @@ import salesVerticalWise from '../../asset/imgs/sales-vertical-wise.json';
 import salesSoWise from '../../asset/imgs/sales-so-wise.json';
 import salesKamWise from '../../asset/imgs/sales-kam-wise.json';
 import salesRegionWise from '../../asset/imgs/sales-region-wise.json';
-import { faArrowUpLong, faArrowDownLong,faIndianRupeeSign} from "@fortawesome/free-solid-svg-icons";
+import { faArrowUpLong, faArrowDownLong, faIndianRupeeSign } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useGetAllReportsProductQuery} from "../allreports/slice/allreportsAPi";
+import { useGetAllReportsProductQuery } from "../allreports/slice/allreportsAPi";
 import { useGetAllReportsVendorQuery } from "../allreports/slice/allreportsAPi";
 import { useGetAllReportsSalesProductQuery } from "../allreports/slice/allreportsAPi";
 import { useGetAllReportsSalesCustomerQuery } from "../allreports/slice/allreportsAPi";
@@ -431,9 +431,9 @@ const Allreports = () => {
 										mr='25px'
 										fontSize='12px'
 									>
-										{categoryPercentage > -1 ? "Increased compared to last month" : "Decreased compared to last month"}<br/>
-										<span style={{ fontWeight: "500"}}>Current month
-											<FontAwesomeIcon icon={faIndianRupeeSign} style={{ padding: "0px 5px" }}/>
+										{categoryPercentage > -1 ? "Increased compared to last month" : "Decreased compared to last month"}<br />
+										<span style={{ fontWeight: "500" }}>Current month
+											<FontAwesomeIcon icon={faIndianRupeeSign} style={{ padding: "0px 5px" }} />
 											<span style={{
 												fontWeight: "700"
 											}}>{categoryCurrentMonth}</span></span>

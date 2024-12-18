@@ -162,7 +162,12 @@ const PurchaseVendorWiseTableView = () => {
     );
   }
   return (
-    <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
+    <Box
+      ref={tableContainerRef}
+      height="calc(100vh - 75px)"
+      overflowY="hidden"
+      className="table-tableContainerRefSacled"
+    >
       {individualItems.length > 0 && (
         <CustomTable
           newArray={individualItems}

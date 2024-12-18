@@ -22,7 +22,6 @@ import { useDispatch } from "react-redux";
 import { useGetGlobalsearchStateQuery } from "../slice/salesRegionWiseApi";
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
 import styled from "@emotion/styled";
-import { size } from "lodash";
 const CssWrapper = styled.div`
   .p-component {
     font-size: 1.2rem;
@@ -135,7 +134,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
 
   //global search....
-  const { data: GlobalSearch, isLoading } = useGetGlobalsearchStateQuery(filters, { skip: skipGlobalSearch })
+  const { data: GlobalSearch, isFetching } = useGetGlobalsearchStateQuery(filters, { skip: skipGlobalSearch })
 
   //..........Api calling for dropdown for district-wise ............
   const { data: DistrictWiseData } = useGetselectedDistWiseQuery(filters, { skip: skipDistrict });
@@ -401,7 +400,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     };
   }, [debouncedSearchQuery]);
   useEffect(() => {
-    if (isLoading) {
+    if (isFetching) {
       toast({
         title: "Loading...",
         description: "Fetching data, please wait.",
@@ -420,7 +419,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     } else {
       toast.closeAll();
     }
-  }, [isLoading, toast]);
+  }, [isFetching, toast]);
 
   const handleSearchChange = (e) => {
     setInputValue(e.target.value);
@@ -438,7 +437,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           value: inputValue,
         })),
       ],
-      size:100,
+      size: 100,
     };
     setFilters(updatedFilters);
     setSearchQuery(inputValue);
@@ -632,6 +631,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     tempFilterCondition,
   ]);
 
+
   const formatHeader = (column) => {
     const dataSources = [StateWiseData, DistrictWiseData, CityWiseData, CountryWiseData, PincodeWiseData];
 
@@ -806,7 +806,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             color="mainBlue"
             textTransform="capitalize"
           >
-            Sales Region 
+            Sales Region
           </Heading>
         </Box>
         <Box

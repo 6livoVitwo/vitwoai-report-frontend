@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import CustomTable from "./salesVerticalWiseCustomTable";
-import { Box, Spinner, Image, useToast } from "@chakra-ui/react";
+import { Box,Image, useToast } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import NoDataFound from "../../../asset/images/nodatafound.png";
 import { useVerticalWiseSalesQuery } from "../slice/salesVerticalWiseApi";
@@ -168,9 +168,10 @@ const SalesVerticalWiseTableView = () => {
       </Box>
     );
   }
-  const mainData = sales?.content;
   return (
-    <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="auto">
+    <Box ref={tableContainerRef} height="calc(100vh - 75px)" overflowY="hidden"
+      className="table-tableContainerRefSacled"
+    >
       {individualItems.length > 0 && (
         <CustomTable
           newArray={individualItems}

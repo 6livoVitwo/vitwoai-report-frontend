@@ -20,7 +20,6 @@ import { useDispatch } from "react-redux";
 import { useGetexportdataSalesProductQuery } from "../slice/salesProductWiseApi"
 import styled from "@emotion/styled";
 import LoaderScroll from "../../analyticloader/components/LoaderScroll"
-import { size } from "lodash";
 
 const CssWrapper = styled.div`
   .p-component {
@@ -71,6 +70,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [selectdate, setSelectdate] = useState([]);
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [isDatesInvalid, setIsDatesInvalid] = useState(false);
+  const [isBodyScaled, setIsBodyScaled] = useState(false);
+
 
   const handlePopoverClick = (column) => {
     setActiveFilterColumn(column);
@@ -94,7 +95,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     useGetSelectedColumnsproductQuery();
 
   //.........Api call to get global search.......
-  const { data: searchData, isLoading } = useGetGlobalsearchProductQuery({
+  const { data: searchData, isFetching } = useGetGlobalsearchProductQuery({
     ...filters,
     sortBy: sortColumn,
     sortDir: sortOrder,
@@ -257,7 +258,12 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
   const handleModalClose = () => {
     setTempSelectedColumns(selectedColumns);
+    setIsBodyScaled(false);
     onClose();
+  };
+  const handleOpenColumnModal = () => {
+    setIsBodyScaled(true);
+    onOpen();
   };
 
   const handleApplyChanges = () => {
@@ -311,7 +317,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   }, [debouncedSearchQuery]);
 
   useEffect(() => {
-    if (isLoading) {
+    if (isFetching) {
       toast({
         title: "Loading...",
         description: "Fetching data, please wait.",
@@ -329,7 +335,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     } else {
       toast.closeAll();
     }
-  }, [isLoading, toast]);
+  }, [isFetching, toast]);
 
   const handleSearchChange = (e) => {
     setInputValue(e.target.value);
@@ -347,7 +353,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           value: inputValue,
         })),
       ],
-      size:20,
+      size: 20,
     };
     setFilters(updatedFilters);
     setSearchQuery(inputValue);
@@ -712,9 +718,15 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   const handleGraphViewDrawer = () => {
+    setIsBodyScaled(true);
     onOpenGraphAddDrawer();
     dispatch(handleGraphWise({ selectedWise: "sales-product-wise", reportType: 'sales' }));
   }
+
+  const handleDrawerClose = () => {
+    setIsBodyScaled(false);
+    onCloseGraphAddDrawer();
+  };
 
   return (
     <Box bg="white">
@@ -908,7 +920,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             p="5px 10px"
             borderRadius="7px">
             <Button
-              onClick={onOpen}
+              onClick={handleOpenColumnModal}
               fontSize="0.9rem"
               height="30px"
               color="mainBlue"
@@ -1085,7 +1097,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
       <TableContainer
         ref={tableContainerRef}
-        className="table-tableContainerRef"
+        className={`table-tableContainerRef ${isBodyScaled ? 'table-tableContainerRef-scaled' : ''}`}
         margin="0 auto"
         overflowY="auto"
         height="calc(100vh - 151px)"
@@ -1386,7 +1398,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       {/* Main body drawer */}
       <MainBodyDrawer
         isOpenGraphAddDrawer={isOpenGraphAddDrawer}
-        onCloseGraphAddDrawer={onCloseGraphAddDrawer}
+        onCloseGraphAddDrawer={handleDrawerClose}
       />
 
       <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered>

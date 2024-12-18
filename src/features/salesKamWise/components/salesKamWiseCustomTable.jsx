@@ -19,7 +19,6 @@ import { handleGraphWise } from "../../nivoGraphs/chartConfigurations/graphSlice
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
 import { useGetexportdataSalesKamQuery } from '../slice/salesKamWiseApi'
 import styled from "@emotion/styled";
-import { size } from "lodash";
 const CssWrapper = styled.div`
   .p-component {
     font-size: 1.2rem;
@@ -66,6 +65,8 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const [triggerApiCall, setTriggerApiCall] = useState(false);
   const [selectdate, setSelectdate] = useState([]);
   const [isDatesInvalid, setIsDatesInvalid] = useState(false);
+  const [isBodyScaled, setIsBodyScaled] = useState(false);
+
 
   const isSumColumn = (column) => column.startsWith("SUM(");
 
@@ -81,7 +82,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   const { data: columnDatakam, refetch: refetchColumnDatakam } = useGetSelectedColumnsKamQuery();
 
   //..........Api calling for search............
-  const { data: searchData, isLoading } = useGetGlobalsearchKamQuery({
+  const { data: searchData, isFetching } = useGetGlobalsearchKamQuery({
     ...filters,
     sortBy: sortColumn,
     sortDir: sortOrder,
@@ -228,8 +229,15 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
   const handleModalClose = () => {
     setTempSelectedColumns(selectedColumns);
+    setIsBodyScaled(false);
     onClose();
   };
+
+  const handleOpenColumnModal = () => {
+    setIsBodyScaled(true);
+    onOpen();
+  };
+
   const handleApplyChanges = () => {
     const updatedSelectedColumns = Array.from(
       new Set(
@@ -285,7 +293,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     };
   }, [debouncedSearchQuery]);
   useEffect(() => {
-    if (isLoading) {
+    if (isFetching) {
       toast({
         title: "Loading...",
         description: "Fetching data, please wait.",
@@ -304,7 +312,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     } else {
       toast.closeAll();
     }
-  }, [isLoading, toast]);
+  }, [isFetching, toast]);
 
   const handleSearchChange = (e) => {
     setInputValue(e.target.value);
@@ -322,7 +330,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
           value: inputValue,
         })),
       ],
-      size:20,
+      size: 20,
     };
     setFilters(updatedFilters);
     setSearchQuery(inputValue);
@@ -686,9 +694,15 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   };
 
   const handleGraphViewDrawer = () => {
+    setIsBodyScaled(true);
     onOpenGraphAddDrawer();
     dispatch(handleGraphWise({ selectedWise: "sales-kam-wise", reportType: 'sales' }));
   }
+
+  const handleDrawerClose = () => {
+    setIsBodyScaled(false);
+    onCloseGraphAddDrawer();
+  };
 
   return (
     <Box bg="white" padding="0px 10px" borderRadius="5px">
@@ -882,7 +896,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
             p="5px 10px"
             borderRadius="7px">
             <Button
-              onClick={onOpen}
+              onClick={handleOpenColumnModal}
               fontSize="0.9rem"
               height="30px"
               color="mainBlue"
@@ -1059,7 +1073,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       </Box>
       <TableContainer
         ref={tableContainerRef}
-        className="table-tableContainerRef"
+        className={`table-tableContainerRef ${isBodyScaled ? 'table-tableContainerRef-scaled' : ''}`}
         margin="0 auto"
         overflowY="auto"
         height="calc(100vh - 179px)"
@@ -1355,7 +1369,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
       {/* Main Drawer  */}
       <MainBodyDrawer
         isOpenGraphAddDrawer={isOpenGraphAddDrawer}
-        onCloseGraphAddDrawer={onCloseGraphAddDrawer}
+        onCloseGraphAddDrawer={handleDrawerClose}
       />
 
       <Modal isOpen={isOpen} onClose={handleModalClose} size="xl" isCentered>

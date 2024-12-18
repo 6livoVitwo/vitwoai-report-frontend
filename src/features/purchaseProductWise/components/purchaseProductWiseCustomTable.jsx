@@ -20,7 +20,6 @@ import { useGetGlobalsearchPurchaseQuery } from "../slice/purchaseProductWiseApi
 import { useGetexportdataQuery } from "../slice/purchaseProductWiseApi";
 import MainBodyDrawer from "../../nivoGraphs/drawer/MainBodyDrawer";
 import LoaderScroll from "../../analyticloader/components/LoaderScroll"
-import { size } from "lodash";
 
 
 const CssWrapper = styled.div`
@@ -96,7 +95,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     useGetSelectedColumnsPurchaseQuery();
 
   // api calling from global search
-  const { data: searchData, isLoading } = useGetGlobalsearchPurchaseQuery(
+  const { data: searchData, isFetching } = useGetGlobalsearchPurchaseQuery(
     {
       ...filters,
       sortBy: sortColumn,
@@ -401,7 +400,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
   }, [debouncedSearchQuery]);
 
   useEffect(() => {
-    if (isLoading) {
+    if (isFetching) {
       toast({
         title: "Loading...",
         description: "Fetching data, please wait.",
@@ -419,8 +418,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     } else {
       toast.closeAll();
     }
-  }, [isLoading, toast]);
-  console.log("isloading", isLoading);
+  }, [isFetching, toast]);
 
   const handleSearchChange = (e) => {
     setInputValue(e.target.value);
@@ -749,6 +747,7 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
     setIsBodyScaled(true);
     onOpen();
   };
+
 
 
   const handleGraphAddDrawer = () => {
@@ -1189,7 +1188,6 @@ const CustomTable = ({ setPage, newArray, alignment, filters, setFilters }) => {
 
       <TableContainer
         ref={tableContainerRef}
-        className={`table-tableContainerRef ${isBodyScaled ? 'table-tableContainerRef-scaled' : ''}`}
         overflowY="auto"
         margin="0 auto"
         height="calc(100vh - 151px)"
